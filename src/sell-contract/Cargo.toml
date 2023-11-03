@@ -1,0 +1,20 @@
+[package]
+name = "sell-contract"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = { workspace = true }
+chrono = { workspace = true }
+did = { path = "../did" }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-stable-structures = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
