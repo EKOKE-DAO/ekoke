@@ -154,10 +154,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
 
@@ -191,10 +191,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
         assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
@@ -213,10 +213,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
 
@@ -250,10 +250,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
         assert!(Storage::insert_contract(contract, vec![token_1, token_2]).is_err());
@@ -285,10 +285,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
         assert!(Storage::insert_contract(contract, vec![token_1, token_2]).is_err());
@@ -320,10 +320,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
         assert!(
@@ -366,10 +366,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
 
@@ -400,10 +400,10 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
 

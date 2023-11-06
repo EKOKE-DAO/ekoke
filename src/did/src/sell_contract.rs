@@ -58,8 +58,10 @@ pub struct Contract {
     pub expiration: String,
     /// Tokens associated to the contract, by id
     pub tokens: Vec<ID>,
-    /// $FLY reward for buying a Token
-    pub fly_reward: u64,
+    /// $mFLY (milli-fly) reward for buying a Token
+    pub mfly_reward: u64,
+    /// Fiat value of the contract
+    pub value: u64,
     /// Data associated to the building
     pub building: BuildingData,
 }
@@ -85,7 +87,7 @@ pub struct Token {
     pub contract_id: ID,
     /// Token owner
     pub owner: Principal,
-    /// Value of the single token ($ICP)
+    /// Value of the single token (FIAT)
     pub value: u64,
     /// Token locked status
     pub locked: bool,
@@ -111,8 +113,6 @@ impl Storable for Token {
 pub struct BuildingData {
     /// The city the building is located at
     pub city: String,
-    /// FIAT currency value of the building
-    pub fiat_value: u64,
 }
 
 impl Storable for BuildingData {
@@ -162,13 +162,11 @@ mod test {
     fn test_should_encode_building_data() {
         let building_data = BuildingData {
             city: "Rome".to_string(),
-            fiat_value: 250_000,
         };
         let data = Encode!(&building_data).unwrap();
         let decoded_building_data = Decode!(&data, BuildingData).unwrap();
 
         assert_eq!(building_data.city, decoded_building_data.city);
-        assert_eq!(building_data.fiat_value, decoded_building_data.fiat_value);
     }
 
     #[test]
@@ -188,10 +186,10 @@ mod test {
             ],
             expiration: "2021-12-31".to_string(),
             tokens: vec![ID::random(), ID::random()],
-            fly_reward: 10,
+            mfly_reward: 4_000,
+            value: 250_000,
             building: BuildingData {
                 city: "Rome".to_string(),
-                fiat_value: 250_000,
             },
         };
         let data = Encode!(&contract).unwrap();
@@ -202,11 +200,8 @@ mod test {
         assert_eq!(contract.buyers, decoded_contract.buyers);
         assert_eq!(contract.expiration, decoded_contract.expiration);
         assert_eq!(contract.tokens, decoded_contract.tokens);
-        assert_eq!(contract.fly_reward, decoded_contract.fly_reward);
+        assert_eq!(contract.mfly_reward, decoded_contract.mfly_reward);
         assert_eq!(contract.building.city, decoded_contract.building.city);
-        assert_eq!(
-            contract.building.fiat_value,
-            decoded_contract.building.fiat_value
-        );
+        assert_eq!(contract.value, decoded_contract.value);
     }
 }
