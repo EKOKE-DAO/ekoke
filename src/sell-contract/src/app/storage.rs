@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use did::sell_contract::{Contract, SellContractError, SellContractResult, Token};
+use did::sell_contract::{Contract, MintError, SellContractError, SellContractResult, Token};
 use did::ID;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
@@ -31,19 +31,49 @@ impl Storage {
     pub fn insert_contract(contract: Contract, tokens: Vec<Token>) -> SellContractResult<()> {
         // check contract existance
         if Self::get_contract(&contract.id).is_some() {
-            return Err(SellContractError::ContractAlreadyExists(contract.id));
+            return Err(SellContractError::Mint(MintError::ContractAlreadyExists(
+                contract.id,
+            )));
+        }
+
+        // check if tokens is empty
+        if tokens.is_empty() || contract.tokens.is_empty() {
+            return Err(SellContractError::Mint(MintError::ContractHasNoTokens));
+        }
+
+        // check if token mismatch
+        if contract.tokens.len() != tokens.len() {
+            return Err(SellContractError::Mint(MintError::TokensMismatch));
+        }
+        let mut contract_tokens: Vec<&ID> = tokens.iter().map(|t| &t.id).collect();
+        let mut tokens_ids: Vec<&ID> = contract.tokens.iter().collect();
+        contract_tokens.sort();
+        tokens_ids.sort();
+        if contract_tokens != tokens_ids {
+            return Err(SellContractError::Mint(MintError::TokensMismatch));
         }
 
         TOKENS.with_borrow_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
                 if tokens_storage.contains_key(&token.id) {
-                    return Err(SellContractError::TokenAlreadyExists(token.id));
+                    return Err(SellContractError::Mint(MintError::TokenAlreadyExists(
+                        token.id,
+                    )));
                 }
                 // check if token is associated to the contract
                 if token.contract_id != contract.id {
-                    return Err(SellContractError::TokenDoesNotBelongToContract(token.id));
+                    return Err(SellContractError::Mint(
+                        MintError::TokenDoesNotBelongToContract(token.id),
+                    ));
                 }
+                // check if token owner is the seller
+                if token.owner != contract.seller {
+                    return Err(SellContractError::Mint(MintError::BadMintTokenOwner(
+                        token.id,
+                    )));
+                }
+
                 tokens_storage.insert(token.id.clone(), token);
             }
 
@@ -81,7 +111,9 @@ impl Storage {
                 tokens.insert(token_id.clone(), token);
                 Ok(())
             } else {
-                Err(SellContractError::TokenNotFound(token_id.clone()))
+                Err(SellContractError::Mint(MintError::TokenNotFound(
+                    token_id.clone(),
+                )))
             }
         })
     }
@@ -98,24 +130,27 @@ mod test {
 
     #[test]
     fn test_should_insert_and_get_contract() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
             id: ID::random(),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let token_2 = Token {
             id: ID::random(),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let contract = Contract {
             id: contract_id,
-            seller: Principal::anonymous(),
+            seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
@@ -139,9 +174,42 @@ mod test {
 
     #[test]
     fn test_should_not_allow_duped_contract() {
-        let contract = Contract {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let token_1 = Token {
             id: ID::random(),
-            seller: Principal::anonymous(),
+            contract_id: contract_id.clone(),
+            owner: seller,
+            value: 100,
+            locked: false,
+        };
+        let contract = Contract {
+            id: contract_id,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            fly_reward: 10,
+            building: BuildingData {
+                city: "Rome".to_string(),
+                fiat_value: 250_000,
+            },
+        };
+        assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
+        assert!(Storage::insert_contract(contract, vec![token_1]).is_err());
+    }
+
+    #[test]
+    fn test_should_not_allow_empty_contract() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let contract = Contract {
+            id: contract_id,
+            seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
             expiration: "2040-06-01".to_string(),
@@ -151,31 +219,34 @@ mod test {
                 fiat_value: 250_000,
             },
         };
-        assert!(Storage::insert_contract(contract.clone(), vec![]).is_ok());
-        assert!(Storage::insert_contract(contract, vec![]).is_err());
+
+        assert!(Storage::insert_contract(contract.clone(), vec![]).is_err());
     }
 
     #[test]
     fn test_should_not_allow_duped_token() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
         let contract_id = ID::random();
         let token_id = ID::random();
         let token_1 = Token {
             id: token_id.clone(),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let token_2 = Token {
             id: token_id,
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let contract = Contract {
             id: ID::random(),
-            seller: Principal::anonymous(),
+            seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
@@ -190,24 +261,27 @@ mod test {
 
     #[test]
     fn test_should_not_allow_token_with_different_contract_id() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
             id: ID::random(),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let token_2 = Token {
             id: ID::random(),
             contract_id: ID::random(),
-            owner: Principal::anonymous(),
+            owner: seller,
             value: 100,
             locked: false,
         };
         let contract = Contract {
             id: ID::random(),
-            seller: Principal::anonymous(),
+            seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
@@ -218,6 +292,96 @@ mod test {
             },
         };
         assert!(Storage::insert_contract(contract, vec![token_1, token_2]).is_err());
+    }
+
+    #[test]
+    fn test_should_not_allow_token_owner_different_from_seller() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let token_1 = Token {
+            id: ID::random(),
+            contract_id: contract_id.clone(),
+            owner: seller,
+            value: 100,
+            locked: false,
+        };
+        let token_2 = Token {
+            id: ID::random(),
+            contract_id: contract_id.clone(),
+            owner: Principal::anonymous(),
+            value: 100,
+            locked: false,
+        };
+        let contract = Contract {
+            id: contract_id,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone(), token_2.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            fly_reward: 10,
+            building: BuildingData {
+                city: "Rome".to_string(),
+                fiat_value: 250_000,
+            },
+        };
+        assert!(
+            Storage::insert_contract(contract.clone(), vec![token_1.clone(), token_2.clone()])
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn test_should_not_allow_mismatching_tokens() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let token_1 = Token {
+            id: ID::random(),
+            contract_id: contract_id.clone(),
+            owner: seller,
+            value: 100,
+            locked: false,
+        };
+        let token_2 = Token {
+            id: ID::random(),
+            contract_id: contract_id.clone(),
+            owner: seller,
+            value: 100,
+            locked: false,
+        };
+        let token_3 = Token {
+            id: ID::random(),
+            contract_id: contract_id.clone(),
+            owner: seller,
+            value: 100,
+            locked: false,
+        };
+
+        let contract = Contract {
+            id: contract_id,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone(), token_2.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            fly_reward: 10,
+            building: BuildingData {
+                city: "Rome".to_string(),
+                fiat_value: 250_000,
+            },
+        };
+
+        assert!(Storage::insert_contract(
+            contract.clone(),
+            vec![token_1.clone(), token_2.clone(), token_3.clone()]
+        )
+        .is_err());
+        assert!(
+            Storage::insert_contract(contract.clone(), vec![token_1.clone(), token_3.clone()])
+                .is_err()
+        );
     }
 
     #[test]

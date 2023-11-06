@@ -2,8 +2,6 @@ use ic_cdk_macros::init;
 
 mod app;
 
-
-
 #[init]
 fn init() {
     todo!();

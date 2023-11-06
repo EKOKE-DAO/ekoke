@@ -11,16 +11,28 @@ pub type SellContractResult<T> = Result<T, SellContractError>;
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum SellContractError {
+    #[error("mint error: {0}")]
+    Mint(MintError),
+    #[error("storage error")]
+    StorageError,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum MintError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
     TokenAlreadyExists(ID),
     #[error("the provided token ({0}) doesn't belong to the provided contract")]
     TokenDoesNotBelongToContract(ID),
+    #[error("the token {0} owner should be the seller on mint")]
+    BadMintTokenOwner(ID),
+    #[error("the token defined in the contract differ from the provided tokens")]
+    TokensMismatch,
+    #[error("the contract provided has no tokens")]
+    ContractHasNoTokens,
     #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
     TokenNotFound(ID),
-    #[error("storage error")]
-    StorageError,
 }
 
 /// A sell contract for a building
@@ -71,8 +83,8 @@ pub struct Token {
 
 impl Storable for Token {
     const BOUND: Bound = Bound::Bounded {
-        max_size: 135,
-        is_fixed_size: true,
+        max_size: 163,
+        is_fixed_size: false,
     };
 
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
