@@ -1,10 +1,15 @@
 use ic_cdk_macros::init;
 
+mod app;
+
+use app::SellContract;
+
 #[init]
 fn init() {
     todo!();
 }
 
+#[allow(dead_code)]
 #[cfg(not(any(target_arch = "wasm32", test)))]
 fn main() {
     // The line below generates did types and service definition from the

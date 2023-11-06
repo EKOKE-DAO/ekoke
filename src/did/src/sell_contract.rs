@@ -3,8 +3,25 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
+use thiserror::Error;
 
 use crate::ID;
+
+pub type SellContractResult<T> = Result<T, SellContractError>;
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum SellContractError {
+    #[error("the provided contract ID ({0}) already exists in the canister storage")]
+    ContractAlreadyExists(ID),
+    #[error("the provided token ID ({0}) already exists in the canister storage")]
+    TokenAlreadyExists(ID),
+    #[error("the provided token ({0}) doesn't belong to the provided contract")]
+    TokenDoesNotBelongToContract(ID),
+    #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
+    TokenNotFound(ID),
+    #[error("storage error")]
+    StorageError,
+}
 
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -41,18 +58,20 @@ impl Storable for Contract {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Token {
     /// Unique identifier of the token
-    pub id: String,
+    pub id: ID,
     /// Contract id
-    pub contract_id: String,
+    pub contract_id: ID,
     /// Token owner
     pub owner: Principal,
     /// Value of the single token ($ICP)
     pub value: u64,
+    /// Token locked status
+    pub locked: bool,
 }
 
 impl Storable for Token {
     const BOUND: Bound = Bound::Bounded {
-        max_size: 36 + 36 + 29 + 8,
+        max_size: 135,
         is_fixed_size: true,
     };
 
@@ -99,13 +118,14 @@ mod test {
     #[test]
     fn test_should_encode_token() {
         let token = Token {
-            id: "8bc80e74-4a42-4480-9c34-4d4993532a3b".to_string(),
-            contract_id: "375b5279-1eba-44ce-98fc-9adc3520111c".to_string(),
+            id: ID::random(),
+            contract_id: ID::random(),
             owner: Principal::from_text(
                 "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
             )
             .unwrap(),
             value: 100,
+            locked: false,
         };
         let data = Encode!(&token).unwrap();
         let decoded_token = Decode!(&data, Token).unwrap();

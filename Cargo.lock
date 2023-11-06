@@ -737,6 +737,7 @@ dependencies = [
  "ic-cdk-macros",
  "ic-stable-structures",
  "log",
+ "pretty_assertions",
  "thiserror",
 ]
 
