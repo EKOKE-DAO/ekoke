@@ -4,11 +4,13 @@ use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
+use crate::ID;
+
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Contract {
     /// Contract ID
-    pub id: String,
+    pub id: ID,
     /// The contractor selling the building
     pub seller: Principal,
     /// Contract buyers. Those who must pay
@@ -16,7 +18,7 @@ pub struct Contract {
     /// Contract expiration date
     pub expiration: String,
     /// Tokens associated to the contract, by id
-    pub tokens: Vec<String>,
+    pub tokens: Vec<ID>,
     /// $FLY reward for buying a Token
     pub fly_reward: u64,
     /// Data associated to the building
@@ -130,7 +132,7 @@ mod test {
     #[test]
     fn test_should_encode_contract() {
         let contract = Contract {
-            id: "375b5279-1eba-44ce-98fc-9adc3520111c".to_string(),
+            id: ID::random(),
             seller: Principal::from_text(
                 "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
             )
@@ -143,10 +145,7 @@ mod test {
                 .unwrap(),
             ],
             expiration: "2021-12-31".to_string(),
-            tokens: vec![
-                "8bc80e74-4a42-4480-9c34-4d4993532a3b".to_string(),
-                "2f6ba8af-9563-45cf-91e6-efb22fb62c50".to_string(),
-            ],
+            tokens: vec![ID::random(), ID::random()],
             fly_reward: 10,
             building: BuildingData {
                 city: "Rome".to_string(),

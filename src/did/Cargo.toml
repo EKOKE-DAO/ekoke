@@ -9,6 +9,7 @@ repository = { workspace = true }
 
 [dependencies]
 candid = { workspace = true }
+ethereum-types = { workspace = true }
 ic-stable-structures = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
