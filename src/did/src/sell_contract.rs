@@ -13,6 +13,8 @@ pub type SellContractResult<T> = Result<T, SellContractError>;
 pub enum SellContractError {
     #[error("mint error: {0}")]
     Mint(MintError),
+    #[error("configuration error: {0}")]
+    Configuration(ConfigurationError),
     #[error("storage error")]
     StorageError,
 }
@@ -33,6 +35,14 @@ pub enum MintError {
     ContractHasNoTokens,
     #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
     TokenNotFound(ID),
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum ConfigurationError {
+    #[error("there must be at least one custodial")]
+    CustodialsCantBeEmpty,
+    #[error("the canister custodial cannot be anonymous")]
+    AnonymousCustodial,
 }
 
 /// A sell contract for a building

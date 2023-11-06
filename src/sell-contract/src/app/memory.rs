@@ -6,12 +6,13 @@ pub const CONTRACTS_MEMORY_ID: MemoryId = MemoryId::new(11);
 
 /// Memory for the fly canister principal
 pub const FLY_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(20);
-
-#[derive(Default)]
-pub struct Storage;
+/// Canister Administrators
+pub const CANISTER_CUSTODIALS_MEMORY_ID: MemoryId = MemoryId::new(21);
 
 thread_local! {
 
     /// Memory manager
     pub static MEMORY_MANAGER: IcMemoryManager<DefaultMemoryImpl> = IcMemoryManager::init(DefaultMemoryImpl::default());
+
+
 }

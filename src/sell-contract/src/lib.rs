@@ -1,6 +1,7 @@
 use ic_cdk_macros::init;
 
 mod app;
+mod inspect;
 
 #[init]
 fn init() {
