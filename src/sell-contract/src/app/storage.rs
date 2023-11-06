@@ -34,7 +34,7 @@ impl Storage {
             return Err(SellContractError::ContractAlreadyExists(contract.id));
         }
 
-        if let Err(err) = TOKENS.with_borrow_mut(|tokens_storage| {
+        TOKENS.with_borrow_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
                 if tokens_storage.contains_key(&token.id) {
@@ -48,9 +48,7 @@ impl Storage {
             }
 
             Ok(())
-        }) {
-            return Err(err);
-        }
+        })?;
         CONTRACTS.with_borrow_mut(|contracts| contracts.insert(contract.id.clone(), contract));
 
         Ok(())

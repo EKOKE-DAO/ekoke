@@ -2,7 +2,7 @@ use ic_cdk_macros::init;
 
 mod app;
 
-use app::SellContract;
+
 
 #[init]
 fn init() {

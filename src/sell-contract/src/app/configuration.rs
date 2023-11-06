@@ -22,7 +22,7 @@ impl Configuration {
     /// Get fly token from configuration, if set
     pub fn get_fly_token_canister() -> Option<Principal> {
         let principal = FLY_TOKEN_CANISTER
-            .with_borrow(|fly_token_canister| fly_token_canister.get().as_principal().clone());
+            .with_borrow(|fly_token_canister| *fly_token_canister.get().as_principal());
 
         if principal == Principal::anonymous() {
             return None;
