@@ -1,8 +1,3 @@
-env_files = [
-  { path = "./.env", profile = "production" },
-  { path = "./.env.test", profile = "development" },
-]
-
 [tasks.run]
 description = "Run app"
 dependencies = []
