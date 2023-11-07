@@ -241,7 +241,6 @@ dependencies = [
  "dip721",
  "ethereum-types",
  "ic-stable-structures",
- "log",
  "num-bigint",
  "pretty_assertions",
  "serde",
@@ -750,7 +749,6 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-macros",
  "ic-stable-structures",
- "log",
  "pretty_assertions",
  "thiserror",
 ]

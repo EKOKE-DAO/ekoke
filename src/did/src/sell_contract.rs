@@ -1,7 +1,7 @@
 //! Types associated to the "Sell Contract" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::TokenIdentifier;
+use dip721::{TokenIdentifier, TxEvent};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
@@ -12,8 +12,8 @@ pub type SellContractResult<T> = Result<T, SellContractError>;
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum SellContractError {
-    #[error("mint error: {0}")]
-    Mint(MintError),
+    #[error("token error: {0}")]
+    Token(TokenError),
     #[error("configuration error: {0}")]
     Configuration(ConfigurationError),
     #[error("storage error")]
@@ -21,7 +21,7 @@ pub enum SellContractError {
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
-pub enum MintError {
+pub enum TokenError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
@@ -36,6 +36,8 @@ pub enum MintError {
     ContractHasNoTokens,
     #[error("the provided token ID ({0}) doesn't exist in the canister storage")]
     TokenNotFound(TokenIdentifier),
+    #[error("the provided token ID ({0}) is burned, so it cannot be touched by any operation")]
+    TokenIsBurned(TokenIdentifier),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -149,6 +151,33 @@ impl Storable for BuildingData {
     }
 }
 
+/// Storable TxEvent DIP721 transaction
+pub struct StorableTxEvent(pub TxEvent);
+
+impl StorableTxEvent {
+    pub fn as_tx_event(&self) -> &TxEvent {
+        &self.0
+    }
+}
+
+impl From<TxEvent> for StorableTxEvent {
+    fn from(tx_event: TxEvent) -> Self {
+        Self(tx_event)
+    }
+}
+
+impl Storable for StorableTxEvent {
+    const BOUND: Bound = Bound::Unbounded;
+
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        Encode!(&self.0).unwrap().into()
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        Decode!(&bytes, TxEvent).unwrap().into()
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -233,5 +262,23 @@ mod test {
         assert_eq!(contract.mfly_reward, decoded_contract.mfly_reward);
         assert_eq!(contract.building.city, decoded_contract.building.city);
         assert_eq!(contract.value, decoded_contract.value);
+    }
+
+    #[test]
+    fn test_should_encode_tx_event() {
+        let tx_event: StorableTxEvent = TxEvent {
+            caller: Principal::from_text(
+                "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
+            )
+            .unwrap(),
+            details: vec![],
+            operation: "mint".to_string(),
+            time: 0,
+        }
+        .into();
+
+        let data = tx_event.to_bytes();
+        let decoded_tx_event = StorableTxEvent::from_bytes(data);
+        assert_eq!(tx_event.0, decoded_tx_event.0);
     }
 }

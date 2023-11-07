@@ -12,7 +12,6 @@ candid = { workspace = true }
 ethereum-types = { workspace = true }
 dip721 = { path = "../dip721" }
 ic-stable-structures = { workspace = true }
-log = { workspace = true }
 num-bigint = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }

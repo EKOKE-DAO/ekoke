@@ -1,12 +1,20 @@
 use std::cell::RefCell;
 
-use did::sell_contract::{Contract, MintError, SellContractError, SellContractResult, Token};
+use candid::Principal;
+use did::sell_contract::{
+    Contract, SellContractError, SellContractResult, StorableTxEvent, Token, TokenError,
+};
 use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 
-use crate::app::memory::{CONTRACTS_MEMORY_ID, MEMORY_MANAGER, TOKENS_MEMORY_ID};
+use crate::app::memory::{
+    CONTRACTS_MEMORY_ID, MEMORY_MANAGER, TOKENS_MEMORY_ID, TRANSACTIONS_MEMORY_ID,
+};
+
+mod tx_history;
+pub use tx_history::TxHistory;
 
 #[derive(Default)]
 pub struct Storage;
@@ -20,6 +28,10 @@ thread_local! {
     /// Tokens storage (NFTs)
     static TOKENS: RefCell<BTreeMap<StorableNat, Token, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(TOKENS_MEMORY_ID))));
+
+    /// Transactions history
+    static TX_HISTORY: RefCell<BTreeMap<StorableNat, StorableTxEvent, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(TRANSACTIONS_MEMORY_ID))));
 }
 
 impl Storage {
@@ -32,48 +44,51 @@ impl Storage {
     pub fn insert_contract(contract: Contract, tokens: Vec<Token>) -> SellContractResult<()> {
         // check contract existance
         if Self::get_contract(&contract.id).is_some() {
-            return Err(SellContractError::Mint(MintError::ContractAlreadyExists(
+            return Err(SellContractError::Token(TokenError::ContractAlreadyExists(
                 contract.id,
             )));
         }
 
         // check if tokens is empty
         if tokens.is_empty() || contract.tokens.is_empty() {
-            return Err(SellContractError::Mint(MintError::ContractHasNoTokens));
+            return Err(SellContractError::Token(TokenError::ContractHasNoTokens));
         }
 
         // check if token mismatch
         if contract.tokens.len() != tokens.len() {
-            return Err(SellContractError::Mint(MintError::TokensMismatch));
+            return Err(SellContractError::Token(TokenError::TokensMismatch));
         }
         let mut contract_tokens: Vec<&TokenIdentifier> = tokens.iter().map(|t| &t.id).collect();
         let mut tokens_ids: Vec<&TokenIdentifier> = contract.tokens.iter().collect();
         contract_tokens.sort();
         tokens_ids.sort();
         if contract_tokens != tokens_ids {
-            return Err(SellContractError::Mint(MintError::TokensMismatch));
+            return Err(SellContractError::Token(TokenError::TokensMismatch));
         }
 
         TOKENS.with_borrow_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
                 if tokens_storage.contains_key(&token.id.clone().into()) {
-                    return Err(SellContractError::Mint(MintError::TokenAlreadyExists(
+                    return Err(SellContractError::Token(TokenError::TokenAlreadyExists(
                         token.id,
                     )));
                 }
                 // check if token is associated to the contract
                 if token.contract_id != contract.id {
-                    return Err(SellContractError::Mint(
-                        MintError::TokenDoesNotBelongToContract(token.id),
+                    return Err(SellContractError::Token(
+                        TokenError::TokenDoesNotBelongToContract(token.id),
                     ));
                 }
                 // check if token owner is the seller
                 if token.owner != Some(contract.seller) {
-                    return Err(SellContractError::Mint(MintError::BadMintTokenOwner(
+                    return Err(SellContractError::Token(TokenError::BadMintTokenOwner(
                         token.id,
                     )));
                 }
+
+                // register mint
+                TxHistory::register_token_mint(&token);
 
                 tokens_storage.insert(token.id.clone().into(), token);
             }
@@ -108,13 +123,51 @@ impl Storage {
     pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<()> {
         TOKENS.with_borrow_mut(|tokens| {
             if let Some(mut token) = tokens.get(&token_id.clone().into()) {
+                // check if burned
+                if token.is_burned {
+                    return Err(SellContractError::Token(TokenError::TokenIsBurned(
+                        token_id.clone(),
+                    )));
+                }
                 token.is_burned = true;
+                token.owner = None;
                 token.burned_at = Some(crate::utils::time());
                 token.burned_by = Some(crate::utils::caller());
+
+                // register burn
+                TxHistory::register_token_burn(&token);
+
                 tokens.insert(token_id.clone().into(), token);
                 Ok(())
             } else {
-                Err(SellContractError::Mint(MintError::TokenNotFound(
+                Err(SellContractError::Token(TokenError::TokenNotFound(
+                    token_id.clone(),
+                )))
+            }
+        })
+    }
+
+    /// Transfer token to provided principal
+    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> SellContractResult<()> {
+        TOKENS.with_borrow_mut(|tokens| {
+            if let Some(mut token) = tokens.get(&token_id.clone().into()) {
+                // check if burned
+                if token.is_burned {
+                    return Err(SellContractError::Token(TokenError::TokenIsBurned(
+                        token_id.clone(),
+                    )));
+                }
+                token.owner = Some(to);
+                token.transferred_at = Some(crate::utils::time());
+                token.transferred_by = Some(crate::utils::caller());
+
+                // register transfer
+                TxHistory::register_transfer(&token);
+
+                tokens.insert(token_id.clone().into(), token);
+                Ok(())
+            } else {
+                Err(SellContractError::Token(TokenError::TokenNotFound(
                     token_id.clone(),
                 )))
             }
@@ -532,5 +585,58 @@ mod test {
         assert_eq!(Storage::get_token(&token_1.id).unwrap().is_burned, true);
         assert!(Storage::get_token(&token_1.id).unwrap().burned_at.is_some());
         assert!(Storage::get_token(&token_1.id).unwrap().burned_by.is_some());
+        assert!(Storage::get_token(&token_1.id).unwrap().owner.is_none());
+    }
+
+    #[test]
+    fn test_should_transfer_token() {
+        let contract_id = ID::random();
+        let token_1 = Token {
+            id: TokenIdentifier::from(1),
+            contract_id: contract_id.clone(),
+            owner: Some(Principal::anonymous()),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
+        };
+        let contract = Contract {
+            id: contract_id,
+            seller: Principal::anonymous(),
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            mfly_reward: 4_000,
+            value: 250_000,
+            building: BuildingData {
+                city: "Rome".to_string(),
+            },
+        };
+
+        let new_owner =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+
+        assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
+        assert!(Storage::transfer(&token_1.id, new_owner).is_ok());
+        assert_eq!(
+            Storage::get_token(&token_1.id).unwrap().owner,
+            Some(new_owner)
+        );
+        assert!(Storage::get_token(&token_1.id)
+            .unwrap()
+            .transferred_at
+            .is_some());
+        assert!(Storage::get_token(&token_1.id)
+            .unwrap()
+            .transferred_by
+            .is_some());
     }
 }

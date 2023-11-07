@@ -25,7 +25,7 @@ pub struct Stats {
 pub type TokenIdentifier = Nat;
 
 /// Properties value representation for a token
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub enum GenericValue {
     BoolContent(bool),
     TextContent(String),
@@ -46,7 +46,7 @@ pub enum GenericValue {
 }
 
 /// Metadata for a DIP721 token
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub struct TokenMetadata {
     pub approved_at: Option<u64>,
     pub approved_by: Option<Principal>,
@@ -64,7 +64,7 @@ pub struct TokenMetadata {
 }
 
 /// Supported interfaces for a DIP721 canister
-#[derive(CandidType)]
+#[derive(CandidType, PartialEq, Eq, Debug, Deserialize)]
 pub enum SupportedInterface {
     Approval,
     Burn,
@@ -73,7 +73,7 @@ pub enum SupportedInterface {
 }
 
 /// Represent an NFT error to return via API
-#[derive(CandidType)]
+#[derive(CandidType, Debug, Deserialize, Clone, PartialEq, Eq)]
 pub enum NftError {
     SelfTransfer,
     TokenNotFound,
@@ -88,7 +88,7 @@ pub enum NftError {
 }
 
 /// Transaction event
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub struct TxEvent {
     pub caller: Principal,
     pub details: Vec<(String, GenericValue)>,
