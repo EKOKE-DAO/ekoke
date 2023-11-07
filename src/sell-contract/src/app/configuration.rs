@@ -6,7 +6,7 @@ use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
 
-use crate::app::memory::{CANISTER_CUSTODIALS_MEMORY_ID, FLY_CANISTER_MEMORY_ID, MEMORY_MANAGER};
+use crate::app::memory::{CANISTER_CUSTODIANS_MEMORY_ID, FLY_CANISTER_MEMORY_ID, MEMORY_MANAGER};
 
 thread_local! {
     /// Fly token canister
@@ -14,8 +14,8 @@ thread_local! {
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_MEMORY_ID)), Principal::anonymous().into()  ).unwrap()
     );
 
-    static CANISTER_CUSTODIALS: RefCell<StableVec<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableVec::new(MEMORY_MANAGER.with(|mm| mm.get(CANISTER_CUSTODIALS_MEMORY_ID))).unwrap()
+    static CANISTER_CUSTODIANS: RefCell<StableVec<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableVec::new(MEMORY_MANAGER.with(|mm| mm.get(CANISTER_CUSTODIANS_MEMORY_ID))).unwrap()
     );
 }
 
@@ -43,24 +43,24 @@ impl Configuration {
         Ok(())
     }
 
-    /// Get canisters custodials
-    pub fn get_canister_custodials() -> Vec<Principal> {
-        CANISTER_CUSTODIALS.with_borrow(|canister_custodials| {
-            canister_custodials
+    /// Get canisters custodians
+    pub fn get_canister_custodians() -> Vec<Principal> {
+        CANISTER_CUSTODIANS.with_borrow(|canister_custodians| {
+            canister_custodians
                 .iter()
                 .map(|principal| *principal.as_principal())
                 .collect()
         })
     }
 
-    /// checks whether a principal is custodial
-    pub fn is_custodial(caller: Principal) -> bool {
-        Self::get_canister_custodials().contains(&caller)
+    /// checks whether a principal is custodian
+    pub fn is_custodian(caller: Principal) -> bool {
+        Self::get_canister_custodians().contains(&caller)
     }
 
-    /// Set canisters custodial
-    pub fn set_canister_custodials(principals: &[Principal]) -> SellContractResult<()> {
-        // check if custodials is empty
+    /// Set canisters custodian
+    pub fn set_canister_custodians(principals: &[Principal]) -> SellContractResult<()> {
+        // check if custodians is empty
         if principals.is_empty() {
             return Err(SellContractError::Configuration(
                 ConfigurationError::CustodialsCantBeEmpty,
@@ -77,12 +77,12 @@ impl Configuration {
             ));
         }
 
-        CANISTER_CUSTODIALS.with_borrow_mut(|canister_custodials| {
-            for _ in 0..canister_custodials.len() {
-                canister_custodials.pop();
+        CANISTER_CUSTODIANS.with_borrow_mut(|canister_custodians| {
+            for _ in 0..canister_custodians.len() {
+                canister_custodians.pop();
             }
             for principal in principals {
-                canister_custodials
+                canister_custodians
                     .push(&StorablePrincipal::from(*principal))
                     .map_err(|_| SellContractError::StorageError)?;
             }
@@ -110,33 +110,33 @@ mod test {
     }
 
     #[test]
-    fn test_should_set_and_get_canister_custodials() {
+    fn test_should_set_and_get_canister_custodians() {
         let principal =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
 
-        assert!(Configuration::get_canister_custodials().is_empty());
-        assert!(Configuration::set_canister_custodials(&[principal]).is_ok());
-        assert_eq!(Configuration::get_canister_custodials(), vec![principal,]);
+        assert!(Configuration::get_canister_custodians().is_empty());
+        assert!(Configuration::set_canister_custodians(&[principal]).is_ok());
+        assert_eq!(Configuration::get_canister_custodians(), vec![principal,]);
     }
 
     #[test]
-    fn test_should_reject_empty_custodials() {
-        assert!(Configuration::set_canister_custodials(&[]).is_err());
+    fn test_should_reject_empty_custodians() {
+        assert!(Configuration::set_canister_custodians(&[]).is_err());
     }
 
     #[test]
-    fn test_should_reject_anonymous_custodials() {
-        assert!(Configuration::set_canister_custodials(&[Principal::anonymous()]).is_err());
+    fn test_should_reject_anonymous_custodians() {
+        assert!(Configuration::set_canister_custodians(&[Principal::anonymous()]).is_err());
     }
 
     #[test]
-    fn test_should_tell_if_custodial() {
+    fn test_should_tell_if_custodian() {
         let principal =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        assert!(Configuration::set_canister_custodials(&[principal]).is_ok());
-        assert!(Configuration::is_custodial(principal));
-        assert!(!Configuration::is_custodial(Principal::anonymous()));
+        assert!(Configuration::set_canister_custodians(&[principal]).is_ok());
+        assert!(Configuration::is_custodian(principal));
+        assert!(!Configuration::is_custodian(Principal::anonymous()));
     }
 }

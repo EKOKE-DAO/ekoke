@@ -2,6 +2,7 @@ use ic_cdk_macros::init;
 
 mod app;
 mod inspect;
+mod utils;
 
 #[init]
 fn init() {

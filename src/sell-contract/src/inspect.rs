@@ -18,7 +18,7 @@ fn inspect_message_impl() {
     let method = api::call::method_name();
 
     let check_result = match method.as_str() {
-        method if method.starts_with("admin_") => SellContract::is_custodial(ic_cdk::caller()),
+        method if method.starts_with("admin_") => SellContract::is_custodian(ic_cdk::caller()),
         _ => false,
     };
 

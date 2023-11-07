@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 
 use did::sell_contract::{Contract, MintError, SellContractError, SellContractResult, Token};
-use did::ID;
+use did::{StorableNat, ID};
+use dip721::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 
@@ -17,7 +18,7 @@ thread_local! {
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));
 
     /// Tokens storage (NFTs)
-    static TOKENS: RefCell<BTreeMap<ID, Token, VirtualMemory<DefaultMemoryImpl>>> =
+    static TOKENS: RefCell<BTreeMap<StorableNat, Token, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(TOKENS_MEMORY_ID))));
 }
 
@@ -45,8 +46,8 @@ impl Storage {
         if contract.tokens.len() != tokens.len() {
             return Err(SellContractError::Mint(MintError::TokensMismatch));
         }
-        let mut contract_tokens: Vec<&ID> = tokens.iter().map(|t| &t.id).collect();
-        let mut tokens_ids: Vec<&ID> = contract.tokens.iter().collect();
+        let mut contract_tokens: Vec<&TokenIdentifier> = tokens.iter().map(|t| &t.id).collect();
+        let mut tokens_ids: Vec<&TokenIdentifier> = contract.tokens.iter().collect();
         contract_tokens.sort();
         tokens_ids.sort();
         if contract_tokens != tokens_ids {
@@ -56,7 +57,7 @@ impl Storage {
         TOKENS.with_borrow_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
-                if tokens_storage.contains_key(&token.id) {
+                if tokens_storage.contains_key(&token.id.clone().into()) {
                     return Err(SellContractError::Mint(MintError::TokenAlreadyExists(
                         token.id,
                     )));
@@ -68,13 +69,13 @@ impl Storage {
                     ));
                 }
                 // check if token owner is the seller
-                if token.owner != contract.seller {
+                if token.owner != Some(contract.seller) {
                     return Err(SellContractError::Mint(MintError::BadMintTokenOwner(
                         token.id,
                     )));
                 }
 
-                tokens_storage.insert(token.id.clone(), token);
+                tokens_storage.insert(token.id.clone().into(), token);
             }
 
             Ok(())
@@ -85,8 +86,8 @@ impl Storage {
     }
 
     /// Get token by id
-    pub fn get_token(id: &ID) -> Option<Token> {
-        TOKENS.with_borrow(|tokens| tokens.get(id).clone())
+    pub fn get_token(id: &TokenIdentifier) -> Option<Token> {
+        TOKENS.with_borrow(|tokens| tokens.get(&id.clone().into()).clone())
     }
 
     /// Get tokens by contract
@@ -95,7 +96,7 @@ impl Storage {
         TOKENS.with_borrow(|tokens| {
             let mut contract_tokens: Vec<Token> = Vec::with_capacity(token_ids.len());
             for token_id in token_ids {
-                if let Some(token) = tokens.get(&token_id) {
+                if let Some(token) = tokens.get(&token_id.into()) {
                     contract_tokens.push(token.clone());
                 }
             }
@@ -103,12 +104,14 @@ impl Storage {
         })
     }
 
-    /// Lock token
-    pub fn lock_token(token_id: &ID) -> SellContractResult<()> {
+    /// Burn token
+    pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<()> {
         TOKENS.with_borrow_mut(|tokens| {
-            if let Some(mut token) = tokens.get(token_id) {
-                token.locked = true;
-                tokens.insert(token_id.clone(), token);
+            if let Some(mut token) = tokens.get(&token_id.clone().into()) {
+                token.is_burned = true;
+                token.burned_at = Some(crate::utils::time());
+                token.burned_by = Some(crate::utils::caller());
+                tokens.insert(token_id.clone().into(), token);
                 Ok(())
             } else {
                 Err(SellContractError::Mint(MintError::TokenNotFound(
@@ -135,18 +138,36 @@ mod test {
                 .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_2 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(2),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: contract_id,
@@ -179,11 +200,20 @@ mod test {
                 .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: contract_id,
@@ -229,20 +259,38 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::random();
-        let token_id = ID::random();
+        let token_id = TokenIdentifier::from(1);
         let token_1 = Token {
             id: token_id.clone(),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_2 = Token {
             id: token_id,
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: ID::random(),
@@ -266,18 +314,36 @@ mod test {
                 .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_2 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(2),
             contract_id: ID::random(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: ID::random(),
@@ -301,18 +367,36 @@ mod test {
                 .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_2 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(2),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: Some(Principal::anonymous()),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: contract_id,
@@ -339,25 +423,52 @@ mod test {
                 .unwrap();
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_2 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(2),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let token_3 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(3),
             contract_id: contract_id.clone(),
-            owner: seller,
+            owner: Some(seller),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
 
         let contract = Contract {
@@ -385,14 +496,23 @@ mod test {
     }
 
     #[test]
-    fn test_should_lock_token() {
+    fn test_should_burn_token() {
         let contract_id = ID::random();
         let token_1 = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: Principal::anonymous(),
+            owner: Some(Principal::anonymous()),
             value: 100,
-            locked: false,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
         };
         let contract = Contract {
             id: contract_id,
@@ -408,7 +528,9 @@ mod test {
         };
 
         assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
-        assert!(Storage::lock_token(&token_1.id).is_ok());
-        assert_eq!(Storage::get_token(&token_1.id).unwrap().locked, true);
+        assert!(Storage::burn_token(&token_1.id).is_ok());
+        assert_eq!(Storage::get_token(&token_1.id).unwrap().is_burned, true);
+        assert!(Storage::get_token(&token_1.id).unwrap().burned_at.is_some());
+        assert!(Storage::get_token(&token_1.id).unwrap().burned_by.is_some());
     }
 }

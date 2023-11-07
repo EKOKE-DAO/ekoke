@@ -238,9 +238,11 @@ name = "did"
 version = "0.1.0"
 dependencies = [
  "candid",
+ "dip721",
  "ethereum-types",
  "ic-stable-structures",
  "log",
+ "num-bigint",
  "pretty_assertions",
  "serde",
  "thiserror",
@@ -260,6 +262,17 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
+]
+
+[[package]]
+name = "dip721"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "ic-cdk",
+ "pretty_assertions",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]
@@ -733,6 +746,7 @@ dependencies = [
  "candid",
  "chrono",
  "did",
+ "dip721",
  "ic-cdk",
  "ic-cdk-macros",
  "ic-stable-structures",

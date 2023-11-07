@@ -1,6 +1,7 @@
 //! Types associated to the "Sell Contract" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use dip721::TokenIdentifier;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
@@ -24,17 +25,17 @@ pub enum MintError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
-    TokenAlreadyExists(ID),
+    TokenAlreadyExists(TokenIdentifier),
     #[error("the provided token ({0}) doesn't belong to the provided contract")]
-    TokenDoesNotBelongToContract(ID),
+    TokenDoesNotBelongToContract(TokenIdentifier),
     #[error("the token {0} owner should be the seller on mint")]
-    BadMintTokenOwner(ID),
+    BadMintTokenOwner(TokenIdentifier),
     #[error("the token defined in the contract differ from the provided tokens")]
     TokensMismatch,
     #[error("the contract provided has no tokens")]
     ContractHasNoTokens,
-    #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
-    TokenNotFound(ID),
+    #[error("the provided token ID ({0}) doesn't exist in the canister storage")]
+    TokenNotFound(TokenIdentifier),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -57,7 +58,7 @@ pub struct Contract {
     /// Contract expiration date
     pub expiration: String,
     /// Tokens associated to the contract, by id
-    pub tokens: Vec<ID>,
+    pub tokens: Vec<TokenIdentifier>,
     /// $mFLY (milli-fly) reward for buying a Token
     pub mfly_reward: u64,
     /// Fiat value of the contract
@@ -82,20 +83,38 @@ impl Storable for Contract {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Token {
     /// Unique identifier of the token
-    pub id: ID,
+    pub id: TokenIdentifier,
     /// Contract id
     pub contract_id: ID,
-    /// Token owner
-    pub owner: Principal,
+    /// Token owner. If none the token is burned
+    pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
-    /// Token locked status
-    pub locked: bool,
+    /// A principal who can operate on the token
+    pub operator: Option<Principal>,
+    /// Whether the token is burned
+    pub is_burned: bool,
+    /// Timestamp the token was minted at
+    pub minted_at: u64,
+    /// Principal who minted the token
+    pub minted_by: Principal,
+    /// Timestamp the token was approved at
+    pub approved_at: Option<u64>,
+    /// Principal who approved the token
+    pub approved_by: Option<Principal>,
+    /// Timestamp the token was burned at
+    pub burned_at: Option<u64>,
+    /// Principal who burned the token
+    pub burned_by: Option<Principal>,
+    /// Timestamp the token was transferred at
+    pub transferred_at: Option<u64>,
+    /// Principal who transferred the token
+    pub transferred_by: Option<Principal>,
 }
 
 impl Storable for Token {
     const BOUND: Bound = Bound::Bounded {
-        max_size: 163,
+        max_size: 256,
         is_fixed_size: false,
     };
 
@@ -140,14 +159,25 @@ mod test {
     #[test]
     fn test_should_encode_token() {
         let token = Token {
-            id: ID::random(),
+            id: TokenIdentifier::from(1),
             contract_id: ID::random(),
-            owner: Principal::from_text(
-                "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-            )
-            .unwrap(),
+            owner: Some(
+                Principal::from_text(
+                    "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
+                )
+                .unwrap(),
+            ),
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
             value: 100,
-            locked: false,
+            is_burned: false,
         };
         let data = Encode!(&token).unwrap();
         let decoded_token = Decode!(&data, Token).unwrap();
@@ -185,7 +215,7 @@ mod test {
                 .unwrap(),
             ],
             expiration: "2021-12-31".to_string(),
-            tokens: vec![ID::random(), ID::random()],
+            tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
             mfly_reward: 4_000,
             value: 250_000,
             building: BuildingData {

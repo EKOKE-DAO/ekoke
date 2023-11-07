@@ -1,23 +1,16 @@
 [package]
-name = "sell-contract"
+name = "dip721"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 repository = { workspace = true }
 
-[lib]
-crate-type = ["cdylib"]
 
 [dependencies]
 candid = { workspace = true }
-chrono = { workspace = true }
-did = { path = "../did" }
-dip721 = { path = "../dip721" }
 ic-cdk = { workspace = true }
-ic-cdk-macros = { workspace = true }
-ic-stable-structures = { workspace = true }
-log = { workspace = true }
+serde = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

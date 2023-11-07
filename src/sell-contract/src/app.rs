@@ -14,8 +14,8 @@ use configuration::Configuration;
 pub struct SellContract;
 
 impl SellContract {
-    /// Returns whether caller is custodial of the canister
-    pub fn is_custodial(caller: Principal) -> bool {
-        Configuration::is_custodial(caller)
+    /// Returns whether caller is custodian of the canister
+    pub fn is_custodian(caller: Principal) -> bool {
+        Configuration::is_custodian(caller)
     }
 }
