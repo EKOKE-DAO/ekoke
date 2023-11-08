@@ -1,6 +1,8 @@
+use did::sell_contract::SellContractInitData;
 use ic_cdk_macros::{init, post_upgrade};
 
 mod app;
+mod client;
 mod constants;
 mod inspect;
 mod utils;
@@ -8,8 +10,8 @@ mod utils;
 use app::SellContract;
 
 #[init]
-pub fn init() {
-    SellContract::init();
+pub fn init(init_data: SellContractInitData) {
+    SellContract::init(init_data);
 }
 
 #[post_upgrade]

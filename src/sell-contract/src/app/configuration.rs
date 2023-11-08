@@ -7,8 +7,9 @@ use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
 
 use crate::app::memory::{
-    CANISTER_CUSTODIANS_MEMORY_ID, CREATED_AT_MEMORY_ID, LOGO_MEMORY_ID, MEMORY_MANAGER,
-    NAME_MEMORY_ID, SYMBOL_MEMORY_ID, UPGRADED_AT_MEMORY_ID,
+    CANISTER_CUSTODIANS_MEMORY_ID, CREATED_AT_MEMORY_ID, FLY_CANISTER_MEMORY_ID, LOGO_MEMORY_ID,
+    MARKETPLACE_CANISTER_MEMORY_ID, MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID,
+    UPGRADED_AT_MEMORY_ID,
 };
 use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
@@ -16,6 +17,16 @@ thread_local! {
     /// Principals that can manage the canister
     static CANISTER_CUSTODIANS: RefCell<StableVec<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableVec::new(MEMORY_MANAGER.with(|mm| mm.get(CANISTER_CUSTODIANS_MEMORY_ID))).unwrap()
+    );
+
+    /// Fly Canister principal
+    static FLY_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
+    );
+
+    /// Marketplace Canister principal
+    static MARKETPLACE_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(MARKETPLACE_CANISTER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
     );
 
     /// Contract logo
@@ -144,6 +155,30 @@ impl Configuration {
 
         Ok(())
     }
+
+    pub fn get_fly_canister() -> Principal {
+        FLY_CANISTER.with_borrow(|cell| *cell.get().as_principal())
+    }
+
+    pub fn set_fly_canister(canister: Principal) -> SellContractResult<()> {
+        FLY_CANISTER
+            .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
+            .map_err(|_| SellContractError::StorageError)?;
+
+        Ok(())
+    }
+
+    pub fn set_marketplace_canister(canister: Principal) -> SellContractResult<()> {
+        MARKETPLACE_CANISTER
+            .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
+            .map_err(|_| SellContractError::StorageError)?;
+
+        Ok(())
+    }
+
+    pub fn get_marketplace_canister() -> Principal {
+        MARKETPLACE_CANISTER.with_borrow(|cell| *cell.get().as_principal())
+    }
 }
 
 #[cfg(test)]
@@ -206,7 +241,7 @@ mod test {
             Configuration::get_symbol().unwrap().as_str(),
             DEFAULT_SYMBOL
         );
-        assert!(Configuration::set_logo("NFTT".to_string()).is_ok());
+        assert!(Configuration::set_symbol("NFTT".to_string()).is_ok());
         assert_eq!(Configuration::get_symbol().unwrap().as_str(), "NFTT");
     }
 
@@ -222,5 +257,28 @@ mod test {
         std::thread::sleep(Duration::from_millis(100));
         assert!(Configuration::set_upgraded_at().is_ok());
         assert!(Configuration::get_upgraded_at() > last_upgrade);
+    }
+
+    #[test]
+    fn test_should_get_and_set_fly_canister() {
+        let principal =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        assert_eq!(Configuration::get_fly_canister(), Principal::anonymous());
+        assert!(Configuration::set_fly_canister(principal).is_ok());
+        assert_eq!(Configuration::get_fly_canister(), principal);
+    }
+
+    #[test]
+    fn test_should_get_and_set_marketplace_canister() {
+        let principal =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        assert_eq!(
+            Configuration::get_marketplace_canister(),
+            Principal::anonymous()
+        );
+        assert!(Configuration::set_marketplace_canister(principal).is_ok());
+        assert_eq!(Configuration::get_marketplace_canister(), principal);
     }
 }

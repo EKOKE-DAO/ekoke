@@ -55,11 +55,13 @@ pub trait Dip721 {
     /// Returns metadata for token
     fn token_metadata(token_identifier: TokenIdentifier) -> Result<TokenMetadata, NftError>;
 
-    /// Returns the balance of the owner.
+    /// Returns the count of NFTs owned by user.
+    /// If the user does not own any NFTs, returns an error containing NftError.
     fn balance_of(owner: Principal) -> Result<Nat, NftError>;
 
     /// Returns the owner of the token.
-    fn owner_of(token_identifier: TokenIdentifier) -> Result<Principal, NftError>;
+    /// Returns an error containing NftError if token_identifier is invalid.
+    fn owner_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError>;
 
     /// Returns the list of the token_identifier of the NFT associated with owner.
     /// Returns an error containing NftError if principal is invalid.
@@ -70,7 +72,7 @@ pub trait Dip721 {
     fn owner_token_metadata(owner: Principal) -> Result<Vec<TokenMetadata>, NftError>;
 
     /// Returns the Principal of the operator of the NFT associated with token_identifier.
-    fn operator_of(token_identifier: TokenIdentifier) -> Result<Principal, NftError>;
+    fn operator_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError>;
 
     /// Returns the list of the token_identifier of the NFT associated with operator.
     fn operator_token_identifiers(operator: Principal) -> Result<Vec<TokenIdentifier>, NftError>;

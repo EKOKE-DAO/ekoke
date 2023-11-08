@@ -12,6 +12,8 @@ pub const NAME_MEMORY_ID: MemoryId = MemoryId::new(22);
 pub const SYMBOL_MEMORY_ID: MemoryId = MemoryId::new(23);
 pub const CREATED_AT_MEMORY_ID: MemoryId = MemoryId::new(24);
 pub const UPGRADED_AT_MEMORY_ID: MemoryId = MemoryId::new(25);
+pub const FLY_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
+pub const MARKETPLACE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
 
 thread_local! {
 

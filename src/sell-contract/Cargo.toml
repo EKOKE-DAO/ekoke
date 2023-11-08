@@ -17,6 +17,7 @@ dip721 = { path = "../dip721" }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
+itertools = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

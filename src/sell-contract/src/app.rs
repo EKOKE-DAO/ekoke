@@ -7,8 +7,12 @@ mod memory;
 mod storage;
 
 use candid::{Nat, Principal};
+use chrono::NaiveDate;
 use configuration::Configuration;
-use did::sell_contract::{SellContractError, TokenError};
+use did::sell_contract::{
+    BuildingData, SellContractError, SellContractInitData, SellContractResult, TokenError,
+};
+use did::ID;
 use dip721::{
     Dip721, GenericValue, Metadata, NftError, Stats, SupportedInterface, TokenIdentifier,
     TokenMetadata, TxEvent,
@@ -23,8 +27,13 @@ use crate::utils::caller;
 pub struct SellContract;
 
 impl SellContract {
-    /// Task to execute on init
-    pub fn init() {}
+    /// On init set custodians and canisters ids
+    pub fn init(init_data: SellContractInitData) {
+        Configuration::set_canister_custodians(&init_data.custodians).expect("storage error");
+        Configuration::set_fly_canister(init_data.fly_canister).expect("storage error");
+        Configuration::set_marketplace_canister(init_data.marketplace_canister)
+            .expect("storage error");
+    }
 
     /// Task to execute on post upgrade
     pub fn post_upgrade() {
@@ -39,7 +48,26 @@ impl SellContract {
         Configuration::is_custodian(caller())
     }
 
-    /// Inspect burn, allow burn only if caller is custodian or operator and token is owned by a buyer
+    /// Returns whether caller is owner or operator of the token
+    pub fn inspect_is_owner_or_operator(token_identifier: &Nat) -> Result<(), NftError> {
+        let token = match Storage::get_token(token_identifier) {
+            Some(token) => token,
+            None => return Err(NftError::TokenNotFound),
+        };
+
+        let owner = match token.owner {
+            Some(owner) => owner,
+            None => return Err(NftError::UnauthorizedOwner),
+        };
+
+        if caller() != owner && Some(caller()) != token.operator {
+            return Err(NftError::UnauthorizedOperator);
+        }
+
+        Ok(())
+    }
+
+    /// Inspect burn, allow burn only if caller is custodian, owner or operator and token is owned by a buyer.
     pub fn inspect_burn(token_identifier: &Nat) -> Result<(), NftError> {
         let token = match Storage::get_token(token_identifier) {
             Some(token) => token,
@@ -55,13 +83,59 @@ impl SellContract {
         };
 
         if !contract.buyers.contains(&owner) {
-            return Err(NftError::UnauthorizedOperator);
+            return Err(NftError::Other("owner is not a buyer".to_string()));
         }
-        if caller() != owner && caller() != owner {
+        if caller() != owner && Some(caller()) != token.operator {
             return Err(NftError::UnauthorizedOperator);
         }
 
         Ok(())
+    }
+
+    /// Register contract inside of the canister.
+    /// Only a custodian can call this method.
+    pub async fn admin_register_contract(
+        id: ID,
+        seller: Principal,
+        buyers: Vec<Principal>,
+        expiration_date: NaiveDate,
+        value: u64,
+        installments: u64,
+        building: BuildingData,
+    ) -> SellContractResult<()> {
+        if !Self::inspect_is_custodian() {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        // TODO: set operator to marketplace
+        todo!();
+    }
+
+    /// Update marketplace canister id and update the operator for all the tokens
+    pub fn admin_set_marketplace_canister(canister: Principal) {
+        if !Self::inspect_is_custodian() {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        if let Err(err) = Configuration::set_marketplace_canister(canister) {
+            ic_cdk::trap(&err.to_string());
+        }
+
+        // update tokens
+        if let Err(err) = Storage::update_tokens_operator(canister) {
+            ic_cdk::trap(&err.to_string());
+        }
+    }
+
+    /// Update fly canister id
+    pub fn admin_set_fly_canister(canister: Principal) {
+        if !Self::inspect_is_custodian() {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        if let Err(err) = Configuration::set_fly_canister(canister) {
+            ic_cdk::trap(&err.to_string());
+        }
     }
 }
 
@@ -159,55 +233,82 @@ impl Dip721 for SellContract {
 
     /// Returns total unique holders of tokens
     fn total_unique_holders() -> candid::Nat {
-        todo!()
+        Storage::total_unique_holders().into()
     }
 
     /// Returns metadata for token
     fn token_metadata(token_identifier: TokenIdentifier) -> Result<TokenMetadata, NftError> {
-        todo!()
+        let token = match Storage::get_token(&token_identifier) {
+            Some(token) => token,
+            None => return Err(NftError::TokenNotFound),
+        };
+
+        Ok(token.into())
     }
 
-    /// Returns the balance of the owner.
+    /// Returns the count of NFTs owned by user.
+    /// If the user does not own any NFTs, returns an error containing NftError.
     fn balance_of(owner: Principal) -> Result<candid::Nat, NftError> {
-        todo!()
+        match Storage::tokens_by_owner(owner) {
+            tokens if tokens.is_empty() => Err(NftError::OwnerNotFound),
+            tokens => Ok(tokens.len().into()),
+        }
     }
 
     /// Returns the owner of the token.
-    fn owner_of(token_identifier: TokenIdentifier) -> Result<Principal, NftError> {
-        todo!()
+    /// Returns an error containing NftError if token_identifier is invalid.
+    fn owner_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError> {
+        match Storage::get_token(&token_identifier).map(|token| token.owner) {
+            Some(owner) => Ok(owner),
+            None => Err(NftError::TokenNotFound),
+        }
     }
 
     /// Returns the list of the token_identifier of the NFT associated with owner.
     /// Returns an error containing NftError if principal is invalid.
     fn owner_token_identifiers(owner: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        todo!()
+        Ok(Storage::tokens_by_owner(owner))
     }
 
     /// Returns the list of the token_metadata of the NFT associated with owner.
     /// Returns an error containing NftError if principal is invalid.
     fn owner_token_metadata(owner: Principal) -> Result<Vec<TokenMetadata>, NftError> {
-        todo!()
+        let tokens = Self::owner_token_identifiers(owner)?;
+        let mut metadata = Vec::with_capacity(tokens.len());
+        for token in tokens {
+            metadata.push(Self::token_metadata(token)?);
+        }
+
+        Ok(metadata)
     }
 
     /// Returns the Principal of the operator of the NFT associated with token_identifier.
-    fn operator_of(token_identifier: TokenIdentifier) -> Result<Principal, NftError> {
-        todo!()
+    fn operator_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError> {
+        match Storage::get_token(&token_identifier) {
+            Some(token) => Ok(token.operator),
+            None => Err(NftError::TokenNotFound),
+        }
     }
 
     /// Returns the list of the token_identifier of the NFT associated with operator.
     fn operator_token_identifiers(operator: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        todo!()
+        Ok(Storage::tokens_by_operator(operator))
     }
 
     /// Returns the list of the token_metadata of the NFT associated with operator.
     fn operator_token_metadata(operator: Principal) -> Result<Vec<TokenMetadata>, NftError> {
-        todo!()
+        let tokens = Self::operator_token_identifiers(operator)?;
+        let mut metadata = Vec::with_capacity(tokens.len());
+        for token in tokens {
+            metadata.push(Self::token_metadata(token)?);
+        }
+
+        Ok(metadata)
     }
 
     /// Returns the list of the interfaces supported by this canister
     fn supported_interfaces() -> Vec<SupportedInterface> {
         vec![
-            SupportedInterface::Approval,
             SupportedInterface::Burn,
             SupportedInterface::TransactionHistory,
         ]
@@ -216,7 +317,7 @@ impl Dip721 for SellContract {
     /// Returns the total supply of the NFT.
     /// NFTs that are minted and later burned explicitly or sent to the zero address should also count towards totalSupply.
     fn total_supply() -> candid::Nat {
-        todo!()
+        Storage::total_supply().into()
     }
 
     // Calling approve grants the operator the ability to make update calls to the specificied token_identifier.
@@ -225,34 +326,40 @@ impl Dip721 for SellContract {
     // If the approval goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
     /// Interface: approval
     fn approve(
-        operator: Principal,
-        token_identifier: TokenIdentifier,
+        _operator: Principal,
+        _token_identifier: TokenIdentifier,
     ) -> Result<candid::Nat, NftError> {
-        todo!()
+        Err(NftError::Other("Not implemented".to_string()))
     }
 
     /// Enable or disable an operator to manage all of the tokens for the caller of this function. The contract allows multiple operators per owner.
     /// Approvals granted by the approve function are independent from the approvals granted by setApprovalForAll function.
     /// If the approval goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
     /// Interface: approval
-    fn set_approval_for_all(operator: Principal, approved: bool) -> Result<candid::Nat, NftError> {
-        todo!()
+    fn set_approval_for_all(
+        _operator: Principal,
+        _approved: bool,
+    ) -> Result<candid::Nat, NftError> {
+        Err(NftError::Other("Not implemented".to_string()))
     }
 
     /// Returns true if the given operator is an approved operator for all the tokens owned by the caller through the use of the setApprovalForAll method, returns false otherwise.
     /// Interface: approval
-    fn is_approved_for_all(owner: Principal, operator: Principal) -> Result<bool, NftError> {
-        todo!()
+    fn is_approved_for_all(_owner: Principal, _operator: Principal) -> Result<bool, NftError> {
+        Err(NftError::Other("Not implemented".to_string()))
     }
 
-    /// Caller of this method is able to transfer the NFT token_identifier that is in from's balance to to's balance if the caller is an approved operator to do so.
+    /// Caller of this method is able to transfer the NFT token_identifier that is in from's balance to to's balance
+    /// if the caller is an approved operator to do so.
     ///
-    /// If the transfer goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
+    /// If the transfer goes through, returns a nat that represents the CAP History transaction ID
+    /// that can be used at the transaction method.
     fn transfer_from(
         owner: Principal,
         to: Principal,
         token_identifier: TokenIdentifier,
     ) -> Result<candid::Nat, NftError> {
+        Self::inspect_is_owner_or_operator(&token_identifier)?;
         todo!()
     }
 

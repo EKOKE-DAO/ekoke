@@ -8,6 +8,7 @@ use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
+use itertools::Itertools;
 
 use crate::app::memory::{
     CONTRACTS_MEMORY_ID, MEMORY_MANAGER, TOKENS_MEMORY_ID, TRANSACTIONS_MEMORY_ID,
@@ -119,6 +120,24 @@ impl Storage {
         })
     }
 
+    /// Update the operator for all token to the new operator canister
+    pub fn update_tokens_operator(operator: Principal) -> SellContractResult<()> {
+        TOKENS.with_borrow_mut(|tokens| {
+            let new_tokens = tokens
+                .iter()
+                .map(|(id, token)| {
+                    let mut token = token.clone();
+                    token.operator = Some(operator);
+                    (id.clone(), token)
+                })
+                .collect::<Vec<(StorableNat, Token)>>();
+            for (id, token) in new_tokens {
+                tokens.insert(id, token);
+            }
+            Ok(())
+        })
+    }
+
     /// Burn token
     pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<()> {
         TOKENS.with_borrow_mut(|tokens| {
@@ -173,6 +192,54 @@ impl Storage {
             }
         })
     }
+
+    /// Returns the total amount of unique holders of tokens
+    pub fn total_unique_holders() -> u64 {
+        TOKENS.with_borrow(|tokens| {
+            tokens
+                .iter()
+                .filter_map(|(_, token)| token.owner)
+                .unique()
+                .count()
+        }) as u64
+    }
+
+    /// Get tokens owned by a certain principal
+    pub fn tokens_by_owner(owner: Principal) -> Vec<TokenIdentifier> {
+        TOKENS.with_borrow(|tokens| {
+            tokens
+                .iter()
+                .filter_map(|(id, token)| {
+                    if token.owner == Some(owner) {
+                        Some(id.0.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        })
+    }
+
+    /// Get tokens with operator set to a certain principal
+    pub fn tokens_by_operator(operator: Principal) -> Vec<TokenIdentifier> {
+        TOKENS.with_borrow(|tokens| {
+            tokens
+                .iter()
+                .filter_map(|(id, token)| {
+                    if token.operator == Some(operator) {
+                        Some(id.0.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        })
+    }
+
+    /// Returns the total supply of tokens
+    pub fn total_supply() -> u64 {
+        TOKENS.with_borrow(|tokens| tokens.len())
+    }
 }
 
 #[cfg(test)]
@@ -204,7 +271,7 @@ mod test {
             burned_by: None,
             minted_at: 0,
             minted_by: Principal::anonymous(),
-            operator: None,
+            operator: Some(seller),
         };
         let token_2 = Token {
             id: TokenIdentifier::from(2),
@@ -244,6 +311,9 @@ mod test {
         assert_eq!(Storage::get_contract_tokens(&contract.id).unwrap().len(), 2);
         assert!(Storage::get_token(&token_1.id).is_some());
         assert!(Storage::get_token(&token_2.id).is_some());
+        assert_eq!(Storage::total_supply(), 2);
+        assert_eq!(Storage::tokens_by_owner(seller).len(), 2);
+        assert_eq!(Storage::tokens_by_operator(seller).len(), 1);
     }
 
     #[test]
@@ -638,5 +708,125 @@ mod test {
             .unwrap()
             .transferred_by
             .is_some());
+    }
+
+    #[test]
+    fn test_should_return_unique_holders() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let token_1 = Token {
+            id: TokenIdentifier::from(1),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
+        };
+        let token_2 = Token {
+            id: TokenIdentifier::from(2),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
+        };
+        let contract = Contract {
+            id: contract_id,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone(), token_2.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            mfly_reward: 4_000,
+            value: 250_000,
+            building: BuildingData {
+                city: "Rome".to_string(),
+            },
+        };
+
+        assert!(
+            Storage::insert_contract(contract.clone(), vec![token_1.clone(), token_2.clone()])
+                .is_ok()
+        );
+        assert_eq!(Storage::total_unique_holders(), 1);
+    }
+
+    #[test]
+    fn test_should_update_token_operator() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::random();
+        let token_1 = Token {
+            id: TokenIdentifier::from(1),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: Some(seller),
+        };
+        let token_2 = Token {
+            id: TokenIdentifier::from(2),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
+        };
+        let contract = Contract {
+            id: contract_id,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone(), token_2.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            mfly_reward: 4_000,
+            value: 250_000,
+            building: BuildingData {
+                city: "Rome".to_string(),
+            },
+        };
+
+        assert!(
+            Storage::insert_contract(contract.clone(), vec![token_1.clone(), token_2.clone()])
+                .is_ok()
+        );
+        assert!(Storage::update_tokens_operator(Principal::anonymous()).is_ok());
+        assert_eq!(
+            Storage::get_token(&token_1.id).unwrap().operator,
+            Some(Principal::anonymous())
+        );
     }
 }
