@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { Principal } from "@dfinity/principal";
 
-import { sellContract } from "./actor.js";
+import { sellContract } from "./actor";
 
 test("should be able to update fly canister principal", async () => {
   const principal = Principal.fromText("rrkah-fqaaa-aaaaa-aaaaq-cai");

@@ -20,7 +20,6 @@ did = []
 [dependencies]
 async-trait = { workspace = true }
 candid = { workspace = true }
-chrono = { workspace = true }
 did = { path = "../did" }
 dip721 = { path = "../dip721" }
 ic-cdk = { workspace = true }

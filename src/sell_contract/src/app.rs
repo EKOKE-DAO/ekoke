@@ -8,7 +8,6 @@ mod storage;
 
 use async_trait::async_trait;
 use candid::{Nat, Principal};
-use chrono::NaiveDate;
 use configuration::Configuration;
 use did::sell_contract::{
     BuildingData, Contract, SellContractError, SellContractInitData, SellContractResult, Token,
@@ -120,8 +119,8 @@ impl SellContract {
         }
 
         // check if expiration is YYYY-MM-DD
-        NaiveDate::parse_from_str(expiration, "%Y-%m-%d")
-            .map_err(|_| SellContractError::Token(TokenError::InvalidExpirationDate))?;
+        // TODO: parse datetime
+        todo!("parse date");
 
         Ok(())
     }

@@ -13,6 +13,6 @@ const createActor = async (canisterId, options) => {
   });
 };
 
-export const sellContract = await createActor(canisterIds.sell_contract, {
-  agentOptions: { host: "http://localhost:8000", fetch },
+export const sellContract = await createActor(canisterIds.sell_contract.local, {
+  agentOptions: { host: "http://localhost:4943", fetch },
 });

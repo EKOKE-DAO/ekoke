@@ -12,6 +12,11 @@
     borc "^2.1.1"
     simple-cbor "^0.4.1"
 
+"@dfinity/candid@^0.19.3":
+  version "0.19.3"
+  resolved "https://registry.yarnpkg.com/@dfinity/candid/-/candid-0.19.3.tgz#edc3491572d293824b821ce3a4fc50f5b4714f4d"
+  integrity sha512-yXfbLSWTeRd4G0bLLxYoDqpXH3Jim0P+1PPZOoktXNC1X1hB+ea3yrZebX75t4GVoQK7123F7mxWHiPjuV2tQQ==
+
 "@dfinity/principal@^0.19.3":
   version "0.19.3"
   resolved "https://registry.yarnpkg.com/@dfinity/principal/-/principal-0.19.3.tgz#428cfca3d2d2de9e1433b3b33498fd595fb441d8"

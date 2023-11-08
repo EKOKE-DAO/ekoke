@@ -18,6 +18,6 @@ deploy_sell_contract() {
     custodians = vec { principal \"$ADMIN_PRINCIPAL\" };
   })"
 
-  dfx canister install --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$sell_contract_init_args" sell_contract
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$sell_contract_init_args" sell_contract
 
 }

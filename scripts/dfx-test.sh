@@ -14,9 +14,11 @@ source ./deploy_functions.sh
 dfx stop
 dfx start --background
 
+cd ../
+
 deploy_sell_contract "reinstall" "local" "$SELL_CONTRACT_PRINCIPAL" "$FLY_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
 
-cd ../integration-tests/
+cd ./integration-tests/
 
 yarn && yarn test
 RES=$?
