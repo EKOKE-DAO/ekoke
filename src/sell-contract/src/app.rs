@@ -310,12 +310,12 @@ impl Dip721 for SellContract {
     }
 
     /// Returns canister cycles
-    fn cycles() -> candid::Nat {
+    fn cycles() -> Nat {
         ic_cdk::api::canister_balance().into()
     }
 
     /// Returns total unique holders of tokens
-    fn total_unique_holders() -> candid::Nat {
+    fn total_unique_holders() -> Nat {
         Storage::total_unique_holders().into()
     }
 
@@ -331,7 +331,7 @@ impl Dip721 for SellContract {
 
     /// Returns the count of NFTs owned by user.
     /// If the user does not own any NFTs, returns an error containing NftError.
-    fn balance_of(owner: Principal) -> Result<candid::Nat, NftError> {
+    fn balance_of(owner: Principal) -> Result<Nat, NftError> {
         match Storage::tokens_by_owner(owner) {
             tokens if tokens.is_empty() => Err(NftError::OwnerNotFound),
             tokens => Ok(tokens.len().into()),
@@ -399,7 +399,7 @@ impl Dip721 for SellContract {
 
     /// Returns the total supply of the NFT.
     /// NFTs that are minted and later burned explicitly or sent to the zero address should also count towards totalSupply.
-    fn total_supply() -> candid::Nat {
+    fn total_supply() -> Nat {
         Storage::total_supply().into()
     }
 
@@ -408,10 +408,7 @@ impl Dip721 for SellContract {
     //
     // If the approval goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
     /// Interface: approval
-    fn approve(
-        _operator: Principal,
-        _token_identifier: TokenIdentifier,
-    ) -> Result<candid::Nat, NftError> {
+    fn approve(_operator: Principal, _token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
         Err(NftError::Other("Not implemented".to_string()))
     }
 
@@ -419,10 +416,7 @@ impl Dip721 for SellContract {
     /// Approvals granted by the approve function are independent from the approvals granted by setApprovalForAll function.
     /// If the approval goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
     /// Interface: approval
-    fn set_approval_for_all(
-        _operator: Principal,
-        _approved: bool,
-    ) -> Result<candid::Nat, NftError> {
+    fn set_approval_for_all(_operator: Principal, _approved: bool) -> Result<Nat, NftError> {
         Err(NftError::Other("Not implemented".to_string()))
     }
 
@@ -441,7 +435,7 @@ impl Dip721 for SellContract {
         owner: Principal,
         to: Principal,
         token_identifier: TokenIdentifier,
-    ) -> Result<candid::Nat, NftError> {
+    ) -> Result<Nat, NftError> {
         let token = Self::inspect_is_owner_or_operator(&token_identifier)?;
         let last_owner = token.owner;
         let contract = match Storage::get_contract(&token.contract_id) {
@@ -477,7 +471,7 @@ impl Dip721 for SellContract {
         _to: Principal,
         _token_identifier: TokenIdentifier,
         _properties: Vec<(String, GenericValue)>,
-    ) -> Result<candid::Nat, NftError> {
+    ) -> Result<Nat, NftError> {
         Err(NftError::Other("Not implemented".to_string()))
     }
 
@@ -485,7 +479,7 @@ impl Dip721 for SellContract {
     /// will no longer be useable.
     /// Burned tokens do still count towards totalSupply.
     /// Implementations are encouraged to only allow burning by the owner of the token_identifier.
-    fn burn(token_identifier: TokenIdentifier) -> Result<candid::Nat, NftError> {
+    fn burn(token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
         Self::inspect_burn(&token_identifier)?;
 
         match Storage::burn_token(&token_identifier) {
@@ -499,7 +493,7 @@ impl Dip721 for SellContract {
 
     /// Returns the TxEvent that corresponds with tx_id.
     /// If there is no TxEvent that corresponds with the tx_id entered, returns a NftError.TxNotFound.
-    fn transaction(tx_id: candid::Nat) -> Result<TxEvent, NftError> {
+    fn transaction(tx_id: Nat) -> Result<TxEvent, NftError> {
         match TxHistory::get_transaction_by_id(tx_id) {
             Some(ev) => Ok(ev),
             None => Err(NftError::TxNotFound),
@@ -507,7 +501,7 @@ impl Dip721 for SellContract {
     }
 
     /// Returns a nat that represents the total number of transactions that have occurred on the NFT canister.
-    fn total_transactions() -> candid::Nat {
+    fn total_transactions() -> Nat {
         TxHistory::count().into()
     }
 }
