@@ -135,7 +135,7 @@ mod test {
     fn test_should_insert_transactions() {
         let token = Token {
             id: TokenIdentifier::from(1),
-            contract_id: ID::random(),
+            contract_id: ID::from(1),
             owner: Some(
                 Principal::from_text(
                     "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",

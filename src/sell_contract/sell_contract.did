@@ -1,7 +1,7 @@
 type BuildingData = record { city : text };
 type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
 type Contract = record {
-  id : text;
+  id : nat;
   value : nat64;
   building : BuildingData;
   seller : principal;
@@ -28,7 +28,7 @@ type TokenError = variant {
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;
   TokensMismatch;
-  ContractAlreadyExists : text;
+  ContractAlreadyExists : nat;
   TokenDoesNotBelongToContract : nat;
   TokenNotFound : nat;
   ContractHasNoTokens;
@@ -38,7 +38,7 @@ type TokenError = variant {
 };
 service : (SellContractInitData) -> {
   admin_register_contract : (
-      text,
+      nat,
       principal,
       vec principal,
       text,
@@ -48,6 +48,6 @@ service : (SellContractInitData) -> {
     ) -> (Result);
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
-  get_contract : (text) -> (opt Contract) query;
-  get_contracts : () -> (vec text) query;
+  get_contract : (nat) -> (opt Contract) query;
+  get_contracts : () -> (vec nat) query;
 }

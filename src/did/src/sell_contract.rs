@@ -235,7 +235,7 @@ mod test {
     fn test_should_encode_token() {
         let token = Token {
             id: TokenIdentifier::from(1),
-            contract_id: ID::random(),
+            contract_id: ID::from(1),
             owner: Some(
                 Principal::from_text(
                     "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
@@ -277,7 +277,7 @@ mod test {
     #[test]
     fn test_should_encode_contract() {
         let contract = Contract {
-            id: ID::random(),
+            id: ID::from(1),
             seller: Principal::from_text(
                 "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
             )

@@ -22,7 +22,7 @@ pub struct Storage;
 
 thread_local! {
     /// Contracts storage (1 contract has many tokens)
-    static CONTRACTS: RefCell<BTreeMap<ID, Contract, VirtualMemory<DefaultMemoryImpl>>> =
+    static CONTRACTS: RefCell<BTreeMap<StorableNat, Contract, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));
 
     /// Tokens storage (NFTs)
@@ -37,7 +37,7 @@ thread_local! {
 impl Storage {
     /// Get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
-        CONTRACTS.with_borrow(|contracts| contracts.get(id).clone())
+        CONTRACTS.with_borrow(|contracts| contracts.get(&StorableNat::from(id.clone())).clone())
     }
 
     /// Insert contract
@@ -95,7 +95,8 @@ impl Storage {
 
             Ok(())
         })?;
-        CONTRACTS.with_borrow_mut(|contracts| contracts.insert(contract.id.clone(), contract));
+        CONTRACTS
+            .with_borrow_mut(|contracts| contracts.insert(contract.id.clone().into(), contract));
 
         Ok(())
     }
@@ -107,7 +108,7 @@ impl Storage {
 
     /// get contracts
     pub fn get_contracts() -> Vec<ID> {
-        CONTRACTS.with_borrow(|contracts| contracts.iter().map(|(key, _)| key.clone()).collect())
+        CONTRACTS.with_borrow(|contracts| contracts.iter().map(|(key, _)| key.0.clone()).collect())
     }
 
     /// Get tokens by contract
@@ -260,7 +261,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let next_token_id = Storage::total_supply();
         assert_eq!(next_token_id, Nat::from(0));
         let token_1 = Token {
@@ -328,7 +329,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -366,7 +367,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let contract = Contract {
             id: contract_id,
             seller,
@@ -388,7 +389,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_id = TokenIdentifier::from(1);
         let token_1 = Token {
             id: token_id.clone(),
@@ -423,7 +424,7 @@ mod test {
             operator: None,
         };
         let contract = Contract {
-            id: ID::random(),
+            id: ID::from(1),
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -442,7 +443,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -461,7 +462,7 @@ mod test {
         };
         let token_2 = Token {
             id: TokenIdentifier::from(2),
-            contract_id: ID::random(),
+            contract_id: ID::from(2),
             owner: Some(seller),
             value: 100,
             is_burned: false,
@@ -476,7 +477,7 @@ mod test {
             operator: None,
         };
         let contract = Contract {
-            id: ID::random(),
+            id: ID::from(1),
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -495,7 +496,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -551,7 +552,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -627,7 +628,7 @@ mod test {
 
     #[test]
     fn test_should_burn_token() {
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -667,7 +668,7 @@ mod test {
 
     #[test]
     fn test_should_transfer_token() {
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -722,7 +723,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
@@ -780,7 +781,7 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::random();
+        let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),

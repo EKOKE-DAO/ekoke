@@ -9,7 +9,6 @@ repository = { workspace = true }
 
 [dependencies]
 candid = { workspace = true }
-ethereum-types = { workspace = true }
 dip721 = { path = "../dip721" }
 ic-stable-structures = { workspace = true }
 num-bigint = { workspace = true }
