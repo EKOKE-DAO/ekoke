@@ -6,6 +6,7 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
 
+use crate::fly::FlyError;
 use crate::ID;
 
 pub type SellContractResult<T> = Result<T, SellContractError>;
@@ -20,6 +21,10 @@ pub struct SellContractInitData {
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum SellContractError {
+    #[error("unauthorized caller")]
+    Unauthorized,
+    #[error("fly error: {0}")]
+    Fly(#[from] FlyError),
     #[error("token error: {0}")]
     Token(TokenError),
     #[error("configuration error: {0}")]
@@ -46,6 +51,10 @@ pub enum TokenError {
     TokenNotFound(TokenIdentifier),
     #[error("the provided token ID ({0}) is burned, so it cannot be touched by any operation")]
     TokenIsBurned(TokenIdentifier),
+    #[error("the provided contract value is not a multiple of the number of installments")]
+    ContractValueIsNotMultipleOfInstallments,
+    #[error("the provided expiration date is invalid. It must have syntax YYYY-MM-DD")]
+    InvalidExpirationDate,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

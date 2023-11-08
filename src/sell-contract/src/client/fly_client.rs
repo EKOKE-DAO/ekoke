@@ -15,7 +15,11 @@ impl From<Principal> for FlyClient {
 
 impl FlyClient {
     /// Get contract reward. Returns $mFly
-    pub async fn get_contract_reward(&self, contract_id: ID) -> SellContractResult<u64> {
+    pub async fn get_contract_reward(
+        &self,
+        contract_id: ID,
+        installments: u64,
+    ) -> SellContractResult<u64> {
         todo!()
     }
 

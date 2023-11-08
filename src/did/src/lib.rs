@@ -4,5 +4,6 @@
 
 mod common;
 
+pub mod fly;
 pub mod sell_contract;
 pub use common::{StorableNat, StorablePrincipal, ID};

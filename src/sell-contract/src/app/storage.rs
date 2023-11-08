@@ -21,7 +21,6 @@ pub use tx_history::TxHistory;
 pub struct Storage;
 
 thread_local! {
-
     /// Contracts storage (1 contract has many tokens)
     static CONTRACTS: RefCell<BTreeMap<ID, Contract, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));
@@ -257,8 +256,10 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::random();
+        let next_token_id = Storage::total_supply();
+        assert_eq!(next_token_id, Nat::from(0));
         let token_1 = Token {
-            id: TokenIdentifier::from(1),
+            id: next_token_id.into(),
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
@@ -274,7 +275,7 @@ mod test {
             operator: Some(seller),
         };
         let token_2 = Token {
-            id: TokenIdentifier::from(2),
+            id: (next_token_id + 1).into(),
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,

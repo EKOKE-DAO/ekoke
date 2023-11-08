@@ -11,7 +11,8 @@ use candid::{Nat, Principal};
 use chrono::NaiveDate;
 use configuration::Configuration;
 use did::sell_contract::{
-    BuildingData, SellContractError, SellContractInitData, SellContractResult, Token, TokenError,
+    BuildingData, Contract, SellContractError, SellContractInitData, SellContractResult, Token,
+    TokenError,
 };
 use did::ID;
 use dip721::{
@@ -94,8 +95,39 @@ impl SellContract {
         Ok(())
     }
 
-    pub fn get_contract(id: ID) -> Option<did::sell_contract::Contract> {
-        Storage::get_contract(&id)
+    /// Inspect register contract parameters
+    pub fn inspect_register_contract(
+        id: &ID,
+        value: u64,
+        installments: u64,
+        expiration: &str,
+    ) -> SellContractResult<()> {
+        if !Self::inspect_is_custodian() {
+            return Err(SellContractError::Unauthorized);
+        }
+        // check if contract already exists
+        if Self::get_contract(id).is_some() {
+            return Err(SellContractError::Token(TokenError::ContractAlreadyExists(
+                id.clone(),
+            )));
+        }
+
+        // verify value must be multiple of installments
+        if value % installments != 0 {
+            return Err(SellContractError::Token(
+                TokenError::ContractValueIsNotMultipleOfInstallments,
+            ));
+        }
+
+        // check if expiration is YYYY-MM-DD
+        NaiveDate::parse_from_str(expiration, "%Y-%m-%d")
+            .map_err(|_| SellContractError::Token(TokenError::InvalidExpirationDate))?;
+
+        Ok(())
+    }
+
+    pub fn get_contract(id: &ID) -> Option<Contract> {
+        Storage::get_contract(id)
     }
 
     /// Register contract inside of the canister.
@@ -104,17 +136,61 @@ impl SellContract {
         id: ID,
         seller: Principal,
         buyers: Vec<Principal>,
-        expiration_date: NaiveDate,
+        expiration: String,
         value: u64,
         installments: u64,
         building: BuildingData,
     ) -> SellContractResult<()> {
-        if !Self::inspect_is_custodian() {
-            ic_cdk::trap("Unauthorized");
+        Self::inspect_register_contract(&id, value, installments, &expiration)?;
+
+        // get reward for contract
+        let mfly_reward = FlyClient::from(Configuration::get_fly_canister())
+            .get_contract_reward(id.clone(), installments)
+            .await?;
+
+        // make tokens
+        let next_token_id = Storage::total_supply();
+        let mut tokens = Vec::with_capacity(installments as usize);
+        let mut tokens_ids = Vec::with_capacity(installments as usize);
+        let token_value: u64 = value / installments;
+        let marketplace_canister = Configuration::get_marketplace_canister();
+
+        for token_id in next_token_id..next_token_id + installments {
+            tokens.push(Token {
+                approved_at: Some(crate::utils::time()),
+                approved_by: Some(caller()),
+                burned_at: None,
+                burned_by: None,
+                contract_id: id.clone(),
+                id: token_id.into(),
+                is_burned: false,
+                minted_at: crate::utils::time(),
+                minted_by: caller(),
+                operator: Some(marketplace_canister), // * the operator must be the marketplace canister
+                owner: Some(seller),
+                transferred_at: None,
+                transferred_by: None,
+                value: token_value,
+            });
+            tokens_ids.push(token_id.into());
         }
 
-        // TODO: set operator to marketplace
-        todo!();
+        // make contract
+        let contract = Contract {
+            building,
+            buyers,
+            expiration,
+            id: id.clone(),
+            mfly_reward,
+            seller,
+            tokens: tokens_ids,
+            value,
+        };
+
+        // register contract
+        Storage::insert_contract(contract, tokens)?;
+
+        Ok(())
     }
 
     /// Update marketplace canister id and update the operator for all the tokens

@@ -1,4 +1,6 @@
 use candid::{Nat, Principal};
+use did::sell_contract::BuildingData;
+use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
@@ -20,8 +22,20 @@ fn inspect_message_impl() {
 
     let check_result = match method.as_str() {
         method if method.starts_with("admin_") => SellContract::inspect_is_custodian(),
-        "set_logo" | "set_name" | "set_symbol" | "set_custodians" | "register_contract" => {
+        "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
             SellContract::inspect_is_custodian()
+        }
+        "register_contract" => {
+            let (id, _, _, expiration, value, installments, _) = api::call::arg_data::<(
+                ID,
+                Principal,
+                Vec<Principal>,
+                String,
+                u64,
+                u64,
+                BuildingData,
+            )>();
+            SellContract::inspect_register_contract(&id, value, installments, &expiration).is_ok()
         }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
