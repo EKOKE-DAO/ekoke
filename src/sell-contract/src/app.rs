@@ -126,8 +126,14 @@ impl SellContract {
         Ok(())
     }
 
+    /// get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
         Storage::get_contract(id)
+    }
+
+    /// get contracts ids
+    pub fn get_contracts() -> Vec<ID> {
+        Storage::get_contracts()
     }
 
     /// Register contract inside of the canister.

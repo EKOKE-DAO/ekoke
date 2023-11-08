@@ -105,6 +105,11 @@ impl Storage {
         TOKENS.with_borrow(|tokens| tokens.get(&id.clone().into()).clone())
     }
 
+    /// get contracts
+    pub fn get_contracts() -> Vec<ID> {
+        CONTRACTS.with_borrow(|contracts| contracts.iter().map(|(key, _)| key.clone()).collect())
+    }
+
     /// Get tokens by contract
     pub fn get_contract_tokens(contract_id: &ID) -> Option<Vec<Token>> {
         let token_ids = Self::get_contract(contract_id).map(|c| c.tokens)?;
@@ -315,6 +320,7 @@ mod test {
         assert_eq!(Storage::total_supply(), 2);
         assert_eq!(Storage::tokens_by_owner(seller).len(), 2);
         assert_eq!(Storage::tokens_by_operator(seller).len(), 1);
+        assert_eq!(Storage::get_contracts(), vec![contract.id]);
     }
 
     #[test]
