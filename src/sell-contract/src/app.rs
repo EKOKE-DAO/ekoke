@@ -6,11 +6,12 @@ mod configuration;
 mod memory;
 mod storage;
 
+use async_trait::async_trait;
 use candid::{Nat, Principal};
 use chrono::NaiveDate;
 use configuration::Configuration;
 use did::sell_contract::{
-    BuildingData, SellContractError, SellContractInitData, SellContractResult, TokenError,
+    BuildingData, SellContractError, SellContractInitData, SellContractResult, Token, TokenError,
 };
 use did::ID;
 use dip721::{
@@ -20,6 +21,7 @@ use dip721::{
 
 use self::storage::TxHistory;
 use crate::app::storage::Storage;
+use crate::client::FlyClient;
 use crate::utils::caller;
 
 #[derive(Default)]
@@ -49,7 +51,7 @@ impl SellContract {
     }
 
     /// Returns whether caller is owner or operator of the token
-    pub fn inspect_is_owner_or_operator(token_identifier: &Nat) -> Result<(), NftError> {
+    pub fn inspect_is_owner_or_operator(token_identifier: &Nat) -> Result<Token, NftError> {
         let token = match Storage::get_token(token_identifier) {
             Some(token) => token,
             None => return Err(NftError::TokenNotFound),
@@ -64,7 +66,7 @@ impl SellContract {
             return Err(NftError::UnauthorizedOperator);
         }
 
-        Ok(())
+        Ok(token)
     }
 
     /// Inspect burn, allow burn only if caller is custodian, owner or operator and token is owned by a buyer.
@@ -90,6 +92,10 @@ impl SellContract {
         }
 
         Ok(())
+    }
+
+    pub fn get_contract(id: ID) -> Option<did::sell_contract::Contract> {
+        Storage::get_contract(&id)
     }
 
     /// Register contract inside of the canister.
@@ -139,6 +145,7 @@ impl SellContract {
     }
 }
 
+#[async_trait]
 impl Dip721 for SellContract {
     /// Returns the Metadata of the NFT canister which includes custodians, logo, name, symbol.
     fn metadata() -> Metadata {
@@ -354,13 +361,40 @@ impl Dip721 for SellContract {
     ///
     /// If the transfer goes through, returns a nat that represents the CAP History transaction ID
     /// that can be used at the transaction method.
-    fn transfer_from(
+    async fn transfer_from(
         owner: Principal,
         to: Principal,
         token_identifier: TokenIdentifier,
     ) -> Result<candid::Nat, NftError> {
-        Self::inspect_is_owner_or_operator(&token_identifier)?;
-        todo!()
+        let token = Self::inspect_is_owner_or_operator(&token_identifier)?;
+        let last_owner = token.owner;
+        let contract = match Storage::get_contract(&token.contract_id) {
+            Some(contract) => contract,
+            None => return Err(NftError::TokenNotFound),
+        };
+        // verify that owner is not the same as to
+        if owner == to {
+            return Err(NftError::SelfTransfer);
+        }
+
+        // transfer token to the new owner
+        let tx_id = match Storage::transfer(&token_identifier, to) {
+            Ok(tx_id) => tx_id,
+            Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
+                return Err(NftError::TokenNotFound)
+            }
+            Err(_) => return Err(NftError::UnauthorizedOperator),
+        };
+
+        // if the previous owner, was the seller, notify fly canister to transfer reward to the new owner
+        if last_owner == Some(contract.seller) {
+            FlyClient::from(Configuration::get_fly_canister())
+                .send_reward(token.contract_id, contract.mfly_reward, to)
+                .await
+                .map_err(|_| NftError::Other("fly canister error".to_string()))?;
+        }
+
+        Ok(tx_id)
     }
 
     fn mint(
@@ -371,14 +405,15 @@ impl Dip721 for SellContract {
         Err(NftError::Other("Not implemented".to_string()))
     }
 
-    /// Burn an NFT identified by token_identifier. Calling burn on a token sets the owner to None and will no longer be useable.
+    /// Burn an NFT identified by token_identifier. Calling burn on a token sets the owner to None and
+    /// will no longer be useable.
     /// Burned tokens do still count towards totalSupply.
     /// Implementations are encouraged to only allow burning by the owner of the token_identifier.
     fn burn(token_identifier: TokenIdentifier) -> Result<candid::Nat, NftError> {
         Self::inspect_burn(&token_identifier)?;
 
         match Storage::burn_token(&token_identifier) {
-            Ok(()) => Ok(token_identifier),
+            Ok(tx_id) => Ok(tx_id),
             Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
                 Err(NftError::TokenNotFound)
             }

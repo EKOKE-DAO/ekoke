@@ -4,12 +4,14 @@
 
 mod data;
 
+use async_trait::async_trait;
 use candid::{Nat, Principal};
 pub use data::{
     GenericValue, Metadata, NftError, Stats, SupportedInterface, TokenIdentifier, TokenMetadata,
     TxEvent,
 };
 
+#[async_trait]
 /// Represents the method a DIP721 canister must implement
 pub trait Dip721 {
     /// Returns the Metadata of the NFT canister which includes custodians, logo, name, symbol.
@@ -107,7 +109,7 @@ pub trait Dip721 {
     /// Caller of this method is able to transfer the NFT token_identifier that is in from's balance to to's balance if the caller is an approved operator to do so.
     ///
     /// If the transfer goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
-    fn transfer_from(
+    async fn transfer_from(
         owner: Principal,
         to: Principal,
         token_identifier: TokenIdentifier,

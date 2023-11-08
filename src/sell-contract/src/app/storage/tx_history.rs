@@ -50,7 +50,7 @@ impl TxHistory {
         });
     }
 
-    pub(super) fn register_token_burn(token: &Token) {
+    pub(super) fn register_token_burn(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -76,11 +76,13 @@ impl TxHistory {
         };
         let id = Self::next_id();
         TX_HISTORY.with_borrow_mut(|tx_history| {
-            tx_history.insert(id.into(), event.into());
+            tx_history.insert(id.clone().into(), event.into());
         });
+
+        id
     }
 
-    pub(super) fn register_transfer(token: &Token) {
+    pub(super) fn register_transfer(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -106,8 +108,10 @@ impl TxHistory {
         };
         let id = Self::next_id();
         TX_HISTORY.with_borrow_mut(|tx_history| {
-            tx_history.insert(id.into(), event.into());
+            tx_history.insert(id.clone().into(), event.into());
         });
+
+        id
     }
 
     /// get next transaction id

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use candid::Principal;
+use candid::{Nat, Principal};
 use did::sell_contract::{
     Contract, SellContractError, SellContractResult, StorableTxEvent, Token, TokenError,
 };
@@ -139,7 +139,7 @@ impl Storage {
     }
 
     /// Burn token
-    pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<()> {
+    pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<Nat> {
         TOKENS.with_borrow_mut(|tokens| {
             if let Some(mut token) = tokens.get(&token_id.clone().into()) {
                 // check if burned
@@ -154,10 +154,10 @@ impl Storage {
                 token.burned_by = Some(crate::utils::caller());
 
                 // register burn
-                TxHistory::register_token_burn(&token);
+                let tx_id = TxHistory::register_token_burn(&token);
 
                 tokens.insert(token_id.clone().into(), token);
-                Ok(())
+                Ok(tx_id)
             } else {
                 Err(SellContractError::Token(TokenError::TokenNotFound(
                     token_id.clone(),
@@ -167,7 +167,7 @@ impl Storage {
     }
 
     /// Transfer token to provided principal
-    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> SellContractResult<()> {
+    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> SellContractResult<Nat> {
         TOKENS.with_borrow_mut(|tokens| {
             if let Some(mut token) = tokens.get(&token_id.clone().into()) {
                 // check if burned
@@ -181,10 +181,10 @@ impl Storage {
                 token.transferred_by = Some(crate::utils::caller());
 
                 // register transfer
-                TxHistory::register_transfer(&token);
+                let tx_id = TxHistory::register_transfer(&token);
 
                 tokens.insert(token_id.clone().into(), token);
-                Ok(())
+                Ok(tx_id)
             } else {
                 Err(SellContractError::Token(TokenError::TokenNotFound(
                     token_id.clone(),
