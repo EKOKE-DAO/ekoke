@@ -1,0 +1,20 @@
+{
+  "name": "integration-tests",
+  "version": "0.1.0",
+  "description": "integration tests for dilazionato",
+  "main": "index.js",
+  "author": "christian visintin <christian.visintin@veeso.dev>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "isomorphic-fetch": "^3.0.0",
+    "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^0.19.3",
+    "@dfinity/principal": "^0.19.3"
+  }
+}

@@ -1,13 +1,21 @@
 [package]
-name = "sell-contract"
+name = "sell_contract"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 repository = { workspace = true }
 
+[[bin]]
+name = "sell-contract-did"
+path = "src/lib.rs"
+
 [lib]
 crate-type = ["cdylib"]
+
+[features]
+default = []
+did = []
 
 [dependencies]
 async-trait = { workspace = true }

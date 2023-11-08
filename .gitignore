@@ -14,3 +14,10 @@ target/
 *.pdb
 
 .env
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temp files
+.dfx/

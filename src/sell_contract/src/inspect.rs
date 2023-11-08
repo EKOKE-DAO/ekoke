@@ -11,7 +11,7 @@ use crate::app::SellContract;
 /// in CI:
 /// > multiple definition of `canister_inspect_message'
 #[cfg(target_family = "wasm")]
-#[ic_exports::ic_cdk_macros::inspect_message]
+#[inspect_message]
 fn inspect_messages() {
     inspect_message_impl()
 }

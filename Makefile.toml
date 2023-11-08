@@ -1,21 +1,63 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.build]
+description = "Build canisters"
+dependencies = []
+command = "dfx"
+args = ["build"]
+workspace = false
+
 [tasks.run]
 description = "Run app"
 dependencies = []
 command = "cargo"
 args = ["run"]
+workspace = false
 
 [tasks.test]
 description = "Run unit tests"
 command = "cargo"
-args = ["test"]
-dependencies = []
+args = ["test", "--lib"]
+dependencies = ["did"]
+workspace = false
+
+[tasks.dfx-test]
+description = "Run integration tests with dfx"
+script = "./scripts/dfx-test.sh"
+dependencies = ["build", "dfx_setup", "did"]
+workspace = false
 
 [tasks.lint]
 description = "Run lint"
 command = "cargo"
-args = ["clippy"]
+args = ["clippy", "--", "-Dwarnings"]
+workspace = false
 
 [tasks.format]
 description = "Run the cargo rustfmt plugin."
 command = "cargo"
 args = ["fmt", "--all"]
+
+[tasks.check-format]
+description = "Run the cargo rustfmt plugin."
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.did]
+description = "Generate did files"
+run_task = [{ name = "sell_contract_did" }, { name = "dfx_generate" }]
+workspace = false
+
+[tasks.sell_contract_did]
+description = "Generate did files for sell contract"
+script = "cargo run --bin sell-contract-did  --features did > src/sell_contract/sell_contract.did"
+
+[tasks.dfx_generate]
+description = "Generate dfx did"
+command = "dfx"
+args = ["generate"]
+
+[tasks.dfx_setup]
+description = "setup dfx"
+script = "dfx stop; dfx start --background; dfx canister create sell_contract"

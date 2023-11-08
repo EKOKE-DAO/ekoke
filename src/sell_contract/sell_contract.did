@@ -1,0 +1,53 @@
+type BuildingData = record { city : text };
+type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
+type Contract = record {
+  id : text;
+  value : nat64;
+  building : BuildingData;
+  seller : principal;
+  expiration : text;
+  tokens : vec nat;
+  buyers : vec principal;
+  mfly_reward : nat64;
+};
+type FlyError = variant { StorageError };
+type Result = variant { Ok; Err : SellContractError };
+type SellContractError = variant {
+  Fly : FlyError;
+  Configuration : ConfigurationError;
+  Unauthorized;
+  Token : TokenError;
+  StorageError;
+};
+type SellContractInitData = record {
+  fly_canister : principal;
+  custodians : vec principal;
+  marketplace_canister : principal;
+};
+type TokenError = variant {
+  ContractValueIsNotMultipleOfInstallments;
+  TokenAlreadyExists : nat;
+  TokensMismatch;
+  ContractAlreadyExists : text;
+  TokenDoesNotBelongToContract : nat;
+  TokenNotFound : nat;
+  ContractHasNoTokens;
+  TokenIsBurned : nat;
+  InvalidExpirationDate;
+  BadMintTokenOwner : nat;
+};
+service : (SellContractInitData) -> {
+  admin_register_contract : (
+      text,
+      principal,
+      vec principal,
+      text,
+      nat64,
+      nat64,
+      BuildingData,
+    ) -> (Result);
+  admin_set_fly_canister : (principal) -> ();
+  admin_set_marketplace_canister : (principal) -> ();
+  get_contract : (text) -> (opt Contract) query;
+  get_contracts : () -> (vec text) query;
+}
