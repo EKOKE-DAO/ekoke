@@ -1,8 +1,6 @@
 use candid::{candid_method, Principal};
-use did::{
-    sell_contract::{BuildingData, Contract, SellContractInitData, SellContractResult},
-    ID,
-};
+use did::sell_contract::{BuildingData, Contract, SellContractInitData, SellContractResult};
+use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
 
 mod app;

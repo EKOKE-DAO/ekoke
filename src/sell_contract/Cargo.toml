@@ -27,6 +27,7 @@ ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
 itertools = { workspace = true }
 thiserror = { workspace = true }
+time = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1"

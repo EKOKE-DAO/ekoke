@@ -118,9 +118,14 @@ impl SellContract {
             ));
         }
 
-        // check if expiration is YYYY-MM-DD
-        // TODO: parse datetime
-        todo!("parse date");
+        // check if expiration is YYYY-MM-DD and is not in the past
+        match crate::utils::parse_date(expiration) {
+            Ok(timestamp) if timestamp < crate::utils::time() => {
+                return Err(SellContractError::Token(TokenError::InvalidExpirationDate));
+            }
+            Ok(_) => {}
+            Err(_) => return Err(SellContractError::Token(TokenError::InvalidExpirationDate)),
+        }
 
         Ok(())
     }
