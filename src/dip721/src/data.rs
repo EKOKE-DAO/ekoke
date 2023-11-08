@@ -1,12 +1,10 @@
-use std::collections::HashSet;
-
 use candid::{CandidType, Deserialize, Int, Nat, Principal};
 
 /// Metadata for a DIP721 canister
 #[derive(CandidType, Default, Deserialize)]
 pub struct Metadata {
     pub created_at: u64,
-    pub custodians: HashSet<Principal>,
+    pub custodians: Vec<Principal>,
     pub logo: Option<String>,
     pub name: Option<String>,
     pub symbol: Option<String>,

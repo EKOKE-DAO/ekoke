@@ -7,6 +7,11 @@ pub const TRANSACTIONS_MEMORY_ID: MemoryId = MemoryId::new(12);
 
 /// Canister Administrators
 pub const CANISTER_CUSTODIANS_MEMORY_ID: MemoryId = MemoryId::new(20);
+pub const LOGO_MEMORY_ID: MemoryId = MemoryId::new(21);
+pub const NAME_MEMORY_ID: MemoryId = MemoryId::new(22);
+pub const SYMBOL_MEMORY_ID: MemoryId = MemoryId::new(23);
+pub const CREATED_AT_MEMORY_ID: MemoryId = MemoryId::new(24);
+pub const UPGRADED_AT_MEMORY_ID: MemoryId = MemoryId::new(25);
 
 thread_local! {
 

@@ -1,12 +1,20 @@
-use ic_cdk_macros::init;
+use ic_cdk_macros::{init, post_upgrade};
 
 mod app;
+mod constants;
 mod inspect;
 mod utils;
 
+use app::SellContract;
+
 #[init]
-fn init() {
-    todo!();
+pub fn init() {
+    SellContract::init();
+}
+
+#[post_upgrade]
+pub fn post_upgrade() {
+    SellContract::post_upgrade();
 }
 
 #[allow(dead_code)]

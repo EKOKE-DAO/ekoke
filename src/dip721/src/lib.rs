@@ -35,10 +35,15 @@ pub trait Dip721 {
     /// Returns the symbol of the NFT contract.
     fn symbol() -> Option<String>;
 
+    /// Set symbol
+    /// Caller must be the custodian of NFT canister.
+    fn set_symbol(symbol: String);
+
     /// Returns a list of the canister custodians
     fn custodians() -> Vec<Principal>;
 
     /// Set canister custodians
+    /// Caller must be the custodian of NFT canister.
     fn set_custodians(custodians: Vec<Principal>);
 
     /// Returns canister cycles
@@ -122,7 +127,7 @@ pub trait Dip721 {
 
     /// Returns the TxEvent that corresponds with tx_id.
     /// If there is no TxEvent that corresponds with the tx_id entered, returns a NftError.TxNotFound.
-    fn transaction(tx_id: Nat) -> Result<Vec<TxEvent>, NftError>;
+    fn transaction(tx_id: Nat) -> Result<TxEvent, NftError>;
 
     /// Returns a nat that represents the total number of transactions that have occurred on the NFT canister.
     fn total_transactions() -> Nat;
