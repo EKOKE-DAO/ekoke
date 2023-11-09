@@ -11,6 +11,7 @@ Powered by **Internet Computer**
 - [Dilazionato](#dilazionato)
   - [Introduction](#introduction)
     - [Project Purpose](#project-purpose)
+    - [Project components](#project-components)
     - [Sell flow](#sell-flow)
   - [Project structure](#project-structure)
   - [License](#license)
@@ -19,15 +20,17 @@ Powered by **Internet Computer**
 
 ## Introduction
 
+### Project Purpose
+
+The project aims to facilitate the sale of a property between two or more parties, referred to in this document as A (seller) and B (buyer/s), using NFTs that serve as promissory notes.
+
+### Project components
+
 Dilazionato consists of three main canisters:
 
 - **Milan Houses Sell Contract (MHSC)**: This NFT is used to define the sell of a real estate between two parts (the buyer and the seller).
 - **FLY Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Dilazionato method".
 - **Marketplace**: A D-APP which permits to trade MHSCs.
-
-### Project Purpose
-
-The project aims to facilitate the sale of a property between two or more parties, referred to in this document as A (seller) and B (buyer/s), using NFTs that serve as promissory notes.
 
 ### Sell flow
 
