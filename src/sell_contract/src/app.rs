@@ -436,6 +436,12 @@ impl Dip721 for SellContract {
         Err(NftError::Other("Not implemented".to_string()))
     }
 
+    /// Sends the callers nft token_identifier to `to`` and returns a nat that represents a
+    /// transaction id that can be used at the transaction method.
+    async fn transfer(to: Principal, token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
+        Self::transfer_from(caller(), to, token_identifier).await
+    }
+
     /// Caller of this method is able to transfer the NFT token_identifier that is in from's balance to to's balance
     /// if the caller is an approved operator to do so.
     ///
@@ -452,8 +458,12 @@ impl Dip721 for SellContract {
             Some(contract) => contract,
             None => return Err(NftError::TokenNotFound),
         };
+        // verify that from owner is the same as the token's
+        if token.owner != Some(owner) {
+            return Err(NftError::OwnerNotFound);
+        }
         // verify that owner is not the same as to
-        if owner == to {
+        if token.owner == Some(to) {
             return Err(NftError::SelfTransfer);
         }
 

@@ -46,7 +46,7 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-run_task = [{ name = "sell_contract_did" }, { name = "dfx_generate" }]
+dependencies = ["sell_contract_did", "dfx_generate"]
 workspace = false
 
 [tasks.sell_contract_did]

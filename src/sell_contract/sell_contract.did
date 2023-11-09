@@ -11,7 +11,52 @@ type Contract = record {
   mfly_reward : nat64;
 };
 type FlyError = variant { StorageError };
+type GenericValue = variant {
+  Nat64Content : nat64;
+  Nat32Content : nat32;
+  BoolContent : bool;
+  Nat8Content : nat8;
+  Int64Content : int64;
+  IntContent : int;
+  NatContent : nat;
+  Nat16Content : nat16;
+  Int32Content : int32;
+  Int8Content : int8;
+  FloatContent : float64;
+  Int16Content : int16;
+  BlobContent : vec nat8;
+  NestedContent : Vec;
+  Principal : principal;
+  TextContent : text;
+};
+type Metadata = record {
+  logo : opt text;
+  name : opt text;
+  created_at : nat64;
+  upgraded_at : nat64;
+  custodians : vec principal;
+  symbol : opt text;
+};
+type NftError = variant {
+  UnauthorizedOperator;
+  SelfTransfer;
+  TokenNotFound;
+  UnauthorizedOwner;
+  TxNotFound;
+  SelfApprove;
+  OperatorNotFound;
+  ExistedNFT;
+  OwnerNotFound;
+  Other : text;
+};
 type Result = variant { Ok; Err : SellContractError };
+type Result_1 = variant { Ok : nat; Err : NftError };
+type Result_2 = variant { Ok : bool; Err : NftError };
+type Result_3 = variant { Ok : opt principal; Err : NftError };
+type Result_4 = variant { Ok : vec nat; Err : NftError };
+type Result_5 = variant { Ok : vec TokenMetadata; Err : NftError };
+type Result_6 = variant { Ok : TokenMetadata; Err : NftError };
+type Result_7 = variant { Ok : TxEvent; Err : NftError };
 type SellContractError = variant {
   Fly : FlyError;
   Configuration : ConfigurationError;
@@ -24,6 +69,13 @@ type SellContractInitData = record {
   custodians : vec principal;
   marketplace_canister : principal;
 };
+type Stats = record {
+  cycles : nat;
+  total_transactions : nat;
+  total_unique_holders : nat;
+  total_supply : nat;
+};
+type SupportedInterface = variant { Burn; Mint; Approval; TransactionHistory };
 type TokenError = variant {
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;
@@ -35,6 +87,48 @@ type TokenError = variant {
   TokenIsBurned : nat;
   InvalidExpirationDate;
   BadMintTokenOwner : nat;
+};
+type TokenMetadata = record {
+  transferred_at : opt nat64;
+  transferred_by : opt principal;
+  owner : opt principal;
+  operator : opt principal;
+  approved_at : opt nat64;
+  approved_by : opt principal;
+  properties : vec record { text; GenericValue };
+  is_burned : bool;
+  token_identifier : nat;
+  burned_at : opt nat64;
+  burned_by : opt principal;
+  minted_at : nat64;
+  minted_by : principal;
+};
+type TxEvent = record {
+  time : nat64;
+  operation : text;
+  details : vec record { text; GenericValue };
+  caller : principal;
+};
+type Vec = vec record {
+  text;
+  variant {
+    Nat64Content : nat64;
+    Nat32Content : nat32;
+    BoolContent : bool;
+    Nat8Content : nat8;
+    Int64Content : int64;
+    IntContent : int;
+    NatContent : nat;
+    Nat16Content : nat16;
+    Int32Content : int32;
+    Int8Content : int8;
+    FloatContent : float64;
+    Int16Content : int16;
+    BlobContent : vec nat8;
+    NestedContent : Vec;
+    Principal : principal;
+    TextContent : text;
+  };
 };
 service : (SellContractInitData) -> {
   admin_register_contract : (
@@ -48,6 +142,37 @@ service : (SellContractInitData) -> {
     ) -> (Result);
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
+  approve : (principal, nat) -> (Result_1);
+  balance_of : (principal) -> (Result_1) query;
+  burn : (nat) -> (Result_1);
+  custodians : () -> (vec principal) query;
+  cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;
   get_contracts : () -> (vec nat) query;
+  is_approved_for_all : (principal, principal) -> (Result_2);
+  logo : () -> (opt text) query;
+  metadata : () -> (Metadata) query;
+  mint : (principal, nat, vec record { text; GenericValue }) -> (Result_1);
+  name : () -> (opt text) query;
+  operator_of : (nat) -> (Result_3) query;
+  operator_token_identifiers : (principal) -> (Result_4) query;
+  operator_token_metadata : (principal) -> (Result_5) query;
+  owner_of : (nat) -> (Result_3) query;
+  owner_token_identifiers : (principal) -> (Result_4) query;
+  owner_token_metadata : (principal) -> (Result_5) query;
+  set_approval_for_all : (principal, bool) -> (Result_1);
+  set_custodians : (vec principal) -> ();
+  set_logo : (text) -> ();
+  set_name : (text) -> ();
+  set_symbol : (text) -> ();
+  stats : () -> (Stats) query;
+  supported_interfaces : () -> (vec SupportedInterface) query;
+  symbol : () -> (opt text) query;
+  token_metadata : (nat) -> (Result_6) query;
+  total_supply : () -> (nat) query;
+  total_transactions : () -> (nat) query;
+  total_unique_holders : () -> (nat) query;
+  transaction : (nat) -> (Result_7) query;
+  transfer : (principal, nat) -> (Result_1);
+  transfer_from : (principal, principal, nat) -> (Result_1);
 }

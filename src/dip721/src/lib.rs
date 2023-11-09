@@ -106,6 +106,10 @@ pub trait Dip721 {
     /// Interface: approval
     fn is_approved_for_all(owner: Principal, operator: Principal) -> Result<bool, NftError>;
 
+    /// Sends the callers nft token_identifier to `to`` and returns a nat that represents a
+    /// transaction id that can be used at the transaction method.
+    async fn transfer(to: Principal, token_identifier: TokenIdentifier) -> Result<Nat, NftError>;
+
     /// Caller of this method is able to transfer the NFT token_identifier that is in from's balance to to's balance if the caller is an approved operator to do so.
     ///
     /// If the transfer goes through, returns a nat that represents the CAP History transaction ID that can be used at the transaction method.
