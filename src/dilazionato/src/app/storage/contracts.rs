@@ -1,13 +1,13 @@
-use super::{
-    with_contract, with_contract_mut, with_contracts, with_contracts_mut, with_token,
-    with_token_mut, with_tokens, with_tokens_mut, TxHistory,
-};
-
 use candid::{Nat, Principal};
 use did::dilazionato::{Contract, SellContractError, SellContractResult, Token, TokenError};
 use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use itertools::Itertools;
+
+use super::{
+    with_contract, with_contract_mut, with_contracts, with_contracts_mut, with_token,
+    with_token_mut, with_tokens, with_tokens_mut, TxHistory,
+};
 
 pub struct ContractStorage;
 

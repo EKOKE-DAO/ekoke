@@ -1,12 +1,11 @@
 use candid::{Nat, Principal};
-use did::{
-    dilazionato::{SellContractResult, Token},
-    ID,
-};
+use did::dilazionato::{SellContractResult, Token};
+use did::ID;
 
-use crate::{client::FlyClient, utils::caller};
-
-use super::{configuration::Configuration, storage::ContractStorage};
+use super::configuration::Configuration;
+use super::storage::ContractStorage;
+use crate::client::FlyClient;
+use crate::utils::caller;
 
 pub struct Minter;
 
