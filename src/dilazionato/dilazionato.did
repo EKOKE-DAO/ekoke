@@ -7,8 +7,20 @@ type Contract = record {
   seller : principal;
   expiration : text;
   tokens : vec nat;
+  currency : text;
+  initial_value : nat64;
   buyers : vec principal;
   mfly_reward : nat64;
+};
+type ContractRegistration = record {
+  id : nat;
+  value : nat64;
+  building : BuildingData;
+  seller : principal;
+  expiration : text;
+  currency : text;
+  installments : nat64;
+  buyers : vec principal;
 };
 type FlyError = variant { StorageError };
 type GenericValue = variant {
@@ -132,15 +144,7 @@ type Vec = vec record {
   };
 };
 service : (SellContractInitData) -> {
-  admin_register_contract : (
-      nat,
-      principal,
-      vec principal,
-      text,
-      nat64,
-      nat64,
-      BuildingData,
-    ) -> (Result);
+  admin_register_contract : (ContractRegistration) -> (Result);
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   approve : (principal, nat) -> (Result_1);

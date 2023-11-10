@@ -82,8 +82,12 @@ pub struct Contract {
     pub tokens: Vec<TokenIdentifier>,
     /// $mFLY (milli-fly) reward for buying a Token
     pub mfly_reward: u64,
-    /// Fiat value of the contract
+    /// Initial Fiat value of the contract
+    pub initial_value: u64,
+    /// Current Fiat value of the contract
     pub value: u64,
+    /// Currency symbol
+    pub currency: String,
     /// Data associated to the building
     pub building: BuildingData,
 }
@@ -226,6 +230,19 @@ impl Storable for StorableTxEvent {
     }
 }
 
+/// Data to be provided to register a contract
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct ContractRegistration {
+    pub id: ID,
+    pub seller: Principal,
+    pub buyers: Vec<Principal>,
+    pub expiration: String,
+    pub value: u64,
+    pub currency: String,
+    pub installments: u64,
+    pub building: BuildingData,
+}
+
 #[cfg(test)]
 mod test {
 
@@ -294,7 +311,9 @@ mod test {
             expiration: "2021-12-31".to_string(),
             tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },

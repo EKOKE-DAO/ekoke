@@ -1,5 +1,5 @@
 use candid::{candid_method, Nat, Principal};
-use did::dilazionato::{BuildingData, Contract, SellContractInitData, SellContractResult};
+use did::dilazionato::{Contract, ContractRegistration, SellContractInitData, SellContractResult};
 use did::ID;
 use dip721::Dip721 as _;
 use ic_cdk_macros::{init, post_upgrade, query, update};
@@ -26,25 +26,8 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub async fn admin_register_contract(
-    id: ID,
-    seller: Principal,
-    buyers: Vec<Principal>,
-    expiration: String,
-    value: u64,
-    installments: u64,
-    building_data: BuildingData,
-) -> SellContractResult<()> {
-    SellContract::admin_register_contract(
-        id,
-        seller,
-        buyers,
-        expiration,
-        value,
-        installments,
-        building_data,
-    )
-    .await
+pub async fn admin_register_contract(data: ContractRegistration) -> SellContractResult<()> {
+    SellContract::admin_register_contract(data).await
 }
 
 #[query]

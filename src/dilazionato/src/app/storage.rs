@@ -323,7 +323,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -373,7 +375,9 @@ mod test {
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -395,7 +399,9 @@ mod test {
             tokens: vec![],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -450,7 +456,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -503,7 +511,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -556,7 +566,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -629,7 +641,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -672,7 +686,9 @@ mod test {
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -712,7 +728,9 @@ mod test {
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -783,7 +801,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -841,7 +861,9 @@ mod test {
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },
@@ -889,7 +911,9 @@ mod test {
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
             mfly_reward: 4_000,
+            initial_value: 250_000,
             value: 250_000,
+            currency: "EUR".to_string(),
             building: BuildingData {
                 city: "Rome".to_string(),
             },

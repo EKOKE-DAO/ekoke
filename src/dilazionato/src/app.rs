@@ -10,8 +10,8 @@ use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::dilazionato::{
-    BuildingData, Contract, SellContractError, SellContractInitData, SellContractResult, Token,
-    TokenError,
+    Contract, ContractRegistration, SellContractError, SellContractInitData, SellContractResult,
+    Token, TokenError,
 };
 use did::ID;
 use dip721::{
@@ -69,7 +69,7 @@ impl SellContract {
         Ok(token)
     }
 
-    /// Inspect burn, allow burn only if caller is custodian, owner or operator and token is owned by a buyer.
+    /// Inspect burn, allow burn only if caller is owner or operator and token is owned by a buyer or a seller.
     pub fn inspect_burn(token_identifier: &Nat) -> Result<(), NftError> {
         let token = match Storage::get_token(token_identifier) {
             Some(token) => token,
@@ -84,8 +84,10 @@ impl SellContract {
             None => return Err(NftError::UnauthorizedOwner),
         };
 
-        if !contract.buyers.contains(&owner) {
-            return Err(NftError::Other("owner is not a buyer".to_string()));
+        if !contract.buyers.contains(&owner) && owner != contract.seller {
+            return Err(NftError::Other(
+                "owner is not nor a buyer nor the seller".to_string(),
+            ));
         }
         if caller() != owner && Some(caller()) != token.operator {
             return Err(NftError::UnauthorizedOperator);
@@ -159,42 +161,34 @@ impl SellContract {
 
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
-    pub async fn admin_register_contract(
-        id: ID,
-        seller: Principal,
-        buyers: Vec<Principal>,
-        expiration: String,
-        value: u64,
-        installments: u64,
-        building: BuildingData,
-    ) -> SellContractResult<()> {
-        Self::inspect_register_contract(&id, value, installments, &expiration)?;
+    pub async fn admin_register_contract(data: ContractRegistration) -> SellContractResult<()> {
+        Self::inspect_register_contract(&data.id, data.value, data.installments, &data.expiration)?;
 
         // get reward for contract
         let mfly_reward = FlyClient::from(Configuration::get_fly_canister())
-            .get_contract_reward(id.clone(), installments)
+            .get_contract_reward(data.id.clone(), data.installments)
             .await?;
 
         // make tokens
         let next_token_id = Storage::total_supply();
-        let mut tokens = Vec::with_capacity(installments as usize);
-        let mut tokens_ids = Vec::with_capacity(installments as usize);
-        let token_value: u64 = value / installments;
+        let mut tokens = Vec::with_capacity(data.installments as usize);
+        let mut tokens_ids = Vec::with_capacity(data.installments as usize);
+        let token_value: u64 = data.value / data.installments;
         let marketplace_canister = Configuration::get_marketplace_canister();
 
-        for token_id in next_token_id..next_token_id + installments {
+        for token_id in next_token_id..next_token_id + data.installments {
             tokens.push(Token {
                 approved_at: Some(crate::utils::time()),
                 approved_by: Some(caller()),
                 burned_at: None,
                 burned_by: None,
-                contract_id: id.clone(),
+                contract_id: data.id.clone(),
                 id: token_id.into(),
                 is_burned: false,
                 minted_at: crate::utils::time(),
                 minted_by: caller(),
                 operator: Some(marketplace_canister), // * the operator must be the marketplace canister
-                owner: Some(seller),
+                owner: Some(data.seller),
                 transferred_at: None,
                 transferred_by: None,
                 value: token_value,
@@ -204,14 +198,16 @@ impl SellContract {
 
         // make contract
         let contract = Contract {
-            building,
-            buyers,
-            expiration,
-            id: id.clone(),
+            building: data.building,
+            buyers: data.buyers,
+            expiration: data.expiration,
+            id: data.id.clone(),
             mfly_reward,
-            seller,
+            seller: data.seller,
             tokens: tokens_ids,
-            value,
+            value: data.value,
+            initial_value: data.value,
+            currency: data.currency,
         };
 
         // register contract

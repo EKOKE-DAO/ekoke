@@ -11,8 +11,20 @@ export interface Contract {
   'seller' : Principal,
   'expiration' : string,
   'tokens' : Array<bigint>,
+  'currency' : string,
+  'initial_value' : bigint,
   'buyers' : Array<Principal>,
   'mfly_reward' : bigint,
+}
+export interface ContractRegistration {
+  'id' : bigint,
+  'value' : bigint,
+  'building' : BuildingData,
+  'seller' : Principal,
+  'expiration' : string,
+  'currency' : string,
+  'installments' : bigint,
+  'buyers' : Array<Principal>,
 }
 export type FlyError = { 'StorageError' : null };
 export type GenericValue = { 'Nat64Content' : bigint } |
@@ -139,10 +151,7 @@ export type Vec = Array<
   ]
 >;
 export interface _SERVICE {
-  'admin_register_contract' : ActorMethod<
-    [bigint, Principal, Array<Principal>, string, bigint, bigint, BuildingData],
-    Result
-  >,
+  'admin_register_contract' : ActorMethod<[ContractRegistration], Result>,
   'admin_set_fly_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'approve' : ActorMethod<[Principal, bigint], Result_1>,

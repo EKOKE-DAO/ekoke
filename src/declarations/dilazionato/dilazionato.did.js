@@ -6,6 +6,16 @@ export const idlFactory = ({ IDL }) => {
     'marketplace_canister' : IDL.Principal,
   });
   const BuildingData = IDL.Record({ 'city' : IDL.Text });
+  const ContractRegistration = IDL.Record({
+    'id' : IDL.Nat,
+    'value' : IDL.Nat64,
+    'building' : BuildingData,
+    'seller' : IDL.Principal,
+    'expiration' : IDL.Text,
+    'currency' : IDL.Text,
+    'installments' : IDL.Nat64,
+    'buyers' : IDL.Vec(IDL.Principal),
+  });
   const FlyError = IDL.Variant({ 'StorageError' : IDL.Null });
   const ConfigurationError = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
@@ -52,6 +62,8 @@ export const idlFactory = ({ IDL }) => {
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
     'tokens' : IDL.Vec(IDL.Nat),
+    'currency' : IDL.Text,
+    'initial_value' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
     'mfly_reward' : IDL.Nat64,
   });
@@ -152,19 +164,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_7 = IDL.Variant({ 'Ok' : TxEvent, 'Err' : NftError });
   return IDL.Service({
-    'admin_register_contract' : IDL.Func(
-        [
-          IDL.Nat,
-          IDL.Principal,
-          IDL.Vec(IDL.Principal),
-          IDL.Text,
-          IDL.Nat64,
-          IDL.Nat64,
-          BuildingData,
-        ],
-        [Result],
-        [],
-      ),
+    'admin_register_contract' : IDL.Func([ContractRegistration], [Result], []),
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
