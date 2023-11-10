@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::{Contract, SellContractError, SellContractResult, Token, TokenError};
+use did::dilazionato::{Contract, DilazionatoError, DilazionatoResult, Token, TokenError};
 use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use itertools::Itertools;
@@ -18,29 +18,29 @@ impl ContractStorage {
     }
 
     /// Insert contract
-    pub fn insert_contract(contract: Contract, tokens: Vec<Token>) -> SellContractResult<()> {
+    pub fn insert_contract(contract: Contract, tokens: Vec<Token>) -> DilazionatoResult<()> {
         // check contract existance
         if Self::get_contract(&contract.id).is_some() {
-            return Err(SellContractError::Token(TokenError::ContractAlreadyExists(
+            return Err(DilazionatoError::Token(TokenError::ContractAlreadyExists(
                 contract.id,
             )));
         }
 
         // check if tokens is empty
         if tokens.is_empty() || contract.tokens.is_empty() {
-            return Err(SellContractError::Token(TokenError::ContractHasNoTokens));
+            return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
         }
 
         // check if token mismatch
         if contract.tokens.len() != tokens.len() {
-            return Err(SellContractError::Token(TokenError::TokensMismatch));
+            return Err(DilazionatoError::Token(TokenError::TokensMismatch));
         }
         let mut contract_tokens: Vec<&TokenIdentifier> = tokens.iter().map(|t| &t.id).collect();
         let mut tokens_ids: Vec<&TokenIdentifier> = contract.tokens.iter().collect();
         contract_tokens.sort();
         tokens_ids.sort();
         if contract_tokens != tokens_ids {
-            return Err(SellContractError::Token(TokenError::TokensMismatch));
+            return Err(DilazionatoError::Token(TokenError::TokensMismatch));
         }
 
         Self::insert_contract_tokens(&contract.id, contract.seller, tokens)?;
@@ -50,10 +50,10 @@ impl ContractStorage {
     }
 
     /// Add provided tokens to a contract
-    pub fn add_tokens_to_contract(contract_id: &ID, tokens: Vec<Token>) -> SellContractResult<()> {
+    pub fn add_tokens_to_contract(contract_id: &ID, tokens: Vec<Token>) -> DilazionatoResult<()> {
         // check if tokens is empty
         if tokens.is_empty() {
-            return Err(SellContractError::Token(TokenError::ContractHasNoTokens));
+            return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
         }
 
         with_contract_mut(contract_id, |contract| {
@@ -78,24 +78,24 @@ impl ContractStorage {
         contract_id: &ID,
         seller: Principal,
         tokens: Vec<Token>,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         with_tokens_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
                 if tokens_storage.contains_key(&token.id.clone().into()) {
-                    return Err(SellContractError::Token(TokenError::TokenAlreadyExists(
+                    return Err(DilazionatoError::Token(TokenError::TokenAlreadyExists(
                         token.id,
                     )));
                 }
                 // check if token is associated to the contract
                 if &token.contract_id != contract_id {
-                    return Err(SellContractError::Token(
+                    return Err(DilazionatoError::Token(
                         TokenError::TokenDoesNotBelongToContract(token.id),
                     ));
                 }
                 // check if token owner is the seller
                 if token.owner != Some(seller) {
-                    return Err(SellContractError::Token(TokenError::BadMintTokenOwner(
+                    return Err(DilazionatoError::Token(TokenError::BadMintTokenOwner(
                         token.id,
                     )));
                 }
@@ -124,7 +124,7 @@ impl ContractStorage {
     pub fn update_contract_buyers(
         contract_id: &ID,
         buyers: Vec<Principal>,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         with_contract_mut(contract_id, |contract| {
             contract.buyers = buyers;
             Ok(())
@@ -132,7 +132,7 @@ impl ContractStorage {
     }
 
     /// Update the operator for all token to the new operator canister
-    pub fn update_tokens_operator(operator: Principal) -> SellContractResult<()> {
+    pub fn update_tokens_operator(operator: Principal) -> DilazionatoResult<()> {
         with_tokens_mut(|tokens| {
             let new_tokens = tokens
                 .iter()
@@ -151,11 +151,11 @@ impl ContractStorage {
     }
 
     /// Burn token
-    pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<Nat> {
+    pub fn burn_token(token_id: &TokenIdentifier) -> DilazionatoResult<Nat> {
         let (tx_id, token) = with_token_mut(token_id, |token| {
             // check if burned
             if token.is_burned {
-                return Err(SellContractError::Token(TokenError::TokenIsBurned(
+                return Err(DilazionatoError::Token(TokenError::TokenIsBurned(
                     token_id.clone(),
                 )));
             }
@@ -177,7 +177,7 @@ impl ContractStorage {
     }
 
     /// Reduce contract value by `decr_by`
-    fn reduce_contract_value_by(contract_id: &ID, decr_by: u64) -> SellContractResult<()> {
+    fn reduce_contract_value_by(contract_id: &ID, decr_by: u64) -> DilazionatoResult<()> {
         with_contract_mut(contract_id, |contract| {
             contract.value -= decr_by;
 
@@ -186,11 +186,11 @@ impl ContractStorage {
     }
 
     /// Transfer token to provided principal
-    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> SellContractResult<Nat> {
+    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> DilazionatoResult<Nat> {
         with_token_mut(token_id, |token| {
             // check if burned
             if token.is_burned {
-                return Err(SellContractError::Token(TokenError::TokenIsBurned(
+                return Err(DilazionatoError::Token(TokenError::TokenIsBurned(
                     token_id.clone(),
                 )));
             }

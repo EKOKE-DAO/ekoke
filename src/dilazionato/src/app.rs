@@ -11,7 +11,7 @@ use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::dilazionato::{
-    Contract, ContractRegistration, SellContractError, SellContractInitData, SellContractResult,
+    Contract, ContractRegistration, DilazionatoError, DilazionatoInitData, DilazionatoResult,
     Token, TokenError,
 };
 use did::ID;
@@ -28,11 +28,11 @@ use crate::utils::caller;
 
 #[derive(Default)]
 /// Sell contract canister API
-pub struct SellContract;
+pub struct Dilazionato;
 
-impl SellContract {
+impl Dilazionato {
     /// On init set custodians and canisters ids
-    pub fn init(init_data: SellContractInitData) {
+    pub fn init(init_data: DilazionatoInitData) {
         Configuration::set_canister_custodians(&init_data.custodians).expect("storage error");
         Configuration::set_fly_canister(init_data.fly_canister).expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
@@ -104,20 +104,20 @@ impl SellContract {
         value: u64,
         installments: u64,
         expiration: &str,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         if !Self::inspect_is_custodian() {
-            return Err(SellContractError::Unauthorized);
+            return Err(DilazionatoError::Unauthorized);
         }
         // check if contract already exists
         if Self::get_contract(id).is_some() {
-            return Err(SellContractError::Token(TokenError::ContractAlreadyExists(
+            return Err(DilazionatoError::Token(TokenError::ContractAlreadyExists(
                 id.clone(),
             )));
         }
 
         // verify value must be multiple of installments
         if value % installments != 0 {
-            return Err(SellContractError::Token(
+            return Err(DilazionatoError::Token(
                 TokenError::ContractValueIsNotMultipleOfInstallments,
             ));
         }
@@ -125,20 +125,20 @@ impl SellContract {
         // check if expiration is YYYY-MM-DD and is not in the past
         match crate::utils::parse_date(expiration) {
             Ok(timestamp) if timestamp < crate::utils::time() => {
-                return Err(SellContractError::Token(TokenError::InvalidExpirationDate));
+                return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate));
             }
             Ok(_) => {}
-            Err(_) => return Err(SellContractError::Token(TokenError::InvalidExpirationDate)),
+            Err(_) => return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate)),
         }
 
         Ok(())
     }
 
-    pub fn inspect_is_seller(contract: ID) -> SellContractResult<()> {
+    pub fn inspect_is_seller(contract: ID) -> DilazionatoResult<()> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
             None => {
-                return Err(SellContractError::Token(TokenError::ContractNotFound(
+                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
                     contract,
                 )))
             }
@@ -147,15 +147,15 @@ impl SellContract {
         if contract.seller == caller() {
             Ok(())
         } else {
-            Err(SellContractError::Unauthorized)
+            Err(DilazionatoError::Unauthorized)
         }
     }
 
-    pub fn inspect_is_buyer(contract: ID) -> SellContractResult<()> {
+    pub fn inspect_is_buyer(contract: ID) -> DilazionatoResult<()> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
             None => {
-                return Err(SellContractError::Token(TokenError::ContractNotFound(
+                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
                     contract,
                 )))
             }
@@ -164,7 +164,7 @@ impl SellContract {
         if contract.buyers.contains(&caller()) {
             Ok(())
         } else {
-            Err(SellContractError::Unauthorized)
+            Err(DilazionatoError::Unauthorized)
         }
     }
 
@@ -182,7 +182,7 @@ impl SellContract {
     pub fn update_contract_buyers(
         contract_id: ID,
         buyers: Vec<Principal>,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         Self::inspect_is_buyer(contract_id.clone())?;
         ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
@@ -192,7 +192,7 @@ impl SellContract {
         contract_id: ID,
         incr_by: u64,
         installments: u64,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         Self::inspect_is_seller(contract_id.clone())?;
 
         // mint new tokens
@@ -204,7 +204,7 @@ impl SellContract {
 
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
-    pub async fn register_contract(data: ContractRegistration) -> SellContractResult<()> {
+    pub async fn register_contract(data: ContractRegistration) -> DilazionatoResult<()> {
         Self::inspect_register_contract(&data.id, data.value, data.installments, &data.expiration)?;
 
         let (tokens, tokens_ids) =
@@ -258,7 +258,7 @@ impl SellContract {
 }
 
 #[async_trait]
-impl Dip721 for SellContract {
+impl Dip721 for Dilazionato {
     /// Returns the Metadata of the NFT canister which includes custodians, logo, name, symbol.
     fn metadata() -> Metadata {
         Metadata {
@@ -496,7 +496,7 @@ impl Dip721 for SellContract {
         // transfer token to the new owner
         let tx_id = match ContractStorage::transfer(&token_identifier, to) {
             Ok(tx_id) => tx_id,
-            Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
+            Err(DilazionatoError::Token(TokenError::TokenNotFound(_))) => {
                 return Err(NftError::TokenNotFound)
             }
             Err(_) => return Err(NftError::UnauthorizedOperator),
@@ -532,7 +532,7 @@ impl Dip721 for SellContract {
 
         match ContractStorage::burn_token(&token_identifier) {
             Ok(tx_id) => Ok(tx_id),
-            Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
+            Err(DilazionatoError::Token(TokenError::TokenNotFound(_))) => {
                 Err(NftError::TokenNotFound)
             }
             Err(_) => Err(NftError::UnauthorizedOperator),
@@ -565,15 +565,15 @@ mod test {
 
     #[test]
     fn test_should_get_tx() {
-        assert!(SellContract::transaction(Nat::from(1)).is_err());
+        assert!(Dilazionato::transaction(Nat::from(1)).is_err());
         let id = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert!(SellContract::transaction(Nat::from(id)).is_ok());
+        assert!(Dilazionato::transaction(Nat::from(id)).is_ok());
     }
 
     #[test]
     fn test_should_get_total_transactions() {
-        assert_eq!(SellContract::total_transactions(), Nat::from(0));
+        assert_eq!(Dilazionato::total_transactions(), Nat::from(0));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert_eq!(SellContract::total_transactions(), Nat::from(1));
+        assert_eq!(Dilazionato::total_transactions(), Nat::from(1));
     }
 }

@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::{SellContractResult, Token};
+use did::dilazionato::{DilazionatoResult, Token};
 use did::ID;
 
 use super::configuration::Configuration;
@@ -15,7 +15,7 @@ impl Minter {
         seller: Principal,
         installments: u64,
         contract_value: u64,
-    ) -> SellContractResult<(Vec<Token>, Vec<Nat>)> {
+    ) -> DilazionatoResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
         let mfly_reward = fly_client(Configuration::get_fly_canister())
             .get_contract_reward(contract_id.clone(), installments)

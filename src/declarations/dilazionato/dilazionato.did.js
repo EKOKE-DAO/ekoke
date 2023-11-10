@@ -1,6 +1,6 @@
 export const idlFactory = ({ IDL }) => {
   const Vec = IDL.Rec();
-  const SellContractInitData = IDL.Record({
+  const DilazionatoInitData = IDL.Record({
     'fly_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
@@ -134,14 +134,14 @@ export const idlFactory = ({ IDL }) => {
     'InvalidExpirationDate' : IDL.Null,
     'BadMintTokenOwner' : IDL.Nat,
   });
-  const SellContractError = IDL.Variant({
+  const DilazionatoError = IDL.Variant({
     'Fly' : FlyError,
     'Configuration' : ConfigurationError,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,
   });
-  const Result_5 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : SellContractError });
+  const Result_5 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DilazionatoError });
   const Stats = IDL.Record({
     'cycles' : IDL.Nat,
     'total_transactions' : IDL.Nat,
@@ -240,10 +240,10 @@ export const idlFactory = ({ IDL }) => {
   });
 };
 export const init = ({ IDL }) => {
-  const SellContractInitData = IDL.Record({
+  const DilazionatoInitData = IDL.Record({
     'fly_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
   });
-  return [SellContractInitData];
+  return [DilazionatoInitData];
 };

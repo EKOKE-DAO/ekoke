@@ -25,6 +25,16 @@ export interface ContractRegistration {
   'installments' : bigint,
   'buyers' : Array<Principal>,
 }
+export type DilazionatoError = { 'Fly' : FlyError } |
+  { 'Configuration' : ConfigurationError } |
+  { 'Unauthorized' : null } |
+  { 'Token' : TokenError } |
+  { 'StorageError' : null };
+export interface DilazionatoInitData {
+  'fly_canister' : Principal,
+  'custodians' : Array<Principal>,
+  'marketplace_canister' : Principal,
+}
 export type FlyError = { 'StorageError' : null };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
@@ -71,21 +81,11 @@ export type Result_3 = { 'Ok' : Array<bigint> } |
 export type Result_4 = { 'Ok' : Array<TokenMetadata> } |
   { 'Err' : NftError };
 export type Result_5 = { 'Ok' : null } |
-  { 'Err' : SellContractError };
+  { 'Err' : DilazionatoError };
 export type Result_6 = { 'Ok' : TokenMetadata } |
   { 'Err' : NftError };
 export type Result_7 = { 'Ok' : TxEvent } |
   { 'Err' : NftError };
-export type SellContractError = { 'Fly' : FlyError } |
-  { 'Configuration' : ConfigurationError } |
-  { 'Unauthorized' : null } |
-  { 'Token' : TokenError } |
-  { 'StorageError' : null };
-export interface SellContractInitData {
-  'fly_canister' : Principal,
-  'custodians' : Array<Principal>,
-  'marketplace_canister' : Principal,
-}
 export interface Stats {
   'cycles' : bigint,
   'total_transactions' : bigint,

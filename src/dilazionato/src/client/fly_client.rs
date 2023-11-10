@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use candid::Principal;
-use did::dilazionato::SellContractResult;
+use did::dilazionato::DilazionatoResult;
 use did::ID;
 
 #[cfg(not(test))]
@@ -20,14 +20,14 @@ pub trait FlyClient {
         &self,
         contract_id: ID,
         installments: u64,
-    ) -> SellContractResult<u64>;
+    ) -> DilazionatoResult<u64>;
 
     async fn send_reward(
         &self,
         contract_id: ID,
         mfly: u64,
         new_owner: Principal,
-    ) -> SellContractResult<()>;
+    ) -> DilazionatoResult<()>;
 }
 
 #[cfg(not(test))]
@@ -48,7 +48,7 @@ impl FlyClient for IcFlyClient {
         &self,
         _contract_id: ID,
         _installments: u64,
-    ) -> SellContractResult<u64> {
+    ) -> DilazionatoResult<u64> {
         todo!()
     }
 
@@ -58,7 +58,7 @@ impl FlyClient for IcFlyClient {
         _contract_id: ID,
         _mfly: u64,
         _new_owner: Principal,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         todo!()
     }
 }
@@ -71,7 +71,7 @@ impl FlyClient for IcFlyClient {
         &self,
         _contract_id: ID,
         _installments: u64,
-    ) -> SellContractResult<u64> {
+    ) -> DilazionatoResult<u64> {
         Ok(71_000)
     }
 
@@ -81,7 +81,7 @@ impl FlyClient for IcFlyClient {
         _contract_id: ID,
         _mfly: u64,
         _new_owner: Principal,
-    ) -> SellContractResult<()> {
+    ) -> DilazionatoResult<()> {
         Ok(())
     }
 }

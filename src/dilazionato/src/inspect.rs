@@ -5,7 +5,7 @@ use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
 
-use crate::app::SellContract;
+use crate::app::Dilazionato;
 
 /// NOTE: inspect is disabled for non-wasm targets because without it we are getting a weird compilation error
 /// in CI:
@@ -21,13 +21,13 @@ fn inspect_message_impl() {
     let method = api::call::method_name();
 
     let check_result = match method.as_str() {
-        method if method.starts_with("admin_") => SellContract::inspect_is_custodian(),
+        method if method.starts_with("admin_") => Dilazionato::inspect_is_custodian(),
         "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
-            SellContract::inspect_is_custodian()
+            Dilazionato::inspect_is_custodian()
         }
         "seller_increment_contract_value" => {
             let (id, _, __export_service) = api::call::arg_data::<(ID, u64, u64)>();
-            SellContract::inspect_is_buyer(id).is_ok()
+            Dilazionato::inspect_is_buyer(id).is_ok()
         }
         "register_contract" => {
             let (id, _, _, expiration, value, installments, _) = api::call::arg_data::<(
@@ -39,15 +39,15 @@ fn inspect_message_impl() {
                 u64,
                 BuildingData,
             )>();
-            SellContract::inspect_register_contract(&id, value, installments, &expiration).is_ok()
+            Dilazionato::inspect_register_contract(&id, value, installments, &expiration).is_ok()
         }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
-            SellContract::inspect_burn(&token_identifier).is_ok()
+            Dilazionato::inspect_burn(&token_identifier).is_ok()
         }
         "transfer_from" => {
             let (_, _, token_identifier) = api::call::arg_data::<(Principal, Principal, Nat)>();
-            SellContract::inspect_is_owner_or_operator(&token_identifier).is_ok()
+            Dilazionato::inspect_is_owner_or_operator(&token_identifier).is_ok()
         }
         _ => false,
     };

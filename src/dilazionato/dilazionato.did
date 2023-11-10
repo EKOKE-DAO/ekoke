@@ -21,6 +21,18 @@ type ContractRegistration = record {
   installments : nat64;
   buyers : vec principal;
 };
+type DilazionatoError = variant {
+  Fly : FlyError;
+  Configuration : ConfigurationError;
+  Unauthorized;
+  Token : TokenError;
+  StorageError;
+};
+type DilazionatoInitData = record {
+  fly_canister : principal;
+  custodians : vec principal;
+  marketplace_canister : principal;
+};
 type FlyError = variant { StorageError };
 type GenericValue = variant {
   Nat64Content : nat64;
@@ -65,21 +77,9 @@ type Result_1 = variant { Ok : bool; Err : NftError };
 type Result_2 = variant { Ok : opt principal; Err : NftError };
 type Result_3 = variant { Ok : vec nat; Err : NftError };
 type Result_4 = variant { Ok : vec TokenMetadata; Err : NftError };
-type Result_5 = variant { Ok; Err : SellContractError };
+type Result_5 = variant { Ok; Err : DilazionatoError };
 type Result_6 = variant { Ok : TokenMetadata; Err : NftError };
 type Result_7 = variant { Ok : TxEvent; Err : NftError };
-type SellContractError = variant {
-  Fly : FlyError;
-  Configuration : ConfigurationError;
-  Unauthorized;
-  Token : TokenError;
-  StorageError;
-};
-type SellContractInitData = record {
-  fly_canister : principal;
-  custodians : vec principal;
-  marketplace_canister : principal;
-};
 type Stats = record {
   cycles : nat;
   total_transactions : nat;
@@ -142,7 +142,7 @@ type Vec = vec record {
     TextContent : text;
   };
 };
-service : (SellContractInitData) -> {
+service : (DilazionatoInitData) -> {
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   approve : (principal, nat) -> (Result);

@@ -9,18 +9,18 @@ use thiserror::Error;
 use crate::fly::FlyError;
 use crate::ID;
 
-pub type SellContractResult<T> = Result<T, SellContractError>;
+pub type DilazionatoResult<T> = Result<T, DilazionatoError>;
 
 /// These are the arguments which are taken by the sell contract canister on init
 #[derive(Debug, Clone, CandidType, Deserialize)]
-pub struct SellContractInitData {
+pub struct DilazionatoInitData {
     pub custodians: Vec<Principal>,
     pub fly_canister: Principal,
     pub marketplace_canister: Principal,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
-pub enum SellContractError {
+pub enum DilazionatoError {
     #[error("unauthorized caller")]
     Unauthorized,
     #[error("fly error: {0}")]

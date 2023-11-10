@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::dilazionato::{ConfigurationError, SellContractError, SellContractResult};
+use did::dilazionato::{ConfigurationError, DilazionatoError, DilazionatoResult};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
@@ -75,10 +75,10 @@ impl Configuration {
     }
 
     /// Set canisters custodian
-    pub fn set_canister_custodians(principals: &[Principal]) -> SellContractResult<()> {
+    pub fn set_canister_custodians(principals: &[Principal]) -> DilazionatoResult<()> {
         // check if custodians is empty
         if principals.is_empty() {
-            return Err(SellContractError::Configuration(
+            return Err(DilazionatoError::Configuration(
                 ConfigurationError::CustodialsCantBeEmpty,
             ));
         }
@@ -88,7 +88,7 @@ impl Configuration {
             .iter()
             .any(|principal| principal == &Principal::anonymous())
         {
-            return Err(SellContractError::Configuration(
+            return Err(DilazionatoError::Configuration(
                 ConfigurationError::AnonymousCustodial,
             ));
         }
@@ -100,7 +100,7 @@ impl Configuration {
             for principal in principals {
                 canister_custodians
                     .push(&StorablePrincipal::from(*principal))
-                    .map_err(|_| SellContractError::StorageError)?;
+                    .map_err(|_| DilazionatoError::StorageError)?;
             }
             Ok(())
         })
@@ -110,9 +110,9 @@ impl Configuration {
         LOGO.with_borrow(|logo| logo.get().clone())
     }
 
-    pub fn set_logo(logo: String) -> SellContractResult<()> {
+    pub fn set_logo(logo: String) -> DilazionatoResult<()> {
         LOGO.with_borrow_mut(|cell| cell.set(Some(logo)))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
@@ -121,9 +121,9 @@ impl Configuration {
         NAME.with_borrow(|name| name.get().clone())
     }
 
-    pub fn set_name(name: String) -> SellContractResult<()> {
+    pub fn set_name(name: String) -> DilazionatoResult<()> {
         NAME.with_borrow_mut(|cell| cell.set(Some(name)))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
@@ -132,10 +132,10 @@ impl Configuration {
         SYMBOL.with_borrow(|logo| logo.get().clone())
     }
 
-    pub fn set_symbol(symbol: String) -> SellContractResult<()> {
+    pub fn set_symbol(symbol: String) -> DilazionatoResult<()> {
         SYMBOL
             .with_borrow_mut(|cell| cell.set(Some(symbol)))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
@@ -148,10 +148,10 @@ impl Configuration {
         UPGRADED_AT.with_borrow(|cell| *cell.get())
     }
 
-    pub fn set_upgraded_at() -> SellContractResult<()> {
+    pub fn set_upgraded_at() -> DilazionatoResult<()> {
         UPGRADED_AT
             .with_borrow_mut(|cell| cell.set(crate::utils::time()))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
@@ -160,18 +160,18 @@ impl Configuration {
         FLY_CANISTER.with_borrow(|cell| *cell.get().as_principal())
     }
 
-    pub fn set_fly_canister(canister: Principal) -> SellContractResult<()> {
+    pub fn set_fly_canister(canister: Principal) -> DilazionatoResult<()> {
         FLY_CANISTER
             .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
 
-    pub fn set_marketplace_canister(canister: Principal) -> SellContractResult<()> {
+    pub fn set_marketplace_canister(canister: Principal) -> DilazionatoResult<()> {
         MARKETPLACE_CANISTER
             .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
-            .map_err(|_| SellContractError::StorageError)?;
+            .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
     }
