@@ -4,6 +4,7 @@
 
 mod configuration;
 mod memory;
+mod minter;
 mod storage;
 
 use async_trait::async_trait;
@@ -19,6 +20,7 @@ use dip721::{
     TokenMetadata, TxEvent,
 };
 
+use self::minter::Minter;
 use self::storage::TxHistory;
 use crate::app::storage::Storage;
 use crate::client::FlyClient;
@@ -132,6 +134,23 @@ impl SellContract {
         Ok(())
     }
 
+    pub fn inspect_is_seller(contract: ID) -> SellContractResult<()> {
+        let contract = match Storage::get_contract(&contract) {
+            Some(contract) => contract,
+            None => {
+                return Err(SellContractError::Token(TokenError::ContractNotFound(
+                    contract,
+                )))
+            }
+        };
+
+        if contract.seller == caller() {
+            Ok(())
+        } else {
+            Err(SellContractError::Unauthorized)
+        }
+    }
+
     pub fn inspect_is_buyer(contract: ID) -> SellContractResult<()> {
         let contract = match Storage::get_contract(&contract) {
             Some(contract) => contract,
@@ -159,42 +178,37 @@ impl SellContract {
         Storage::get_contracts()
     }
 
+    /// Update contract buyers. Only the buyer can call this method.
+    pub fn update_contract_buyers(
+        contract_id: ID,
+        buyers: Vec<Principal>,
+    ) -> SellContractResult<()> {
+        Self::inspect_is_buyer(contract_id.clone())?;
+        Storage::update_contract_buyers(&contract_id, buyers)
+    }
+
+    /// Increment contract value. Only the seller can call this method.
+    pub async fn seller_increment_contract_value(
+        contract_id: ID,
+        incr_by: u64,
+        installments: u64,
+    ) -> SellContractResult<()> {
+        Self::inspect_is_seller(contract_id.clone())?;
+
+        // mint new tokens
+        let (tokens, _) = Minter::mint(&contract_id, caller(), installments, incr_by).await?;
+
+        // update contract
+        Storage::add_tokens_to_contract(&contract_id, tokens)
+    }
+
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
-    pub async fn admin_register_contract(data: ContractRegistration) -> SellContractResult<()> {
+    pub async fn register_contract(data: ContractRegistration) -> SellContractResult<()> {
         Self::inspect_register_contract(&data.id, data.value, data.installments, &data.expiration)?;
 
-        // get reward for contract
-        let mfly_reward = FlyClient::from(Configuration::get_fly_canister())
-            .get_contract_reward(data.id.clone(), data.installments)
-            .await?;
-
-        // make tokens
-        let next_token_id = Storage::total_supply();
-        let mut tokens = Vec::with_capacity(data.installments as usize);
-        let mut tokens_ids = Vec::with_capacity(data.installments as usize);
-        let token_value: u64 = data.value / data.installments;
-        let marketplace_canister = Configuration::get_marketplace_canister();
-
-        for token_id in next_token_id..next_token_id + data.installments {
-            tokens.push(Token {
-                approved_at: Some(crate::utils::time()),
-                approved_by: Some(caller()),
-                burned_at: None,
-                burned_by: None,
-                contract_id: data.id.clone(),
-                id: token_id.into(),
-                is_burned: false,
-                minted_at: crate::utils::time(),
-                minted_by: caller(),
-                operator: Some(marketplace_canister), // * the operator must be the marketplace canister
-                owner: Some(data.seller),
-                transferred_at: None,
-                transferred_by: None,
-                value: token_value,
-            });
-            tokens_ids.push(token_id.into());
-        }
+        let (tokens, tokens_ids) =
+            Minter::mint(&data.id, data.seller, data.installments, data.value).await?;
 
         // make contract
         let contract = Contract {
@@ -202,7 +216,6 @@ impl SellContract {
             buyers: data.buyers,
             expiration: data.expiration,
             id: data.id.clone(),
-            mfly_reward,
             seller: data.seller,
             tokens: tokens_ids,
             value: data.value,
@@ -241,15 +254,6 @@ impl SellContract {
         if let Err(err) = Configuration::set_fly_canister(canister) {
             ic_cdk::trap(&err.to_string());
         }
-    }
-
-    /// Update contract buyers. Only the buyer can call this method.
-    pub fn update_contract_buyers(
-        contract_id: ID,
-        buyers: Vec<Principal>,
-    ) -> SellContractResult<()> {
-        Self::inspect_is_buyer(contract_id.clone())?;
-        Storage::update_contract_buyers(&contract_id, buyers)
     }
 }
 
@@ -501,7 +505,7 @@ impl Dip721 for SellContract {
         // if the previous owner, was the seller, notify fly canister to transfer reward to the new owner
         if last_owner == Some(contract.seller) {
             FlyClient::from(Configuration::get_fly_canister())
-                .send_reward(token.contract_id, contract.mfly_reward, to)
+                .send_reward(token.contract_id, token.mfly_reward, to)
                 .await
                 .map_err(|_| NftError::Other("fly canister error".to_string()))?;
         }

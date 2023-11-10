@@ -66,6 +66,53 @@ impl Storage {
             return Err(SellContractError::Token(TokenError::TokensMismatch));
         }
 
+        Self::insert_contract_tokens(&contract.id, contract.seller, tokens)?;
+        CONTRACTS
+            .with_borrow_mut(|contracts| contracts.insert(contract.id.clone().into(), contract));
+
+        Ok(())
+    }
+
+    /// Add provided tokens to a contract
+    pub fn add_tokens_to_contract(contract_id: &ID, tokens: Vec<Token>) -> SellContractResult<()> {
+        // check contract existance
+        let mut contract = match Self::get_contract(contract_id) {
+            Some(c) => c,
+            None => {
+                return Err(SellContractError::Token(TokenError::ContractNotFound(
+                    contract_id.clone(),
+                )))
+            }
+        };
+
+        // check if tokens is empty
+        if tokens.is_empty() {
+            return Err(SellContractError::Token(TokenError::ContractHasNoTokens));
+        }
+
+        let new_value = contract.value + tokens.iter().map(|t| t.value).sum::<u64>();
+        let token_ids = tokens
+            .iter()
+            .map(|t| t.id.clone())
+            .collect::<Vec<TokenIdentifier>>();
+
+        Self::insert_contract_tokens(contract_id, contract.seller, tokens)?;
+
+        // update contract value and ids
+        contract.value = new_value;
+        contract.tokens.extend(token_ids);
+
+        CONTRACTS
+            .with_borrow_mut(|contracts| contracts.insert(contract.id.clone().into(), contract));
+
+        Ok(())
+    }
+
+    fn insert_contract_tokens(
+        contract_id: &ID,
+        seller: Principal,
+        tokens: Vec<Token>,
+    ) -> SellContractResult<()> {
         TOKENS.with_borrow_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
@@ -75,13 +122,13 @@ impl Storage {
                     )));
                 }
                 // check if token is associated to the contract
-                if token.contract_id != contract.id {
+                if &token.contract_id != contract_id {
                     return Err(SellContractError::Token(
                         TokenError::TokenDoesNotBelongToContract(token.id),
                     ));
                 }
                 // check if token owner is the seller
-                if token.owner != Some(contract.seller) {
+                if token.owner != Some(seller) {
                     return Err(SellContractError::Token(TokenError::BadMintTokenOwner(
                         token.id,
                     )));
@@ -94,11 +141,7 @@ impl Storage {
             }
 
             Ok(())
-        })?;
-        CONTRACTS
-            .with_borrow_mut(|contracts| contracts.insert(contract.id.clone().into(), contract));
-
-        Ok(())
+        })
     }
 
     /// Get token by id
@@ -311,6 +354,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -327,6 +371,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -344,7 +389,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -379,6 +423,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -396,7 +441,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -420,7 +464,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -444,6 +487,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -460,6 +504,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -477,7 +522,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -499,6 +543,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -515,6 +560,7 @@ mod test {
             contract_id: ID::from(2),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -532,7 +578,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -554,6 +599,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -570,6 +616,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(Principal::anonymous()),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -587,7 +634,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -612,6 +658,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -628,6 +675,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -644,6 +692,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -662,7 +711,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -690,6 +738,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(Principal::anonymous()),
             value: 1000,
+            mfly_reward: 4000,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -707,7 +756,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -738,6 +786,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(Principal::anonymous()),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -755,7 +804,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -795,6 +843,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -811,6 +860,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -828,7 +878,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -855,6 +904,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -871,6 +921,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -888,7 +939,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -921,6 +971,7 @@ mod test {
             contract_id: contract_id.clone(),
             owner: Some(seller),
             value: 100,
+            mfly_reward: 400,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -938,7 +989,6 @@ mod test {
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -957,5 +1007,73 @@ mod test {
             Storage::get_contract(&contract_id).unwrap().buyers,
             vec![Principal::anonymous(), buyer]
         );
+    }
+
+    #[test]
+    fn test_should_increment_tokens() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::from(1);
+        let next_token_id = Storage::total_supply();
+        assert_eq!(next_token_id, Nat::from(0));
+        let token_1 = Token {
+            id: next_token_id.into(),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            mfly_reward: 400,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: Some(seller),
+        };
+        let contract = Contract {
+            id: contract_id.clone(),
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            initial_value: 100,
+            value: 100,
+            currency: "EUR".to_string(),
+            building: BuildingData {
+                city: "Rome".to_string(),
+            },
+        };
+
+        assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
+        assert_eq!(Storage::total_supply(), 1);
+        assert_eq!(Storage::tokens_by_owner(seller).len(), 1);
+
+        // create new tokens
+        let token_2 = Token {
+            id: (next_token_id + 1).into(),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            mfly_reward: 400,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: None,
+        };
+
+        assert!(Storage::add_tokens_to_contract(&contract.id, vec![token_2]).is_ok());
+        assert_eq!(Storage::total_supply(), 2);
+        assert_eq!(Storage::tokens_by_owner(seller).len(), 2);
+        assert_eq!(Storage::get_contract(&contract_id).unwrap().value, 200);
     }
 }

@@ -10,7 +10,6 @@ type Contract = record {
   currency : text;
   initial_value : nat64;
   buyers : vec principal;
-  mfly_reward : nat64;
 };
 type ContractRegistration = record {
   id : nat;
@@ -61,12 +60,12 @@ type NftError = variant {
   OwnerNotFound;
   Other : text;
 };
-type Result = variant { Ok; Err : SellContractError };
-type Result_1 = variant { Ok : nat; Err : NftError };
-type Result_2 = variant { Ok : bool; Err : NftError };
-type Result_3 = variant { Ok : opt principal; Err : NftError };
-type Result_4 = variant { Ok : vec nat; Err : NftError };
-type Result_5 = variant { Ok : vec TokenMetadata; Err : NftError };
+type Result = variant { Ok : nat; Err : NftError };
+type Result_1 = variant { Ok : bool; Err : NftError };
+type Result_2 = variant { Ok : opt principal; Err : NftError };
+type Result_3 = variant { Ok : vec nat; Err : NftError };
+type Result_4 = variant { Ok : vec TokenMetadata; Err : NftError };
+type Result_5 = variant { Ok; Err : SellContractError };
 type Result_6 = variant { Ok : TokenMetadata; Err : NftError };
 type Result_7 = variant { Ok : TxEvent; Err : NftError };
 type SellContractError = variant {
@@ -144,28 +143,29 @@ type Vec = vec record {
   };
 };
 service : (SellContractInitData) -> {
-  admin_register_contract : (ContractRegistration) -> (Result);
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
-  approve : (principal, nat) -> (Result_1);
-  balance_of : (principal) -> (Result_1) query;
-  burn : (nat) -> (Result_1);
+  approve : (principal, nat) -> (Result);
+  balance_of : (principal) -> (Result) query;
+  burn : (nat) -> (Result);
   custodians : () -> (vec principal) query;
   cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;
   get_contracts : () -> (vec nat) query;
-  is_approved_for_all : (principal, principal) -> (Result_2);
+  is_approved_for_all : (principal, principal) -> (Result_1);
   logo : () -> (opt text) query;
   metadata : () -> (Metadata) query;
-  mint : (principal, nat, vec record { text; GenericValue }) -> (Result_1);
+  mint : (principal, nat, vec record { text; GenericValue }) -> (Result);
   name : () -> (opt text) query;
-  operator_of : (nat) -> (Result_3) query;
-  operator_token_identifiers : (principal) -> (Result_4) query;
-  operator_token_metadata : (principal) -> (Result_5) query;
-  owner_of : (nat) -> (Result_3) query;
-  owner_token_identifiers : (principal) -> (Result_4) query;
-  owner_token_metadata : (principal) -> (Result_5) query;
-  set_approval_for_all : (principal, bool) -> (Result_1);
+  operator_of : (nat) -> (Result_2) query;
+  operator_token_identifiers : (principal) -> (Result_3) query;
+  operator_token_metadata : (principal) -> (Result_4) query;
+  owner_of : (nat) -> (Result_2) query;
+  owner_token_identifiers : (principal) -> (Result_3) query;
+  owner_token_metadata : (principal) -> (Result_4) query;
+  register_contract : (ContractRegistration) -> (Result_5);
+  seller_increment_contract_value : (nat, nat64, nat64) -> (Result_5);
+  set_approval_for_all : (principal, bool) -> (Result);
   set_custodians : (vec principal) -> ();
   set_logo : (text) -> ();
   set_name : (text) -> ();
@@ -178,7 +178,7 @@ service : (SellContractInitData) -> {
   total_transactions : () -> (nat) query;
   total_unique_holders : () -> (nat) query;
   transaction : (nat) -> (Result_7) query;
-  transfer : (principal, nat) -> (Result_1);
-  transfer_from : (principal, principal, nat) -> (Result_1);
-  update_contract_buyers : (nat, vec principal) -> (Result);
+  transfer : (principal, nat) -> (Result);
+  transfer_from : (principal, principal, nat) -> (Result);
+  update_contract_buyers : (nat, vec principal) -> (Result_5);
 }

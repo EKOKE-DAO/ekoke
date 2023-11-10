@@ -80,11 +80,9 @@ pub struct Contract {
     pub expiration: String,
     /// Tokens associated to the contract, by id
     pub tokens: Vec<TokenIdentifier>,
-    /// $mFLY (milli-fly) reward for buying a Token
-    pub mfly_reward: u64,
     /// Initial Fiat value of the contract
     pub initial_value: u64,
-    /// Current Fiat value of the contract
+    /// Current Fiat value of the contract (to pay)
     pub value: u64,
     /// Currency symbol
     pub currency: String,
@@ -115,6 +113,8 @@ pub struct Token {
     pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
+    /// $mFLY (milli-fly) reward for buying a Token
+    pub mfly_reward: u64,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
     /// Whether the token is burned
@@ -261,6 +261,7 @@ mod test {
                 )
                 .unwrap(),
             ),
+            mfly_reward: 4_000,
             transferred_at: None,
             transferred_by: None,
             approved_at: None,
@@ -280,6 +281,7 @@ mod test {
         assert_eq!(token.contract_id, decoded_token.contract_id);
         assert_eq!(token.owner, decoded_token.owner);
         assert_eq!(token.value, decoded_token.value);
+        assert_eq!(token.mfly_reward, decoded_token.mfly_reward);
     }
 
     #[test]
@@ -310,7 +312,6 @@ mod test {
             ],
             expiration: "2021-12-31".to_string(),
             tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
-            mfly_reward: 4_000,
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
@@ -326,7 +327,6 @@ mod test {
         assert_eq!(contract.buyers, decoded_contract.buyers);
         assert_eq!(contract.expiration, decoded_contract.expiration);
         assert_eq!(contract.tokens, decoded_contract.tokens);
-        assert_eq!(contract.mfly_reward, decoded_contract.mfly_reward);
         assert_eq!(contract.building.city, decoded_contract.building.city);
         assert_eq!(contract.value, decoded_contract.value);
     }

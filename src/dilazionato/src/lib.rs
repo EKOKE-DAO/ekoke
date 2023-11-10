@@ -26,8 +26,18 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub async fn admin_register_contract(data: ContractRegistration) -> SellContractResult<()> {
-    SellContract::admin_register_contract(data).await
+pub async fn register_contract(data: ContractRegistration) -> SellContractResult<()> {
+    SellContract::register_contract(data).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn seller_increment_contract_value(
+    contract_id: ID,
+    value: u64,
+    installments: u64,
+) -> SellContractResult<()> {
+    SellContract::seller_increment_contract_value(contract_id, value, installments).await
 }
 
 #[query]

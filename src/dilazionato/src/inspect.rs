@@ -25,6 +25,10 @@ fn inspect_message_impl() {
         "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
             SellContract::inspect_is_custodian()
         }
+        "seller_increment_contract_value" => {
+            let (id, _, __export_service) = api::call::arg_data::<(ID, u64, u64)>();
+            SellContract::inspect_is_buyer(id).is_ok()
+        }
         "register_contract" => {
             let (id, _, _, expiration, value, installments, _) = api::call::arg_data::<(
                 ID,

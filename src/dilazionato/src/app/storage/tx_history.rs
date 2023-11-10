@@ -146,6 +146,7 @@ mod test {
             transferred_by: None,
             approved_at: None,
             approved_by: None,
+            mfly_reward: 4000,
             burned_at: None,
             burned_by: None,
             minted_at: 0,
