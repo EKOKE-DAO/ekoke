@@ -261,6 +261,8 @@ mod test {
     use did::dilazionato::BuildingData;
     use pretty_assertions::assert_eq;
 
+    use crate::test::mock_token;
+
     use super::*;
 
     #[test]
@@ -340,23 +342,7 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
         let contract = Contract {
             id: contract_id,
             seller,
@@ -404,40 +390,8 @@ mod test {
                 .unwrap();
         let contract_id = ID::from(1);
         let token_id = TokenIdentifier::from(1);
-        let token_1 = Token {
-            id: token_id.clone(),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
-        let token_2 = Token {
-            id: token_id,
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
+        let token_2 = mock_token(1, 1);
         let contract = Contract {
             id: ID::from(1),
             seller,
@@ -460,23 +414,7 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
         let token_2 = Token {
             id: TokenIdentifier::from(2),
             contract_id: ID::from(2),
@@ -516,23 +454,7 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
         let token_2 = Token {
             id: TokenIdentifier::from(2),
             contract_id: contract_id.clone(),
@@ -576,57 +498,9 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
-        let token_2 = Token {
-            id: TokenIdentifier::from(2),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
-        let token_3 = Token {
-            id: TokenIdentifier::from(3),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
+        let token_2 = mock_token(2, 1);
+        let token_3 = mock_token(3, 1);
 
         let contract = Contract {
             id: contract_id,
@@ -779,40 +653,8 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
-        let token_2 = Token {
-            id: TokenIdentifier::from(2),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
+        let token_2 = mock_token(2, 1);
         let contract = Contract {
             id: contract_id,
             seller,
@@ -841,40 +683,8 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_1 = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: Some(seller),
-        };
-        let token_2 = Token {
-            id: TokenIdentifier::from(2),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
+        let token_1 = mock_token(1, 1);
+        let token_2 = mock_token(2, 1);
         let contract = Contract {
             id: contract_id,
             seller,
@@ -909,23 +719,7 @@ mod test {
         let contract_id = ID::from(1);
         let next_token_id = ContractStorage::total_supply();
         assert_eq!(next_token_id, Nat::from(0));
-        let token_1 = Token {
-            id: next_token_id.into(),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: Some(seller),
-        };
+        let token_1 = mock_token(next_token_id, 1);
         let contract = Contract {
             id: contract_id.clone(),
             seller,
@@ -961,23 +755,7 @@ mod test {
         let contract_id = ID::from(1);
         let next_token_id = ContractStorage::total_supply();
         assert_eq!(next_token_id, Nat::from(0));
-        let token_1 = Token {
-            id: next_token_id.into(),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: Some(seller),
-        };
+        let token_1 = mock_token(next_token_id, 1);
         let contract = Contract {
             id: contract_id.clone(),
             seller,
@@ -997,24 +775,7 @@ mod test {
         assert_eq!(ContractStorage::tokens_by_owner(seller).len(), 1);
 
         // create new tokens
-        let token_2 = Token {
-            id: (next_token_id + 1).into(),
-            contract_id: contract_id.clone(),
-            owner: Some(seller),
-            value: 100,
-            mfly_reward: 400,
-            is_burned: false,
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-        };
-
+        let token_2 = mock_token(next_token_id + 1, 1);
         assert!(ContractStorage::add_tokens_to_contract(&contract.id, vec![token_2]).is_ok());
         assert_eq!(ContractStorage::total_supply(), 2);
         assert_eq!(ContractStorage::tokens_by_owner(seller).len(), 2);

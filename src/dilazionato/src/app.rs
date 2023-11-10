@@ -553,3 +553,18 @@ impl Dip721 for SellContract {
         TxHistory::count().into()
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use crate::test::mock_token;
+
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_should_get_total_transactions() {
+        let _ = TxHistory::register_token_mint(&mock_token(1, 1));
+    }
+}

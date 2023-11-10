@@ -18,7 +18,7 @@ impl TxHistory {
     }
 
     /// Register a token mint
-    pub(super) fn register_token_mint(token: &Token) {
+    pub fn register_token_mint(token: &Token) {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -48,7 +48,7 @@ impl TxHistory {
         });
     }
 
-    pub(super) fn register_token_burn(token: &Token) -> Nat {
+    pub fn register_token_burn(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -80,7 +80,7 @@ impl TxHistory {
         id
     }
 
-    pub(super) fn register_transfer(token: &Token) -> Nat {
+    pub fn register_transfer(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -121,38 +121,15 @@ impl TxHistory {
 #[cfg(test)]
 mod test {
 
-    use candid::Principal;
-    use did::dilazionato::Token;
-    use did::ID;
-    use dip721::TokenIdentifier;
     use pretty_assertions::assert_eq;
+
+    use crate::test::mock_token;
 
     use super::*;
 
     #[test]
     fn test_should_insert_transactions() {
-        let token = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: ID::from(1),
-            owner: Some(
-                Principal::from_text(
-                    "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-                )
-                .unwrap(),
-            ),
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            mfly_reward: 4000,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            value: 0,
-            operator: None,
-            is_burned: false,
-            minted_by: Principal::anonymous(),
-        };
+        let token = mock_token(1, 1);
         TxHistory::register_token_mint(&token);
         let tx = TxHistory::get_transaction_by_id(0.into()).unwrap();
         assert_eq!(tx.operation, "mint");

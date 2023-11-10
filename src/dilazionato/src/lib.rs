@@ -8,6 +8,8 @@ mod app;
 mod client;
 mod constants;
 mod inspect;
+#[cfg(test)]
+mod test;
 mod utils;
 
 use app::SellContract;
