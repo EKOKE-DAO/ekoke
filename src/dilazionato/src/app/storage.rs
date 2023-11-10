@@ -70,21 +70,21 @@ fn with_contracts<T, F>(f: F) -> T
 where
     F: FnOnce(&BTreeMap<StorableNat, Contract, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    CONTRACTS.with_borrow(|contracts| f(&contracts))
+    CONTRACTS.with_borrow(|contracts| f(contracts))
 }
 
 fn with_contracts_mut<T, F>(f: F) -> T
 where
     F: FnOnce(&mut BTreeMap<StorableNat, Contract, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    CONTRACTS.with_borrow_mut(|mut contracts| f(&mut contracts))
+    CONTRACTS.with_borrow_mut(|contracts| f(contracts))
 }
 
 fn with_tokens<T, F>(f: F) -> T
 where
     F: FnOnce(&BTreeMap<StorableNat, Token, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    TOKENS.with_borrow(|tokens| f(&tokens))
+    TOKENS.with_borrow(|tokens| f(tokens))
 }
 
 fn with_token<T, F>(id: &TokenIdentifier, f: F) -> SellContractResult<T>
@@ -125,19 +125,19 @@ fn with_tokens_mut<T, F>(f: F) -> T
 where
     F: FnOnce(&mut BTreeMap<StorableNat, Token, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    TOKENS.with_borrow_mut(|mut tokens| f(&mut tokens))
+    TOKENS.with_borrow_mut(|tokens| f(tokens))
 }
 
 fn with_tx_history<T, F>(f: F) -> T
 where
     F: FnOnce(&BTreeMap<StorableNat, StorableTxEvent, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    TX_HISTORY.with_borrow(|tx_history| f(&tx_history))
+    TX_HISTORY.with_borrow(|tx_history| f(tx_history))
 }
 
 fn with_tx_history_mut<T, F>(f: F) -> T
 where
     F: FnOnce(&mut BTreeMap<StorableNat, StorableTxEvent, VirtualMemory<DefaultMemoryImpl>>) -> T,
 {
-    TX_HISTORY.with_borrow_mut(|mut tx_history| f(&mut tx_history))
+    TX_HISTORY.with_borrow_mut(|tx_history| f(tx_history))
 }

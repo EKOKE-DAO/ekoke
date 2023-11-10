@@ -165,7 +165,7 @@ impl ContractStorage {
             token.burned_by = Some(crate::utils::caller());
 
             // register burn
-            let tx_id = TxHistory::register_token_burn(&token);
+            let tx_id = TxHistory::register_token_burn(token);
 
             Ok((tx_id, token.clone()))
         })?;
@@ -199,7 +199,7 @@ impl ContractStorage {
             token.transferred_by = Some(crate::utils::caller());
 
             // register transfer
-            let tx_id = TxHistory::register_transfer(&token);
+            let tx_id = TxHistory::register_transfer(token);
 
             Ok(tx_id)
         })
@@ -941,7 +941,7 @@ mod test {
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
-        let buyer = seller.clone();
+        let buyer = seller;
         assert!(ContractStorage::update_contract_buyers(
             &contract_id,
             vec![Principal::anonymous(), buyer]

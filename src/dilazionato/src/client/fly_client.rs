@@ -17,8 +17,8 @@ impl FlyClient {
     /// Get contract reward. Returns $mFly
     pub async fn get_contract_reward(
         &self,
-        contract_id: ID,
-        installments: u64,
+        _contract_id: ID,
+        _installments: u64,
     ) -> SellContractResult<u64> {
         todo!()
     }
@@ -26,9 +26,9 @@ impl FlyClient {
     /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of mFly
     pub async fn send_reward(
         &self,
-        contract_id: ID,
-        mfly: u64,
-        new_owner: Principal,
+        _contract_id: ID,
+        _mfly: u64,
+        _new_owner: Principal,
     ) -> SellContractResult<()> {
         todo!()
     }

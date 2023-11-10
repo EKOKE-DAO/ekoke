@@ -66,6 +66,6 @@ mod test {
 
     #[test]
     fn test_should_parse_date() {
-        assert_eq!(parse_date("2023-11-08").unwrap(), 1699401600_000_000_000);
+        assert_eq!(parse_date("2023-11-08").unwrap(), 1_699_401_600_000_000_000);
     }
 }
