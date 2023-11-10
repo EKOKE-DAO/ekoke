@@ -18,7 +18,7 @@ impl TxHistory {
     }
 
     /// Register a token mint
-    pub fn register_token_mint(token: &Token) {
+    pub fn register_token_mint(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -44,8 +44,10 @@ impl TxHistory {
         };
         let id = Self::next_id();
         with_tx_history_mut(|tx_history| {
-            tx_history.insert(id.into(), event.into());
+            tx_history.insert(id.clone().into(), event.into());
         });
+
+        id
     }
 
     pub fn register_token_burn(token: &Token) -> Nat {

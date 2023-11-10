@@ -564,7 +564,16 @@ mod test {
     use pretty_assertions::assert_eq;
 
     #[test]
+    fn test_should_get_tx() {
+        assert!(SellContract::transaction(Nat::from(1)).is_err());
+        let id = TxHistory::register_token_mint(&mock_token(1, 1));
+        assert!(SellContract::transaction(Nat::from(id)).is_ok());
+    }
+
+    #[test]
     fn test_should_get_total_transactions() {
+        assert_eq!(SellContract::total_transactions(), Nat::from(0));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
+        assert_eq!(SellContract::total_transactions(), Nat::from(1));
     }
 }
