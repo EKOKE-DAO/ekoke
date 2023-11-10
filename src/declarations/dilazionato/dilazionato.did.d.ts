@@ -91,6 +91,7 @@ export type TokenError = { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'ContractAlreadyExists' : bigint } |
   { 'TokenDoesNotBelongToContract' : bigint } |
   { 'TokenNotFound' : bigint } |
+  { 'ContractNotFound' : bigint } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'InvalidExpirationDate' : null } |
@@ -180,4 +181,5 @@ export interface _SERVICE {
   'transaction' : ActorMethod<[bigint], Result_7>,
   'transfer' : ActorMethod<[Principal, bigint], Result_1>,
   'transfer_from' : ActorMethod<[Principal, Principal, bigint], Result_1>,
+  'update_contract_buyers' : ActorMethod<[bigint, Array<Principal>], Result>,
 }

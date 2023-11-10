@@ -18,6 +18,7 @@ export const idlFactory = ({ IDL }) => {
     'ContractAlreadyExists' : IDL.Nat,
     'TokenDoesNotBelongToContract' : IDL.Nat,
     'TokenNotFound' : IDL.Nat,
+    'ContractNotFound' : IDL.Nat,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
     'InvalidExpirationDate' : IDL.Null,
@@ -229,6 +230,11 @@ export const idlFactory = ({ IDL }) => {
     'transfer_from' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat],
         [Result_1],
+        [],
+      ),
+    'update_contract_buyers' : IDL.Func(
+        [IDL.Nat, IDL.Vec(IDL.Principal)],
+        [Result],
         [],
       ),
   });

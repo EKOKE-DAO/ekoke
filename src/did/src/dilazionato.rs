@@ -37,6 +37,8 @@ pub enum SellContractError {
 pub enum TokenError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
+    #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
+    ContractNotFound(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
     TokenAlreadyExists(TokenIdentifier),
     #[error("the provided token ({0}) doesn't belong to the provided contract")]

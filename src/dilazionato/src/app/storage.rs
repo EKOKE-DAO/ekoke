@@ -125,6 +125,26 @@ impl Storage {
         })
     }
 
+    /// Update the contract  buyers
+    pub fn update_contract_buyers(
+        contract_id: &ID,
+        buyers: Vec<Principal>,
+    ) -> SellContractResult<()> {
+        CONTRACTS.with_borrow_mut(|contracts| {
+            for (id, contract) in contracts.iter() {
+                if contract.id == *contract_id {
+                    let mut contract = contract.clone();
+                    contract.buyers = buyers;
+                    contracts.insert(id, contract);
+                    return Ok(());
+                }
+            }
+            Err(SellContractError::Token(TokenError::ContractNotFound(
+                contract_id.clone(),
+            )))
+        })
+    }
+
     /// Update the operator for all token to the new operator canister
     pub fn update_tokens_operator(operator: Principal) -> SellContractResult<()> {
         TOKENS.with_borrow_mut(|tokens| {
@@ -835,6 +855,55 @@ mod test {
         assert_eq!(
             Storage::get_token(&token_1.id).unwrap().operator,
             Some(Principal::anonymous())
+        );
+    }
+
+    #[test]
+    fn test_should_update_contract_buyers() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::from(1);
+        let next_token_id = Storage::total_supply();
+        assert_eq!(next_token_id, Nat::from(0));
+        let token_1 = Token {
+            id: next_token_id.into(),
+            contract_id: contract_id.clone(),
+            owner: Some(seller),
+            value: 100,
+            is_burned: false,
+            transferred_at: None,
+            transferred_by: None,
+            approved_at: None,
+            approved_by: None,
+            burned_at: None,
+            burned_by: None,
+            minted_at: 0,
+            minted_by: Principal::anonymous(),
+            operator: Some(seller),
+        };
+        let contract = Contract {
+            id: contract_id.clone(),
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            mfly_reward: 4_000,
+            value: 250_000,
+            building: BuildingData {
+                city: "Rome".to_string(),
+            },
+        };
+
+        assert!(Storage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
+        let buyer = seller.clone();
+        assert!(
+            Storage::update_contract_buyers(&contract_id, vec![Principal::anonymous(), buyer])
+                .is_ok()
+        );
+        assert_eq!(
+            Storage::get_contract(&contract_id).unwrap().buyers,
+            vec![Principal::anonymous(), buyer]
         );
     }
 }

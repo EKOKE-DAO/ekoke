@@ -61,6 +61,12 @@ pub fn get_contracts() -> Vec<ID> {
 
 #[update]
 #[candid_method(update)]
+pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> SellContractResult<()> {
+    SellContract::update_contract_buyers(contract_id, buyers)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_fly_canister(canister_id: Principal) {
     SellContract::admin_set_fly_canister(canister_id)
 }

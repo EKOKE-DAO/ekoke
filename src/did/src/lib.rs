@@ -4,6 +4,6 @@
 
 mod common;
 
-pub mod fly;
 pub mod dilazionato;
+pub mod fly;
 pub use common::{StorableNat, StorablePrincipal, ID};

@@ -130,6 +130,23 @@ impl SellContract {
         Ok(())
     }
 
+    pub fn inspect_is_buyer(contract: ID) -> SellContractResult<()> {
+        let contract = match Storage::get_contract(&contract) {
+            Some(contract) => contract,
+            None => {
+                return Err(SellContractError::Token(TokenError::ContractNotFound(
+                    contract,
+                )))
+            }
+        };
+
+        if contract.buyers.contains(&caller()) {
+            Ok(())
+        } else {
+            Err(SellContractError::Unauthorized)
+        }
+    }
+
     /// get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
         Storage::get_contract(id)
@@ -228,6 +245,15 @@ impl SellContract {
         if let Err(err) = Configuration::set_fly_canister(canister) {
             ic_cdk::trap(&err.to_string());
         }
+    }
+
+    /// Update contract buyers. Only the buyer can call this method.
+    pub fn update_contract_buyers(
+        contract_id: ID,
+        buyers: Vec<Principal>,
+    ) -> SellContractResult<()> {
+        Self::inspect_is_buyer(contract_id.clone())?;
+        Storage::update_contract_buyers(&contract_id, buyers)
     }
 }
 
