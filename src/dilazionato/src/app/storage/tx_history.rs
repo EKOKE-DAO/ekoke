@@ -1,5 +1,5 @@
 use candid::Nat;
-use did::sell_contract::Token;
+use did::dilazionato::Token;
 use dip721::{GenericValue, TxEvent};
 
 use super::TX_HISTORY;
@@ -124,7 +124,7 @@ impl TxHistory {
 mod test {
 
     use candid::Principal;
-    use did::sell_contract::Token;
+    use did::dilazionato::Token;
     use did::ID;
     use dip721::TokenIdentifier;
     use pretty_assertions::assert_eq;

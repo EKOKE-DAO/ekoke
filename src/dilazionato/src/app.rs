@@ -9,7 +9,7 @@ mod storage;
 use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
-use did::sell_contract::{
+use did::dilazionato::{
     BuildingData, Contract, SellContractError, SellContractInitData, SellContractResult, Token,
     TokenError,
 };

@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::sell_contract::{ConfigurationError, SellContractError, SellContractResult};
+use did::dilazionato::{ConfigurationError, SellContractError, SellContractResult};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};

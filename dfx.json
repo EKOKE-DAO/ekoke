@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "sell_contract": {
-      "candid": "src/sell_contract/sell_contract.did",
-      "package": "sell_contract",
+    "dilazionato": {
+      "candid": "src/dilazionato/dilazionato.did",
+      "package": "dilazionato",
       "type": "rust"
     }
   },

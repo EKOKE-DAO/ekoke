@@ -197,6 +197,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "dilazionato"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "candid",
+ "did",
+ "dip721",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-stable-structures",
+ "itertools",
+ "pretty_assertions",
+ "thiserror",
+ "time",
+]
+
+[[package]]
 name = "dip721"
 version = "0.1.0"
 dependencies = [
@@ -451,23 +468,6 @@ name = "rustversion"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ffc183a10b4478d04cbbbfc96d0873219d962dd5accaff2ffbd4ceb7df837f4"
-
-[[package]]
-name = "sell_contract"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "candid",
- "did",
- "dip721",
- "ic-cdk",
- "ic-cdk-macros",
- "ic-stable-structures",
- "itertools",
- "pretty_assertions",
- "thiserror",
- "time",
-]
 
 [[package]]
 name = "serde"

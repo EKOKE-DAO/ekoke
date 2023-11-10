@@ -1,5 +1,5 @@
 [package]
-name = "sell_contract"
+name = "dilazionato"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -7,7 +7,7 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [[bin]]
-name = "sell-contract-did"
+name = "dilazionato-did"
 path = "src/lib.rs"
 
 [lib]

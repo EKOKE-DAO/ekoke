@@ -1,5 +1,5 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from "../../src/declarations/sell_contract/sell_contract.did.js";
+import { idlFactory } from "../../src/declarations/dilazionato/dilazionato.did.js";
 import canisterIds from "../../.dfx/local/canister_ids.json";
 
 const createActor = async (canisterId, options) => {
@@ -13,6 +13,6 @@ const createActor = async (canisterId, options) => {
   });
 };
 
-export const sellContract = await createActor(canisterIds.sell_contract.local, {
+export const sellContract = await createActor(canisterIds.dilazionato.local, {
   agentOptions: { host: "http://localhost:4943", fetch },
 });

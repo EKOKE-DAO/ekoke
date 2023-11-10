@@ -1,5 +1,5 @@
 use candid::{candid_method, Nat, Principal};
-use did::sell_contract::{BuildingData, Contract, SellContractInitData, SellContractResult};
+use did::dilazionato::{BuildingData, Contract, SellContractInitData, SellContractResult};
 use did::ID;
 use dip721::Dip721 as _;
 use ic_cdk_macros::{init, post_upgrade, query, update};

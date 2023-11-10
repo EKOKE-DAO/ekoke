@@ -5,5 +5,5 @@
 mod common;
 
 pub mod fly;
-pub mod sell_contract;
+pub mod dilazionato;
 pub use common::{StorableNat, StorablePrincipal, ID};

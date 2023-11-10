@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use candid::{Nat, Principal};
-use did::sell_contract::{
+use did::dilazionato::{
     Contract, SellContractError, SellContractResult, StorableTxEvent, Token, TokenError,
 };
 use did::{StorableNat, ID};
@@ -251,7 +251,7 @@ impl Storage {
 mod test {
 
     use candid::Principal;
-    use did::sell_contract::BuildingData;
+    use did::dilazionato::BuildingData;
     use pretty_assertions::assert_eq;
 
     use super::*;

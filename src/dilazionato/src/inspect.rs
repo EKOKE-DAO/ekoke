@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::sell_contract::BuildingData;
+use did::dilazionato::BuildingData;
 use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]

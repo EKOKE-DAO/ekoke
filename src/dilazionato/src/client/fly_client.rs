@@ -1,5 +1,5 @@
 use candid::Principal;
-use did::sell_contract::SellContractResult;
+use did::dilazionato::SellContractResult;
 use did::ID;
 
 /// Fly canister client

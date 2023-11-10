@@ -49,7 +49,7 @@ The sales process consists of the following steps:
 
 The project is composed by the following components:
 
-- **Sell-contract**: A DIP721 ICP canister which represents the MHSC.
+- **dilazionato**: A DIP721 ICP canister which represents the MHSC.
 - **Fly**: A ICRC-2 token ICP canister which represents the fungible token $FLY.
 - **Marketplace**: A canister which manages the MHSCs sell.
 - **RegisterUI**: A website for the real estate agency to register sell-contracts.
