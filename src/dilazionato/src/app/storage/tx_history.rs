@@ -125,7 +125,7 @@ mod test {
 
     use pretty_assertions::assert_eq;
 
-    use crate::test::mock_token;
+    use crate::app::test_utils::mock_token;
 
     use super::*;
 

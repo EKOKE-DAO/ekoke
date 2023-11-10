@@ -1,4 +1,4 @@
-use candid::Principal;
+use candid::{Nat, Principal};
 
 /// Returns current time in nanoseconds
 pub fn time() -> u64 {
@@ -12,6 +12,17 @@ pub fn time() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {
         ic_cdk::api::time()
+    }
+}
+
+pub fn cycles() -> Nat {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        Nat::from(30_000_000_000_u64)
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        ic_cdk::api::canister_balance().into()
     }
 }
 

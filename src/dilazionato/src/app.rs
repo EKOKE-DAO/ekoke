@@ -6,6 +6,8 @@ mod configuration;
 mod memory;
 mod minter;
 mod storage;
+#[cfg(test)]
+mod test_utils;
 
 use async_trait::async_trait;
 use candid::{Nat, Principal};
@@ -347,7 +349,7 @@ impl Dip721 for Dilazionato {
 
     /// Returns canister cycles
     fn cycles() -> Nat {
-        ic_cdk::api::canister_balance().into()
+        crate::utils::cycles()
     }
 
     /// Returns total unique holders of tokens
@@ -557,11 +559,105 @@ impl Dip721 for Dilazionato {
 #[cfg(test)]
 mod test {
 
-    use crate::test::mock_token;
+    use std::time::Duration;
 
-    use super::*;
+    use crate::{
+        app::test_utils::mock_token,
+        constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL},
+    };
+
+    use super::{test_utils::store_mock_contract, *};
 
     use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_should_init_canister() {
+        Dilazionato::init(DilazionatoInitData {
+            custodians: vec![caller()],
+            fly_canister: caller(),
+            marketplace_canister: caller(),
+        });
+
+        assert_eq!(Dilazionato::custodians(), vec![caller()]);
+        assert_eq!(Configuration::get_fly_canister(), caller());
+        assert_eq!(Configuration::get_marketplace_canister(), caller());
+    }
+
+    #[test]
+    fn test_should_set_upgrade_time_on_post_upgrade() {
+        init_canister();
+        let metadata = Dilazionato::metadata();
+        assert!(metadata.upgraded_at == metadata.created_at);
+        std::thread::sleep(Duration::from_millis(100));
+        Dilazionato::post_upgrade();
+        let metadata = Dilazionato::metadata();
+        assert!(metadata.upgraded_at > metadata.created_at);
+    }
+
+    #[test]
+    fn test_should_get_metadata() {
+        init_canister();
+        let metadata = Dilazionato::metadata();
+        assert_eq!(metadata.custodians, vec![caller()]);
+        assert_eq!(metadata.logo.as_deref(), Some(DEFAULT_LOGO));
+        assert_eq!(metadata.name.as_deref(), Some(DEFAULT_NAME));
+        assert_eq!(metadata.symbol.as_deref(), Some(DEFAULT_SYMBOL));
+    }
+
+    #[test]
+    fn test_should_get_stats() {
+        init_canister();
+        let stats = Dilazionato::stats();
+        assert_eq!(stats.cycles, crate::utils::cycles());
+        assert_eq!(stats.total_supply, 0);
+        assert_eq!(stats.total_transactions, 0);
+        assert_eq!(stats.total_unique_holders, 0);
+    }
+
+    #[test]
+    fn test_should_set_logo() {
+        init_canister();
+        let logo = "logo";
+        Dilazionato::set_logo(logo.to_string());
+        assert_eq!(Dilazionato::logo().as_deref(), Some(logo));
+    }
+
+    #[test]
+    fn test_should_set_name() {
+        init_canister();
+        let name = "name";
+        Dilazionato::set_name(name.to_string());
+        assert_eq!(Dilazionato::name().as_deref(), Some(name));
+    }
+
+    #[test]
+    fn test_should_set_symbol() {
+        init_canister();
+        let symbol = "symbol";
+        Dilazionato::set_symbol(symbol.to_string());
+        assert_eq!(Dilazionato::symbol().as_deref(), Some(symbol));
+    }
+
+    #[test]
+    fn test_should_set_custodians() {
+        init_canister();
+        let custodians = vec![caller(), Principal::management_canister()];
+        Dilazionato::set_custodians(custodians.clone());
+        assert_eq!(Dilazionato::custodians(), custodians);
+    }
+
+    #[test]
+    fn test_should_get_cycles() {
+        init_canister();
+        assert_eq!(Dilazionato::cycles(), crate::utils::cycles());
+    }
+
+    #[test]
+    fn test_should_get_unique_holders() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(Dilazionato::total_unique_holders(), Nat::from(1));
+    }
 
     #[test]
     fn test_should_get_tx() {
@@ -575,5 +671,13 @@ mod test {
         assert_eq!(Dilazionato::total_transactions(), Nat::from(0));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
         assert_eq!(Dilazionato::total_transactions(), Nat::from(1));
+    }
+
+    fn init_canister() {
+        Dilazionato::init(DilazionatoInitData {
+            custodians: vec![caller()],
+            fly_canister: caller(),
+            marketplace_canister: caller(),
+        });
     }
 }

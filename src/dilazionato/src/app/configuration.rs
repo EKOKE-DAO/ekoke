@@ -50,8 +50,8 @@ thread_local! {
     );
 
     /// Contract last upgrade timestamp
-    static UPGRADED_AT: RefCell<StableCell<u64, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(UPGRADED_AT_MEMORY_ID)), crate::utils::time()).unwrap()
+    static UPGRADED_AT: RefCell<StableCell<Option<u64>, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(UPGRADED_AT_MEMORY_ID)), None).unwrap()
     );
 
 }
@@ -145,12 +145,14 @@ impl Configuration {
     }
 
     pub fn get_upgraded_at() -> u64 {
-        UPGRADED_AT.with_borrow(|cell| *cell.get())
+        UPGRADED_AT
+            .with_borrow(|cell| *cell.get())
+            .unwrap_or(Self::get_created_at())
     }
 
     pub fn set_upgraded_at() -> DilazionatoResult<()> {
         UPGRADED_AT
-            .with_borrow_mut(|cell| cell.set(crate::utils::time()))
+            .with_borrow_mut(|cell| cell.set(Some(crate::utils::time())))
             .map_err(|_| DilazionatoError::StorageError)?;
 
         Ok(())
