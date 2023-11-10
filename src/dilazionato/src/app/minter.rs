@@ -6,7 +6,7 @@ use did::{
 
 use crate::{client::FlyClient, utils::caller};
 
-use super::{configuration::Configuration, storage::Storage};
+use super::{configuration::Configuration, storage::ContractStorage};
 
 pub struct Minter;
 
@@ -23,7 +23,7 @@ impl Minter {
             .await?;
 
         // make tokens
-        let next_token_id = Storage::total_supply();
+        let next_token_id = ContractStorage::total_supply();
         let mut tokens = Vec::with_capacity(installments as usize);
         let mut tokens_ids = Vec::with_capacity(installments as usize);
         let token_value: u64 = contract_value / installments;

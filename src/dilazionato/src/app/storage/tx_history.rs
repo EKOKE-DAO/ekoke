@@ -2,21 +2,19 @@ use candid::Nat;
 use did::dilazionato::Token;
 use dip721::{GenericValue, TxEvent};
 
-use super::TX_HISTORY;
+use super::{with_tx_history, with_tx_history_mut};
 
 pub struct TxHistory;
 
 impl TxHistory {
     /// Get transaction by id
     pub fn get_transaction_by_id(tx_id: Nat) -> Option<TxEvent> {
-        TX_HISTORY
-            .with_borrow(|tx_history| tx_history.get(&tx_id.into()))
-            .map(|event| event.0)
+        with_tx_history(|tx_history| tx_history.get(&tx_id.into())).map(|event| event.0)
     }
 
     /// Get transaction count
     pub fn count() -> u64 {
-        TX_HISTORY.with_borrow(|tx_history| tx_history.len())
+        with_tx_history(|tx_history| tx_history.len())
     }
 
     /// Register a token mint
@@ -45,7 +43,7 @@ impl TxHistory {
             time: crate::utils::time(),
         };
         let id = Self::next_id();
-        TX_HISTORY.with_borrow_mut(|tx_history| {
+        with_tx_history_mut(|tx_history| {
             tx_history.insert(id.into(), event.into());
         });
     }
@@ -75,7 +73,7 @@ impl TxHistory {
             time: crate::utils::time(),
         };
         let id = Self::next_id();
-        TX_HISTORY.with_borrow_mut(|tx_history| {
+        with_tx_history_mut(|tx_history| {
             tx_history.insert(id.clone().into(), event.into());
         });
 
@@ -107,7 +105,7 @@ impl TxHistory {
             time: crate::utils::time(),
         };
         let id = Self::next_id();
-        TX_HISTORY.with_borrow_mut(|tx_history| {
+        with_tx_history_mut(|tx_history| {
             tx_history.insert(id.clone().into(), event.into());
         });
 
@@ -116,7 +114,7 @@ impl TxHistory {
 
     /// get next transaction id
     fn next_id() -> Nat {
-        TX_HISTORY.with_borrow(|tx_history| tx_history.len()).into()
+        with_tx_history(|tx_history| tx_history.len()).into()
     }
 }
 

@@ -22,7 +22,7 @@ use dip721::{
 
 use self::minter::Minter;
 use self::storage::TxHistory;
-use crate::app::storage::Storage;
+use crate::app::storage::ContractStorage;
 use crate::client::FlyClient;
 use crate::utils::caller;
 
@@ -54,7 +54,7 @@ impl SellContract {
 
     /// Returns whether caller is owner or operator of the token
     pub fn inspect_is_owner_or_operator(token_identifier: &Nat) -> Result<Token, NftError> {
-        let token = match Storage::get_token(token_identifier) {
+        let token = match ContractStorage::get_token(token_identifier) {
             Some(token) => token,
             None => return Err(NftError::TokenNotFound),
         };
@@ -73,11 +73,11 @@ impl SellContract {
 
     /// Inspect burn, allow burn only if caller is owner or operator and token is owned by a buyer or a seller.
     pub fn inspect_burn(token_identifier: &Nat) -> Result<(), NftError> {
-        let token = match Storage::get_token(token_identifier) {
+        let token = match ContractStorage::get_token(token_identifier) {
             Some(token) => token,
             None => return Err(NftError::TokenNotFound),
         };
-        let contract = match Storage::get_contract(&token.contract_id) {
+        let contract = match ContractStorage::get_contract(&token.contract_id) {
             Some(contract) => contract,
             None => return Err(NftError::TokenNotFound),
         };
@@ -135,7 +135,7 @@ impl SellContract {
     }
 
     pub fn inspect_is_seller(contract: ID) -> SellContractResult<()> {
-        let contract = match Storage::get_contract(&contract) {
+        let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
             None => {
                 return Err(SellContractError::Token(TokenError::ContractNotFound(
@@ -152,7 +152,7 @@ impl SellContract {
     }
 
     pub fn inspect_is_buyer(contract: ID) -> SellContractResult<()> {
-        let contract = match Storage::get_contract(&contract) {
+        let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
             None => {
                 return Err(SellContractError::Token(TokenError::ContractNotFound(
@@ -170,12 +170,12 @@ impl SellContract {
 
     /// get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
-        Storage::get_contract(id)
+        ContractStorage::get_contract(id)
     }
 
     /// get contracts ids
     pub fn get_contracts() -> Vec<ID> {
-        Storage::get_contracts()
+        ContractStorage::get_contracts()
     }
 
     /// Update contract buyers. Only the buyer can call this method.
@@ -184,7 +184,7 @@ impl SellContract {
         buyers: Vec<Principal>,
     ) -> SellContractResult<()> {
         Self::inspect_is_buyer(contract_id.clone())?;
-        Storage::update_contract_buyers(&contract_id, buyers)
+        ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
 
     /// Increment contract value. Only the seller can call this method.
@@ -199,7 +199,7 @@ impl SellContract {
         let (tokens, _) = Minter::mint(&contract_id, caller(), installments, incr_by).await?;
 
         // update contract
-        Storage::add_tokens_to_contract(&contract_id, tokens)
+        ContractStorage::add_tokens_to_contract(&contract_id, tokens)
     }
 
     /// Register contract inside of the canister.
@@ -224,7 +224,7 @@ impl SellContract {
         };
 
         // register contract
-        Storage::insert_contract(contract, tokens)?;
+        ContractStorage::insert_contract(contract, tokens)?;
 
         Ok(())
     }
@@ -240,7 +240,7 @@ impl SellContract {
         }
 
         // update tokens
-        if let Err(err) = Storage::update_tokens_operator(canister) {
+        if let Err(err) = ContractStorage::update_tokens_operator(canister) {
             ic_cdk::trap(&err.to_string());
         }
     }
@@ -352,12 +352,12 @@ impl Dip721 for SellContract {
 
     /// Returns total unique holders of tokens
     fn total_unique_holders() -> Nat {
-        Storage::total_unique_holders().into()
+        ContractStorage::total_unique_holders().into()
     }
 
     /// Returns metadata for token
     fn token_metadata(token_identifier: TokenIdentifier) -> Result<TokenMetadata, NftError> {
-        let token = match Storage::get_token(&token_identifier) {
+        let token = match ContractStorage::get_token(&token_identifier) {
             Some(token) => token,
             None => return Err(NftError::TokenNotFound),
         };
@@ -368,7 +368,7 @@ impl Dip721 for SellContract {
     /// Returns the count of NFTs owned by user.
     /// If the user does not own any NFTs, returns an error containing NftError.
     fn balance_of(owner: Principal) -> Result<Nat, NftError> {
-        match Storage::tokens_by_owner(owner) {
+        match ContractStorage::tokens_by_owner(owner) {
             tokens if tokens.is_empty() => Err(NftError::OwnerNotFound),
             tokens => Ok(tokens.len().into()),
         }
@@ -377,7 +377,7 @@ impl Dip721 for SellContract {
     /// Returns the owner of the token.
     /// Returns an error containing NftError if token_identifier is invalid.
     fn owner_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError> {
-        match Storage::get_token(&token_identifier).map(|token| token.owner) {
+        match ContractStorage::get_token(&token_identifier).map(|token| token.owner) {
             Some(owner) => Ok(owner),
             None => Err(NftError::TokenNotFound),
         }
@@ -386,7 +386,7 @@ impl Dip721 for SellContract {
     /// Returns the list of the token_identifier of the NFT associated with owner.
     /// Returns an error containing NftError if principal is invalid.
     fn owner_token_identifiers(owner: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        Ok(Storage::tokens_by_owner(owner))
+        Ok(ContractStorage::tokens_by_owner(owner))
     }
 
     /// Returns the list of the token_metadata of the NFT associated with owner.
@@ -403,7 +403,7 @@ impl Dip721 for SellContract {
 
     /// Returns the Principal of the operator of the NFT associated with token_identifier.
     fn operator_of(token_identifier: TokenIdentifier) -> Result<Option<Principal>, NftError> {
-        match Storage::get_token(&token_identifier) {
+        match ContractStorage::get_token(&token_identifier) {
             Some(token) => Ok(token.operator),
             None => Err(NftError::TokenNotFound),
         }
@@ -411,7 +411,7 @@ impl Dip721 for SellContract {
 
     /// Returns the list of the token_identifier of the NFT associated with operator.
     fn operator_token_identifiers(operator: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        Ok(Storage::tokens_by_operator(operator))
+        Ok(ContractStorage::tokens_by_operator(operator))
     }
 
     /// Returns the list of the token_metadata of the NFT associated with operator.
@@ -436,7 +436,7 @@ impl Dip721 for SellContract {
     /// Returns the total supply of the NFT.
     /// NFTs that are minted and later burned explicitly or sent to the zero address should also count towards totalSupply.
     fn total_supply() -> Nat {
-        Storage::total_supply().into()
+        ContractStorage::total_supply().into()
     }
 
     // Calling approve grants the operator the ability to make update calls to the specificied token_identifier.
@@ -480,7 +480,7 @@ impl Dip721 for SellContract {
     ) -> Result<Nat, NftError> {
         let token = Self::inspect_is_owner_or_operator(&token_identifier)?;
         let last_owner = token.owner;
-        let contract = match Storage::get_contract(&token.contract_id) {
+        let contract = match ContractStorage::get_contract(&token.contract_id) {
             Some(contract) => contract,
             None => return Err(NftError::TokenNotFound),
         };
@@ -494,7 +494,7 @@ impl Dip721 for SellContract {
         }
 
         // transfer token to the new owner
-        let tx_id = match Storage::transfer(&token_identifier, to) {
+        let tx_id = match ContractStorage::transfer(&token_identifier, to) {
             Ok(tx_id) => tx_id,
             Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
                 return Err(NftError::TokenNotFound)
@@ -530,7 +530,7 @@ impl Dip721 for SellContract {
     fn burn(token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
         Self::inspect_burn(&token_identifier)?;
 
-        match Storage::burn_token(&token_identifier) {
+        match ContractStorage::burn_token(&token_identifier) {
             Ok(tx_id) => Ok(tx_id),
             Err(SellContractError::Token(TokenError::TokenNotFound(_))) => {
                 Err(NftError::TokenNotFound)
