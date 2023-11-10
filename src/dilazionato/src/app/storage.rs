@@ -165,7 +165,7 @@ impl Storage {
 
     /// Burn token
     pub fn burn_token(token_id: &TokenIdentifier) -> SellContractResult<Nat> {
-        TOKENS.with_borrow_mut(|tokens| {
+        let (tx_id, token) = TOKENS.with_borrow_mut(|tokens| {
             if let Some(mut token) = tokens.get(&token_id.clone().into()) {
                 // check if burned
                 if token.is_burned {
@@ -181,13 +181,35 @@ impl Storage {
                 // register burn
                 let tx_id = TxHistory::register_token_burn(&token);
 
-                tokens.insert(token_id.clone().into(), token);
-                Ok(tx_id)
+                tokens.insert(token_id.clone().into(), token.clone());
+                Ok((tx_id, token))
             } else {
                 Err(SellContractError::Token(TokenError::TokenNotFound(
                     token_id.clone(),
                 )))
             }
+        })?;
+
+        // reduce contract value
+        Self::reduce_contract_value_by(&token.contract_id, token.value)?;
+
+        Ok(tx_id)
+    }
+
+    /// Reduce contract value by `decr_by`
+    fn reduce_contract_value_by(contract_id: &ID, decr_by: u64) -> SellContractResult<()> {
+        CONTRACTS.with_borrow_mut(|contracts| {
+            for (id, contract) in contracts.iter() {
+                if contract.id == *contract_id {
+                    let mut contract = contract.clone();
+                    contract.value -= decr_by;
+                    contracts.insert(id, contract);
+                    return Ok(());
+                }
+            }
+            Err(SellContractError::Token(TokenError::ContractNotFound(
+                contract_id.clone(),
+            )))
         })
     }
 
@@ -667,7 +689,7 @@ mod test {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
             owner: Some(Principal::anonymous()),
-            value: 100,
+            value: 1000,
             is_burned: false,
             transferred_at: None,
             transferred_by: None,
@@ -680,7 +702,7 @@ mod test {
             operator: None,
         };
         let contract = Contract {
-            id: contract_id,
+            id: contract_id.clone(),
             seller: Principal::anonymous(),
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
@@ -700,6 +722,12 @@ mod test {
         assert!(Storage::get_token(&token_1.id).unwrap().burned_at.is_some());
         assert!(Storage::get_token(&token_1.id).unwrap().burned_by.is_some());
         assert!(Storage::get_token(&token_1.id).unwrap().owner.is_none());
+        // verify contract value has been decreased
+        assert_eq!(Storage::get_contract(&contract_id).unwrap().value, 249_000);
+        assert_eq!(
+            Storage::get_contract(&contract_id).unwrap().initial_value,
+            250_000
+        );
     }
 
     #[test]

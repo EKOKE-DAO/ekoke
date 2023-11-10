@@ -521,6 +521,8 @@ impl Dip721 for SellContract {
     /// will no longer be useable.
     /// Burned tokens do still count towards totalSupply.
     /// Implementations are encouraged to only allow burning by the owner of the token_identifier.
+    ///
+    /// The burn will also reduce the contract value by the token value
     fn burn(token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
         Self::inspect_burn(&token_identifier)?;
 
