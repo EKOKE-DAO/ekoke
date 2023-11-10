@@ -1,3 +1,5 @@
 mod fly_client;
 
-pub use fly_client::FlyClient;
+#[cfg(not(test))]
+pub use fly_client::IcFlyClient;
+pub use fly_client::{fly_client, FlyClient};

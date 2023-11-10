@@ -23,7 +23,7 @@ use dip721::{
 use self::minter::Minter;
 use self::storage::TxHistory;
 use crate::app::storage::ContractStorage;
-use crate::client::FlyClient;
+use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
 
 #[derive(Default)]
@@ -504,7 +504,7 @@ impl Dip721 for SellContract {
 
         // if the previous owner, was the seller, notify fly canister to transfer reward to the new owner
         if last_owner == Some(contract.seller) {
-            FlyClient::from(Configuration::get_fly_canister())
+            fly_client(Configuration::get_fly_canister())
                 .send_reward(token.contract_id, token.mfly_reward, to)
                 .await
                 .map_err(|_| NftError::Other("fly canister error".to_string()))?;

@@ -4,7 +4,7 @@ use did::ID;
 
 use super::configuration::Configuration;
 use super::storage::ContractStorage;
-use crate::client::FlyClient;
+use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
 
 pub struct Minter;
@@ -17,7 +17,7 @@ impl Minter {
         contract_value: u64,
     ) -> SellContractResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
-        let mfly_reward = FlyClient::from(Configuration::get_fly_canister())
+        let mfly_reward = fly_client(Configuration::get_fly_canister())
             .get_contract_reward(contract_id.clone(), installments)
             .await?;
 

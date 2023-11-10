@@ -1,21 +1,50 @@
+use async_trait::async_trait;
 use candid::Principal;
 use did::dilazionato::SellContractResult;
 use did::ID;
 
+#[cfg(not(test))]
+pub fn fly_client(principal: Principal) -> IcFlyClient {
+    IcFlyClient { principal }
+}
+
+#[cfg(test)]
+pub fn fly_client(_principal: Principal) -> IcFlyClient {
+    IcFlyClient::default()
+}
+
+#[async_trait]
+pub trait FlyClient {
+    /// Get contract reward. Returns $mFly
+    async fn get_contract_reward(
+        &self,
+        contract_id: ID,
+        installments: u64,
+    ) -> SellContractResult<u64>;
+
+    async fn send_reward(
+        &self,
+        contract_id: ID,
+        mfly: u64,
+        new_owner: Principal,
+    ) -> SellContractResult<()>;
+}
+
+#[cfg(not(test))]
 /// Fly canister client
-pub struct FlyClient {
+pub struct IcFlyClient {
     principal: Principal,
 }
 
-impl From<Principal> for FlyClient {
-    fn from(value: Principal) -> Self {
-        Self { principal: value }
-    }
-}
+#[cfg(test)]
+#[derive(Default)]
+pub struct IcFlyClient;
 
-impl FlyClient {
+#[cfg(not(test))]
+#[async_trait]
+impl FlyClient for IcFlyClient {
     /// Get contract reward. Returns $mFly
-    pub async fn get_contract_reward(
+    async fn get_contract_reward(
         &self,
         _contract_id: ID,
         _installments: u64,
@@ -24,12 +53,35 @@ impl FlyClient {
     }
 
     /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of mFly
-    pub async fn send_reward(
+    async fn send_reward(
         &self,
         _contract_id: ID,
         _mfly: u64,
         _new_owner: Principal,
     ) -> SellContractResult<()> {
         todo!()
+    }
+}
+
+#[cfg(test)]
+#[async_trait]
+impl FlyClient for IcFlyClient {
+    /// Get contract reward. Returns $mFly
+    async fn get_contract_reward(
+        &self,
+        _contract_id: ID,
+        _installments: u64,
+    ) -> SellContractResult<u64> {
+        Ok(71_000)
+    }
+
+    /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of mFly
+    async fn send_reward(
+        &self,
+        _contract_id: ID,
+        _mfly: u64,
+        _new_owner: Principal,
+    ) -> SellContractResult<()> {
+        Ok(())
     }
 }
