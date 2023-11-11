@@ -447,14 +447,12 @@ mod test {
 
     use std::time::Duration;
 
-    use crate::{
-        app::test_utils::mock_token,
-        constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL},
-    };
-
-    use super::{test_utils::store_mock_contract, *};
-
     use pretty_assertions::assert_eq;
+
+    use super::test_utils::store_mock_contract;
+    use super::*;
+    use crate::app::test_utils::mock_token;
+    use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
     #[test]
     fn test_should_init_canister() {

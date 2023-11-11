@@ -1,13 +1,10 @@
 use candid::Principal;
-use did::{
-    dilazionato::{BuildingData, Contract, Token},
-    ID,
-};
+use did::dilazionato::{BuildingData, Contract, Token};
+use did::ID;
 use dip721::TokenIdentifier;
 
-use crate::utils::caller;
-
 use super::storage::ContractStorage;
+use crate::utils::caller;
 
 pub fn mock_token(id: u64, contract_id: u64) -> Token {
     Token {

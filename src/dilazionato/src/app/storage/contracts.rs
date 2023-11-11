@@ -261,9 +261,8 @@ mod test {
     use did::dilazionato::BuildingData;
     use pretty_assertions::assert_eq;
 
-    use crate::app::test_utils::mock_token;
-
     use super::*;
+    use crate::app::test_utils::mock_token;
 
     #[test]
     fn test_should_insert_and_get_contract() {

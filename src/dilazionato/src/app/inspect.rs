@@ -3,14 +3,13 @@
 //! Dilazionato inspect message handler
 
 use candid::{Nat, Principal};
-use did::{
-    dilazionato::{DilazionatoError, DilazionatoResult, Token, TokenError},
-    ID,
-};
+use did::dilazionato::{DilazionatoError, DilazionatoResult, Token, TokenError};
+use did::ID;
 use dip721::NftError;
 use itertools::Itertools;
 
-use super::{configuration::Configuration, storage::ContractStorage};
+use super::configuration::Configuration;
+use super::storage::ContractStorage;
 
 pub struct Inspect;
 
@@ -155,11 +154,11 @@ impl Inspect {
 #[cfg(test)]
 mod test {
 
-    use crate::{app::test_utils, utils::caller};
+    use pretty_assertions::assert_eq;
 
     use super::*;
-
-    use pretty_assertions::assert_eq;
+    use crate::app::test_utils;
+    use crate::utils::caller;
 
     #[test]
     fn test_should_inspect_is_custodian() {
