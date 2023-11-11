@@ -25,7 +25,7 @@ workspace = false
 [tasks.dfx-test]
 description = "Run integration tests with dfx"
 script = "./scripts/dfx-test.sh"
-dependencies = ["dfx_setup", "build", "did"]
+dependencies = ["dfx-setup", "build", "did"]
 workspace = false
 
 [tasks.lint]
@@ -46,18 +46,26 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-dependencies = ["dilazionato_did", "dfx_generate"]
+dependencies = ["dilazionato-did", "fly-did", "dfx-generate"]
 workspace = false
 
-[tasks.dilazionato_did]
-description = "Generate did files for sell contract"
+[tasks.dilazionato-did]
+description = "Generate did files for dilazionato"
 script = "cargo run --bin dilazionato-did  --features did > src/dilazionato/dilazionato.did"
+workspace = false
 
-[tasks.dfx_generate]
+[tasks.fly-did]
+description = "Generate did files for fly"
+script = "cargo run --bin fly-did  --features did > src/fly/fly.did"
+workspace = false
+
+[tasks.dfx-generate]
 description = "Generate dfx did"
 command = "dfx"
 args = ["generate"]
+workspace = false
 
-[tasks.dfx_setup]
+[tasks.dfx-setup]
 description = "setup dfx"
-script = "dfx stop; dfx start --background; dfx canister create dilazionato"
+script = "dfx stop; dfx start --background; dfx canister create dilazionato; dfx canister create fly"
+workspace = false

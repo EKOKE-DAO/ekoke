@@ -4,6 +4,11 @@
       "candid": "src/dilazionato/dilazionato.did",
       "package": "dilazionato",
       "type": "rust"
+    },
+    "fly": {
+      "candid": "src/fly/fly.did",
+      "package": "fly",
+      "type": "rust"
     }
   },
   "defaults": {

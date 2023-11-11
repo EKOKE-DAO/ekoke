@@ -1,5 +1,5 @@
 [workspace]
-members = ["src/did", "src/dip721", "src/dilazionato"]
+members = ["src/did", "src/dip721", "src/dilazionato", "src/fly"]
 resolver = "2"
 
 [workspace.package]

@@ -281,6 +281,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
+name = "fly"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "candid",
+ "did",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-stable-structures",
+ "pretty_assertions",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
