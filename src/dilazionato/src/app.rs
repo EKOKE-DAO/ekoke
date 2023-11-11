@@ -3,9 +3,10 @@
 //! API for sell contract
 
 mod configuration;
+mod inspect;
 mod memory;
 mod minter;
-mod storage;
+pub mod storage;
 #[cfg(test)]
 mod test_utils;
 
@@ -14,7 +15,7 @@ use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::dilazionato::{
     Contract, ContractRegistration, DilazionatoError, DilazionatoInitData, DilazionatoResult,
-    Token, TokenError,
+    TokenError,
 };
 use did::ID;
 use dip721::{
@@ -22,9 +23,9 @@ use dip721::{
     TokenMetadata, TxEvent,
 };
 
+pub use self::inspect::Inspect;
 use self::minter::Minter;
-use self::storage::TxHistory;
-use crate::app::storage::ContractStorage;
+use self::storage::{ContractStorage, TxHistory};
 use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
 
@@ -49,127 +50,6 @@ impl Dilazionato {
         }
     }
 
-    /// Returns whether caller is custodian of the canister
-    pub fn inspect_is_custodian() -> bool {
-        Configuration::is_custodian(caller())
-    }
-
-    /// Returns whether caller is owner or operator of the token
-    pub fn inspect_is_owner_or_operator(token_identifier: &Nat) -> Result<Token, NftError> {
-        let token = match ContractStorage::get_token(token_identifier) {
-            Some(token) => token,
-            None => return Err(NftError::TokenNotFound),
-        };
-
-        let owner = match token.owner {
-            Some(owner) => owner,
-            None => return Err(NftError::UnauthorizedOwner),
-        };
-
-        if caller() != owner && Some(caller()) != token.operator {
-            return Err(NftError::UnauthorizedOperator);
-        }
-
-        Ok(token)
-    }
-
-    /// Inspect burn, allow burn only if caller is owner or operator and token is owned by a buyer or a seller.
-    pub fn inspect_burn(token_identifier: &Nat) -> Result<(), NftError> {
-        let token = match ContractStorage::get_token(token_identifier) {
-            Some(token) => token,
-            None => return Err(NftError::TokenNotFound),
-        };
-        let contract = match ContractStorage::get_contract(&token.contract_id) {
-            Some(contract) => contract,
-            None => return Err(NftError::TokenNotFound),
-        };
-        let owner = match token.owner {
-            Some(owner) => owner,
-            None => return Err(NftError::UnauthorizedOwner),
-        };
-
-        if !contract.buyers.contains(&owner) && owner != contract.seller {
-            return Err(NftError::Other(
-                "owner is not nor a buyer nor the seller".to_string(),
-            ));
-        }
-        if caller() != owner && Some(caller()) != token.operator {
-            return Err(NftError::UnauthorizedOperator);
-        }
-
-        Ok(())
-    }
-
-    /// Inspect register contract parameters
-    pub fn inspect_register_contract(
-        id: &ID,
-        value: u64,
-        installments: u64,
-        expiration: &str,
-    ) -> DilazionatoResult<()> {
-        if !Self::inspect_is_custodian() {
-            return Err(DilazionatoError::Unauthorized);
-        }
-        // check if contract already exists
-        if Self::get_contract(id).is_some() {
-            return Err(DilazionatoError::Token(TokenError::ContractAlreadyExists(
-                id.clone(),
-            )));
-        }
-
-        // verify value must be multiple of installments
-        if value % installments != 0 {
-            return Err(DilazionatoError::Token(
-                TokenError::ContractValueIsNotMultipleOfInstallments,
-            ));
-        }
-
-        // check if expiration is YYYY-MM-DD and is not in the past
-        match crate::utils::parse_date(expiration) {
-            Ok(timestamp) if timestamp < crate::utils::time() => {
-                return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate));
-            }
-            Ok(_) => {}
-            Err(_) => return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate)),
-        }
-
-        Ok(())
-    }
-
-    pub fn inspect_is_seller(contract: ID) -> DilazionatoResult<()> {
-        let contract = match ContractStorage::get_contract(&contract) {
-            Some(contract) => contract,
-            None => {
-                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
-                    contract,
-                )))
-            }
-        };
-
-        if contract.seller == caller() {
-            Ok(())
-        } else {
-            Err(DilazionatoError::Unauthorized)
-        }
-    }
-
-    pub fn inspect_is_buyer(contract: ID) -> DilazionatoResult<()> {
-        let contract = match ContractStorage::get_contract(&contract) {
-            Some(contract) => contract,
-            None => {
-                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
-                    contract,
-                )))
-            }
-        };
-
-        if contract.buyers.contains(&caller()) {
-            Ok(())
-        } else {
-            Err(DilazionatoError::Unauthorized)
-        }
-    }
-
     /// get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
         ContractStorage::get_contract(id)
@@ -185,7 +65,7 @@ impl Dilazionato {
         contract_id: ID,
         buyers: Vec<Principal>,
     ) -> DilazionatoResult<()> {
-        Self::inspect_is_buyer(contract_id.clone())?;
+        Inspect::inspect_is_buyer(caller(), contract_id.clone())?;
         ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
 
@@ -195,7 +75,7 @@ impl Dilazionato {
         incr_by: u64,
         installments: u64,
     ) -> DilazionatoResult<()> {
-        Self::inspect_is_seller(contract_id.clone())?;
+        Inspect::inspect_is_seller(caller(), contract_id.clone())?;
 
         // mint new tokens
         let (tokens, _) = Minter::mint(&contract_id, caller(), installments, incr_by).await?;
@@ -207,7 +87,13 @@ impl Dilazionato {
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
     pub async fn register_contract(data: ContractRegistration) -> DilazionatoResult<()> {
-        Self::inspect_register_contract(&data.id, data.value, data.installments, &data.expiration)?;
+        Inspect::inspect_register_contract(
+            caller(),
+            &data.id,
+            data.value,
+            data.installments,
+            &data.expiration,
+        )?;
 
         let (tokens, tokens_ids) =
             Minter::mint(&data.id, data.seller, data.installments, data.value).await?;
@@ -233,7 +119,7 @@ impl Dilazionato {
 
     /// Update marketplace canister id and update the operator for all the tokens
     pub fn admin_set_marketplace_canister(canister: Principal) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
@@ -249,7 +135,7 @@ impl Dilazionato {
 
     /// Update fly canister id
     pub fn admin_set_fly_canister(canister: Principal) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
@@ -291,7 +177,7 @@ impl Dip721 for Dilazionato {
     /// Sets the logo of the NFT canister. Base64 encoded text is recommended.
     /// Caller must be the custodian of NFT canister.
     fn set_logo(logo: String) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
         if let Err(err) = Configuration::set_logo(logo) {
@@ -307,7 +193,7 @@ impl Dip721 for Dilazionato {
     /// Sets the name of the NFT contract.
     /// Caller must be the custodian of NFT canister.
     fn set_name(name: String) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
         if let Err(err) = Configuration::set_name(name) {
@@ -323,7 +209,7 @@ impl Dip721 for Dilazionato {
     /// Set symbol
     /// Caller must be the custodian of NFT canister.
     fn set_symbol(symbol: String) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
         if let Err(err) = Configuration::set_symbol(symbol) {
@@ -339,7 +225,7 @@ impl Dip721 for Dilazionato {
     /// Set canister custodians
     /// Caller must be the custodian of NFT canister.
     fn set_custodians(custodians: Vec<Principal>) {
-        if !Self::inspect_is_custodian() {
+        if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
         if let Err(err) = Configuration::set_canister_custodians(&custodians) {
@@ -480,7 +366,7 @@ impl Dip721 for Dilazionato {
         to: Principal,
         token_identifier: TokenIdentifier,
     ) -> Result<Nat, NftError> {
-        let token = Self::inspect_is_owner_or_operator(&token_identifier)?;
+        let token = Inspect::inspect_is_owner_or_operator(caller(), &token_identifier)?;
         let last_owner = token.owner;
         let contract = match ContractStorage::get_contract(&token.contract_id) {
             Some(contract) => contract,
@@ -530,7 +416,7 @@ impl Dip721 for Dilazionato {
     ///
     /// The burn will also reduce the contract value by the token value
     fn burn(token_identifier: TokenIdentifier) -> Result<Nat, NftError> {
-        Self::inspect_burn(&token_identifier)?;
+        Inspect::inspect_burn(caller(), &token_identifier)?;
 
         match ContractStorage::burn_token(&token_identifier) {
             Ok(tx_id) => Ok(tx_id),

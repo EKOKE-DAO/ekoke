@@ -5,7 +5,8 @@ use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
 
-use crate::app::Dilazionato;
+use crate::app::Inspect;
+use crate::utils::caller;
 
 /// NOTE: inspect is disabled for non-wasm targets because without it we are getting a weird compilation error
 /// in CI:
@@ -21,13 +22,13 @@ fn inspect_message_impl() {
     let method = api::call::method_name();
 
     let check_result = match method.as_str() {
-        method if method.starts_with("admin_") => Dilazionato::inspect_is_custodian(),
+        method if method.starts_with("admin_") => Inspect::inspect_is_custodian(caller()),
         "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
-            Dilazionato::inspect_is_custodian()
+            Inspect::inspect_is_custodian(caller())
         }
         "seller_increment_contract_value" => {
             let (id, _, __export_service) = api::call::arg_data::<(ID, u64, u64)>();
-            Dilazionato::inspect_is_buyer(id).is_ok()
+            Inspect::inspect_is_buyer(caller(), id).is_ok()
         }
         "register_contract" => {
             let (id, _, _, expiration, value, installments, _) = api::call::arg_data::<(
@@ -39,15 +40,16 @@ fn inspect_message_impl() {
                 u64,
                 BuildingData,
             )>();
-            Dilazionato::inspect_register_contract(&id, value, installments, &expiration).is_ok()
+            Inspect::inspect_register_contract(caller(), &id, value, installments, &expiration)
+                .is_ok()
         }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
-            Dilazionato::inspect_burn(&token_identifier).is_ok()
+            Inspect::inspect_burn(caller(), &token_identifier).is_ok()
         }
         "transfer_from" => {
             let (_, _, token_identifier) = api::call::arg_data::<(Principal, Principal, Nat)>();
-            Dilazionato::inspect_is_owner_or_operator(&token_identifier).is_ok()
+            Inspect::inspect_is_owner_or_operator(caller(), &token_identifier).is_ok()
         }
         _ => false,
     };

@@ -13,10 +13,7 @@ pub fn mock_token(id: u64, contract_id: u64) -> Token {
     Token {
         id: TokenIdentifier::from(id),
         contract_id: ID::from(contract_id),
-        owner: Some(
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap(),
-        ),
+        owner: Some(caller()),
         transferred_at: None,
         transferred_by: None,
         approved_at: None,
@@ -52,11 +49,29 @@ fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
 }
 
 pub fn store_mock_contract(token_ids: &[u64], contract_id: u64) {
+    store_mock_contract_with(token_ids, contract_id, |_| {}.into(), |_| {})
+}
+
+pub fn store_mock_contract_with<F, F2>(
+    token_ids: &[u64],
+    contract_id: u64,
+    contract_fn: F,
+    token_fn: F2,
+) where
+    F: FnOnce(&mut Contract),
+    F2: FnOnce(&mut Token) + Copy,
+{
     let mut tokens = Vec::new();
     for id in token_ids {
-        tokens.push(mock_token(*id, contract_id));
+        let mut token = mock_token(*id, contract_id);
+        token_fn(&mut token);
+        tokens.push(token);
     }
-    assert!(
-        ContractStorage::insert_contract(mock_contract(contract_id, token_ids), tokens).is_ok()
-    );
+
+    let mut contract = mock_contract(contract_id, token_ids);
+    contract_fn(&mut contract);
+
+    if let Err(err) = ContractStorage::insert_contract(contract, tokens) {
+        panic!("{err}");
+    }
 }

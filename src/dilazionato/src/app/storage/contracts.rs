@@ -389,11 +389,10 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         let contract_id = ID::from(1);
-        let token_id = TokenIdentifier::from(1);
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(1, 1);
         let contract = Contract {
-            id: ID::from(1),
+            id: contract_id,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -413,7 +412,6 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::from(1);
         let token_1 = mock_token(1, 1);
         let token_2 = Token {
             id: TokenIdentifier::from(2),
