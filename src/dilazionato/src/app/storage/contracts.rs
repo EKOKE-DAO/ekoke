@@ -222,7 +222,7 @@ impl ContractStorage {
             tokens
                 .iter()
                 .filter_map(|(id, token)| {
-                    if token.owner == Some(owner) {
+                    if token.owner == Some(owner) && !token.is_burned {
                         Some(id.0.clone())
                     } else {
                         None
@@ -527,11 +527,12 @@ mod test {
 
     #[test]
     fn test_should_burn_token() {
+        let owner = Principal::management_canister();
         let contract_id = ID::from(1);
         let token_1 = Token {
             id: TokenIdentifier::from(1),
             contract_id: contract_id.clone(),
-            owner: Some(Principal::anonymous()),
+            owner: Some(owner),
             value: 1000,
             mfly_reward: 4000,
             is_burned: false,
@@ -547,7 +548,7 @@ mod test {
         };
         let contract = Contract {
             id: contract_id.clone(),
-            seller: Principal::anonymous(),
+            seller: owner,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
             expiration: "2040-06-01".to_string(),
@@ -561,6 +562,9 @@ mod test {
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
         assert!(ContractStorage::burn_token(&token_1.id).is_ok());
+        // owner balance is zero
+        assert_eq!(ContractStorage::tokens_by_owner(owner).len(), 0);
+
         assert_eq!(
             ContractStorage::get_token(&token_1.id).unwrap().is_burned,
             true

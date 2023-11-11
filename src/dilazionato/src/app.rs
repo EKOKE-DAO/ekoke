@@ -274,7 +274,10 @@ impl Dip721 for Dilazionato {
     /// Returns the list of the token_identifier of the NFT associated with owner.
     /// Returns an error containing NftError if principal is invalid.
     fn owner_token_identifiers(owner: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        Ok(ContractStorage::tokens_by_owner(owner))
+        match ContractStorage::tokens_by_owner(owner) {
+            tokens if tokens.is_empty() => Err(NftError::OwnerNotFound),
+            tokens => Ok(tokens),
+        }
     }
 
     /// Returns the list of the token_metadata of the NFT associated with owner.
@@ -284,6 +287,10 @@ impl Dip721 for Dilazionato {
         let mut metadata = Vec::with_capacity(tokens.len());
         for token in tokens {
             metadata.push(Self::token_metadata(token)?);
+        }
+
+        if metadata.is_empty() {
+            return Err(NftError::OwnerNotFound);
         }
 
         Ok(metadata)
@@ -299,7 +306,10 @@ impl Dip721 for Dilazionato {
 
     /// Returns the list of the token_identifier of the NFT associated with operator.
     fn operator_token_identifiers(operator: Principal) -> Result<Vec<TokenIdentifier>, NftError> {
-        Ok(ContractStorage::tokens_by_operator(operator))
+        match ContractStorage::tokens_by_operator(operator) {
+            tokens if tokens.is_empty() => Err(NftError::OperatorNotFound),
+            tokens => Ok(tokens),
+        }
     }
 
     /// Returns the list of the token_metadata of the NFT associated with operator.
@@ -308,6 +318,10 @@ impl Dip721 for Dilazionato {
         let mut metadata = Vec::with_capacity(tokens.len());
         for token in tokens {
             metadata.push(Self::token_metadata(token)?);
+        }
+
+        if metadata.is_empty() {
+            return Err(NftError::OperatorNotFound);
         }
 
         Ok(metadata)
@@ -451,7 +465,7 @@ mod test {
 
     use super::test_utils::store_mock_contract;
     use super::*;
-    use crate::app::test_utils::mock_token;
+    use crate::app::test_utils::{mock_token, store_mock_contract_with};
     use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
     #[test]
@@ -541,6 +555,196 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         assert_eq!(Dilazionato::total_unique_holders(), Nat::from(1));
+    }
+
+    #[test]
+    fn test_should_get_token_metadata() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        let metadata = Dilazionato::token_metadata(1.into()).unwrap();
+        assert_eq!(metadata.owner, Some(caller()));
+        assert_eq!(metadata.token_identifier, Nat::from(1));
+
+        // unexisting token
+        assert!(Dilazionato::token_metadata(5.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_balance_of() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(2));
+        assert!(Dilazionato::balance_of(Principal::management_canister()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_owner_of() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(Dilazionato::owner_of(1.into()).unwrap(), Some(caller()));
+        assert!(Dilazionato::owner_of(5.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_owner_token_identifiers() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(
+            Dilazionato::owner_token_identifiers(caller()).unwrap(),
+            vec![Nat::from(1), Nat::from(2)]
+        );
+        assert!(Dilazionato::owner_token_identifiers(Principal::management_canister()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_owner_token_metadata() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        let metadata = Dilazionato::owner_token_metadata(caller()).unwrap();
+        assert_eq!(metadata.len(), 2);
+        assert_eq!(metadata[0].owner, Some(caller()));
+        assert_eq!(metadata[0].token_identifier, Nat::from(1));
+        assert_eq!(metadata[1].owner, Some(caller()));
+        assert_eq!(metadata[1].token_identifier, Nat::from(2));
+
+        // unexisting owner
+        assert!(Dilazionato::owner_token_metadata(Principal::management_canister()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_operator_of() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(Dilazionato::operator_of(1.into()).unwrap(), None);
+        store_mock_contract_with(
+            &[3],
+            2,
+            |_| {},
+            |token| token.operator = Some(Principal::management_canister()),
+        );
+
+        assert_eq!(
+            Dilazionato::operator_of(3.into()).unwrap(),
+            Some(Principal::management_canister())
+        );
+
+        assert!(Dilazionato::operator_of(5.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_operator_token_identifiers() {
+        init_canister();
+        // no owner
+        store_mock_contract_with(
+            &[1, 2],
+            1,
+            |_| {},
+            |token| {
+                token.operator = None;
+            },
+        );
+        assert!(Dilazionato::operator_token_identifiers(caller()).is_err());
+
+        // with operator
+        store_mock_contract_with(
+            &[3, 4],
+            2,
+            |_| {},
+            |token| token.operator = Some(Principal::management_canister()),
+        );
+        assert_eq!(
+            Dilazionato::operator_token_identifiers(Principal::management_canister()).unwrap(),
+            vec![Nat::from(3), Nat::from(4)]
+        );
+        assert!(Dilazionato::operator_of(5.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_operator_token_metadata() {
+        init_canister();
+        // no owner
+        store_mock_contract_with(
+            &[1, 2],
+            1,
+            |_| {},
+            |token| {
+                token.operator = None;
+            },
+        );
+        assert!(Dilazionato::operator_token_metadata(caller()).is_err());
+
+        // with operator
+        store_mock_contract_with(
+            &[3, 4],
+            2,
+            |_| {},
+            |token| token.operator = Some(Principal::management_canister()),
+        );
+        let metadata =
+            Dilazionato::operator_token_metadata(Principal::management_canister()).unwrap();
+        assert_eq!(metadata.len(), 2);
+        assert_eq!(metadata[0].owner, Some(caller()));
+        assert_eq!(metadata[0].token_identifier, Nat::from(3));
+        assert_eq!(metadata[1].owner, Some(caller()));
+        assert_eq!(metadata[1].token_identifier, Nat::from(4));
+
+        assert!(Dilazionato::operator_of(5.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_get_supported_interfaces() {
+        init_canister();
+        assert_eq!(
+            Dilazionato::supported_interfaces(),
+            vec![
+                SupportedInterface::Burn,
+                SupportedInterface::TransactionHistory
+            ]
+        );
+    }
+
+    #[test]
+    fn test_should_get_total_supply() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        store_mock_contract(&[3, 4], 2);
+        assert_eq!(Dilazionato::total_supply(), Nat::from(4));
+    }
+
+    #[tokio::test]
+    async fn test_should_transfer() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        // self transfer
+        assert!(Dilazionato::transfer(caller(), 1.into()).await.is_err());
+
+        // transfer
+        assert!(
+            Dilazionato::transfer(Principal::management_canister(), 1.into())
+                .await
+                .is_ok()
+        );
+        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(1));
+        assert_eq!(
+            Dilazionato::balance_of(Principal::management_canister()).unwrap(),
+            Nat::from(1)
+        );
+        // transfer unexisting
+        assert!(
+            Dilazionato::transfer(Principal::management_canister(), 5.into())
+                .await
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn test_should_burn() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert!(Dilazionato::burn(1.into()).is_ok());
+        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(1));
+
+        assert!(Dilazionato::burn(5.into()).is_err());
     }
 
     #[test]
