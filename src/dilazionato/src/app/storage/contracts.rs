@@ -307,6 +307,7 @@ mod test {
         };
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -344,6 +345,7 @@ mod test {
         let token_1 = mock_token(1, 1);
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
@@ -368,6 +370,7 @@ mod test {
         let contract_id = ID::from(1);
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
@@ -394,6 +397,7 @@ mod test {
         let token_2 = mock_token(1, 1);
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -434,6 +438,7 @@ mod test {
         };
         let contract = Contract {
             id: ID::from(1),
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -475,6 +480,7 @@ mod test {
         };
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -506,6 +512,7 @@ mod test {
 
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -554,6 +561,7 @@ mod test {
         };
         let contract = Contract {
             id: contract_id.clone(),
+            r#type: did::dilazionato::ContractType::Financing,
             seller: owner,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
@@ -623,6 +631,7 @@ mod test {
         };
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller: Principal::anonymous(),
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
@@ -666,6 +675,7 @@ mod test {
         let token_2 = mock_token(2, 1);
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -697,6 +707,7 @@ mod test {
         let token_2 = mock_token(2, 1);
         let contract = Contract {
             id: contract_id,
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone(), token_2.id.clone()],
@@ -733,6 +744,7 @@ mod test {
         let token_1 = mock_token(next_token_id, 1);
         let contract = Contract {
             id: contract_id.clone(),
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],
@@ -770,6 +782,7 @@ mod test {
         let token_1 = mock_token(next_token_id, 1);
         let contract = Contract {
             id: contract_id.clone(),
+            r#type: did::dilazionato::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![token_1.id.clone()],

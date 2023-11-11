@@ -29,6 +29,7 @@ pub fn mock_token(id: u64, contract_id: u64) -> Token {
 fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
     Contract {
         id: id.into(),
+        r#type: did::dilazionato::ContractType::Financing,
         seller: caller(),
         buyers: vec![Principal::management_canister()],
         tokens: token_ids

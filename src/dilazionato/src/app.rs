@@ -100,15 +100,16 @@ impl Dilazionato {
 
         // make contract
         let contract = Contract {
-            properties: data.properties,
             buyers: data.buyers,
+            currency: data.currency,
             expiration: data.expiration,
             id: data.id.clone(),
+            initial_value: data.value,
+            properties: data.properties,
+            r#type: data.r#type,
             seller: data.seller,
             tokens: tokens_ids,
             value: data.value,
-            initial_value: data.value,
-            currency: data.currency,
         };
 
         // register contract

@@ -2,6 +2,7 @@ type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
 type Contract = record {
   id : nat;
   value : nat64;
+  "type" : ContractType;
   properties : vec record { text; GenericValue };
   seller : principal;
   expiration : text;
@@ -13,6 +14,7 @@ type Contract = record {
 type ContractRegistration = record {
   id : nat;
   value : nat64;
+  "type" : ContractType;
   properties : vec record { text; GenericValue };
   seller : principal;
   expiration : text;
@@ -20,6 +22,7 @@ type ContractRegistration = record {
   installments : nat64;
   buyers : vec principal;
 };
+type ContractType = variant { Sell; Financing };
 type DilazionatoError = variant {
   Fly : FlyError;
   Configuration : ConfigurationError;

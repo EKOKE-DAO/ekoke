@@ -6,6 +6,7 @@ export type ConfigurationError = { 'CustodialsCantBeEmpty' : null } |
 export interface Contract {
   'id' : bigint,
   'value' : bigint,
+  'type' : ContractType,
   'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
@@ -17,6 +18,7 @@ export interface Contract {
 export interface ContractRegistration {
   'id' : bigint,
   'value' : bigint,
+  'type' : ContractType,
   'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
@@ -24,6 +26,8 @@ export interface ContractRegistration {
   'installments' : bigint,
   'buyers' : Array<Principal>,
 }
+export type ContractType = { 'Sell' : null } |
+  { 'Financing' : null };
 export type DilazionatoError = { 'Fly' : FlyError } |
   { 'Configuration' : ConfigurationError } |
   { 'Unauthorized' : null } |

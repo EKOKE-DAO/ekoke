@@ -67,14 +67,13 @@ pub enum ConfigurationError {
     AnonymousCustodial,
 }
 
-/// A list of properties associated to a contract
-pub type ContractProperties = Vec<(String, GenericValue)>;
-
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Contract {
     /// Contract ID
     pub id: ID,
+    /// Contract type
+    pub r#type: ContractType,
     /// The contractor selling the building
     pub seller: Principal,
     /// Contract buyers. Those who must pay
@@ -103,6 +102,16 @@ impl Storable for Contract {
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         Decode!(&bytes, Self).unwrap()
     }
+}
+
+/// A list of properties associated to a contract
+pub type ContractProperties = Vec<(String, GenericValue)>;
+
+/// A variant which defines the contract type
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub enum ContractType {
+    Financing,
+    Sell,
 }
 
 /// A Non fungible token related to an installment of a contract
@@ -215,6 +224,7 @@ impl Storable for StorableTxEvent {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct ContractRegistration {
     pub id: ID,
+    pub r#type: ContractType,
     pub seller: Principal,
     pub buyers: Vec<Principal>,
     pub expiration: String,
@@ -269,6 +279,7 @@ mod test {
     fn test_should_encode_contract() {
         let contract = Contract {
             id: ID::from(1),
+            r#type: ContractType::Sell,
             seller: Principal::from_text(
                 "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
             )

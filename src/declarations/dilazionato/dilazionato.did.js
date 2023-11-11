@@ -18,6 +18,10 @@ export const idlFactory = ({ IDL }) => {
     'Other' : IDL.Text,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : NftError });
+  const ContractType = IDL.Variant({
+    'Sell' : IDL.Null,
+    'Financing' : IDL.Null,
+  });
   Vec.fill(
     IDL.Vec(
       IDL.Tuple(
@@ -64,6 +68,7 @@ export const idlFactory = ({ IDL }) => {
   const Contract = IDL.Record({
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
+    'type' : ContractType,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
@@ -108,6 +113,7 @@ export const idlFactory = ({ IDL }) => {
   const ContractRegistration = IDL.Record({
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
+    'type' : ContractType,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
