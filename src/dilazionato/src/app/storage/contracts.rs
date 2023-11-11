@@ -258,7 +258,6 @@ impl ContractStorage {
 mod test {
 
     use candid::Principal;
-    use did::dilazionato::BuildingData;
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -315,9 +314,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::get_contract(&contract.id).is_none());
@@ -351,9 +351,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
         assert!(ContractStorage::insert_contract(contract, vec![token_1]).is_err());
@@ -374,9 +375,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![]).is_err());
@@ -399,9 +401,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
         assert!(ContractStorage::insert_contract(contract, vec![token_1, token_2]).is_err());
     }
@@ -438,9 +441,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
         assert!(ContractStorage::insert_contract(contract, vec![token_1, token_2]).is_err());
     }
@@ -478,9 +482,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
         assert!(ContractStorage::insert_contract(
             contract.clone(),
@@ -508,9 +513,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(
@@ -555,9 +561,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
@@ -623,9 +630,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         let new_owner =
@@ -665,9 +673,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(
@@ -695,9 +704,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(
@@ -730,9 +740,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
@@ -766,9 +777,10 @@ mod test {
             initial_value: 100,
             value: 100,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());

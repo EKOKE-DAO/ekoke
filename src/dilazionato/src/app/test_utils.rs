@@ -1,5 +1,5 @@
 use candid::Principal;
-use did::dilazionato::{BuildingData, Contract, Token};
+use did::dilazionato::{Contract, Token};
 use did::ID;
 use dip721::TokenIdentifier;
 
@@ -39,9 +39,10 @@ fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
         initial_value: 250_000,
         value: 250_000,
         currency: "EUR".to_string(),
-        building: BuildingData {
-            city: "Rome".to_string(),
-        },
+        properties: vec![(
+            "Rome".to_string(),
+            dip721::GenericValue::TextContent("Rome".to_string()),
+        )],
     }
 }
 

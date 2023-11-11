@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::BuildingData;
+use did::dilazionato::ContractProperties;
 use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
@@ -38,7 +38,7 @@ fn inspect_message_impl() {
                 String,
                 u64,
                 u64,
-                BuildingData,
+                ContractProperties,
             )>();
             Inspect::inspect_register_contract(caller(), &id, value, installments, &expiration)
                 .is_ok()

@@ -1,13 +1,12 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export interface BuildingData { 'city' : string }
 export type ConfigurationError = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
 export interface Contract {
   'id' : bigint,
   'value' : bigint,
-  'building' : BuildingData,
+  'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
   'tokens' : Array<bigint>,
@@ -18,7 +17,7 @@ export interface Contract {
 export interface ContractRegistration {
   'id' : bigint,
   'value' : bigint,
-  'building' : BuildingData,
+  'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
   'currency' : string,

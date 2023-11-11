@@ -1,9 +1,8 @@
-type BuildingData = record { city : text };
 type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
 type Contract = record {
   id : nat;
   value : nat64;
-  building : BuildingData;
+  properties : vec record { text; GenericValue };
   seller : principal;
   expiration : text;
   tokens : vec nat;
@@ -14,7 +13,7 @@ type Contract = record {
 type ContractRegistration = record {
   id : nat;
   value : nat64;
-  building : BuildingData;
+  properties : vec record { text; GenericValue };
   seller : principal;
   expiration : text;
   currency : text;

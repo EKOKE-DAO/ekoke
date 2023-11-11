@@ -67,6 +67,9 @@ pub enum ConfigurationError {
     AnonymousCustodial,
 }
 
+/// A list of properties associated to a contract
+pub type ContractProperties = Vec<(String, GenericValue)>;
+
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Contract {
@@ -86,8 +89,8 @@ pub struct Contract {
     pub value: u64,
     /// Currency symbol
     pub currency: String,
-    /// Data associated to the building
-    pub building: BuildingData,
+    /// Data associated to the contract
+    pub properties: ContractProperties,
 }
 
 impl Storable for Contract {
@@ -181,28 +184,6 @@ impl From<Token> for TokenMetadata {
     }
 }
 
-/// Data associated to a building
-#[derive(Clone, Debug, CandidType, Deserialize)]
-pub struct BuildingData {
-    /// The city the building is located at
-    pub city: String,
-}
-
-impl Storable for BuildingData {
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 256,
-        is_fixed_size: false,
-    };
-
-    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
-        Encode!(&self).unwrap().into()
-    }
-
-    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
-        Decode!(&bytes, Self).unwrap()
-    }
-}
-
 /// Storable TxEvent DIP721 transaction
 pub struct StorableTxEvent(pub TxEvent);
 
@@ -240,7 +221,7 @@ pub struct ContractRegistration {
     pub value: u64,
     pub currency: String,
     pub installments: u64,
-    pub building: BuildingData,
+    pub properties: ContractProperties,
 }
 
 #[cfg(test)]
@@ -285,17 +266,6 @@ mod test {
     }
 
     #[test]
-    fn test_should_encode_building_data() {
-        let building_data = BuildingData {
-            city: "Rome".to_string(),
-        };
-        let data = Encode!(&building_data).unwrap();
-        let decoded_building_data = Decode!(&data, BuildingData).unwrap();
-
-        assert_eq!(building_data.city, decoded_building_data.city);
-    }
-
-    #[test]
     fn test_should_encode_contract() {
         let contract = Contract {
             id: ID::from(1),
@@ -315,9 +285,10 @@ mod test {
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),
-            building: BuildingData {
-                city: "Rome".to_string(),
-            },
+            properties: vec![(
+                "Rome".to_string(),
+                GenericValue::TextContent("Rome".to_string()),
+            )],
         };
         let data = Encode!(&contract).unwrap();
         let decoded_contract = Decode!(&data, Contract).unwrap();
@@ -327,7 +298,7 @@ mod test {
         assert_eq!(contract.buyers, decoded_contract.buyers);
         assert_eq!(contract.expiration, decoded_contract.expiration);
         assert_eq!(contract.tokens, decoded_contract.tokens);
-        assert_eq!(contract.building.city, decoded_contract.building.city);
+        assert_eq!(contract.properties, decoded_contract.properties);
         assert_eq!(contract.value, decoded_contract.value);
     }
 

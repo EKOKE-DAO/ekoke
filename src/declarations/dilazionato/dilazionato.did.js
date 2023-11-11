@@ -18,27 +18,6 @@ export const idlFactory = ({ IDL }) => {
     'Other' : IDL.Text,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : NftError });
-  const BuildingData = IDL.Record({ 'city' : IDL.Text });
-  const Contract = IDL.Record({
-    'id' : IDL.Nat,
-    'value' : IDL.Nat64,
-    'building' : BuildingData,
-    'seller' : IDL.Principal,
-    'expiration' : IDL.Text,
-    'tokens' : IDL.Vec(IDL.Nat),
-    'currency' : IDL.Text,
-    'initial_value' : IDL.Nat64,
-    'buyers' : IDL.Vec(IDL.Principal),
-  });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : NftError });
-  const Metadata = IDL.Record({
-    'logo' : IDL.Opt(IDL.Text),
-    'name' : IDL.Opt(IDL.Text),
-    'created_at' : IDL.Nat64,
-    'upgraded_at' : IDL.Nat64,
-    'custodians' : IDL.Vec(IDL.Principal),
-    'symbol' : IDL.Opt(IDL.Text),
-  });
   Vec.fill(
     IDL.Vec(
       IDL.Tuple(
@@ -82,6 +61,26 @@ export const idlFactory = ({ IDL }) => {
     'Principal' : IDL.Principal,
     'TextContent' : IDL.Text,
   });
+  const Contract = IDL.Record({
+    'id' : IDL.Nat,
+    'value' : IDL.Nat64,
+    'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
+    'seller' : IDL.Principal,
+    'expiration' : IDL.Text,
+    'tokens' : IDL.Vec(IDL.Nat),
+    'currency' : IDL.Text,
+    'initial_value' : IDL.Nat64,
+    'buyers' : IDL.Vec(IDL.Principal),
+  });
+  const Result_1 = IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : NftError });
+  const Metadata = IDL.Record({
+    'logo' : IDL.Opt(IDL.Text),
+    'name' : IDL.Opt(IDL.Text),
+    'created_at' : IDL.Nat64,
+    'upgraded_at' : IDL.Nat64,
+    'custodians' : IDL.Vec(IDL.Principal),
+    'symbol' : IDL.Opt(IDL.Text),
+  });
   const Result_2 = IDL.Variant({
     'Ok' : IDL.Opt(IDL.Principal),
     'Err' : NftError,
@@ -109,7 +108,7 @@ export const idlFactory = ({ IDL }) => {
   const ContractRegistration = IDL.Record({
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
-    'building' : BuildingData,
+    'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
     'currency' : IDL.Text,

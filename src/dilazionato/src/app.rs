@@ -100,7 +100,7 @@ impl Dilazionato {
 
         // make contract
         let contract = Contract {
-            building: data.building,
+            properties: data.properties,
             buyers: data.buyers,
             expiration: data.expiration,
             id: data.id.clone(),
