@@ -56,18 +56,35 @@ impl ContractStorage {
         Ok(())
     }
 
-    /// Sign contract
+    /// Sign contract.
+    /// The contract can be signed only once.
     pub fn sign_contract(contract_id: &ID, operator: Principal) -> DilazionatoResult<()> {
         // sign contract and get seller and tokens
         let (contract_tokens, seller) = with_contract_mut(contract_id, |contract| {
+            // check if already signed
+            if contract.is_signed {
+                return Err(DilazionatoError::Token(TokenError::ContractAlreadySigned(
+                    contract_id.clone(),
+                )));
+            }
+
             contract.is_signed = true;
 
             Ok((contract.tokens.clone(), contract.seller))
         })?;
 
+        Self::assign_minted_tokens(contract_tokens, seller, operator)
+    }
+
+    /// Assign previously minted tokens to the seller and set the operator
+    fn assign_minted_tokens(
+        tokens: Vec<Nat>,
+        seller: Principal,
+        operator: Principal,
+    ) -> DilazionatoResult<()> {
         // make tokens effective
         with_tokens_mut(|tokens_storage| {
-            for token_id in contract_tokens {
+            for token_id in tokens {
                 let mut token = match tokens_storage.get(&token_id.clone().into()) {
                     Some(token) => token.clone(),
                     None => {
@@ -100,7 +117,12 @@ impl ContractStorage {
             return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
         }
 
-        with_contract_mut(contract_id, |contract| {
+        let contract_tokens = tokens
+            .iter()
+            .map(|t| t.id.clone())
+            .collect::<Vec<TokenIdentifier>>();
+
+        let seller = with_contract_mut(contract_id, |contract| {
             if !contract.is_signed {
                 return Err(DilazionatoError::Token(TokenError::ContractNotSigned(
                     contract_id.clone(),
@@ -119,9 +141,10 @@ impl ContractStorage {
             contract.value = new_value;
             contract.tokens.extend(token_ids);
 
-            Ok(())
+            Ok(contract.seller)
         })?;
-        Self::sign_contract(contract_id, operator)?;
+
+        Self::assign_minted_tokens(contract_tokens, seller, operator)?;
         Ok(())
     }
 
@@ -466,6 +489,11 @@ mod test {
         assert_eq!(
             ContractStorage::tokens_by_operator(Principal::management_canister()).len(),
             2
+        );
+
+        // don't sign twice
+        assert!(
+            ContractStorage::sign_contract(&contract_id, Principal::management_canister()).is_err()
         );
     }
 
@@ -985,6 +1013,42 @@ mod test {
         assert_eq!(
             ContractStorage::get_contract(&contract_id).unwrap().value,
             200
+        );
+    }
+
+    #[test]
+    fn test_should_not_increment_tokens_if_unsigned_contract() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::from(1);
+        let next_token_id = ContractStorage::total_supply();
+        assert_eq!(next_token_id, Nat::from(0));
+        let token_1 = mock_token(next_token_id, 1);
+        let contract = Contract {
+            id: contract_id.clone(),
+            r#type: did::dilazionato::ContractType::Financing,
+            seller,
+            buyers: vec![Principal::anonymous()],
+            tokens: vec![token_1.id.clone()],
+            expiration: "2040-06-01".to_string(),
+            initial_value: 100,
+            is_signed: false,
+            value: 100,
+            currency: "EUR".to_string(),
+            properties: vec![(
+                "Rome".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            )],
+        };
+
+        assert!(ContractStorage::insert_contract(contract.clone(), vec![token_1.clone()]).is_ok());
+        assert_eq!(ContractStorage::total_supply(), 1);
+
+        // create new tokens
+        let token_2 = mock_token(next_token_id + 1, 1);
+        assert!(
+            ContractStorage::add_tokens_to_contract(&contract.id, vec![token_2], alice()).is_err()
         );
     }
 }
