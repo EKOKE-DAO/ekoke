@@ -247,7 +247,7 @@ impl ContractStorage {
                     token_id.clone(),
                 )));
             }
-            let from = token.owner.unwrap_or_else(|| Principal::anonymous());
+            let from = token.owner.unwrap_or_else(Principal::anonymous);
             token.owner = Some(to);
             token.transferred_at = Some(crate::utils::time());
             token.transferred_by = Some(crate::utils::caller());

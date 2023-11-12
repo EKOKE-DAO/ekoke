@@ -1,4 +1,4 @@
-use candid::{Nat, Principal};
+use candid::Nat;
 use did::dilazionato::{DilazionatoResult, Token};
 use did::ID;
 
