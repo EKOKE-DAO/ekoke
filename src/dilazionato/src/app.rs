@@ -80,10 +80,14 @@ impl Dilazionato {
         Inspect::inspect_is_seller(caller(), contract_id.clone())?;
 
         // mint new tokens
-        let (tokens, _) = Minter::mint(&contract_id, caller(), installments, incr_by).await?;
+        let (tokens, _) = Minter::mint(&contract_id, installments, incr_by).await?;
 
         // update contract
-        ContractStorage::add_tokens_to_contract(&contract_id, tokens)
+        ContractStorage::add_tokens_to_contract(
+            &contract_id,
+            tokens,
+            Configuration::get_marketplace_canister(),
+        )
     }
 
     /// Register contract inside of the canister.
@@ -97,14 +101,14 @@ impl Dilazionato {
             &data.expiration,
         )?;
 
-        let (tokens, tokens_ids) =
-            Minter::mint(&data.id, data.seller, data.installments, data.value).await?;
+        let (tokens, tokens_ids) = Minter::mint(&data.id, data.installments, data.value).await?;
 
         // make contract
         let contract = Contract {
             buyers: data.buyers,
             currency: data.currency,
             expiration: data.expiration,
+            is_signed: false, // MUST BE NOT SIGNED
             id: data.id.clone(),
             initial_value: data.value,
             properties: data.properties,
@@ -118,6 +122,15 @@ impl Dilazionato {
         ContractStorage::insert_contract(contract, tokens)?;
 
         Ok(())
+    }
+
+    /// Sign provided contract
+    pub fn admin_sign_contract(contract_id: ID) -> DilazionatoResult<()> {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        ContractStorage::sign_contract(&contract_id, caller())
     }
 
     /// Update marketplace canister id and update the operator for all the tokens
@@ -487,7 +500,7 @@ mod test {
 
     use super::test_utils::store_mock_contract;
     use super::*;
-    use crate::app::test_utils::{mock_token, store_mock_contract_with};
+    use crate::app::test_utils::{alice, mock_token, store_mock_contract_with};
     use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
     #[test]
@@ -569,6 +582,7 @@ mod test {
             value: 100,
         };
         assert!(Dilazionato::register_contract(contract).await.is_ok());
+        assert!(Dilazionato::admin_sign_contract(1.into()).is_ok());
 
         // increment value
         assert!(
@@ -744,18 +758,8 @@ mod test {
     fn test_should_get_operator_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Dilazionato::operator_of(1.into()).unwrap(), None);
-        store_mock_contract_with(
-            &[3],
-            2,
-            |_| {},
-            |token| token.operator = Some(Principal::management_canister()),
-        );
 
-        assert_eq!(
-            Dilazionato::operator_of(3.into()).unwrap(),
-            Some(Principal::management_canister())
-        );
+        assert_eq!(Dilazionato::operator_of(1.into()).unwrap(), Some(alice()));
 
         assert!(Dilazionato::operator_of(5.into()).is_err());
     }
@@ -764,23 +768,12 @@ mod test {
     fn test_should_get_operator_token_identifiers() {
         init_canister();
         // no owner
-        store_mock_contract_with(
-            &[1, 2],
-            1,
-            |_| {},
-            |token| {
-                token.operator = None;
-            },
-        );
+        store_mock_contract_with(&[1, 2], 1, |contract| contract.seller = alice(), |_| {});
         assert!(Dilazionato::operator_token_identifiers(caller()).is_err());
 
         // with operator
-        store_mock_contract_with(
-            &[3, 4],
-            2,
-            |_| {},
-            |token| token.operator = Some(Principal::management_canister()),
-        );
+        assert!(Configuration::set_marketplace_canister(Principal::management_canister()).is_ok());
+        store_mock_contract_with(&[3, 4], 2, |contract| contract.seller = alice(), |_| {});
         assert_eq!(
             Dilazionato::operator_token_identifiers(Principal::management_canister()).unwrap(),
             vec![Nat::from(3), Nat::from(4)]
@@ -791,30 +784,34 @@ mod test {
     #[test]
     fn test_should_get_operator_token_metadata() {
         init_canister();
-        // no owner
+        assert!(Dilazionato::operator_token_metadata(Principal::anonymous()).is_err());
+        // no owner or operator
+        assert!(Configuration::set_marketplace_canister(alice()).is_ok());
         store_mock_contract_with(
             &[1, 2],
             1,
-            |_| {},
-            |token| {
-                token.operator = None;
+            |contract| {
+                contract.seller = alice();
             },
+            |_| {},
         );
-        assert!(Dilazionato::operator_token_metadata(caller()).is_err());
 
         // with operator
+        assert!(Configuration::set_marketplace_canister(Principal::management_canister()).is_ok());
         store_mock_contract_with(
             &[3, 4],
             2,
+            |contract| {
+                contract.seller = alice();
+            },
             |_| {},
-            |token| token.operator = Some(Principal::management_canister()),
         );
         let metadata =
             Dilazionato::operator_token_metadata(Principal::management_canister()).unwrap();
         assert_eq!(metadata.len(), 2);
-        assert_eq!(metadata[0].owner, Some(caller()));
+        assert_eq!(metadata[0].owner, Some(alice()));
         assert_eq!(metadata[0].token_identifier, Nat::from(3));
-        assert_eq!(metadata[1].owner, Some(caller()));
+        assert_eq!(metadata[1].owner, Some(alice()));
         assert_eq!(metadata[1].token_identifier, Nat::from(4));
 
         assert!(Dilazionato::operator_of(5.into()).is_err());
@@ -893,8 +890,8 @@ mod test {
     fn init_canister() {
         Dilazionato::init(DilazionatoInitData {
             custodians: vec![caller()],
-            fly_canister: caller(),
-            marketplace_canister: caller(),
+            fly_canister: alice(),
+            marketplace_canister: alice(),
         });
     }
 }

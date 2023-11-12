@@ -157,7 +157,8 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils;
+    use crate::app::configuration::Configuration;
+    use crate::app::test_utils::{self, alice};
     use crate::utils::caller;
 
     #[test]
@@ -174,40 +175,39 @@ mod test {
     }
 
     #[test]
-    fn test_should_is_owner_or_operator() {
+    fn test_should_inspect_is_owner_or_operator() {
         let caller = caller();
         test_utils::store_mock_contract_with(
             &[1],
             1,
-            |_| {},
+            |contract| {
+                contract.seller = caller;
+            },
             |token| {
-                token.owner = Some(caller);
+                token.owner = None;
                 token.operator = None;
             },
         );
         assert!(Inspect::inspect_is_owner_or_operator(caller, &1.into()).is_ok());
 
         // with operator
+        assert!(Configuration::set_marketplace_canister(caller).is_ok());
         test_utils::store_mock_contract_with(
             &[2],
             2,
-            |_| {},
+            |contract| {
+                contract.seller = alice();
+            },
             |token| {
-                token.operator = Some(caller);
+                token.operator = None;
             },
         );
         assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
         assert!(Inspect::inspect_is_owner_or_operator(caller, &2.into()).is_ok());
 
         // no operator, no owner
-        test_utils::store_mock_contract_with(
-            &[3],
-            3,
-            |_| {},
-            |token| {
-                token.operator = Some(Principal::management_canister());
-            },
-        );
+        assert!(Configuration::set_marketplace_canister(Principal::management_canister()).is_ok());
+        test_utils::store_mock_contract(&[3], 3);
         assert!(ContractStorage::transfer(&3.into(), Principal::management_canister()).is_ok());
         assert!(Inspect::inspect_is_owner_or_operator(caller, &3.into()).is_err());
     }
@@ -216,6 +216,7 @@ mod test {
     fn test_should_inspect_burn() {
         let caller = caller();
         // caller is owner and token is owned by buyer
+        assert!(Configuration::set_marketplace_canister(caller).is_ok());
         test_utils::store_mock_contract_with(
             &[1],
             1,
@@ -224,12 +225,13 @@ mod test {
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
-                token.owner = Some(caller);
+                token.owner = None;
                 token.operator = None;
             },
         );
         assert!(Inspect::inspect_burn(caller, &1.into()).is_ok());
         // caller is operator and token is owned by buyer
+        assert!(Configuration::set_marketplace_canister(caller).is_ok());
         test_utils::store_mock_contract_with(
             &[2],
             2,
@@ -238,12 +240,13 @@ mod test {
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
-                token.operator = Some(caller);
+                token.operator = None;
             },
         );
         assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
         assert!(Inspect::inspect_burn(caller, &2.into()).is_ok());
         // caller is owner and token is owned by buyer
+        assert!(Configuration::set_marketplace_canister(alice()).is_ok());
         test_utils::store_mock_contract_with(
             &[3],
             3,
@@ -252,13 +255,14 @@ mod test {
                 contract.buyers = vec![caller];
             },
             |token| {
-                token.owner = Some(Principal::management_canister());
+                token.owner = None;
                 token.operator = None;
             },
         );
         assert!(ContractStorage::transfer(&2.into(), caller).is_ok());
         assert!(Inspect::inspect_burn(caller, &1.into()).is_ok());
         // caller is operator and token is owned by buyer
+        assert!(Configuration::set_marketplace_canister(caller).is_ok());
         test_utils::store_mock_contract_with(
             &[4],
             4,
@@ -267,13 +271,14 @@ mod test {
                 contract.buyers = vec![caller];
             },
             |token| {
-                token.owner = Some(Principal::management_canister());
-                token.operator = Some(caller);
+                token.owner = None;
+                token.operator = None;
             },
         );
         assert!(ContractStorage::transfer(&4.into(), caller).is_ok());
         assert!(Inspect::inspect_burn(caller, &4.into()).is_ok());
         // caller is not owner nor operator
+        assert!(Configuration::set_marketplace_canister(alice()).is_ok());
         test_utils::store_mock_contract_with(
             &[5],
             5,
@@ -296,7 +301,7 @@ mod test {
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
-                token.owner = Some(Principal::management_canister());
+                token.owner = None;
                 token.operator = None;
             },
         );
@@ -362,7 +367,7 @@ mod test {
                 contract.seller = caller;
             },
             |token| {
-                token.owner = Some(caller);
+                token.owner = None;
             },
         );
         assert!(Inspect::inspect_is_seller(caller, 1.into()).is_ok());
@@ -379,9 +384,10 @@ mod test {
             1,
             |contract| {
                 contract.buyers = vec![caller];
+                contract.seller = caller;
             },
             |token| {
-                token.owner = Some(caller);
+                token.owner = None;
             },
         );
         assert!(Inspect::inspect_is_buyer(caller, 1.into()).is_ok());

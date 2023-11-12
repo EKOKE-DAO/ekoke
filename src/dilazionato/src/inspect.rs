@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::ContractProperties;
+use did::dilazionato::ContractRegistration;
 use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
@@ -31,17 +31,15 @@ fn inspect_message_impl() {
             Inspect::inspect_is_buyer(caller(), id).is_ok()
         }
         "register_contract" => {
-            let (id, _, _, expiration, value, installments, _) = api::call::arg_data::<(
-                ID,
-                Principal,
-                Vec<Principal>,
-                String,
-                u64,
-                u64,
-                ContractProperties,
-            )>();
-            Inspect::inspect_register_contract(caller(), &id, value, installments, &expiration)
-                .is_ok()
+            let (data,) = api::call::arg_data::<(ContractRegistration,)>();
+            Inspect::inspect_register_contract(
+                caller(),
+                &data.id,
+                data.value,
+                data.installments,
+                &data.expiration,
+            )
+            .is_ok()
         }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;

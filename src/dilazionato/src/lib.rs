@@ -62,6 +62,12 @@ pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> Dilazi
 
 #[update]
 #[candid_method(update)]
+pub fn admin_sign_contract(contract_id: ID) -> DilazionatoResult<()> {
+    Dilazionato::admin_sign_contract(contract_id)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_fly_canister(canister_id: Principal) {
     Dilazionato::admin_set_fly_canister(canister_id)
 }

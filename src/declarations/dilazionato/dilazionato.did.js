@@ -12,6 +12,7 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousCustodial' : IDL.Null,
   });
   const TokenError = IDL.Variant({
+    'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
     'TokenAlreadyExists' : IDL.Nat,
     'TokensMismatch' : IDL.Null,
@@ -19,6 +20,8 @@ export const idlFactory = ({ IDL }) => {
     'TokenDoesNotBelongToContract' : IDL.Nat,
     'TokenNotFound' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
+    'ContractNotSigned' : IDL.Nat,
+    'BadMintTokenOperator' : IDL.Nat,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
     'InvalidExpirationDate' : IDL.Null,
@@ -96,6 +99,7 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
     'type' : ContractType,
+    'is_signed' : IDL.Bool,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
@@ -173,6 +177,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
+    'admin_sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
