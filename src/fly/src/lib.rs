@@ -1,6 +1,6 @@
-use candid::{candid_method, Nat, Principal};
-use did::ID;
-use ic_cdk_macros::{init, post_upgrade, query, update};
+
+
+
 
 #[allow(dead_code)]
 fn main() {

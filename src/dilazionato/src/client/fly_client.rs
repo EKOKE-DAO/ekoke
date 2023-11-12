@@ -10,7 +10,7 @@ pub fn fly_client(principal: Principal) -> IcFlyClient {
 
 #[cfg(test)]
 pub fn fly_client(_principal: Principal) -> IcFlyClient {
-    IcFlyClient::default()
+    IcFlyClient
 }
 
 #[async_trait]

@@ -754,7 +754,7 @@ mod test {
     fn test_should_get_tx() {
         assert!(Dilazionato::transaction(Nat::from(1)).is_err());
         let id = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert!(Dilazionato::transaction(Nat::from(id)).is_ok());
+        assert!(Dilazionato::transaction(id).is_ok());
     }
 
     #[test]

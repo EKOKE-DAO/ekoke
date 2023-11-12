@@ -1,6 +1,6 @@
 //! Roles
 
-use std::borrow::BorrowMut;
+
 use std::cell::RefCell;
 
 use candid::Principal;
@@ -36,7 +36,7 @@ impl RolesManager {
             roles_map
                 .iter()
                 .filter(|(_, roles)| roles.0.contains(&Role::Custodian))
-                .map(|(principal, _)| principal.clone().0)
+                .map(|(principal, _)| principal.0)
                 .collect()
         })
     }
@@ -95,11 +95,7 @@ impl RolesManager {
         F: FnOnce(&Roles) -> T,
     {
         CANISTER_ROLES.with_borrow(|roles_map| {
-            if let Some(roles) = roles_map.get(&principal.into()) {
-                Some(f(&roles))
-            } else {
-                None
-            }
+            roles_map.get(&principal.into()).map(|roles| f(&roles))
         })
     }
 

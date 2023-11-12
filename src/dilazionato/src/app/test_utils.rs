@@ -48,7 +48,7 @@ fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
 }
 
 pub fn store_mock_contract(token_ids: &[u64], contract_id: u64) {
-    store_mock_contract_with(token_ids, contract_id, |_| {}.into(), |_| {})
+    store_mock_contract_with(token_ids, contract_id, |_| {}, |_| {})
 }
 
 pub fn store_mock_contract_with<F, F2>(
