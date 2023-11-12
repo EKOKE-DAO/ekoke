@@ -515,6 +515,93 @@ mod test {
     }
 
     #[test]
+    fn test_should_get_contract() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        assert_eq!(
+            Dilazionato::get_contract(&1.into()).unwrap().id,
+            Nat::from(1)
+        );
+    }
+
+    #[test]
+    fn test_should_get_contracts() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+        store_mock_contract(&[3, 4], 2);
+        assert_eq!(
+            Dilazionato::get_contracts(),
+            vec![Nat::from(1), Nat::from(2)]
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_register_contract() {
+        init_canister();
+        let contract = ContractRegistration {
+            buyers: vec![caller()],
+            currency: "EUR".to_string(),
+            expiration: "2040-01-01".to_string(),
+            id: 1.into(),
+            installments: 10,
+            properties: vec![],
+            r#type: did::dilazionato::ContractType::Financing,
+            seller: caller(),
+            value: 100,
+        };
+        assert!(Dilazionato::register_contract(contract).await.is_ok());
+        assert_eq!(Dilazionato::get_contracts(), vec![Nat::from(1)]);
+        assert_eq!(Dilazionato::total_supply(), Nat::from(10));
+    }
+
+    #[tokio::test]
+    async fn test_should_increment_contract_value() {
+        init_canister();
+        let contract = ContractRegistration {
+            buyers: vec![caller()],
+            currency: "EUR".to_string(),
+            expiration: "2040-01-01".to_string(),
+            id: 1.into(),
+            installments: 10,
+            properties: vec![],
+            r#type: did::dilazionato::ContractType::Financing,
+            seller: caller(),
+            value: 100,
+        };
+        assert!(Dilazionato::register_contract(contract).await.is_ok());
+
+        // increment value
+        assert!(
+            Dilazionato::seller_increment_contract_value(1.into(), 50, 10)
+                .await
+                .is_ok()
+        );
+        assert_eq!(Dilazionato::total_supply(), Nat::from(20));
+    }
+
+    #[test]
+    fn test_should_update_contract_buyers() {
+        init_canister();
+        store_mock_contract_with(
+            &[1, 2],
+            1,
+            |contract| {
+                contract.buyers = vec![caller(), Principal::management_canister()];
+            },
+            |_| {},
+        );
+        assert!(Dilazionato::update_contract_buyers(
+            1.into(),
+            vec![Principal::management_canister(), caller()]
+        )
+        .is_ok());
+        assert_eq!(
+            Dilazionato::get_contract(&1.into()).unwrap().buyers,
+            vec![Principal::management_canister(), caller()]
+        );
+    }
+
+    #[test]
     fn test_should_set_role() {
         init_canister();
         let principal = Principal::management_canister();

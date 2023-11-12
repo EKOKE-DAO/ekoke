@@ -151,7 +151,7 @@ pub struct Token {
 
 impl Storable for Token {
     const BOUND: Bound = Bound::Bounded {
-        max_size: 256,
+        max_size: 512,
         is_fixed_size: false,
     };
 
