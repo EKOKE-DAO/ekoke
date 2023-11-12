@@ -5,6 +5,7 @@ export const idlFactory = ({ IDL }) => {
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
   });
+  const Role = IDL.Variant({ 'Custodian' : IDL.Null, 'Agent' : IDL.Null });
   const NftError = IDL.Variant({
     'UnauthorizedOperator' : IDL.Null,
     'SelfTransfer' : IDL.Null,
@@ -170,6 +171,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result], []),

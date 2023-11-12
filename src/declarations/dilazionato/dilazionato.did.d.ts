@@ -89,6 +89,8 @@ export type Result_6 = { 'Ok' : TokenMetadata } |
   { 'Err' : NftError };
 export type Result_7 = { 'Ok' : TxEvent } |
   { 'Err' : NftError };
+export type Role = { 'Custodian' : null } |
+  { 'Agent' : null };
 export interface Stats {
   'cycles' : bigint,
   'total_transactions' : bigint,
@@ -155,6 +157,7 @@ export type Vec = Array<
 export interface _SERVICE {
   'admin_set_fly_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'approve' : ActorMethod<[Principal, bigint], Result>,
   'balance_of' : ActorMethod<[Principal], Result>,
   'burn' : ActorMethod<[bigint], Result>,

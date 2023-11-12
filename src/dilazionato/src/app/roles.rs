@@ -1,6 +1,5 @@
 //! Roles
 
-
 use std::cell::RefCell;
 
 use candid::Principal;
@@ -81,22 +80,38 @@ impl RolesManager {
         Ok(())
     }
 
-    /// Give a certain principal the agent role
-    pub fn add_agent(agent: Principal) {
-        Self::with_principal_mut(agent, |roles| {
-            if !roles.0.contains(&Role::Agent) {
-                roles.0.push(Role::Agent);
+    /// Give a certain principal the provided role
+    pub fn give_role(principal: Principal, role: Role) {
+        Self::with_principal_mut(principal, |roles| {
+            if !roles.0.contains(&role) {
+                roles.0.push(role);
             }
         });
+    }
+
+    /// Remove a role from the provided role.
+    /// Fails if trying to remove the only custodian of the canister
+    pub fn remove_role(principal: Principal, role: Role) -> DilazionatoResult<()> {
+        let custodians = Self::get_custodians();
+        if custodians.len() == 1 && custodians.contains(&principal) && role == Role::Custodian {
+            return Err(DilazionatoError::Configuration(
+                ConfigurationError::CustodialsCantBeEmpty,
+            ));
+        }
+
+        Self::with_principal_mut(principal, |roles| {
+            roles.0.retain(|r| r != &role);
+        });
+
+        Ok(())
     }
 
     fn with_principal<F, T>(principal: Principal, f: F) -> Option<T>
     where
         F: FnOnce(&Roles) -> T,
     {
-        CANISTER_ROLES.with_borrow(|roles_map| {
-            roles_map.get(&principal.into()).map(|roles| f(&roles))
-        })
+        CANISTER_ROLES
+            .with_borrow(|roles_map| roles_map.get(&principal.into()).map(|roles| f(&roles)))
     }
 
     fn with_principal_mut<F, T>(principal: Principal, f: F) -> T
@@ -170,12 +185,37 @@ mod test {
     }
 
     #[test]
-    fn test_should_add_agent() {
+    fn test_should_give_role() {
         let principal =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
         assert!(!RolesManager::is_agent(principal));
-        RolesManager::add_agent(principal);
+        RolesManager::give_role(principal, Role::Agent);
         assert!(RolesManager::is_agent(principal));
+    }
+
+    #[test]
+    fn test_should_remove_role() {
+        let principal =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        assert!(!RolesManager::is_agent(principal));
+        RolesManager::give_role(principal, Role::Agent);
+        assert!(RolesManager::is_agent(principal));
+
+        assert!(RolesManager::remove_role(principal, Role::Agent).is_ok());
+        assert!(!RolesManager::is_agent(principal));
+    }
+
+    #[test]
+    fn test_should_not_allow_to_remove_the_only_custodian() {
+        let principal =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        assert!(RolesManager::set_custodians(vec![principal]).is_ok());
+        assert!(RolesManager::is_custodian(principal));
+
+        assert!(RolesManager::remove_role(principal, Role::Custodian).is_err());
+        assert!(RolesManager::is_custodian(principal));
     }
 }

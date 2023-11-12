@@ -1,5 +1,7 @@
 use candid::{candid_method, Nat, Principal};
-use did::dilazionato::{Contract, ContractRegistration, DilazionatoInitData, DilazionatoResult};
+use did::dilazionato::{
+    Contract, ContractRegistration, DilazionatoInitData, DilazionatoResult, Role,
+};
 use did::ID;
 use dip721::Dip721 as _;
 use ic_cdk_macros::{init, post_upgrade, query, update};
@@ -68,6 +70,18 @@ pub fn admin_set_fly_canister(canister_id: Principal) {
 #[candid_method(update)]
 pub fn admin_set_marketplace_canister(canister_id: Principal) {
     Dilazionato::admin_set_marketplace_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_role(principal: Principal, role: Role) {
+    Dilazionato::admin_set_role(principal, role)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_remove_role(principal: Principal, role: Role) -> DilazionatoResult<()> {
+    Dilazionato::admin_remove_role(principal, role)
 }
 
 // DIP721

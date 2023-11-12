@@ -235,7 +235,7 @@ pub struct ContractRegistration {
 }
 
 /// Dilazionato user roles. Defines permissions
-#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, CandidType, Deserialize)]
 pub enum Role {
     /// Administrator, follows DIP721 standard
     Custodian,

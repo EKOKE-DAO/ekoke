@@ -15,7 +15,7 @@ use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::dilazionato::{
-    Contract, ContractRegistration, DilazionatoError, DilazionatoInitData, DilazionatoResult,
+    Contract, ContractRegistration, DilazionatoError, DilazionatoInitData, DilazionatoResult, Role,
     TokenError,
 };
 use did::ID;
@@ -145,6 +145,25 @@ impl Dilazionato {
         if let Err(err) = Configuration::set_fly_canister(canister) {
             ic_cdk::trap(&err.to_string());
         }
+    }
+
+    /// Give role to the provied principal
+    pub fn admin_set_role(principal: Principal, role: Role) {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        RolesManager::give_role(principal, role);
+    }
+
+    /// Remove role from principal.
+    ///
+    /// Fails if trying to remove the only custodian of the canister
+    pub fn admin_remove_role(principal: Principal, role: Role) -> DilazionatoResult<()> {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        RolesManager::remove_role(principal, role)
     }
 }
 
@@ -493,6 +512,26 @@ mod test {
         Dilazionato::post_upgrade();
         let metadata = Dilazionato::metadata();
         assert!(metadata.upgraded_at > metadata.created_at);
+    }
+
+    #[test]
+    fn test_should_set_role() {
+        init_canister();
+        let principal = Principal::management_canister();
+        let role = Role::Custodian;
+        Dilazionato::admin_set_role(principal, role);
+        assert!(RolesManager::is_custodian(principal));
+    }
+
+    #[test]
+    fn test_should_remove_role() {
+        init_canister();
+        let principal = Principal::management_canister();
+        let role = Role::Custodian;
+        Dilazionato::admin_set_role(principal, role);
+        assert!(RolesManager::is_custodian(principal));
+        Dilazionato::admin_remove_role(principal, role).unwrap();
+        assert!(!RolesManager::is_custodian(principal));
     }
 
     #[test]

@@ -82,6 +82,7 @@ type Result_4 = variant { Ok : vec TokenMetadata; Err : NftError };
 type Result_5 = variant { Ok; Err : DilazionatoError };
 type Result_6 = variant { Ok : TokenMetadata; Err : NftError };
 type Result_7 = variant { Ok : TxEvent; Err : NftError };
+type Role = variant { Custodian; Agent };
 type Stats = record {
   cycles : nat;
   total_transactions : nat;
@@ -147,6 +148,7 @@ type Vec = vec record {
 service : (DilazionatoInitData) -> {
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
+  admin_set_role : (principal, Role) -> ();
   approve : (principal, nat) -> (Result);
   balance_of : (principal) -> (Result) query;
   burn : (nat) -> (Result);
