@@ -1,24 +1,18 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::dilazionato::{ConfigurationError, DilazionatoError, DilazionatoResult};
+use did::dilazionato::{DilazionatoError, DilazionatoResult};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
-use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
+use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 
 use crate::app::memory::{
-    CANISTER_CUSTODIANS_MEMORY_ID, CREATED_AT_MEMORY_ID, FLY_CANISTER_MEMORY_ID, LOGO_MEMORY_ID,
-    MARKETPLACE_CANISTER_MEMORY_ID, MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID,
-    UPGRADED_AT_MEMORY_ID,
+    CREATED_AT_MEMORY_ID, FLY_CANISTER_MEMORY_ID, LOGO_MEMORY_ID, MARKETPLACE_CANISTER_MEMORY_ID,
+    MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID, UPGRADED_AT_MEMORY_ID,
 };
 use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
 thread_local! {
-    /// Principals that can manage the canister
-    static CANISTER_CUSTODIANS: RefCell<StableVec<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableVec::new(MEMORY_MANAGER.with(|mm| mm.get(CANISTER_CUSTODIANS_MEMORY_ID))).unwrap()
-    );
-
     /// Fly Canister principal
     static FLY_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
@@ -59,53 +53,6 @@ thread_local! {
 pub struct Configuration;
 
 impl Configuration {
-    /// Get canisters custodians
-    pub fn get_canister_custodians() -> Vec<Principal> {
-        CANISTER_CUSTODIANS.with_borrow(|canister_custodians| {
-            canister_custodians
-                .iter()
-                .map(|principal| *principal.as_principal())
-                .collect()
-        })
-    }
-
-    /// checks whether a principal is custodian
-    pub fn is_custodian(caller: Principal) -> bool {
-        Self::get_canister_custodians().contains(&caller)
-    }
-
-    /// Set canisters custodian
-    pub fn set_canister_custodians(principals: &[Principal]) -> DilazionatoResult<()> {
-        // check if custodians is empty
-        if principals.is_empty() {
-            return Err(DilazionatoError::Configuration(
-                ConfigurationError::CustodialsCantBeEmpty,
-            ));
-        }
-
-        // check if principal is anonymous
-        if principals
-            .iter()
-            .any(|principal| principal == &Principal::anonymous())
-        {
-            return Err(DilazionatoError::Configuration(
-                ConfigurationError::AnonymousCustodial,
-            ));
-        }
-
-        CANISTER_CUSTODIANS.with_borrow_mut(|canister_custodians| {
-            for _ in 0..canister_custodians.len() {
-                canister_custodians.pop();
-            }
-            for principal in principals {
-                canister_custodians
-                    .push(&StorablePrincipal::from(*principal))
-                    .map_err(|_| DilazionatoError::StorageError)?;
-            }
-            Ok(())
-        })
-    }
-
     pub fn get_logo() -> Option<String> {
         LOGO.with_borrow(|logo| logo.get().clone())
     }
@@ -191,37 +138,6 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-
-    #[test]
-    fn test_should_set_and_get_canister_custodians() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-
-        assert!(Configuration::get_canister_custodians().is_empty());
-        assert!(Configuration::set_canister_custodians(&[principal]).is_ok());
-        assert_eq!(Configuration::get_canister_custodians(), vec![principal,]);
-    }
-
-    #[test]
-    fn test_should_reject_empty_custodians() {
-        assert!(Configuration::set_canister_custodians(&[]).is_err());
-    }
-
-    #[test]
-    fn test_should_reject_anonymous_custodians() {
-        assert!(Configuration::set_canister_custodians(&[Principal::anonymous()]).is_err());
-    }
-
-    #[test]
-    fn test_should_tell_if_custodian() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-        assert!(Configuration::set_canister_custodians(&[principal]).is_ok());
-        assert!(Configuration::is_custodian(principal));
-        assert!(!Configuration::is_custodian(Principal::anonymous()));
-    }
 
     #[test]
     fn test_should_get_and_set_logo() {

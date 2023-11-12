@@ -234,6 +234,52 @@ pub struct ContractRegistration {
     pub properties: ContractProperties,
 }
 
+/// Dilazionato user roles. Defines permissions
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub enum Role {
+    /// Administrator, follows DIP721 standard
+    Custodian,
+    /// A user who can create contracts, but cannot sign them
+    Agent,
+}
+
+impl Storable for Role {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 8,
+        is_fixed_size: true,
+    };
+
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        Encode!(&self).unwrap().into()
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        Decode!(&bytes, Role).unwrap()
+    }
+}
+
+/// List of roles
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub struct Roles(pub Vec<Role>);
+
+impl From<Vec<Role>> for Roles {
+    fn from(roles: Vec<Role>) -> Self {
+        Self(roles)
+    }
+}
+
+impl Storable for Roles {
+    const BOUND: Bound = Bound::Unbounded;
+
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        Encode!(&self).unwrap().into()
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        Decode!(&bytes, Vec<Role>).unwrap().into()
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -329,5 +375,14 @@ mod test {
         let data = tx_event.to_bytes();
         let decoded_tx_event = StorableTxEvent::from_bytes(data);
         assert_eq!(tx_event.0, decoded_tx_event.0);
+    }
+
+    #[test]
+    fn test_should_encode_role() {
+        let role: Roles = vec![Role::Agent, Role::Custodian].into();
+
+        let data = role.to_bytes();
+        let decoded_role = Roles::from_bytes(data);
+        assert_eq!(role, decoded_role);
     }
 }

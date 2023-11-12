@@ -8,7 +8,7 @@ use did::ID;
 use dip721::NftError;
 use itertools::Itertools;
 
-use super::configuration::Configuration;
+use super::roles::RolesManager;
 use super::storage::ContractStorage;
 
 pub struct Inspect;
@@ -16,7 +16,7 @@ pub struct Inspect;
 impl Inspect {
     /// Returns whether caller is custodian of the canister
     pub fn inspect_is_custodian(caller: Principal) -> bool {
-        Configuration::is_custodian(caller)
+        RolesManager::is_custodian(caller)
     }
 
     /// Returns whether caller is owner or operator of the token
@@ -169,7 +169,7 @@ mod test {
         assert_eq!(Inspect::inspect_is_custodian(caller), false);
 
         let caller = Principal::from_text("aaaaa-aa").unwrap();
-        assert!(Configuration::set_canister_custodians(&[caller]).is_ok());
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert_eq!(Inspect::inspect_is_custodian(caller), true);
     }
 
@@ -308,7 +308,7 @@ mod test {
     fn test_should_inspect_contract_register_caller_is_not_custodian() {
         // caller is not custodian
         let caller = Principal::from_text("aaaaa-aa").unwrap();
-        assert!(Configuration::set_canister_custodians(&[crate::utils::caller()]).is_ok());
+        assert!(RolesManager::set_custodians(vec![crate::utils::caller()]).is_ok());
         assert!(
             Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_err()
         );
@@ -318,7 +318,7 @@ mod test {
     fn test_should_inspect_contract_register_contract_already_exists() {
         // contract already exists
         let caller = crate::utils::caller();
-        assert!(Configuration::set_canister_custodians(&[caller]).is_ok());
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         test_utils::store_mock_contract(&[1, 2], 2);
         assert!(
             Inspect::inspect_register_contract(caller, &2.into(), 100, 25, "2040-01-01").is_err()
@@ -328,7 +328,7 @@ mod test {
     #[test]
     fn test_should_inspect_contract_register_value_is_not_multiple_of_installments() {
         let caller = crate::utils::caller();
-        assert!(Configuration::set_canister_custodians(&[caller]).is_ok());
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(
             Inspect::inspect_register_contract(caller, &1.into(), 110, 25, "2040-01-01").is_err()
         );
@@ -337,7 +337,7 @@ mod test {
     #[test]
     fn test_should_inspect_contract_register_invalid_expiration_date() {
         let caller = crate::utils::caller();
-        assert!(Configuration::set_canister_custodians(&[caller]).is_ok());
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(
             Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2020-01-01").is_err()
         );
@@ -346,7 +346,7 @@ mod test {
     #[test]
     fn test_should_inspect_contract_register() {
         let caller = crate::utils::caller();
-        assert!(Configuration::set_canister_custodians(&[caller]).is_ok());
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(
             Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_ok()
         );

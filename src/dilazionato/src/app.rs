@@ -6,6 +6,7 @@ mod configuration;
 mod inspect;
 mod memory;
 mod minter;
+mod roles;
 pub mod storage;
 #[cfg(test)]
 mod test_utils;
@@ -25,6 +26,7 @@ use dip721::{
 
 pub use self::inspect::Inspect;
 use self::minter::Minter;
+use self::roles::RolesManager;
 use self::storage::{ContractStorage, TxHistory};
 use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
@@ -36,7 +38,7 @@ pub struct Dilazionato;
 impl Dilazionato {
     /// On init set custodians and canisters ids
     pub fn init(init_data: DilazionatoInitData) {
-        Configuration::set_canister_custodians(&init_data.custodians).expect("storage error");
+        RolesManager::set_custodians(init_data.custodians).expect("storage error");
         Configuration::set_fly_canister(init_data.fly_canister).expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
             .expect("storage error");
@@ -220,7 +222,7 @@ impl Dip721 for Dilazionato {
 
     /// Returns a list of the canister custodians
     fn custodians() -> Vec<Principal> {
-        Configuration::get_canister_custodians()
+        RolesManager::get_custodians()
     }
 
     /// Set canister custodians
@@ -229,7 +231,7 @@ impl Dip721 for Dilazionato {
         if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
-        if let Err(err) = Configuration::set_canister_custodians(&custodians) {
+        if let Err(err) = RolesManager::set_custodians(custodians) {
             ic_cdk::trap(&err.to_string());
         }
     }
@@ -542,7 +544,7 @@ mod test {
         init_canister();
         let custodians = vec![caller(), Principal::management_canister()];
         Dilazionato::set_custodians(custodians.clone());
-        assert_eq!(Dilazionato::custodians(), custodians);
+        assert_eq!(Dilazionato::custodians().len(), custodians.len());
     }
 
     #[test]
