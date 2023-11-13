@@ -12,7 +12,7 @@ use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 use crate::app::memory::{MEMORY_MANAGER, POOL_MEMORY_ID};
 
 thread_local! {
-    /// Pool map is an association between a contract-id and the amount of $mFly tokens reserved
+    /// Pool map is an association between a contract-id and the amount of $picoFly tokens reserved
     static POOL: RefCell<BTreeMap<StorableNat, u64, VirtualMemory<DefaultMemoryImpl>>>
         = RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(POOL_MEMORY_ID))));
 }
@@ -21,7 +21,7 @@ thread_local! {
 pub struct Pool;
 
 impl Pool {
-    /// Reserve a pool with $mFly tokens for a contract.
+    /// Reserve a pool with $picoFly tokens for a contract.
     /// If the contract already has a pool, the reward will be incremented
     ///
     /// Returns the new balance
@@ -49,7 +49,7 @@ impl Pool {
         Self::with_pool_contract(contract_id, |_| Ok(())).is_ok()
     }
 
-    /// Withdraw $mFly tokens from the pool
+    /// Withdraw $picoFly tokens from the pool
     ///
     /// Returns the new balance
     pub fn withdraw_tokens(contract_id: &ID, picofly: u64) -> FlyResult<u64> {

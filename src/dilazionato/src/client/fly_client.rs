@@ -15,7 +15,7 @@ pub fn fly_client(_principal: Principal) -> IcFlyClient {
 
 #[async_trait]
 pub trait FlyClient {
-    /// Get contract reward. Returns $mFly
+    /// Get contract reward. Returns $picoFly
     async fn get_contract_reward(
         &self,
         contract_id: ID,
@@ -44,7 +44,7 @@ pub struct IcFlyClient;
 #[cfg(not(test))]
 #[async_trait]
 impl FlyClient for IcFlyClient {
-    /// Get contract reward. Returns $mFly
+    /// Get contract reward. Returns $picoFly
     async fn get_contract_reward(
         &self,
         _contract_id: ID,
@@ -53,7 +53,7 @@ impl FlyClient for IcFlyClient {
         todo!()
     }
 
-    /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of mFly
+    /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of picoFly
     async fn send_reward(
         &self,
         _contract_id: ID,
@@ -67,7 +67,7 @@ impl FlyClient for IcFlyClient {
 #[cfg(test)]
 #[async_trait]
 impl FlyClient for IcFlyClient {
-    /// Get contract reward. Returns $mFly
+    /// Get contract reward. Returns $picoFly
     async fn get_contract_reward(
         &self,
         _contract_id: ID,
@@ -76,7 +76,7 @@ impl FlyClient for IcFlyClient {
         Ok(71_000)
     }
 
-    /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of mFly
+    /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of picoFly
     async fn send_reward(
         &self,
         _contract_id: ID,
