@@ -1,3 +1,7 @@
+
+
+
+
 #[allow(dead_code)]
 fn main() {
     // The line below generates did types and service definition from the
