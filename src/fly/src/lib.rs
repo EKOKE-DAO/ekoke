@@ -5,6 +5,29 @@
 
 mod app;
 
+use candid::{candid_method, Nat, Principal};
+use did::fly::FlyResult;
+use did::ID;
+use ic_cdk_macros::{init, post_upgrade, query, update};
+
+use app::FlyCanister;
+
+#[init]
+pub fn init() {
+    FlyCanister::init();
+}
+
+#[post_upgrade]
+pub fn post_upgrade() {
+    FlyCanister::post_upgrade();
+}
+
+#[update]
+#[candid_method(update)]
+pub fn reserve_pool(contract_id: ID, mfly_amount: u64) -> FlyResult<u64> {
+    FlyCanister::reserve_pool(contract_id, mfly_amount)
+}
+
 #[allow(dead_code)]
 fn main() {
     // The line below generates did types and service definition from the
