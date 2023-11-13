@@ -28,9 +28,9 @@ The project aims to facilitate the sale of a property between two or more partie
 
 Dilazionato consists of three main canisters:
 
-- **Milan Houses Sell Contract (MHSC)**: This NFT is used to define the sell of a real estate between two parts (the buyer and the seller).
+- **Dilazionato**: This NFT canister is used to define the sell of a real estate between two parts (the buyer and the seller).
 - **FLY Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Dilazionato method".
-- **Marketplace**: A D-APP which permits to trade MHSCs.
+- **Marketplace**: A D-APP which permits to trade Dilazionato NFTs.
 
 ### Sell flow
 
