@@ -40,7 +40,8 @@ export interface DilazionatoInitData {
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
 }
-export type FlyError = { 'StorageError' : null };
+export type FlyError = { 'Pool' : PoolError } |
+  { 'StorageError' : null };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |
@@ -75,6 +76,8 @@ export type NftError = { 'UnauthorizedOperator' : null } |
   { 'ExistedNFT' : null } |
   { 'OwnerNotFound' : null } |
   { 'Other' : string };
+export type PoolError = { 'PoolNotFound' : bigint } |
+  { 'NotEnoughTokens' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : DilazionatoError };
 export type Result_1 = { 'Ok' : bigint } |

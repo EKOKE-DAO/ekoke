@@ -4,7 +4,7 @@ cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DILAZIONATO_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.dilazionato.local')"
-FLY_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.dilazionato.local')" # TODO: fix
+FLY_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.fly.local')"
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.dilazionato.local')" # TODO: fix
 
 ADMIN_PRINCIPAL="$(dfx identity get-principal)"

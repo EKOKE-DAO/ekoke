@@ -1,3 +1,9 @@
+//! # Dilazionato
+//!
+//! Dilazionato is a canister serving a DIP721 NFT contract that allows to create
+//! a financial tool to sell any kind of entity (e.g. a house, a car, a boat, etc.) or to get
+//! financing from third parties buying the NFTs and getting rewards in $FLY tokens
+
 use candid::{candid_method, Nat, Principal};
 use did::dilazionato::{
     Contract, ContractRegistration, DilazionatoInitData, DilazionatoResult, Role,

@@ -1,6 +1,6 @@
-//! # Sell Contract
+//! # Dilazionato
 //!
-//! API for sell contract
+//! API for Dilazionato
 
 mod configuration;
 mod inspect;

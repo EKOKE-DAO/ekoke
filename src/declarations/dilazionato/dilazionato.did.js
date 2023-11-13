@@ -6,7 +6,14 @@ export const idlFactory = ({ IDL }) => {
     'marketplace_canister' : IDL.Principal,
   });
   const Role = IDL.Variant({ 'Custodian' : IDL.Null, 'Agent' : IDL.Null });
-  const FlyError = IDL.Variant({ 'StorageError' : IDL.Null });
+  const PoolError = IDL.Variant({
+    'PoolNotFound' : IDL.Nat,
+    'NotEnoughTokens' : IDL.Null,
+  });
+  const FlyError = IDL.Variant({
+    'Pool' : PoolError,
+    'StorageError' : IDL.Null,
+  });
   const ConfigurationError = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
