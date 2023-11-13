@@ -286,6 +286,7 @@ dependencies = [
  "candid",
  "dip721",
  "ic-stable-structures",
+ "icrc",
  "num-bigint",
  "pretty_assertions",
  "serde",
@@ -406,7 +407,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-macros",
  "ic-stable-structures",
- "icrc-ledger-types",
+ "icrc",
  "pretty_assertions",
  "thiserror",
  "tokio",
@@ -501,6 +502,19 @@ name = "ic0"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a54b5297861c651551676e8c43df805dad175cc33bc97dbd992edbbb85dcbcdf"
+
+[[package]]
+name = "icrc"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "candid",
+ "ic-cdk",
+ "icrc-ledger-types",
+ "pretty_assertions",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "icrc-ledger-types"

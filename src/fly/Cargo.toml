@@ -24,7 +24,7 @@ did = { path = "../did" }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
-icrc-ledger-types = "0.1"
+icrc = { path = "../icrc" }
 thiserror = { workspace = true }
 
 [dev-dependencies]

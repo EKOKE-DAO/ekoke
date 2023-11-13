@@ -3,6 +3,7 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
+use icrc::icrc1::account::Subaccount;
 use thiserror::Error;
 
 use crate::ID;
@@ -35,11 +36,18 @@ pub enum PoolError {
     NotEnoughTokens,
 }
 
+/// 0.000000000001 $fly
+pub type PicoFly = u64;
+
 /// These are the arguments which are taken by the fly canister on init
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct FlyInitData {
     pub admins: Vec<Principal>,
     pub minting_account: Principal,
+    /// Total supply of $fly tokens
+    pub total_supply: u64,
+    /// Initial balances (wallet subaccount -> picofly)
+    pub initial_balances: Vec<(Subaccount, PicoFly)>,
 }
 
 /// Fly user roles. Defines permissions

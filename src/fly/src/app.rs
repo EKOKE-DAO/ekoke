@@ -8,6 +8,8 @@ mod inspect;
 mod memory;
 mod pool;
 mod roles;
+#[cfg(test)]
+mod test_utils;
 
 use candid::Principal;
 use did::fly::{FlyInitData, FlyResult, Role};
@@ -28,6 +30,9 @@ impl FlyCanister {
         if let Err(err) = RolesManager::set_admins(data.admins) {
             ic_cdk::trap(&format!("Error setting admins: {}", err));
         }
+
+        // TODO: mint tokens
+        // TODO: set initial balances
     }
 
     pub fn post_upgrade() {}
@@ -59,7 +64,10 @@ mod test {
 
     use pretty_assertions::assert_eq;
 
-    use super::*;
+    use super::{
+        test_utils::{alice, alice_wallet, bob, bob_wallet},
+        *,
+    };
     use crate::utils::caller;
 
     #[test]
@@ -97,6 +105,11 @@ mod test {
         let data = FlyInitData {
             admins: vec![caller()],
             minting_account: caller(),
+            total_supply: 8_888_888,
+            initial_balances: vec![
+                (alice_wallet(), 100_000 * 1_000_000_000_000),
+                (bob_wallet(), 50_000 * 1_000_000_000_000),
+            ],
         };
         FlyCanister::init(data);
     }

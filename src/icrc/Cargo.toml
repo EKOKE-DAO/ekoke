@@ -1,5 +1,5 @@
 [package]
-name = "did"
+name = "icrc"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -8,11 +8,10 @@ repository = { workspace = true }
 
 
 [dependencies]
+async-trait = { workspace = true }
 candid = { workspace = true }
-dip721 = { path = "../dip721" }
-ic-stable-structures = { workspace = true }
-icrc = { path = "../icrc" }
-num-bigint = { workspace = true }
+ic-cdk = { workspace = true }
+icrc-ledger-types = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
