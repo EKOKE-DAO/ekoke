@@ -18,7 +18,10 @@ export const idlFactory = ({ IDL }) => {
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
   });
-  const BalanceError = IDL.Variant({ 'AccountNotFound' : IDL.Null });
+  const BalanceError = IDL.Variant({
+    'AccountNotFound' : IDL.Null,
+    'InsufficientBalance' : IDL.Null,
+  });
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Pool' : PoolError,

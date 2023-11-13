@@ -5,7 +5,8 @@ export interface Account {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
 }
-export type BalanceError = { 'AccountNotFound' : null };
+export type BalanceError = { 'AccountNotFound' : null } |
+  { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |

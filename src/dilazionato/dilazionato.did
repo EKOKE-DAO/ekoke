@@ -1,4 +1,4 @@
-type BalanceError = variant { AccountNotFound };
+type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;

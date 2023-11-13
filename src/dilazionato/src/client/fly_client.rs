@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use candid::Principal;
 use did::dilazionato::DilazionatoResult;
+use did::fly::PicoFly;
 use did::ID;
 
 #[cfg(not(test))]
@@ -20,7 +21,7 @@ pub trait FlyClient {
         &self,
         contract_id: ID,
         installments: u64,
-    ) -> DilazionatoResult<u64>;
+    ) -> DilazionatoResult<PicoFly>;
 
     /// Notify fly canister that pool reward must be sent to the new owner with `picofly` value from contract id's pool
     async fn send_reward(
@@ -49,7 +50,7 @@ impl FlyClient for IcFlyClient {
         &self,
         _contract_id: ID,
         _installments: u64,
-    ) -> DilazionatoResult<u64> {
+    ) -> DilazionatoResult<PicoFly> {
         todo!()
     }
 
@@ -72,7 +73,7 @@ impl FlyClient for IcFlyClient {
         &self,
         _contract_id: ID,
         _installments: u64,
-    ) -> DilazionatoResult<u64> {
+    ) -> DilazionatoResult<PicoFly> {
         Ok(71_000)
     }
 

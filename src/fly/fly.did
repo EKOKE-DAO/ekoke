@@ -1,5 +1,5 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
-type BalanceError = variant { AccountNotFound };
+type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type FlyError = variant {
   Configuration : ConfigurationError;

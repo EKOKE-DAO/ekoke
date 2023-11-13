@@ -39,7 +39,7 @@ impl Pool {
         }
     }
 
-    /// Returns pool balance
+    /// Returns pool balance for a contract
     pub fn balance_of(contract_id: &ID) -> FlyResult<u64> {
         Self::with_pool_contract(contract_id, Ok)
     }

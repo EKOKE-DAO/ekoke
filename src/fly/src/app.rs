@@ -7,6 +7,7 @@ mod configuration;
 mod inspect;
 mod memory;
 mod pool;
+mod reward;
 mod roles;
 #[cfg(test)]
 mod test_utils;
@@ -19,6 +20,7 @@ use self::balance::Balance;
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::pool::Pool;
+use self::reward::Reward;
 use self::roles::RolesManager;
 use crate::utils;
 
@@ -41,6 +43,7 @@ impl FlyCanister {
 
     /// Reserve a pool for the provided contract ID with the provided amount of $picoFly tokens
     pub fn reserve_pool(contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
+        // TODO: transfer tokens from caller to pool
         Pool::reserve(&contract_id, picofly_amount)
     }
 

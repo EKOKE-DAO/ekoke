@@ -1,4 +1,5 @@
 use candid::{Nat, Principal};
+use icrc::icrc1::account::Subaccount;
 
 /// Returns current time in nanoseconds
 pub fn time() -> u64 {
@@ -48,6 +49,11 @@ pub fn caller() -> Principal {
     {
         ic_cdk::caller()
     }
+}
+
+/// Generates a random subaccount
+pub fn random_subaccount() -> Subaccount {
+    Subaccount::from([rand::random::<u8>(); 32])
 }
 
 /// Convert fly to picofly

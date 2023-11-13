@@ -26,6 +26,8 @@ pub enum FlyError {
 pub enum BalanceError {
     #[error("account not found")]
     AccountNotFound,
+    #[error("insufficient balance")]
+    InsufficientBalance,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
