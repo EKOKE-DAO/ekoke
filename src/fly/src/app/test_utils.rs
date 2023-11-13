@@ -1,6 +1,8 @@
 use candid::Principal;
 use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
 
+use crate::utils::caller;
+
 pub fn alice() -> Principal {
     Principal::from_text("be2us-64aaa-aaaaa-qaabq-cai").unwrap()
 }
@@ -24,5 +26,12 @@ pub fn bob_account() -> Account {
             0x8d, 0x4d, 0xdf, 0x4d, 0x43, 0xee, 0x8d, 0xca, 0xb4, 0x87, 0x56, 0x23, 0x1a, 0x8f,
             0xb7, 0x71, 0x31, 0x23,
         ]),
+    }
+}
+
+pub fn caller_account() -> Account {
+    Account {
+        owner: caller(),
+        subaccount: Some(*DEFAULT_SUBACCOUNT),
     }
 }

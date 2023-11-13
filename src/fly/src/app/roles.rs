@@ -24,6 +24,11 @@ impl RolesManager {
         Self::with_principal(principal, |roles| roles.0.contains(&Role::Admin)).unwrap_or(false)
     }
 
+    /// Returns whether principal has provided role
+    pub fn has_role(principal: Principal, role: Role) -> bool {
+        Self::with_principal(principal, |roles| roles.0.contains(&role)).unwrap_or(false)
+    }
+
     /// Get canister admins
     pub fn get_admins() -> Vec<Principal> {
         CANISTER_ROLES.with_borrow(|roles_map| {
@@ -175,6 +180,20 @@ mod test {
         assert!(RolesManager::set_admins(vec![principal]).is_ok());
         assert!(RolesManager::is_admin(principal));
         assert!(!RolesManager::is_admin(Principal::anonymous()));
+    }
+
+    #[test]
+    fn test_should_tell_if_has_role() {
+        let principal =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+
+        assert!(!RolesManager::has_role(
+            principal,
+            Role::DilazionatoCanister
+        ));
+        RolesManager::give_role(principal, Role::DilazionatoCanister);
+        assert!(RolesManager::has_role(principal, Role::DilazionatoCanister));
     }
 
     #[test]

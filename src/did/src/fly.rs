@@ -58,6 +58,8 @@ pub struct FlyInitData {
     pub total_supply: u64,
     /// Initial balances (wallet subaccount -> picofly)
     pub initial_balances: Vec<(Account, PicoFly)>,
+    /// Dilazionato canister
+    pub dilazionato_canister: Principal,
 }
 
 /// Fly user roles. Defines permissions
@@ -65,6 +67,8 @@ pub struct FlyInitData {
 pub enum Role {
     /// Administrator
     Admin,
+    /// Call reserved to Dilazionato Canister
+    DilazionatoCanister,
 }
 
 impl Storable for Role {
