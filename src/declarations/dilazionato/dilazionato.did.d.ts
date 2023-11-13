@@ -7,11 +7,13 @@ export interface Contract {
   'id' : bigint,
   'value' : bigint,
   'type' : ContractType,
+  'is_signed' : boolean,
   'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
   'tokens' : Array<bigint>,
   'currency' : string,
+  'installments' : bigint,
   'initial_value' : bigint,
   'buyers' : Array<Principal>,
 }
@@ -85,9 +87,11 @@ export type Result_4 = { 'Ok' : Array<bigint> } |
   { 'Err' : NftError };
 export type Result_5 = { 'Ok' : Array<TokenMetadata> } |
   { 'Err' : NftError };
-export type Result_6 = { 'Ok' : TokenMetadata } |
+export type Result_6 = { 'Ok' : bigint } |
+  { 'Err' : DilazionatoError };
+export type Result_7 = { 'Ok' : TokenMetadata } |
   { 'Err' : NftError };
-export type Result_7 = { 'Ok' : TxEvent } |
+export type Result_8 = { 'Ok' : TxEvent } |
   { 'Err' : NftError };
 export type Role = { 'Custodian' : null } |
   { 'Agent' : null };
@@ -101,13 +105,16 @@ export type SupportedInterface = { 'Burn' : null } |
   { 'Mint' : null } |
   { 'Approval' : null } |
   { 'TransactionHistory' : null };
-export type TokenError = { 'ContractValueIsNotMultipleOfInstallments' : null } |
+export type TokenError = { 'ContractAlreadySigned' : bigint } |
+  { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
   { 'TokensMismatch' : null } |
   { 'ContractAlreadyExists' : bigint } |
+  { 'ContractTokensShouldBeEmpty' : null } |
   { 'TokenDoesNotBelongToContract' : bigint } |
   { 'TokenNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
+  { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'InvalidExpirationDate' : null } |
@@ -159,6 +166,7 @@ export interface _SERVICE {
   'admin_set_fly_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
+  'admin_sign_contract' : ActorMethod<[bigint], Result>,
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
   'balance_of' : ActorMethod<[Principal], Result_1>,
   'burn' : ActorMethod<[bigint], Result_1>,
@@ -180,7 +188,7 @@ export interface _SERVICE {
   'owner_of' : ActorMethod<[bigint], Result_3>,
   'owner_token_identifiers' : ActorMethod<[Principal], Result_4>,
   'owner_token_metadata' : ActorMethod<[Principal], Result_5>,
-  'register_contract' : ActorMethod<[ContractRegistration], Result>,
+  'register_contract' : ActorMethod<[ContractRegistration], Result_6>,
   'seller_increment_contract_value' : ActorMethod<
     [bigint, bigint, bigint],
     Result
@@ -193,11 +201,11 @@ export interface _SERVICE {
   'stats' : ActorMethod<[], Stats>,
   'supported_interfaces' : ActorMethod<[], Array<SupportedInterface>>,
   'symbol' : ActorMethod<[], [] | [string]>,
-  'token_metadata' : ActorMethod<[bigint], Result_6>,
+  'token_metadata' : ActorMethod<[bigint], Result_7>,
   'total_supply' : ActorMethod<[], bigint>,
   'total_transactions' : ActorMethod<[], bigint>,
   'total_unique_holders' : ActorMethod<[], bigint>,
-  'transaction' : ActorMethod<[bigint], Result_7>,
+  'transaction' : ActorMethod<[bigint], Result_8>,
   'transfer' : ActorMethod<[Principal, bigint], Result_1>,
   'transfer_from' : ActorMethod<[Principal, Principal, bigint], Result_1>,
   'update_contract_buyers' : ActorMethod<[bigint, Array<Principal>], Result>,

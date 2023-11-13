@@ -88,7 +88,9 @@ impl Dilazionato {
 
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
-    pub async fn register_contract(data: ContractRegistration) -> DilazionatoResult<()> {
+    ///
+    /// Returns the contract id
+    pub fn register_contract(data: ContractRegistration) -> DilazionatoResult<Nat> {
         Inspect::inspect_register_contract(
             caller(),
             &data.id,
@@ -96,9 +98,6 @@ impl Dilazionato {
             data.installments,
             &data.expiration,
         )?;
-
-        let (tokens, tokens_ids) =
-            Minter::mint(&data.id, data.seller, data.installments, data.value).await?;
 
         // make contract
         let contract = Contract {
@@ -108,16 +107,46 @@ impl Dilazionato {
             id: data.id.clone(),
             initial_value: data.value,
             properties: data.properties,
+            installments: data.installments,
+            is_signed: false,
             r#type: data.r#type,
             seller: data.seller,
-            tokens: tokens_ids,
+            tokens: vec![],
             value: data.value,
         };
 
         // register contract
-        ContractStorage::insert_contract(contract, tokens)?;
+        ContractStorage::insert_contract(contract)?;
 
-        Ok(())
+        Ok(data.id)
+    }
+
+    /// Sign contract and mint tokens
+    pub async fn admin_sign_contract(contract_id: ID) -> DilazionatoResult<()> {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        let contract = match ContractStorage::get_contract(&contract_id) {
+            Some(contract) => contract,
+            None => {
+                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
+                    contract_id,
+                )))
+            }
+        };
+
+        // mint new tokens
+        let (tokens, _) = Minter::mint(
+            &contract_id,
+            contract.seller,
+            contract.installments,
+            contract.value,
+        )
+        .await?;
+
+        // update contract
+        ContractStorage::sign_contract_and_mint_tokens(&contract_id, tokens)
     }
 
     /// Update marketplace canister id and update the operator for all the tokens
@@ -536,7 +565,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_should_register_contract() {
+    async fn test_should_register_and_sign_contract() {
         init_canister();
         let contract = ContractRegistration {
             buyers: vec![caller()],
@@ -549,8 +578,11 @@ mod test {
             seller: caller(),
             value: 100,
         };
-        assert!(Dilazionato::register_contract(contract).await.is_ok());
+
+        assert!(Dilazionato::register_contract(contract).is_ok());
+        assert_eq!(Dilazionato::total_supply(), Nat::from(0));
         assert_eq!(Dilazionato::get_contracts(), vec![Nat::from(1)]);
+        assert!(Dilazionato::admin_sign_contract(1.into()).await.is_ok());
         assert_eq!(Dilazionato::total_supply(), Nat::from(10));
     }
 
@@ -568,7 +600,8 @@ mod test {
             seller: caller(),
             value: 100,
         };
-        assert!(Dilazionato::register_contract(contract).await.is_ok());
+        assert!(Dilazionato::register_contract(contract).is_ok());
+        assert!(Dilazionato::admin_sign_contract(1.into()).await.is_ok());
 
         // increment value
         assert!(

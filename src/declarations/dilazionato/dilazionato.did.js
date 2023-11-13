@@ -12,13 +12,16 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousCustodial' : IDL.Null,
   });
   const TokenError = IDL.Variant({
+    'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
     'TokenAlreadyExists' : IDL.Nat,
     'TokensMismatch' : IDL.Null,
     'ContractAlreadyExists' : IDL.Nat,
+    'ContractTokensShouldBeEmpty' : IDL.Null,
     'TokenDoesNotBelongToContract' : IDL.Nat,
     'TokenNotFound' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
+    'ContractNotSigned' : IDL.Nat,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
     'InvalidExpirationDate' : IDL.Null,
@@ -96,11 +99,13 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
     'type' : ContractType,
+    'is_signed' : IDL.Bool,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'seller' : IDL.Principal,
     'expiration' : IDL.Text,
     'tokens' : IDL.Vec(IDL.Nat),
     'currency' : IDL.Text,
+    'installments' : IDL.Nat64,
     'initial_value' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
   });
@@ -148,6 +153,7 @@ export const idlFactory = ({ IDL }) => {
     'installments' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
   });
+  const Result_6 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DilazionatoError });
   const Stats = IDL.Record({
     'cycles' : IDL.Nat,
     'total_transactions' : IDL.Nat,
@@ -160,19 +166,20 @@ export const idlFactory = ({ IDL }) => {
     'Approval' : IDL.Null,
     'TransactionHistory' : IDL.Null,
   });
-  const Result_6 = IDL.Variant({ 'Ok' : TokenMetadata, 'Err' : NftError });
+  const Result_7 = IDL.Variant({ 'Ok' : TokenMetadata, 'Err' : NftError });
   const TxEvent = IDL.Record({
     'time' : IDL.Nat64,
     'operation' : IDL.Text,
     'details' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'caller' : IDL.Principal,
   });
-  const Result_7 = IDL.Variant({ 'Ok' : TxEvent, 'Err' : NftError });
+  const Result_8 = IDL.Variant({ 'Ok' : TxEvent, 'Err' : NftError });
   return IDL.Service({
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
+    'admin_sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
@@ -211,7 +218,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'owner_token_metadata' : IDL.Func([IDL.Principal], [Result_5], ['query']),
-    'register_contract' : IDL.Func([ContractRegistration], [Result], []),
+    'register_contract' : IDL.Func([ContractRegistration], [Result_6], []),
     'seller_increment_contract_value' : IDL.Func(
         [IDL.Nat, IDL.Nat64, IDL.Nat64],
         [Result],
@@ -233,11 +240,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'symbol' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
-    'token_metadata' : IDL.Func([IDL.Nat], [Result_6], ['query']),
+    'token_metadata' : IDL.Func([IDL.Nat], [Result_7], ['query']),
     'total_supply' : IDL.Func([], [IDL.Nat], ['query']),
     'total_transactions' : IDL.Func([], [IDL.Nat], ['query']),
     'total_unique_holders' : IDL.Func([], [IDL.Nat], ['query']),
-    'transaction' : IDL.Func([IDL.Nat], [Result_7], ['query']),
+    'transaction' : IDL.Func([IDL.Nat], [Result_8], ['query']),
     'transfer' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'transfer_from' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat],

@@ -37,6 +37,12 @@ pub enum DilazionatoError {
 pub enum TokenError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
+    #[error("the provided contract ID ({0}) is already signed")]
+    ContractAlreadySigned(ID),
+    #[error("the provided contract ID ({0}) is not signed")]
+    ContractNotSigned(ID),
+    #[error("the provided contract ID should be empty on register")]
+    ContractTokensShouldBeEmpty,
     #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
     ContractNotFound(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
@@ -82,6 +88,10 @@ pub struct Contract {
     pub expiration: String,
     /// Tokens associated to the contract, by id
     pub tokens: Vec<TokenIdentifier>,
+    /// Number of installments
+    pub installments: u64,
+    /// Whether the contract is signed. Tokens are minted only if the contract is signed
+    pub is_signed: bool,
     /// Initial Fiat value of the contract
     pub initial_value: u64,
     /// Current Fiat value of the contract (to pay)
@@ -338,6 +348,8 @@ mod test {
                 .unwrap(),
             ],
             expiration: "2021-12-31".to_string(),
+            installments: 2,
+            is_signed: true,
             tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
             initial_value: 250_000,
             value: 250_000,
@@ -357,6 +369,10 @@ mod test {
         assert_eq!(contract.tokens, decoded_contract.tokens);
         assert_eq!(contract.properties, decoded_contract.properties);
         assert_eq!(contract.value, decoded_contract.value);
+        assert_eq!(contract.initial_value, decoded_contract.initial_value);
+        assert_eq!(contract.currency, decoded_contract.currency);
+        assert_eq!(contract.installments, decoded_contract.installments);
+        assert_eq!(contract.is_signed, decoded_contract.is_signed);
     }
 
     #[test]

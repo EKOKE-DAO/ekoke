@@ -32,11 +32,10 @@ fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
         r#type: did::dilazionato::ContractType::Financing,
         seller: caller(),
         buyers: vec![Principal::management_canister()],
-        tokens: token_ids
-            .iter()
-            .map(|id| TokenIdentifier::from(*id))
-            .collect(),
+        tokens: vec![],
         expiration: "2040-06-01".to_string(),
+        installments: token_ids.len() as u64,
+        is_signed: false,
         initial_value: 250_000,
         value: 250_000,
         currency: "EUR".to_string(),
@@ -70,7 +69,14 @@ pub fn store_mock_contract_with<F, F2>(
     let mut contract = mock_contract(contract_id, token_ids);
     contract_fn(&mut contract);
 
-    if let Err(err) = ContractStorage::insert_contract(contract, tokens) {
+    if let Err(err) = ContractStorage::insert_contract(contract) {
         panic!("{err}");
     }
+    if let Err(err) = ContractStorage::sign_contract_and_mint_tokens(&contract_id.into(), tokens) {
+        panic!("{err}");
+    }
+}
+
+pub fn alice() -> Principal {
+    Principal::from_text("be2us-64aaa-aaaaa-qaabq-cai").unwrap()
 }

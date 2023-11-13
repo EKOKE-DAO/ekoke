@@ -19,6 +19,11 @@ impl Inspect {
         RolesManager::is_custodian(caller)
     }
 
+    /// Returns whether caller is agent of the canister
+    pub fn inspect_is_agent(caller: Principal) -> bool {
+        RolesManager::is_agent(caller)
+    }
+
     /// Returns whether caller is owner or operator of the token
     pub fn inspect_is_owner_or_operator(
         caller: Principal,
@@ -87,7 +92,7 @@ impl Inspect {
         installments: u64,
         expiration: &str,
     ) -> DilazionatoResult<()> {
-        if !Self::inspect_is_custodian(caller) {
+        if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DilazionatoError::Unauthorized);
         }
         // check if contract already exists
@@ -154,10 +159,11 @@ impl Inspect {
 #[cfg(test)]
 mod test {
 
+    use did::dilazionato::Role;
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils;
+    use crate::app::test_utils::{self, alice};
     use crate::utils::caller;
 
     #[test]
@@ -171,6 +177,15 @@ mod test {
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert_eq!(Inspect::inspect_is_custodian(caller), true);
+    }
+
+    #[test]
+    fn test_should_inspect_is_agent() {
+        let caller = Principal::anonymous();
+        assert_eq!(Inspect::inspect_is_agent(caller), false);
+
+        RolesManager::give_role(alice(), Role::Agent);
+        assert_eq!(Inspect::inspect_is_agent(alice()), true);
     }
 
     #[test]
@@ -344,9 +359,27 @@ mod test {
     }
 
     #[test]
-    fn test_should_inspect_contract_register() {
+    fn test_should_inspect_contract_register_caller_is_not_agent() {
+        // caller is not agent
+        let caller = Principal::from_text("aaaaa-aa").unwrap();
+        assert!(
+            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_err()
+        );
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_custodian() {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(
+            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_ok()
+        );
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_agent() {
+        let caller = crate::utils::caller();
+        RolesManager::give_role(caller, Role::Agent);
         assert!(
             Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_ok()
         );

@@ -28,8 +28,14 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub async fn register_contract(data: ContractRegistration) -> DilazionatoResult<()> {
-    Dilazionato::register_contract(data).await
+pub fn register_contract(data: ContractRegistration) -> DilazionatoResult<Nat> {
+    Dilazionato::register_contract(data)
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn admin_sign_contract(contract_id: ID) -> DilazionatoResult<()> {
+    Dilazionato::admin_sign_contract(contract_id).await
 }
 
 #[update]
