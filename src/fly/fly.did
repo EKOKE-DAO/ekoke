@@ -1,1 +1,19 @@
-service : {}
+type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
+type FlyError = variant {
+  Configuration : ConfigurationError;
+  Pool : PoolError;
+  StorageError;
+};
+type FlyInitData = record {
+  minting_account : principal;
+  admins : vec principal;
+};
+type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
+type Result = variant { Ok; Err : FlyError };
+type Result_1 = variant { Ok : nat64; Err : FlyError };
+type Role = variant { Admin };
+service : (FlyInitData) -> {
+  admin_remove_role : (principal, Role) -> (Result);
+  admin_set_role : (principal, Role) -> ();
+  reserve_pool : (nat, nat64) -> (Result_1);
+}

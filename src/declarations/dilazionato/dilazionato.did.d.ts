@@ -1,7 +1,9 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export type ConfigurationError = { 'CustodialsCantBeEmpty' : null } |
+export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
+  { 'AnonymousAdmin' : null };
+export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
 export interface Contract {
   'id' : bigint,
@@ -31,7 +33,7 @@ export interface ContractRegistration {
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DilazionatoError = { 'Fly' : FlyError } |
-  { 'Configuration' : ConfigurationError } |
+  { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null };
@@ -40,7 +42,8 @@ export interface DilazionatoInitData {
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
 }
-export type FlyError = { 'Pool' : PoolError } |
+export type FlyError = { 'Configuration' : ConfigurationError } |
+  { 'Pool' : PoolError } |
   { 'StorageError' : null };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |

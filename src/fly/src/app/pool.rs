@@ -41,7 +41,7 @@ impl Pool {
 
     /// Returns pool balance
     pub fn balance_of(contract_id: &ID) -> FlyResult<u64> {
-        Self::with_pool_contract(contract_id, |pool| Ok(pool))
+        Self::with_pool_contract(contract_id, Ok)
     }
 
     /// Returns whether the provided contract has a pool reserved

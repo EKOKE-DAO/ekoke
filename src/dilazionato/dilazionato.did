@@ -1,4 +1,8 @@
-type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
+type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
+type ConfigurationError_1 = variant {
+  CustodialsCantBeEmpty;
+  AnonymousCustodial;
+};
 type Contract = record {
   id : nat;
   value : nat64;
@@ -27,7 +31,7 @@ type ContractRegistration = record {
 type ContractType = variant { Sell; Financing };
 type DilazionatoError = variant {
   Fly : FlyError;
-  Configuration : ConfigurationError;
+  Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
   StorageError;
@@ -37,7 +41,11 @@ type DilazionatoInitData = record {
   custodians : vec principal;
   marketplace_canister : principal;
 };
-type FlyError = variant { Pool : PoolError; StorageError };
+type FlyError = variant {
+  Configuration : ConfigurationError;
+  Pool : PoolError;
+  StorageError;
+};
 type GenericValue = variant {
   Nat64Content : nat64;
   Nat32Content : nat32;
