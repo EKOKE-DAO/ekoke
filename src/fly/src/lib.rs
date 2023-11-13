@@ -13,6 +13,7 @@ use candid::{candid_method, Principal};
 use did::fly::{FlyInitData, FlyResult, PicoFly, Role};
 use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
+use icrc::icrc1::account::Account;
 
 #[init]
 pub fn init(data: FlyInitData) {
@@ -32,8 +33,8 @@ pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<Pico
 
 #[update]
 #[candid_method(update)]
-pub fn reserve_pool(contract_id: ID, picofly_amount: u64) -> FlyResult<PicoFly> {
-    FlyCanister::reserve_pool(contract_id, picofly_amount)
+pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: u64) -> FlyResult<PicoFly> {
+    FlyCanister::reserve_pool(from, contract_id, picofly_amount)
 }
 
 #[update]

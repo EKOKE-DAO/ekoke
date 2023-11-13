@@ -1,6 +1,8 @@
+use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
+use icrc::icrc1::account::Account;
 
 use crate::app::Inspect;
 use crate::utils::caller;
@@ -20,6 +22,10 @@ fn inspect_message_impl() {
 
     let check_result = match method.as_str() {
         method if method.starts_with("admin_") => Inspect::inspect_is_admin(caller()),
+        "reserve_pool" => {
+            let account = api::call::arg_data::<(Account, ID, u64)>().0;
+            Inspect::inspect_caller_owns_wallet(caller(), account)
+        }
 
         _ => false,
     };

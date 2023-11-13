@@ -16,6 +16,7 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
 export interface FlyInitData {
   'minting_account' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
+  'dilazionato_canister' : Principal,
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
@@ -25,9 +26,11 @@ export type Result = { 'Ok' : null } |
   { 'Err' : FlyError };
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : FlyError };
-export type Role = { 'Admin' : null };
+export type Role = { 'Admin' : null } |
+  { 'DilazionatoCanister' : null };
 export interface _SERVICE {
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
-  'reserve_pool' : ActorMethod<[bigint, bigint], Result_1>,
+  'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
+  'reserve_pool' : ActorMethod<[Account, bigint, bigint], Result_1>,
 }

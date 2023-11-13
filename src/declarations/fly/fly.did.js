@@ -6,10 +6,14 @@ export const idlFactory = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'minting_account' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat64)),
+    'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });
-  const Role = IDL.Variant({ 'Admin' : IDL.Null });
+  const Role = IDL.Variant({
+    'Admin' : IDL.Null,
+    'DilazionatoCanister' : IDL.Null,
+  });
   const ConfigurationError = IDL.Variant({
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
@@ -33,7 +37,8 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
-    'reserve_pool' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
+    'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
+    'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat64], [Result_1], []),
   });
 };
 export const init = ({ IDL }) => {
@@ -44,6 +49,7 @@ export const init = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'minting_account' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat64)),
+    'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });

@@ -4,7 +4,6 @@ use ic_stable_structures::DefaultMemoryImpl;
 pub const BALANCES_MEMORY_ID: MemoryId = MemoryId::new(10);
 pub const POOL_MEMORY_ID: MemoryId = MemoryId::new(11);
 pub const CANISTER_WALLET_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(12);
-pub const REWARD_POOL_WALLET_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(13);
 
 // Configuration
 pub const MINTING_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(20);

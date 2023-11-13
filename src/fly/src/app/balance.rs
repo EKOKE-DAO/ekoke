@@ -13,12 +13,9 @@ use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
 use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
 
-use self::account::StorableAccount;
+pub use self::account::StorableAccount;
 use self::account_balance::Balance as AccountBalance;
-use crate::app::memory::{
-    BALANCES_MEMORY_ID, CANISTER_WALLET_ACCOUNT_MEMORY_ID, MEMORY_MANAGER,
-    REWARD_POOL_WALLET_ACCOUNT_MEMORY_ID,
-};
+use crate::app::memory::{BALANCES_MEMORY_ID, CANISTER_WALLET_ACCOUNT_MEMORY_ID, MEMORY_MANAGER};
 
 thread_local! {
     /// Account balances
@@ -29,14 +26,6 @@ thread_local! {
     /// Wallet which contains all the native tokens of the canister
     static CANISTER_WALLET_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> = RefCell::new(
         StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(CANISTER_WALLET_ACCOUNT_MEMORY_ID)),
-        Account {
-        owner: Principal::anonymous(),
-        subaccount: None,
-    }.into()).unwrap());
-
-    /// Wallet which contains all the tokens reserved of the reward pool
-    static REWARD_POOL_WALLET_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> = RefCell::new(
-        StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(REWARD_POOL_WALLET_ACCOUNT_MEMORY_ID)),
         Account {
         owner: Principal::anonymous(),
         subaccount: None,
@@ -60,18 +49,6 @@ impl Balance {
         CANISTER_WALLET_ACCOUNT.with_borrow_mut(|wallet| {
             wallet
                 .set(StorableAccount::from(canister_account))
-                .expect("failed to set canister account");
-        });
-
-        // make pool wallet
-        let reward_pool_account = Account {
-            owner: crate::utils::id(),
-            subaccount: Some(crate::utils::random_subaccount()),
-        };
-        // set wallet
-        REWARD_POOL_WALLET_ACCOUNT.with_borrow_mut(|wallet| {
-            wallet
-                .set(StorableAccount::from(reward_pool_account))
                 .expect("failed to set canister account");
         });
 
@@ -102,26 +79,23 @@ impl Balance {
         Self::balance_of(Self::canister_wallet_account()).unwrap()
     }
 
-    /// Get reward pool account
-    pub fn reward_pool_account() -> Account {
-        REWARD_POOL_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0.clone())
+    pub fn canister_wallet_account() -> Account {
+        CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0)
     }
 
-    fn canister_wallet_account() -> Account {
-        CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0.clone())
-    }
-
-    /// Move funds from canister wallet to the pool
-    pub fn move_from_canister_to_reward_pool(amount: PicoFly) -> FlyResult<()> {
-        Self::with_balance_mut(Self::canister_wallet_account(), |balance| {
-            if balance.amount < amount {
+    /// Transfer $picoFly tokens from canister to `to` account.
+    ///
+    /// This function is meant to be used only by the dilazionato canister and does not apply fees or burns.
+    pub fn transfer_wno_fees(from: Account, to: Account, value: PicoFly) -> FlyResult<()> {
+        Self::with_balance_mut(from, |balance| {
+            if balance.amount < value {
                 return Err(FlyError::Balance(BalanceError::InsufficientBalance));
             }
-            balance.amount -= amount;
+            balance.amount -= value;
             Ok(())
         })?;
-        Self::with_balance_mut(Self::reward_pool_account(), |balance| {
-            balance.amount += amount;
+        Self::with_balance_mut(to, |balance| {
+            balance.amount += value;
             Ok(())
         })
     }
@@ -163,11 +137,11 @@ impl Balance {
 #[cfg(test)]
 mod test {
 
-    use pretty_assertions::{assert_eq, assert_ne};
+    use pretty_assertions::assert_eq;
 
     use super::*;
     use crate::app::test_utils::{alice_account, bob_account};
-    use crate::utils::fly_to_picofly;
+    use crate::utils::{self, fly_to_picofly};
 
     #[test]
     fn test_should_init_balances() {
@@ -181,7 +155,6 @@ mod test {
         Balance::init_balances(total_supply, initial_balances);
 
         let canister_account = CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0.clone());
-        assert_ne!(canister_account, Balance::reward_pool_account());
         assert_eq!(
             Balance::balance_of(canister_account).unwrap(),
             fly_to_picofly(8_888_888 - 188_888 - 100_000)
@@ -201,15 +174,25 @@ mod test {
     }
 
     #[test]
-    fn test_should_move_from_canister_to_pool() {
+    fn test_should_transfer_from_canister() {
         let total_supply = fly_to_picofly(8_888_888);
         let initial_balances = vec![];
 
+        let recipient_account = Account {
+            owner: utils::id(),
+            subaccount: Some(utils::random_subaccount()),
+        };
+
         Balance::init_balances(total_supply, initial_balances);
-        assert!(Balance::move_from_canister_to_reward_pool(fly_to_picofly(888)).is_ok());
+        assert!(Balance::transfer_wno_fees(
+            Balance::canister_wallet_account(),
+            recipient_account.clone(),
+            fly_to_picofly(888)
+        )
+        .is_ok());
         assert_eq!(Balance::canister_balance(), fly_to_picofly(8_888_888 - 888));
         assert_eq!(
-            Balance::balance_of(Balance::reward_pool_account()).unwrap(),
+            Balance::balance_of(recipient_account).unwrap(),
             fly_to_picofly(888)
         );
     }

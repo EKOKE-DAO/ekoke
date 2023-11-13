@@ -15,6 +15,7 @@ mod test_utils;
 use candid::Principal;
 use did::fly::{FlyInitData, FlyResult, PicoFly, Role};
 use did::ID;
+use icrc::icrc1::account::Account;
 
 use self::balance::Balance;
 use self::configuration::Configuration;
@@ -44,10 +45,16 @@ impl FlyCanister {
 
     pub fn post_upgrade() {}
 
-    /// Reserve a pool for the provided contract ID with the provided amount of $picoFly tokens
-    pub fn reserve_pool(contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
-        // TODO: transfer tokens from caller to pool
-        Pool::reserve(&contract_id, picofly_amount)
+    /// Reserve a pool for the provided contract ID with the provided amount of $picoFly tokens.
+    ///
+    /// The tokens are withdrawned from the from's wallet.
+    /// Obviously `from` wallet must be owned by the caller.
+    pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
+        if !Inspect::inspect_is_dilazionato_canister(utils::caller()) {
+            ic_cdk::trap("You don't own this account");
+        }
+
+        Pool::reserve(&contract_id, from, picofly_amount)
     }
 
     /// Get contract reward.
@@ -103,7 +110,8 @@ mod test {
         let contract_id = 1.into();
         let picofly_amount = 1000;
 
-        let result = FlyCanister::reserve_pool(contract_id, picofly_amount);
+        let result =
+            FlyCanister::reserve_pool(test_utils::caller_account(), contract_id, picofly_amount);
 
         assert_eq!(result, Ok(picofly_amount));
     }

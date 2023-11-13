@@ -24,8 +24,11 @@ impl Reward {
         let amount_to_reserve = reward * installments;
 
         // reserve pool
-        Balance::move_from_canister_to_reward_pool(amount_to_reserve)?;
-        Pool::reserve(&contract_id, amount_to_reserve)?;
+        Pool::reserve(
+            &contract_id,
+            Balance::canister_wallet_account(),
+            amount_to_reserve,
+        )?;
 
         Ok(reward)
     }

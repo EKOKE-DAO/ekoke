@@ -10,15 +10,17 @@ type FlyError = variant {
 type FlyInitData = record {
   minting_account : principal;
   initial_balances : vec record { Account; nat64 };
+  dilazionato_canister : principal;
   admins : vec principal;
   total_supply : nat64;
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat64; Err : FlyError };
-type Role = variant { Admin };
+type Role = variant { Admin; DilazionatoCanister };
 service : (FlyInitData) -> {
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
-  reserve_pool : (nat, nat64) -> (Result_1);
+  get_contract_reward : (nat, nat64) -> (Result_1);
+  reserve_pool : (Account, nat, nat64) -> (Result_1);
 }

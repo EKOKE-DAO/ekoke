@@ -8,12 +8,16 @@ use did::fly::{FlyError, FlyResult, PoolError};
 use did::{StorableNat, ID};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
+use icrc::icrc1::account::Account;
 
+use super::balance::{Balance, StorableAccount};
 use crate::app::memory::{MEMORY_MANAGER, POOL_MEMORY_ID};
+use crate::utils;
 
 thread_local! {
-    /// Pool map is an association between a contract-id and the amount of $picoFly tokens reserved
-    static POOL: RefCell<BTreeMap<StorableNat, u64, VirtualMemory<DefaultMemoryImpl>>>
+    /// Pool map is an association between a contract-id and the account which holds the pool for that contract.
+    /// There is an account for each contract.
+    static POOL: RefCell<BTreeMap<StorableNat, StorableAccount, VirtualMemory<DefaultMemoryImpl>>>
         = RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(POOL_MEMORY_ID))));
 }
 
@@ -25,23 +29,19 @@ impl Pool {
     /// If the contract already has a pool, the reward will be incremented
     ///
     /// Returns the new balance
-    pub fn reserve(contract_id: &ID, picofly: u64) -> FlyResult<u64> {
-        if Self::has_pool(contract_id) {
-            Self::with_pool_contract_mut(contract_id, |pool| {
-                *pool += picofly;
-                Ok(*pool)
-            })
-        } else {
-            POOL.with_borrow_mut(|pool| {
-                pool.insert(contract_id.clone().into(), picofly);
-            });
-            Ok(picofly)
-        }
+    pub fn reserve(contract_id: &ID, from_account: Account, picofly: u64) -> FlyResult<u64> {
+        let account = Self::with_pool_contract_mut(contract_id, |account| {
+            Balance::transfer_wno_fees(from_account, *account, picofly)?;
+
+            Ok(*account)
+        })?;
+
+        Balance::balance_of(account)
     }
 
     /// Returns pool balance for a contract
     pub fn balance_of(contract_id: &ID) -> FlyResult<u64> {
-        Self::with_pool_contract(contract_id, Ok)
+        Self::with_pool_contract(contract_id, |account| Balance::balance_of(*account))
     }
 
     /// Returns whether the provided contract has a pool reserved
@@ -49,46 +49,50 @@ impl Pool {
         Self::with_pool_contract(contract_id, |_| Ok(())).is_ok()
     }
 
-    /// Withdraw $picoFly tokens from the pool
+    /// Withdraw $picoFly tokens from the pool and give them to `to` wallet
     ///
     /// Returns the new balance
-    pub fn withdraw_tokens(contract_id: &ID, picofly: u64) -> FlyResult<u64> {
-        Self::with_pool_contract_mut(contract_id, |tokens| {
-            if *tokens < picofly {
-                Err(FlyError::Pool(PoolError::NotEnoughTokens))
-            } else {
-                *tokens -= picofly;
-                Ok(*tokens)
-            }
+    pub fn withdraw_tokens(contract_id: &ID, to: Account, picofly: u64) -> FlyResult<u64> {
+        Self::with_pool_contract_mut(contract_id, |account| {
+            Balance::transfer_wno_fees(*account, to, picofly)?;
+            Balance::balance_of(*account)
         })
     }
 
     fn with_pool_contract<F, T>(contract_id: &ID, f: F) -> FlyResult<T>
     where
-        F: FnOnce(u64) -> FlyResult<T>,
+        F: FnOnce(&Account) -> FlyResult<T>,
     {
         POOL.with_borrow_mut(|pool| {
-            if let Some(contract_pool) = pool.get(&contract_id.clone().into()) {
-                f(contract_pool)
+            if let Some(account) = pool.get(&contract_id.clone().into()) {
+                f(&account.0)
             } else {
                 Err(FlyError::Pool(PoolError::PoolNotFound(contract_id.clone())))
             }
         })
     }
 
-    fn with_pool_contract_mut<F>(contract_id: &ID, f: F) -> FlyResult<u64>
+    fn with_pool_contract_mut<F, T>(contract_id: &ID, f: F) -> FlyResult<T>
     where
-        F: FnOnce(&mut u64) -> FlyResult<u64>,
+        F: FnOnce(&mut Account) -> FlyResult<T>,
     {
         POOL.with_borrow_mut(|pool| {
             let key = contract_id.clone().into();
             if let Some(mut contract_pool) = pool.get(&key) {
-                f(&mut contract_pool)?;
+                let res = f(&mut contract_pool.0)?;
                 pool.insert(key, contract_pool);
 
-                Ok(contract_pool)
+                Ok(res)
             } else {
-                Err(FlyError::Pool(PoolError::PoolNotFound(contract_id.clone())))
+                // generate account
+                let mut new_account = Account {
+                    owner: utils::id(),
+                    subaccount: Some(utils::random_subaccount()),
+                };
+                let res = f(&mut new_account)?;
+                pool.insert(key, new_account.into());
+
+                Ok(res)
             }
         })
     }
@@ -100,37 +104,64 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
+    use crate::app::test_utils;
 
     #[test]
     fn test_should_reserve_new_pool() {
-        assert_eq!(Pool::reserve(&1_u64.into(), 7_000).unwrap(), 7_000);
+        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+
+        assert_eq!(
+            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).unwrap(),
+            7_000
+        );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000);
     }
 
     #[test]
     fn test_should_reserve_more_tokens() {
-        assert_eq!(Pool::reserve(&1_u64.into(), 7_000).unwrap(), 7_000);
-        assert_eq!(Pool::reserve(&1_u64.into(), 3_000).unwrap(), 10_000);
+        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+
+        assert_eq!(
+            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).unwrap(),
+            7_000
+        );
+        assert_eq!(
+            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 3_000).unwrap(),
+            10_000
+        );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000);
     }
 
     #[test]
     fn test_should_tell_whether_has_pool() {
-        assert!(Pool::reserve(&1_u64.into(), 7_000).is_ok());
+        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+
+        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
         assert!(Pool::has_pool(&1_u64.into()));
         assert!(!Pool::has_pool(&2_u64.into()));
     }
 
     #[test]
     fn test_should_withdraw_tokens_from_pool() {
-        assert!(Pool::reserve(&1_u64.into(), 7_000).is_ok());
-        assert_eq!(Pool::withdraw_tokens(&1_u64.into(), 3_000).unwrap(), 4_000);
+        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        let to = test_utils::bob_account();
+
+        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
+        assert_eq!(
+            Pool::withdraw_tokens(&1_u64.into(), to, 3_000).unwrap(),
+            4_000
+        );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000);
+        assert_eq!(Balance::balance_of(to).unwrap(), 3_000);
     }
 
     #[test]
     fn test_should_not_withdraw_more_tokens_than_available() {
-        assert!(Pool::reserve(&1_u64.into(), 7_000).is_ok());
-        assert!(Pool::withdraw_tokens(&1_u64.into(), 8_000).is_err());
+        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        let to = test_utils::bob_account();
+
+        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
+        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000).is_err());
+        assert!(Balance::balance_of(to).is_err());
     }
 }
