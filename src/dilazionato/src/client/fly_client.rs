@@ -22,6 +22,7 @@ pub trait FlyClient {
         installments: u64,
     ) -> DilazionatoResult<u64>;
 
+    /// Notify fly canister that pool reward must be sent to the new owner with `mfly` value from contract id's pool
     async fn send_reward(
         &self,
         contract_id: ID,
