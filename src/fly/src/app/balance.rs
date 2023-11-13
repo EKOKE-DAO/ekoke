@@ -73,6 +73,12 @@ impl Balance {
         Self::with_balance(account, |balance| balance.amount)
     }
 
+    /// Returns canister balance
+    pub fn canister_balance() -> u64 {
+        let canister_account = CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0.clone());
+        Self::balance_of(canister_account).unwrap()
+    }
+
     fn with_balance<F, T>(account: Account, f: F) -> FlyResult<T>
     where
         F: FnOnce(&AccountBalance) -> T,
@@ -126,6 +132,10 @@ mod test {
         let canister_account = CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0.clone());
         assert_eq!(
             Balance::balance_of(canister_account).unwrap(),
+            fly_to_picofly(8_888_888 - 188_888 - 100_000)
+        );
+        assert_eq!(
+            Balance::canister_balance(),
             fly_to_picofly(8_888_888 - 188_888 - 100_000)
         );
         assert_eq!(
