@@ -37,20 +37,14 @@ pub enum DilazionatoError {
 pub enum TokenError {
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
-    #[error("the provided contract ID ({0}) is already signed")]
-    ContractAlreadySigned(ID),
-    #[error("the provided contract ID ({0}) is not signed")]
-    ContractNotSigned(ID),
     #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
     ContractNotFound(ID),
     #[error("the provided token ID ({0}) already exists in the canister storage")]
     TokenAlreadyExists(TokenIdentifier),
     #[error("the provided token ({0}) doesn't belong to the provided contract")]
     TokenDoesNotBelongToContract(TokenIdentifier),
-    #[error("the token {0} owner should be None on mint")]
+    #[error("the token {0} owner should be the seller on mint")]
     BadMintTokenOwner(TokenIdentifier),
-    #[error("the token {0} operator should be None on mint")]
-    BadMintTokenOperator(TokenIdentifier),
     #[error("the token defined in the contract differ from the provided tokens")]
     TokensMismatch,
     #[error("the contract provided has no tokens")]
@@ -90,8 +84,6 @@ pub struct Contract {
     pub tokens: Vec<TokenIdentifier>,
     /// Initial Fiat value of the contract
     pub initial_value: u64,
-    /// A contract is signed after creation to make its tokens effective
-    pub is_signed: bool,
     /// Current Fiat value of the contract (to pay)
     pub value: u64,
     /// Currency symbol
@@ -349,7 +341,6 @@ mod test {
             tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
             initial_value: 250_000,
             value: 250_000,
-            is_signed: true,
             currency: "EUR".to_string(),
             properties: vec![(
                 "Rome".to_string(),

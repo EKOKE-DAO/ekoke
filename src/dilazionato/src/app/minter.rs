@@ -12,6 +12,7 @@ pub struct Minter;
 impl Minter {
     pub async fn mint(
         contract_id: &ID,
+        seller: Principal,
         installments: u64,
         contract_value: u64,
     ) -> DilazionatoResult<(Vec<Token>, Vec<Nat>)> {
@@ -25,6 +26,7 @@ impl Minter {
         let mut tokens = Vec::with_capacity(installments as usize);
         let mut tokens_ids = Vec::with_capacity(installments as usize);
         let token_value: u64 = contract_value / installments;
+        let marketplace_canister = Configuration::get_marketplace_canister();
 
         for token_id in next_token_id..next_token_id + installments {
             tokens.push(Token {
@@ -37,8 +39,8 @@ impl Minter {
                 is_burned: false,
                 minted_at: crate::utils::time(),
                 minted_by: caller(),
-                operator: None,
-                owner: None,
+                operator: Some(marketplace_canister), // * the operator must be the marketplace canister
+                owner: Some(seller),
                 transferred_at: None,
                 transferred_by: None,
                 mfly_reward,

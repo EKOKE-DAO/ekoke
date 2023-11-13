@@ -7,7 +7,6 @@ export interface Contract {
   'id' : bigint,
   'value' : bigint,
   'type' : ContractType,
-  'is_signed' : boolean,
   'properties' : Array<[string, GenericValue]>,
   'seller' : Principal,
   'expiration' : string,
@@ -102,16 +101,13 @@ export type SupportedInterface = { 'Burn' : null } |
   { 'Mint' : null } |
   { 'Approval' : null } |
   { 'TransactionHistory' : null };
-export type TokenError = { 'ContractAlreadySigned' : bigint } |
-  { 'ContractValueIsNotMultipleOfInstallments' : null } |
+export type TokenError = { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
   { 'TokensMismatch' : null } |
   { 'ContractAlreadyExists' : bigint } |
   { 'TokenDoesNotBelongToContract' : bigint } |
   { 'TokenNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
-  { 'ContractNotSigned' : bigint } |
-  { 'BadMintTokenOperator' : bigint } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'InvalidExpirationDate' : null } |
@@ -163,7 +159,6 @@ export interface _SERVICE {
   'admin_set_fly_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
-  'admin_sign_contract' : ActorMethod<[bigint], Result>,
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
   'balance_of' : ActorMethod<[Principal], Result_1>,
   'burn' : ActorMethod<[bigint], Result_1>,

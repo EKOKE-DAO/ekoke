@@ -1,4 +1,4 @@
-use candid::{Nat, Principal};
+use candid::Nat;
 use did::dilazionato::Token;
 use dip721::{GenericValue, TxEvent};
 
@@ -29,6 +29,10 @@ impl TxHistory {
                 (
                     "contract_id".to_string(),
                     GenericValue::TextContent(token.contract_id.to_string()),
+                ),
+                (
+                    "owner".to_string(),
+                    GenericValue::Principal(token.owner.unwrap()),
                 ),
                 (
                     "minted_at".to_string(),
@@ -78,35 +82,7 @@ impl TxHistory {
         id
     }
 
-    pub fn register_sign(token: &Token) -> Nat {
-        let event = TxEvent {
-            caller: crate::utils::caller(),
-            details: vec![
-                (
-                    "token_id".to_string(),
-                    GenericValue::NatContent(token.id.clone()),
-                ),
-                (
-                    "contract_id".to_string(),
-                    GenericValue::TextContent(token.contract_id.to_string()),
-                ),
-                (
-                    "owner".to_string(),
-                    GenericValue::Principal(token.owner.unwrap()),
-                ),
-            ],
-            operation: "sign".to_string(),
-            time: crate::utils::time(),
-        };
-        let id = Self::next_id();
-        with_tx_history_mut(|tx_history| {
-            tx_history.insert(id.clone().into(), event.into());
-        });
-
-        id
-    }
-
-    pub fn register_transfer(token: &Token, previous_owner: Principal) -> Nat {
+    pub fn register_transfer(token: &Token) -> Nat {
         let event = TxEvent {
             caller: crate::utils::caller(),
             details: vec![
@@ -126,11 +102,6 @@ impl TxHistory {
                     "transferred_at".to_string(),
                     GenericValue::Nat64Content(token.transferred_at.unwrap()),
                 ),
-                (
-                    "to".to_string(),
-                    GenericValue::Principal(token.owner.unwrap()),
-                ),
-                ("from".to_string(), GenericValue::Principal(previous_owner)),
             ],
             operation: "transfer".to_string(),
             time: crate::utils::time(),
@@ -164,7 +135,7 @@ mod test {
         let tx = TxHistory::get_transaction_by_id(0.into()).unwrap();
         assert_eq!(tx.operation, "mint");
         assert_eq!(tx.caller, crate::utils::caller());
-        assert_eq!(tx.details.len(), 3);
+        assert_eq!(tx.details.len(), 4);
         assert_eq!(
             tx.details[0],
             (
@@ -181,6 +152,13 @@ mod test {
         );
         assert_eq!(
             tx.details[2],
+            (
+                "owner".to_string(),
+                GenericValue::Principal(token.owner.unwrap())
+            )
+        );
+        assert_eq!(
+            tx.details[3],
             (
                 "minted_at".to_string(),
                 GenericValue::Nat64Content(token.minted_at)

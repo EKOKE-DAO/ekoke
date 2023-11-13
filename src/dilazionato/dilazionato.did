@@ -3,7 +3,6 @@ type Contract = record {
   id : nat;
   value : nat64;
   "type" : ContractType;
-  is_signed : bool;
   properties : vec record { text; GenericValue };
   seller : principal;
   expiration : text;
@@ -92,7 +91,6 @@ type Stats = record {
 };
 type SupportedInterface = variant { Burn; Mint; Approval; TransactionHistory };
 type TokenError = variant {
-  ContractAlreadySigned : nat;
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;
   TokensMismatch;
@@ -100,8 +98,6 @@ type TokenError = variant {
   TokenDoesNotBelongToContract : nat;
   TokenNotFound : nat;
   ContractNotFound : nat;
-  ContractNotSigned : nat;
-  BadMintTokenOperator : nat;
   ContractHasNoTokens;
   TokenIsBurned : nat;
   InvalidExpirationDate;
@@ -154,7 +150,6 @@ service : (DilazionatoInitData) -> {
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
-  admin_sign_contract : (nat) -> (Result);
   approve : (principal, nat) -> (Result_1);
   balance_of : (principal) -> (Result_1) query;
   burn : (nat) -> (Result_1);
