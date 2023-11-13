@@ -52,3 +52,29 @@ impl Minter {
         Ok((tokens, tokens_ids))
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_should_mint_token() {
+        let contract_id = ID::from(1);
+        let seller = Principal::anonymous();
+        let installments = 3;
+        let contract_value = 120;
+
+        let result = Minter::mint(&contract_id, seller, installments, contract_value).await;
+        assert!(result.is_ok());
+        let (tokens, tokens_ids) = result.unwrap();
+        assert_eq!(tokens.len(), installments as usize);
+        assert_eq!(tokens_ids.len(), installments as usize);
+        assert_eq!(tokens[0].id, 0);
+        assert_eq!(tokens[1].id, 1);
+        assert_eq!(tokens[2].id, 2);
+        assert_eq!(tokens[0].value, 40);
+        assert_eq!(tokens[1].value, 40);
+        assert_eq!(tokens[2].value, 40);
+    }
+}

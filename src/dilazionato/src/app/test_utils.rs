@@ -77,6 +77,24 @@ pub fn store_mock_contract_with<F, F2>(
     }
 }
 
+pub fn with_mock_token<F>(id: u64, contract_id: u64, f: F) -> Token
+where
+    F: FnOnce(&mut Token),
+{
+    let mut token = mock_token(id, contract_id);
+    f(&mut token);
+    token
+}
+
+pub fn with_mock_contract<F>(id: u64, installments: u64, f: F) -> Contract
+where
+    F: FnOnce(&mut Contract),
+{
+    let mut contract = mock_contract(id, installments);
+    f(&mut contract);
+    contract
+}
+
 pub fn alice() -> Principal {
     Principal::from_text("be2us-64aaa-aaaaa-qaabq-cai").unwrap()
 }

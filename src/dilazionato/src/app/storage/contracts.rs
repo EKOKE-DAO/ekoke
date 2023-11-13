@@ -299,7 +299,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils::{mock_contract, mock_token};
+    use crate::app::test_utils::{mock_contract, mock_token, with_mock_contract, with_mock_token};
 
     #[test]
     fn test_should_insert_and_get_contract() {
@@ -649,23 +649,5 @@ mod test {
         // create new tokens
         let token_2 = mock_token(next_token_id + 1, 1);
         assert!(ContractStorage::add_tokens_to_contract(&contract.id, vec![token_2]).is_err());
-    }
-
-    fn with_mock_token<F>(id: u64, contract_id: u64, f: F) -> Token
-    where
-        F: FnOnce(&mut Token),
-    {
-        let mut token = mock_token(id, contract_id);
-        f(&mut token);
-        token
-    }
-
-    fn with_mock_contract<F>(id: u64, installments: u64, f: F) -> Contract
-    where
-        F: FnOnce(&mut Contract),
-    {
-        let mut contract = mock_contract(id, installments);
-        f(&mut contract);
-        contract
     }
 }
