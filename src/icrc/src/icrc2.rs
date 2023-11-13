@@ -1,10 +1,8 @@
 use candid::Nat;
+use icrc_ledger_types::icrc2::allowance::{Allowance, AllowanceArgs};
+use icrc_ledger_types::icrc2::approve::{ApproveArgs, ApproveError};
+use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
 pub use icrc_ledger_types::icrc2::*;
-use icrc_ledger_types::icrc2::{
-    allowance::{Allowance, AllowanceArgs},
-    approve::{ApproveArgs, ApproveError},
-    transfer_from::{TransferFromArgs, TransferFromError},
-};
 
 /// ICRC-1 methods
 /// See: <https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-2/README.md>

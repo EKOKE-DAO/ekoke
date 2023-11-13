@@ -1,11 +1,10 @@
+use candid::Nat;
+use icrc_ledger_types::icrc1::transfer::TransferError;
 pub use icrc_ledger_types::icrc1::*;
-
-use super::icrc::generic_metadata_value::MetadataValue;
 
 use self::account::Account;
 use self::transfer::TransferArg;
-use candid::Nat;
-use icrc_ledger_types::icrc1::transfer::TransferError;
+use super::icrc::generic_metadata_value::MetadataValue;
 
 /// ICRC-1 methods
 /// See: <https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md>

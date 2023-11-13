@@ -3,7 +3,7 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
-use icrc::icrc1::account::Subaccount;
+use icrc::icrc1::account::Account;
 use thiserror::Error;
 
 use crate::ID;
@@ -12,12 +12,20 @@ pub type FlyResult<T> = Result<T, FlyError>;
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum FlyError {
+    #[error("balance error {0}")]
+    Balance(BalanceError),
     #[error("configuration error {0}")]
     Configuration(ConfigurationError),
     #[error("pool error {0}")]
     Pool(PoolError),
     #[error("storage error")]
     StorageError,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum BalanceError {
+    #[error("account not found")]
+    AccountNotFound,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -47,7 +55,7 @@ pub struct FlyInitData {
     /// Total supply of $fly tokens
     pub total_supply: u64,
     /// Initial balances (wallet subaccount -> picofly)
-    pub initial_balances: Vec<(Subaccount, PicoFly)>,
+    pub initial_balances: Vec<(Account, PicoFly)>,
 }
 
 /// Fly user roles. Defines permissions

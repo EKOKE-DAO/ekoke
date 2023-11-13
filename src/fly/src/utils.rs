@@ -15,6 +15,18 @@ pub fn time() -> u64 {
     }
 }
 
+/// Returns canister id
+pub fn id() -> Principal {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        Principal::from_text("lj532-6iaaa-aaaah-qcc7a-cai").unwrap()
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        ic_cdk::api::id()
+    }
+}
+
 pub fn cycles() -> Nat {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -35,5 +47,23 @@ pub fn caller() -> Principal {
     #[cfg(target_arch = "wasm32")]
     {
         ic_cdk::caller()
+    }
+}
+
+/// Convert fly to picofly
+pub fn fly_to_picofly(amount: u64) -> u64 {
+    amount * 1_000_000_000_000
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn test_should_convert_fly_to_picofly() {
+        assert_eq!(fly_to_picofly(1), 1_000_000_000_000);
+        assert_eq!(fly_to_picofly(20), 20_000_000_000_000);
+        assert_eq!(fly_to_picofly(300), 300_000_000_000_000);
     }
 }

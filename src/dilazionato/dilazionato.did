@@ -1,3 +1,4 @@
+type BalanceError = variant { AccountNotFound };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;
@@ -45,6 +46,7 @@ type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
   StorageError;
+  Balance : BalanceError;
 };
 type GenericValue = variant {
   Nat64Content : nat64;

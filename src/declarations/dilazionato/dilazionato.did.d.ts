@@ -1,6 +1,7 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
+export type BalanceError = { 'AccountNotFound' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
@@ -44,7 +45,8 @@ export interface DilazionatoInitData {
 }
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Pool' : PoolError } |
-  { 'StorageError' : null };
+  { 'StorageError' : null } |
+  { 'Balance' : BalanceError };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |

@@ -2,7 +2,7 @@
 //!
 //! API implementation for dilazionato canister
 
-mod balances;
+mod balance;
 mod configuration;
 mod inspect;
 mod memory;
@@ -15,11 +15,12 @@ use candid::Principal;
 use did::fly::{FlyInitData, FlyResult, Role};
 use did::ID;
 
+use self::balance::Balance;
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::pool::Pool;
 use self::roles::RolesManager;
-use crate::utils::caller;
+use crate::utils;
 
 pub struct FlyCanister;
 
@@ -30,9 +31,10 @@ impl FlyCanister {
         if let Err(err) = RolesManager::set_admins(data.admins) {
             ic_cdk::trap(&format!("Error setting admins: {}", err));
         }
-
-        // TODO: mint tokens
-        // TODO: set initial balances
+        Balance::init_balances(
+            utils::fly_to_picofly(data.total_supply),
+            data.initial_balances,
+        );
     }
 
     pub fn post_upgrade() {}
@@ -44,7 +46,7 @@ impl FlyCanister {
 
     /// Set role to the provided principal
     pub fn admin_set_role(principal: Principal, role: Role) {
-        if !Inspect::inspect_is_admin(caller()) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
         RolesManager::give_role(principal, role)
@@ -52,7 +54,7 @@ impl FlyCanister {
 
     /// Remove role from the provided principal
     pub fn admin_remove_role(principal: Principal, role: Role) -> FlyResult<()> {
-        if !Inspect::inspect_is_admin(caller()) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
         RolesManager::remove_role(principal, role)
@@ -64,10 +66,8 @@ mod test {
 
     use pretty_assertions::assert_eq;
 
-    use super::{
-        test_utils::{alice, alice_wallet, bob, bob_wallet},
-        *,
-    };
+    use super::test_utils::{alice_account, bob_account};
+    use super::*;
     use crate::utils::caller;
 
     #[test]
@@ -107,8 +107,8 @@ mod test {
             minting_account: caller(),
             total_supply: 8_888_888,
             initial_balances: vec![
-                (alice_wallet(), 100_000 * 1_000_000_000_000),
-                (bob_wallet(), 50_000 * 1_000_000_000_000),
+                (alice_account(), 100_000 * 1_000_000_000_000),
+                (bob_account(), 50_000 * 1_000_000_000_000),
             ],
         };
         FlyCanister::init(data);

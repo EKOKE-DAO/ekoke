@@ -1,12 +1,17 @@
+type Account = record { owner : principal; subaccount : opt vec nat8 };
+type BalanceError = variant { AccountNotFound };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
   StorageError;
+  Balance : BalanceError;
 };
 type FlyInitData = record {
   minting_account : principal;
+  initial_balances : vec record { Account; nat64 };
   admins : vec principal;
+  total_supply : nat64;
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type Result = variant { Ok; Err : FlyError };

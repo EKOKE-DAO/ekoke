@@ -12,6 +12,7 @@ version = "0.1.0"
 
 [workspace.dependencies]
 async-trait = "0.1"
+bytes = "1.5"
 candid = "0.9"
 ic-cdk = "0.11"
 ic-cdk-macros = "0.8"
