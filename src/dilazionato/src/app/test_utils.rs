@@ -26,7 +26,7 @@ pub fn mock_token(id: u64, contract_id: u64) -> Token {
     }
 }
 
-fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
+pub fn mock_contract(id: u64, installments: u64) -> Contract {
     Contract {
         id: id.into(),
         r#type: did::dilazionato::ContractType::Financing,
@@ -34,7 +34,7 @@ fn mock_contract(id: u64, token_ids: &[u64]) -> Contract {
         buyers: vec![Principal::management_canister()],
         tokens: vec![],
         expiration: "2040-06-01".to_string(),
-        installments: token_ids.len() as u64,
+        installments,
         is_signed: false,
         initial_value: 250_000,
         value: 250_000,
@@ -66,7 +66,7 @@ pub fn store_mock_contract_with<F, F2>(
         tokens.push(token);
     }
 
-    let mut contract = mock_contract(contract_id, token_ids);
+    let mut contract = mock_contract(contract_id, token_ids.len() as u64);
     contract_fn(&mut contract);
 
     if let Err(err) = ContractStorage::insert_contract(contract) {
