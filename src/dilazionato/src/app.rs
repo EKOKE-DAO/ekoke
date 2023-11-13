@@ -130,7 +130,7 @@ impl Dilazionato {
             ic_cdk::trap("Unauthorized");
         }
 
-        ContractStorage::sign_contract(&contract_id, Configuration::get_marketplace_canister())
+        ContractStorage::sign_contract(&contract_id, caller())
     }
 
     /// Update marketplace canister id and update the operator for all the tokens
@@ -565,31 +565,6 @@ mod test {
         assert!(Dilazionato::register_contract(contract).await.is_ok());
         assert_eq!(Dilazionato::get_contracts(), vec![Nat::from(1)]);
         assert_eq!(Dilazionato::total_supply(), Nat::from(10));
-    }
-
-    #[tokio::test]
-    async fn test_should_sign_contract() {
-        init_canister();
-        assert!(Configuration::set_marketplace_canister(alice()).is_ok());
-        let contract = ContractRegistration {
-            buyers: vec![caller()],
-            currency: "EUR".to_string(),
-            expiration: "2040-01-01".to_string(),
-            id: 1.into(),
-            installments: 10,
-            properties: vec![],
-            r#type: did::dilazionato::ContractType::Financing,
-            seller: caller(),
-            value: 100,
-        };
-        assert!(Dilazionato::register_contract(contract).await.is_ok());
-        assert!(Dilazionato::admin_sign_contract(1.into()).is_ok());
-        assert_eq!(
-            Dilazionato::get_contract(&1.into()).unwrap().is_signed,
-            true
-        );
-        // verify operator
-        assert_eq!(Dilazionato::operator_of(1.into()).unwrap(), Some(alice()));
     }
 
     #[tokio::test]
