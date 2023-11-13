@@ -154,8 +154,35 @@ impl ContractStorage {
     }
 
     /// get contracts
-    pub fn get_contracts() -> Vec<ID> {
-        with_contracts(|contracts| contracts.iter().map(|(key, _)| key.0.clone()).collect())
+    pub fn get_signed_contracts() -> Vec<ID> {
+        with_contracts(|contracts| {
+            contracts
+                .iter()
+                .filter_map(|(key, contract)| {
+                    if contract.is_signed {
+                        Some(key.0.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        })
+    }
+
+    /// get contracts
+    pub fn get_unsigned_contracts() -> Vec<ID> {
+        with_contracts(|contracts| {
+            contracts
+                .iter()
+                .filter_map(|(key, contract)| {
+                    if !contract.is_signed {
+                        Some(key.0.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        })
     }
 
     /// Update the contract  buyers
@@ -334,7 +361,7 @@ mod test {
         assert_eq!(ContractStorage::total_supply(), 2);
         assert_eq!(ContractStorage::tokens_by_owner(seller).len(), 2);
         assert_eq!(ContractStorage::tokens_by_operator(seller).len(), 1);
-        assert_eq!(ContractStorage::get_contracts(), vec![contract.id]);
+        assert_eq!(ContractStorage::get_signed_contracts(), vec![contract.id]);
     }
 
     #[test]
@@ -649,5 +676,19 @@ mod test {
         // create new tokens
         let token_2 = mock_token(next_token_id + 1, 1);
         assert!(ContractStorage::add_tokens_to_contract(&contract.id, vec![token_2]).is_err());
+    }
+
+    #[test]
+    fn test_should_get_unsigned_contracts() {
+        let token = mock_token(1, 1);
+        let contract_1 = mock_contract(1, 1);
+        assert!(ContractStorage::insert_contract(contract_1).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1.into(), vec![token]).is_ok());
+
+        let contract_2 = mock_contract(2, 1);
+        assert!(ContractStorage::insert_contract(contract_2).is_ok());
+
+        assert_eq!(ContractStorage::get_signed_contracts().len(), 1);
+        assert_eq!(ContractStorage::get_unsigned_contracts().len(), 1);
     }
 }

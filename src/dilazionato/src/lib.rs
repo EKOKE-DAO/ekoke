@@ -56,8 +56,14 @@ pub fn get_contract(id: ID) -> Option<Contract> {
 
 #[query]
 #[candid_method(query)]
-pub fn get_contracts() -> Vec<ID> {
-    Dilazionato::get_contracts()
+pub fn get_signed_contracts() -> Vec<ID> {
+    Dilazionato::get_signed_contracts()
+}
+
+#[query]
+#[candid_method(query)]
+pub fn admin_get_unsigned_contracts() -> Vec<ID> {
+    Dilazionato::admin_get_unsigned_contracts()
 }
 
 #[update]

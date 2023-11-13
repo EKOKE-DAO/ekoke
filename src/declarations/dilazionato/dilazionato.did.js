@@ -175,6 +175,11 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_8 = IDL.Variant({ 'Ok' : TxEvent, 'Err' : NftError });
   return IDL.Service({
+    'admin_get_unsigned_contracts' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Nat)],
+        ['query'],
+      ),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
@@ -186,7 +191,7 @@ export const idlFactory = ({ IDL }) => {
     'custodians' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
-    'get_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+    'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'is_approved_for_all' : IDL.Func(
         [IDL.Principal, IDL.Principal],
         [Result_2],

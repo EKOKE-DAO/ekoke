@@ -152,6 +152,7 @@ type Vec = vec record {
   };
 };
 service : (DilazionatoInitData) -> {
+  admin_get_unsigned_contracts : () -> (vec nat) query;
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_fly_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
@@ -163,7 +164,7 @@ service : (DilazionatoInitData) -> {
   custodians : () -> (vec principal) query;
   cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;
-  get_contracts : () -> (vec nat) query;
+  get_signed_contracts : () -> (vec nat) query;
   is_approved_for_all : (principal, principal) -> (Result_2);
   logo : () -> (opt text) query;
   metadata : () -> (Metadata) query;

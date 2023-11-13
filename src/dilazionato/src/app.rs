@@ -58,8 +58,17 @@ impl Dilazionato {
     }
 
     /// get contracts ids
-    pub fn get_contracts() -> Vec<ID> {
-        ContractStorage::get_contracts()
+    pub fn get_signed_contracts() -> Vec<ID> {
+        ContractStorage::get_signed_contracts()
+    }
+
+    /// get unsigned contracts
+    pub fn admin_get_unsigned_contracts() -> Vec<ID> {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        ContractStorage::get_unsigned_contracts()
     }
 
     /// Update contract buyers. Only the buyer can call this method.
@@ -554,12 +563,12 @@ mod test {
     }
 
     #[test]
-    fn test_should_get_contracts() {
+    fn test_should_get_signed_contracts() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         store_mock_contract(&[3, 4], 2);
         assert_eq!(
-            Dilazionato::get_contracts(),
+            Dilazionato::get_signed_contracts(),
             vec![Nat::from(1), Nat::from(2)]
         );
     }
@@ -581,8 +590,12 @@ mod test {
 
         assert!(Dilazionato::register_contract(contract).is_ok());
         assert_eq!(Dilazionato::total_supply(), Nat::from(0));
-        assert_eq!(Dilazionato::get_contracts(), vec![Nat::from(1)]);
+        assert_eq!(
+            Dilazionato::admin_get_unsigned_contracts(),
+            vec![Nat::from(1)]
+        );
         assert!(Dilazionato::admin_sign_contract(1.into()).await.is_ok());
+        assert_eq!(Dilazionato::get_signed_contracts(), vec![Nat::from(1)]);
         assert_eq!(Dilazionato::total_supply(), Nat::from(10));
     }
 
