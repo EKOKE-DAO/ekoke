@@ -3,7 +3,7 @@
 //! ICRC-1 token balances
 
 mod account;
-mod balance;
+mod account_balance;
 
 use std::cell::RefCell;
 
@@ -14,7 +14,7 @@ use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
 use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
 
 use self::account::StorableAccount;
-use self::balance::Balance as AccountBalance;
+use self::account_balance::Balance as AccountBalance;
 use crate::app::memory::{BALANCES_MEMORY_ID, CANISTER_WALLET_ACCOUNT_MEMORY_ID, MEMORY_MANAGER};
 
 thread_local! {
