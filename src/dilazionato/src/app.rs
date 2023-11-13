@@ -467,7 +467,7 @@ impl Dip721 for Dilazionato {
         // if the previous owner, was the seller, notify fly canister to transfer reward to the new owner
         if last_owner == Some(contract.seller) {
             fly_client(Configuration::get_fly_canister())
-                .send_reward(token.contract_id, token.mfly_reward, to)
+                .send_reward(token.contract_id, token.picofly_reward, to)
                 .await
                 .map_err(|_| NftError::Other("fly canister error".to_string()))?;
         }

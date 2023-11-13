@@ -25,17 +25,17 @@ impl Pool {
     /// If the contract already has a pool, the reward will be incremented
     ///
     /// Returns the new balance
-    pub fn reserve(contract_id: &ID, mfly: u64) -> FlyResult<u64> {
+    pub fn reserve(contract_id: &ID, picofly: u64) -> FlyResult<u64> {
         if Self::has_pool(contract_id) {
             Self::with_pool_contract_mut(contract_id, |pool| {
-                *pool += mfly;
+                *pool += picofly;
                 Ok(*pool)
             })
         } else {
             POOL.with_borrow_mut(|pool| {
-                pool.insert(contract_id.clone().into(), mfly);
+                pool.insert(contract_id.clone().into(), picofly);
             });
-            Ok(mfly)
+            Ok(picofly)
         }
     }
 
@@ -52,12 +52,12 @@ impl Pool {
     /// Withdraw $mFly tokens from the pool
     ///
     /// Returns the new balance
-    pub fn withdraw_tokens(contract_id: &ID, mfly: u64) -> FlyResult<u64> {
+    pub fn withdraw_tokens(contract_id: &ID, picofly: u64) -> FlyResult<u64> {
         Self::with_pool_contract_mut(contract_id, |tokens| {
-            if *tokens < mfly {
+            if *tokens < picofly {
                 Err(FlyError::Pool(PoolError::NotEnoughTokens))
             } else {
-                *tokens -= mfly;
+                *tokens -= picofly;
                 Ok(*tokens)
             }
         })

@@ -17,7 +17,7 @@ impl Minter {
         contract_value: u64,
     ) -> DilazionatoResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
-        let mfly_reward = fly_client(Configuration::get_fly_canister())
+        let picofly_reward = fly_client(Configuration::get_fly_canister())
             .get_contract_reward(contract_id.clone(), installments)
             .await?;
 
@@ -43,7 +43,7 @@ impl Minter {
                 owner: Some(seller),
                 transferred_at: None,
                 transferred_by: None,
-                mfly_reward,
+                picofly_reward,
                 value: token_value,
             });
             tokens_ids.push(token_id.into());

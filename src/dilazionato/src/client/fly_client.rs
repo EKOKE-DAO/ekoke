@@ -22,11 +22,11 @@ pub trait FlyClient {
         installments: u64,
     ) -> DilazionatoResult<u64>;
 
-    /// Notify fly canister that pool reward must be sent to the new owner with `mfly` value from contract id's pool
+    /// Notify fly canister that pool reward must be sent to the new owner with `picofly` value from contract id's pool
     async fn send_reward(
         &self,
         contract_id: ID,
-        mfly: u64,
+        picofly: u64,
         new_owner: Principal,
     ) -> DilazionatoResult<()>;
 }
@@ -57,7 +57,7 @@ impl FlyClient for IcFlyClient {
     async fn send_reward(
         &self,
         _contract_id: ID,
-        _mfly: u64,
+        _picofly: u64,
         _new_owner: Principal,
     ) -> DilazionatoResult<()> {
         todo!()
@@ -80,7 +80,7 @@ impl FlyClient for IcFlyClient {
     async fn send_reward(
         &self,
         _contract_id: ID,
-        _mfly: u64,
+        _picofly: u64,
         _new_owner: Principal,
     ) -> DilazionatoResult<()> {
         Ok(())

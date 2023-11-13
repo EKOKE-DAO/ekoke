@@ -136,7 +136,7 @@ pub struct Token {
     /// Value of the single token (FIAT)
     pub value: u64,
     /// $mFLY (milli-fly) reward for buying a Token
-    pub mfly_reward: u64,
+    pub picofly_reward: u64,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
     /// Whether the token is burned
@@ -308,7 +308,7 @@ mod test {
                 )
                 .unwrap(),
             ),
-            mfly_reward: 4_000,
+            picofly_reward: 4_000,
             transferred_at: None,
             transferred_by: None,
             approved_at: None,
@@ -328,7 +328,7 @@ mod test {
         assert_eq!(token.contract_id, decoded_token.contract_id);
         assert_eq!(token.owner, decoded_token.owner);
         assert_eq!(token.value, decoded_token.value);
-        assert_eq!(token.mfly_reward, decoded_token.mfly_reward);
+        assert_eq!(token.picofly_reward, decoded_token.picofly_reward);
     }
 
     #[test]

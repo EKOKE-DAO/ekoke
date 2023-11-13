@@ -17,7 +17,7 @@ impl FlyCanister {
     pub fn post_upgrade() {}
 
     /// Reserve a pool for the provided contract ID with the provided amount of $mFly tokens
-    pub fn reserve_pool(contract_id: ID, mfly_amount: u64) -> FlyResult<u64> {
-        Pool::reserve(&contract_id, mfly_amount)
+    pub fn reserve_pool(contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
+        Pool::reserve(&contract_id, picofly_amount)
     }
 }

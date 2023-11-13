@@ -24,8 +24,8 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub fn reserve_pool(contract_id: ID, mfly_amount: u64) -> FlyResult<u64> {
-    FlyCanister::reserve_pool(contract_id, mfly_amount)
+pub fn reserve_pool(contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
+    FlyCanister::reserve_pool(contract_id, picofly_amount)
 }
 
 #[allow(dead_code)]
