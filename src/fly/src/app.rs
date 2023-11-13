@@ -101,7 +101,29 @@ mod test {
 
     #[test]
     fn test_should_init_canister() {
-        todo!()
+        init_canister();
+
+        assert_eq!(Configuration::get_minting_account(), caller());
+        assert_eq!(RolesManager::get_admins(), vec![caller()]);
+        assert!(RolesManager::has_role(caller(), Role::DilazionatoCanister));
+        // init balance
+        assert_eq!(
+            Balance::balance_of(alice_account()).unwrap(),
+            fly_to_picofly(50_000)
+        );
+        assert_eq!(
+            Balance::balance_of(bob_account()).unwrap(),
+            fly_to_picofly(50_000)
+        );
+        assert_eq!(
+            Balance::balance_of(caller_account()).unwrap(),
+            fly_to_picofly(100_000)
+        );
+        // supply
+        assert_eq!(
+            Balance::balance_of(Balance::canister_wallet_account()).unwrap(),
+            fly_to_picofly(8_688_888)
+        );
     }
 
     #[test]
