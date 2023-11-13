@@ -50,7 +50,7 @@ impl FlyCanister {
     /// The tokens are withdrawned from the from's wallet.
     /// Obviously `from` wallet must be owned by the caller.
     pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
-        if !Inspect::inspect_is_dilazionato_canister(utils::caller()) {
+        if !Inspect::inspect_caller_owns_wallet(utils::caller(), from) {
             ic_cdk::trap("You don't own this account");
         }
 
@@ -136,6 +136,19 @@ mod test {
             FlyCanister::reserve_pool(test_utils::caller_account(), contract_id, picofly_amount);
 
         assert_eq!(result, Ok(picofly_amount));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_should_not_allow_reserve_pool() {
+        init_canister();
+        let contract_id = 1.into();
+        let picofly_amount = 1000;
+
+        assert!(
+            FlyCanister::reserve_pool(test_utils::bob_account(), contract_id, picofly_amount)
+                .is_err()
+        );
     }
 
     #[test]
