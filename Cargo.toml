@@ -14,6 +14,7 @@ version = "0.1.0"
 async-trait = "0.1"
 bytes = "1.5"
 candid = "0.9"
+getrandom = { version = "0.2", features = ["js"] }
 ic-cdk = "0.11"
 ic-cdk-macros = "0.8"
 ic-stable-structures = "0.6"

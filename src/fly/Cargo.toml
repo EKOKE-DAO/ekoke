@@ -21,6 +21,7 @@ did = []
 bytes = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }
+getrandom = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }

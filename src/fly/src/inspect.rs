@@ -27,7 +27,7 @@ fn inspect_message_impl() {
             Inspect::inspect_caller_owns_wallet(caller(), account)
         }
 
-        _ => false,
+        _ => true,
     };
 
     if check_result {

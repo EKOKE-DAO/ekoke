@@ -49,7 +49,7 @@ fn inspect_message_impl() {
             let (_, _, token_identifier) = api::call::arg_data::<(Principal, Principal, Nat)>();
             Inspect::inspect_is_owner_or_operator(caller(), &token_identifier).is_ok()
         }
-        _ => false,
+        _ => true,
     };
 
     if check_result {
