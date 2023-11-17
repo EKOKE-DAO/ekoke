@@ -15,6 +15,7 @@ use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
 
 pub use self::account::StorableAccount;
 use self::account_balance::Balance as AccountBalance;
+use super::configuration::Configuration;
 use crate::app::memory::{BALANCES_MEMORY_ID, CANISTER_WALLET_ACCOUNT_MEMORY_ID, MEMORY_MANAGER};
 
 thread_local! {
@@ -69,6 +70,22 @@ impl Balance {
         });
     }
 
+    pub fn total_supply() -> u64 {
+        let minting_account = Configuration::get_minting_account();
+        BALANCES.with_borrow(|balances| {
+            balances
+                .iter()
+                .filter_map(|(account, balance)| {
+                    if minting_account == account.0 {
+                        None
+                    } else {
+                        Some(balance.amount)
+                    }
+                })
+                .sum::<u64>()
+        })
+    }
+
     /// Get balance of account
     pub fn balance_of(account: Account) -> FlyResult<u64> {
         Self::with_balance(account, |balance| balance.amount)
@@ -81,6 +98,18 @@ impl Balance {
 
     pub fn canister_wallet_account() -> Account {
         CANISTER_WALLET_ACCOUNT.with_borrow(|wallet| wallet.get().0)
+    }
+
+    /// Transfer $picoFly tokens from `from` account to `to` account.
+    /// The fee is transferred to the Minting Account, making it burned
+    pub fn transfer(from: Account, to: Account, value: PicoFly, fee: PicoFly) -> FlyResult<()> {
+        Self::transfer_wno_fees(from, to, value)?;
+
+        if fee > 0 {
+            Self::transfer_wno_fees(from, Configuration::get_minting_account(), fee)
+        } else {
+            Ok(())
+        }
     }
 
     /// Transfer $picoFly tokens from canister to `to` account.
@@ -195,5 +224,120 @@ mod test {
             Balance::balance_of(recipient_account).unwrap(),
             fly_to_picofly(888)
         );
+    }
+
+    #[test]
+    fn test_should_transfer_between_accounts() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![
+            (alice_account(), fly_to_picofly(120)),
+            (bob_account(), fly_to_picofly(50)),
+        ];
+        Balance::init_balances(total_supply, initial_balances);
+
+        // transfer
+        assert!(Balance::transfer(
+            alice_account(),
+            bob_account(),
+            fly_to_picofly(50),
+            fly_to_picofly(1)
+        )
+        .is_ok());
+        // verify balances
+        assert_eq!(
+            Balance::balance_of(alice_account()).unwrap(),
+            fly_to_picofly(120 - 50 - 1)
+        );
+        assert_eq!(
+            Balance::balance_of(bob_account()).unwrap(),
+            fly_to_picofly(100)
+        );
+        // fee should be burned
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888 - 1));
+    }
+
+    #[test]
+    fn test_should_fail_transfer_if_has_no_balance_to_pay_fee() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![
+            (alice_account(), fly_to_picofly(50)),
+            (bob_account(), fly_to_picofly(50)),
+        ];
+        Balance::init_balances(total_supply, initial_balances);
+
+        // transfer
+        assert!(Balance::transfer(
+            alice_account(),
+            bob_account(),
+            fly_to_picofly(50),
+            fly_to_picofly(1)
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_not_pay_fee_if_fee_is_zero() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![
+            (alice_account(), fly_to_picofly(50)),
+            (bob_account(), fly_to_picofly(50)),
+        ];
+        Balance::init_balances(total_supply, initial_balances);
+
+        // transfer
+        assert!(Balance::transfer(
+            alice_account(),
+            bob_account(),
+            fly_to_picofly(50),
+            fly_to_picofly(0)
+        )
+        .is_ok());
+        // verify balances
+        assert_eq!(
+            Balance::balance_of(alice_account()).unwrap(),
+            fly_to_picofly(0)
+        );
+        assert_eq!(
+            Balance::balance_of(bob_account()).unwrap(),
+            fly_to_picofly(100)
+        );
+        // fee should be burned
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888));
+    }
+
+    #[test]
+    fn test_should_not_allow_transfer_if_not_enough_balance() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![
+            (alice_account(), fly_to_picofly(50)),
+            (bob_account(), fly_to_picofly(50)),
+        ];
+        Balance::init_balances(total_supply, initial_balances);
+
+        // transfer
+        assert!(Balance::transfer(
+            alice_account(),
+            bob_account(),
+            fly_to_picofly(100),
+            fly_to_picofly(1)
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_get_total_supply() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![(bob_account(), fly_to_picofly(100_000))];
+        Balance::init_balances(total_supply, initial_balances);
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888));
+
+        // burn
+        assert!(Balance::transfer_wno_fees(
+            bob_account(),
+            Configuration::get_minting_account(),
+            fly_to_picofly(100_000)
+        )
+        .is_ok());
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888 - 100_000));
     }
 }

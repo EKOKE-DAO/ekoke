@@ -11,6 +11,7 @@ use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 use icrc::icrc1::account::Account;
 
 use super::balance::{Balance, StorableAccount};
+use super::configuration::Configuration;
 use crate::app::memory::{MEMORY_MANAGER, POOL_MEMORY_ID};
 use crate::utils;
 
@@ -89,6 +90,12 @@ impl Pool {
                     owner: utils::id(),
                     subaccount: Some(utils::random_subaccount()),
                 };
+                // check if account already exists or if it's the minting account
+                if Balance::balance_of(new_account).is_ok()
+                    || new_account == Configuration::get_minting_account()
+                {
+                    ic_cdk::trap("Account already exists");
+                }
                 let res = f(&mut new_account)?;
                 pool.insert(key, new_account.into());
 

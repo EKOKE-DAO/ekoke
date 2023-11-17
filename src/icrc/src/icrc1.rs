@@ -35,18 +35,29 @@ pub trait Icrc1 {
     fn icrc1_balance_of(account: Account) -> Nat;
 
     /// Transfers amount of tokens from account record { of = caller; subaccount = from_subaccount } to the to account.
+    ///
+    /// ## Fee
+    ///
     /// The caller pays fee tokens for the transfer.
-    /// The caller pays the fee. If the caller does not set the fee argument,
-    /// the ledger applies the default transfer fee.
+    /// If the caller does not set the fee argument, the ledger applies the default transfer fee.
     /// If the fee argument does not agree with the ledger fee,
     /// the ledger MUST return variant { BadFee = record { expected_fee = ... } } error.
+    ///
+    /// ## Memo
+    ///
     /// The memo parameter is an arbitrary blob that has no meaning to the ledger.
     /// The ledger SHOULD allow memos of at least 32 bytes in length.
     /// The ledger SHOULD use the memo argument for transaction deduplication.
+    ///
+    /// ## Created at time
+    ///
     /// The created_at_time parameter indicates the time (as nanoseconds since the UNIX epoch in the UTC timezone)
     /// at which the client constructed the transaction.
     /// The ledger SHOULD reject transactions that have created_at_time argument too far in the past or the future,
     /// returning variant { TooOld } and variant { CreatedInFuture = record { ledger_time = ... } } errors correspondingly.
+    ///
+    /// ## Transaction ID
+    ///
     /// The result is either the transaction index of the transfer or an error.
     fn icrc1_transfer(transfer_args: TransferArg) -> Result<Nat, TransferError>;
 

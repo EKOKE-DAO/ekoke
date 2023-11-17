@@ -4,17 +4,18 @@ type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
+  Register : RegisterError;
   StorageError;
   Balance : BalanceError;
 };
 type FlyInitData = record {
-  minting_account : principal;
   initial_balances : vec record { Account; nat64 };
   dilazionato_canister : principal;
   admins : vec principal;
   total_supply : nat64;
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
+type RegisterError = variant { TransactionNotFound };
 type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat64; Err : FlyError };
 type Role = variant { Admin; DilazionatoCanister };
