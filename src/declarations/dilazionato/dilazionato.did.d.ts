@@ -46,6 +46,7 @@ export interface DilazionatoInitData {
 }
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Pool' : PoolError } |
+  { 'Register' : RegisterError } |
   { 'StorageError' : null } |
   { 'Balance' : BalanceError };
 export type GenericValue = { 'Nat64Content' : bigint } |
@@ -84,6 +85,7 @@ export type NftError = { 'UnauthorizedOperator' : null } |
   { 'Other' : string };
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
+export type RegisterError = { 'TransactionNotFound' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : DilazionatoError };
 export type Result_1 = { 'Ok' : bigint } |

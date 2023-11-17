@@ -4,5 +4,5 @@
 
 use candid::Nat;
 
-/// An identifier in the dilazionato environment. It has the same syntax as an Ethereum address
+/// An identifier in the dilazionato environment.
 pub type ID = Nat;

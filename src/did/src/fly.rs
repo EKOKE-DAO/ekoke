@@ -4,6 +4,7 @@ use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
+use icrc::icrc1::transfer::Memo;
 use thiserror::Error;
 
 use crate::ID;
@@ -18,6 +19,8 @@ pub enum FlyError {
     Configuration(ConfigurationError),
     #[error("pool error {0}")]
     Pool(PoolError),
+    #[error("register error {0}")]
+    Register(RegisterError),
     #[error("storage error")]
     StorageError,
 }
@@ -46,6 +49,12 @@ pub enum PoolError {
     NotEnoughTokens,
 }
 
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum RegisterError {
+    #[error("transaction not found in the register")]
+    TransactionNotFound,
+}
+
 /// 0.000000000001 $fly
 pub type PicoFly = u64;
 
@@ -53,7 +62,6 @@ pub type PicoFly = u64;
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct FlyInitData {
     pub admins: Vec<Principal>,
-    pub minting_account: Principal,
     /// Total supply of $fly tokens
     pub total_supply: u64,
     /// Initial balances (wallet subaccount -> picofly)
@@ -108,9 +116,35 @@ impl Storable for Roles {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub struct Transaction {
+    pub from: Account,
+    pub to: Account,
+    pub amount: PicoFly,
+    pub fee: PicoFly,
+    pub memo: Option<Memo>,
+    pub created_at: u64,
+}
+
+impl Storable for Transaction {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 256,
+        is_fixed_size: false,
+    };
+
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        Encode!(&self).unwrap().into()
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        Decode!(&bytes, Transaction).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod test {
 
+    use icrc::icrc1::account::Account;
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -122,5 +156,27 @@ mod test {
         let data = role.to_bytes();
         let decoded_role = Roles::from_bytes(data);
         assert_eq!(role, decoded_role);
+    }
+
+    #[test]
+    fn test_should_encode_transaction() {
+        let tx = Transaction {
+            from: Account {
+                owner: Principal::management_canister(),
+                subaccount: Some([1u8; 32]),
+            },
+            to: Account {
+                owner: Principal::management_canister(),
+                subaccount: None,
+            },
+            amount: 100,
+            fee: 1,
+            memo: None,
+            created_at: 0,
+        };
+
+        let data = tx.to_bytes();
+        let decoded_tx = Transaction::from_bytes(data);
+        assert_eq!(tx, decoded_tx);
     }
 }

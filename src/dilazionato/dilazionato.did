@@ -45,6 +45,7 @@ type DilazionatoInitData = record {
 type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
+  Register : RegisterError;
   StorageError;
   Balance : BalanceError;
 };
@@ -87,6 +88,7 @@ type NftError = variant {
   Other : text;
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
+type RegisterError = variant { TransactionNotFound };
 type Result = variant { Ok; Err : DilazionatoError };
 type Result_1 = variant { Ok : nat; Err : NftError };
 type Result_2 = variant { Ok : bool; Err : NftError };

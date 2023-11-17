@@ -11,10 +11,10 @@ export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Pool' : PoolError } |
+  { 'Register' : RegisterError } |
   { 'StorageError' : null } |
   { 'Balance' : BalanceError };
 export interface FlyInitData {
-  'minting_account' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
   'dilazionato_canister' : Principal,
   'admins' : Array<Principal>,
@@ -22,6 +22,7 @@ export interface FlyInitData {
 }
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
+export type RegisterError = { 'TransactionNotFound' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : FlyError };
 export type Result_1 = { 'Ok' : bigint } |
