@@ -1,4 +1,4 @@
-//! Types associated to the "Sell Contract" canister
+//! Types associated to the "Deferred" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use dip721::{GenericValue, TokenIdentifier, TxEvent};

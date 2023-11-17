@@ -232,6 +232,28 @@ impl ContractStorage {
         })
     }
 
+    /// Update contract property
+    pub fn update_contract_property(
+        contract_id: &ID,
+        key: String,
+        value: GenericValue,
+    ) -> DeferredResult<()> {
+        with_contract_mut(contract_id, |contract| {
+            let mut found = false;
+            for (k, v) in &mut contract.properties {
+                if k == &key {
+                    *v = value.clone();
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                contract.properties.push((key, value));
+            }
+            Ok(())
+        })
+    }
+
     /// Update the contract  buyers
     pub fn update_contract_buyers(contract_id: &ID, buyers: Vec<Principal>) -> DeferredResult<()> {
         with_contract_mut(contract_id, |contract| {
@@ -775,5 +797,54 @@ mod test {
         assert_eq!(metadata.properties.len(), 7);
         assert_eq!(metadata.transferred_at, None);
         assert_eq!(metadata.transferred_by, None);
+    }
+
+    #[test]
+    fn test_should_update_contract_property() {
+        let contract = with_mock_contract(1, 1, |contract| {
+            contract.properties.push((
+                "contract:address".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            ));
+            contract.properties.push((
+                "contract:country".to_string(),
+                dip721::GenericValue::TextContent("Italy".to_string()),
+            ));
+        });
+        assert!(ContractStorage::insert_contract(contract).is_ok());
+
+        assert!(ContractStorage::update_contract_property(
+            &1.into(),
+            "contract:address".to_string(),
+            dip721::GenericValue::TextContent("Milan".to_string())
+        )
+        .is_ok());
+        assert_eq!(
+            ContractStorage::get_contract(&1.into())
+                .unwrap()
+                .properties
+                .iter()
+                .find(|(k, _)| k == "contract:address")
+                .unwrap()
+                .1,
+            GenericValue::TextContent("Milan".to_string())
+        );
+
+        assert!(ContractStorage::update_contract_property(
+            &1.into(),
+            "contract:addressLong".to_string(),
+            dip721::GenericValue::TextContent("Trieste".to_string())
+        )
+        .is_ok());
+        assert_eq!(
+            ContractStorage::get_contract(&1.into())
+                .unwrap()
+                .properties
+                .iter()
+                .find(|(k, _)| k == "contract:addressLong")
+                .unwrap()
+                .1,
+            GenericValue::TextContent("Trieste".to_string())
+        );
     }
 }

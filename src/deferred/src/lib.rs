@@ -7,7 +7,7 @@
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{Contract, ContractRegistration, DeferredInitData, DeferredResult, Role};
 use did::ID;
-use dip721::Dip721 as _;
+use dip721::{Dip721 as _, GenericValue};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 
 mod app;
@@ -62,6 +62,16 @@ pub fn get_contract(id: ID) -> Option<Contract> {
 #[candid_method(query)]
 pub fn get_signed_contracts() -> Vec<ID> {
     Deferred::get_signed_contracts()
+}
+
+#[update]
+#[candid_method(update)]
+pub fn update_contract_property(
+    contract_id: ID,
+    key: String,
+    value: GenericValue,
+) -> DeferredResult<()> {
+    Deferred::update_contract_property(contract_id, key, value)
 }
 
 #[query]

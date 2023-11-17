@@ -27,8 +27,12 @@ fn inspect_message_impl() {
             Inspect::inspect_is_custodian(caller())
         }
         "seller_increment_contract_value" => {
-            let (id, _, __export_service) = api::call::arg_data::<(ID, u64, u64)>();
+            let (id, _, _) = api::call::arg_data::<(ID, u64, u64)>();
             Inspect::inspect_is_buyer(caller(), id).is_ok()
+        }
+        "update_contract_property" => {
+            let (id, key, _) = api::call::arg_data::<(ID, String, u64)>();
+            Inspect::inspect_update_contract_property(caller(), &id, &key).is_ok()
         }
         "register_contract" => {
             let data = api::call::arg_data::<(ContractRegistration,)>().0;

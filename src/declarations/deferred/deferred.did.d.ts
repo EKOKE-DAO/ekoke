@@ -222,4 +222,8 @@ export interface _SERVICE {
   'transfer' : ActorMethod<[Principal, bigint], Result_1>,
   'transfer_from' : ActorMethod<[Principal, Principal, bigint], Result_1>,
   'update_contract_buyers' : ActorMethod<[bigint, Array<Principal>], Result>,
+  'update_contract_property' : ActorMethod<
+    [bigint, string, GenericValue],
+    Result
+  >,
 }

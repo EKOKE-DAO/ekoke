@@ -32,7 +32,7 @@ use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
 
 #[derive(Default)]
-/// Sell contract canister API
+/// Deferred canister API
 pub struct Deferred;
 
 impl Deferred {
@@ -75,6 +75,16 @@ impl Deferred {
     pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> DeferredResult<()> {
         Inspect::inspect_is_buyer(caller(), contract_id.clone())?;
         ContractStorage::update_contract_buyers(&contract_id, buyers)
+    }
+
+    /// Update a contract property. Only the seller or an agent can call this function
+    pub fn update_contract_property(
+        contract_id: ID,
+        key: String,
+        value: GenericValue,
+    ) -> DeferredResult<()> {
+        Inspect::inspect_update_contract_property(caller(), &contract_id, &key)?;
+        ContractStorage::update_contract_property(&contract_id, key, value)
     }
 
     /// Increment contract value. Only the seller can call this method.

@@ -281,6 +281,11 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'update_contract_property' : IDL.Func(
+        [IDL.Nat, IDL.Text, GenericValue],
+        [Result],
+        [],
+      ),
   });
 };
 export const init = ({ IDL }) => {

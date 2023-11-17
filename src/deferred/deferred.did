@@ -208,4 +208,5 @@ service : (DeferredInitData) -> {
   transfer : (principal, nat) -> (Result_1);
   transfer_from : (principal, principal, nat) -> (Result_1);
   update_contract_buyers : (nat, vec principal) -> (Result);
+  update_contract_property : (nat, text, GenericValue) -> (Result);
 }

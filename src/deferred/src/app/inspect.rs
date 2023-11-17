@@ -79,6 +79,37 @@ impl Inspect {
         Ok(())
     }
 
+    /// Inspect update contract property:
+    ///
+    /// - caller must be one of custodian,seller,agent
+    /// - contract must exist
+    pub fn inspect_update_contract_property(
+        caller: Principal,
+        id: &ID,
+        key: &str,
+    ) -> DeferredResult<()> {
+        if !key.starts_with("contract:") {
+            return Err(DeferredError::Token(TokenError::BadContractProperty));
+        }
+        let contract = match ContractStorage::get_contract(id) {
+            Some(contract) => contract,
+            None => {
+                return Err(DeferredError::Token(TokenError::ContractNotFound(
+                    id.clone(),
+                )))
+            }
+        };
+
+        if !Self::inspect_is_custodian(caller)
+            && !Self::inspect_is_agent(caller)
+            && caller != contract.seller
+        {
+            Err(DeferredError::Unauthorized)
+        } else {
+            Ok(())
+        }
+    }
+
     /// Inspect register contract parameters:
     ///
     /// - caller must be custodian
@@ -413,5 +444,44 @@ mod test {
         assert!(Inspect::inspect_is_buyer(Principal::management_canister(), 1.into()).is_err());
         // unexisting contract
         assert!(Inspect::inspect_is_buyer(caller, 2.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_update_contract_property() {
+        let caller = crate::utils::caller();
+        test_utils::store_mock_contract_with(
+            &[6],
+            1,
+            |contract| {
+                contract.seller = caller;
+            },
+            |token| {
+                token.owner = Some(caller);
+            },
+        );
+        assert!(
+            Inspect::inspect_update_contract_property(caller, &1.into(), "contract:address")
+                .is_ok()
+        );
+        assert!(Inspect::inspect_update_contract_property(caller, &1.into(), "foobar").is_err());
+        assert!(Inspect::inspect_update_contract_property(
+            Principal::management_canister(),
+            &1.into(),
+            "contract:address"
+        )
+        .is_err());
+        // unexisting contract
+        assert!(
+            Inspect::inspect_update_contract_property(caller, &2.into(), "contract:address")
+                .is_err()
+        );
+        // admin
+        assert!(RolesManager::set_custodians(vec![Principal::management_canister()]).is_ok());
+        assert!(Inspect::inspect_update_contract_property(
+            Principal::management_canister(),
+            &1.into(),
+            "contract:address"
+        )
+        .is_ok());
     }
 }
