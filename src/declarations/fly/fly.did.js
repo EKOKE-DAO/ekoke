@@ -9,10 +9,6 @@ export const idlFactory = ({ IDL }) => {
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });
-  const Role = IDL.Variant({
-    'Admin' : IDL.Null,
-    'DilazionatoCanister' : IDL.Null,
-  });
   const ConfigurationError = IDL.Variant({
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
@@ -34,8 +30,14 @@ export const idlFactory = ({ IDL }) => {
     'Balance' : BalanceError,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
+  const Role = IDL.Variant({
+    'Admin' : IDL.Null,
+    'DilazionatoCanister' : IDL.Null,
+  });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : FlyError });
   return IDL.Service({
+    'admin_burn' : IDL.Func([IDL.Nat], [Result], []),
+    'admin_cycles' : IDL.Func([], [IDL.Nat], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
     'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat], [Result_1], []),

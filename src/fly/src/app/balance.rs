@@ -127,6 +127,15 @@ impl Balance {
         })
     }
 
+    /// Transfer amount from canister account to minting account, to cause burn
+    pub fn burn(amount: PicoFly) -> FlyResult<()> {
+        Self::transfer_wno_fees(
+            Self::canister_wallet_account(),
+            Configuration::get_minting_account(),
+            amount,
+        )
+    }
+
     fn with_balance<F, T>(account: Account, f: F) -> FlyResult<T>
     where
         F: FnOnce(&AccountBalance) -> T,
@@ -337,5 +346,20 @@ mod test {
         )
         .is_ok());
         assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888 - 100_000));
+    }
+
+    #[test]
+    fn test_should_burn() {
+        let total_supply = fly_to_picofly(8_888_888);
+        let initial_balances = vec![];
+        Balance::init_balances(total_supply, initial_balances);
+
+        // burn
+        assert!(Balance::burn(fly_to_picofly(100_000)).is_ok());
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888 - 100_000));
+        assert_eq!(
+            Balance::canister_balance(),
+            fly_to_picofly(8_888_888 - 100_000)
+        );
     }
 }

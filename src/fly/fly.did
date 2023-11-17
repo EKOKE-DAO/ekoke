@@ -20,6 +20,8 @@ type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat; Err : FlyError };
 type Role = variant { Admin; DilazionatoCanister };
 service : (FlyInitData) -> {
+  admin_burn : (nat) -> (Result);
+  admin_cycles : () -> (nat);
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
   get_contract_reward : (nat, nat) -> (Result_1);

@@ -9,7 +9,7 @@ mod inspect;
 mod utils;
 
 use app::FlyCanister;
-use candid::{candid_method, Principal};
+use candid::{candid_method, Nat, Principal};
 use did::fly::{FlyInitData, FlyResult, PicoFly, Role};
 use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
@@ -47,6 +47,18 @@ pub fn admin_set_role(principal: Principal, role: Role) {
 #[candid_method(update)]
 pub fn admin_remove_role(principal: Principal, role: Role) -> FlyResult<()> {
     FlyCanister::admin_remove_role(principal, role)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_cycles() -> Nat {
+    FlyCanister::admin_cycles()
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_burn(amount: PicoFly) -> FlyResult<()> {
+    FlyCanister::admin_burn(amount)
 }
 
 #[allow(dead_code)]

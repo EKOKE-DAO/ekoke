@@ -106,6 +106,23 @@ impl FlyCanister {
         }
         RolesManager::remove_role(principal, role)
     }
+
+    /// Returns cycles
+    pub fn admin_cycles() -> Nat {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        utils::cycles()
+    }
+
+    /// Burn an arbitrary amount of tokens.
+    /// This method transfers `amount` tokens from the canister account to the minting account.
+    pub fn admin_burn(amount: PicoFly) -> FlyResult<()> {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Balance::burn(amount)
+    }
 }
 
 impl Icrc1 for FlyCanister {
@@ -328,6 +345,22 @@ mod test {
         assert!(RolesManager::is_admin(principal));
         FlyCanister::admin_remove_role(principal, role).unwrap();
         assert!(!RolesManager::is_admin(principal));
+    }
+
+    #[test]
+    fn test_should_get_cycles() {
+        init_canister();
+        assert_eq!(FlyCanister::admin_cycles(), utils::cycles());
+    }
+
+    #[test]
+    fn test_should_burn() {
+        init_canister();
+        let canister_balance = Balance::canister_balance();
+        let amount = fly_to_picofly(1000);
+        assert!(FlyCanister::admin_burn(amount.clone()).is_ok());
+        assert_eq!(Balance::canister_balance(), canister_balance - amount);
+        assert_eq!(Balance::total_supply(), fly_to_picofly(8_888_888 - 1000));
     }
 
     #[test]
@@ -620,7 +653,7 @@ mod test {
     }
 
     #[test]
-    fn test_should_burn() {
+    fn test_should_burn_from_transfer() {
         init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,

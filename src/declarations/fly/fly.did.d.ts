@@ -30,6 +30,8 @@ export type Result_1 = { 'Ok' : bigint } |
 export type Role = { 'Admin' : null } |
   { 'DilazionatoCanister' : null };
 export interface _SERVICE {
+  'admin_burn' : ActorMethod<[bigint], Result>,
+  'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
