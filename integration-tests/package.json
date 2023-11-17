@@ -1,7 +1,7 @@
 {
   "name": "integration-tests",
   "version": "0.1.0",
-  "description": "integration tests for dilazionato",
+  "description": "integration tests for deferred",
   "main": "index.js",
   "author": "christian visintin <christian.visintin@veeso.dev>",
   "license": "MIT",

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { Principal } from "@dfinity/principal";
 
-import { dilazionato } from "./actor";
+import { deferred } from "./actor";
 
 /*
 test("should be able to update fly canister principal", async () => {
@@ -16,6 +16,6 @@ test("should be able to update marketplace canister principal", async () => {
 */
 
 test("should be able to get the total amount of nfts", async () => {
-  const totalSupply = await dilazionato.total_supply();
+  const totalSupply = await deferred.total_supply();
   expect(totalSupply).toBeGreaterThanOrEqual(0);
 });

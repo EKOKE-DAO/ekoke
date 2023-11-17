@@ -3,7 +3,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::dilazionato::{ConfigurationError, DilazionatoError, DilazionatoResult, Role, Roles};
+use did::deferred::{ConfigurationError, DeferredError, DeferredResult, Role, Roles};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
@@ -43,10 +43,10 @@ impl RolesManager {
     /// Set canister custodians.
     ///
     /// WARNING: previous custodians will be overwritten
-    pub fn set_custodians(custodians: Vec<Principal>) -> DilazionatoResult<()> {
+    pub fn set_custodians(custodians: Vec<Principal>) -> DeferredResult<()> {
         // check if custodians is empty
         if custodians.is_empty() {
-            return Err(DilazionatoError::Configuration(
+            return Err(DeferredError::Configuration(
                 ConfigurationError::CustodialsCantBeEmpty,
             ));
         }
@@ -56,7 +56,7 @@ impl RolesManager {
             .iter()
             .any(|principal| principal == &Principal::anonymous())
         {
-            return Err(DilazionatoError::Configuration(
+            return Err(DeferredError::Configuration(
                 ConfigurationError::AnonymousCustodial,
             ));
         }
@@ -91,10 +91,10 @@ impl RolesManager {
 
     /// Remove a role from the provided role.
     /// Fails if trying to remove the only custodian of the canister
-    pub fn remove_role(principal: Principal, role: Role) -> DilazionatoResult<()> {
+    pub fn remove_role(principal: Principal, role: Role) -> DeferredResult<()> {
         let custodians = Self::get_custodians();
         if custodians.len() == 1 && custodians.contains(&principal) && role == Role::Custodian {
-            return Err(DilazionatoError::Configuration(
+            return Err(DeferredError::Configuration(
                 ConfigurationError::CustodialsCantBeEmpty,
             ));
         }

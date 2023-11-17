@@ -1,8 +1,6 @@
 use std::cell::RefCell;
 
-use did::dilazionato::{
-    Contract, DilazionatoError, DilazionatoResult, StorableTxEvent, Token, TokenError,
-};
+use did::deferred::{Contract, DeferredError, DeferredResult, StorableTxEvent, Token, TokenError};
 use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
@@ -32,24 +30,24 @@ thread_local! {
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(TRANSACTIONS_MEMORY_ID))));
 }
 
-fn with_contract<T, F>(id: &ID, f: F) -> DilazionatoResult<T>
+fn with_contract<T, F>(id: &ID, f: F) -> DeferredResult<T>
 where
-    F: FnOnce(&Contract) -> DilazionatoResult<T>,
+    F: FnOnce(&Contract) -> DeferredResult<T>,
 {
     CONTRACTS.with_borrow(|contracts| {
         if let Some(contract) = contracts.get(&StorableNat::from(id.clone())) {
             f(&contract)
         } else {
-            Err(DilazionatoError::Token(TokenError::ContractNotFound(
+            Err(DeferredError::Token(TokenError::ContractNotFound(
                 id.clone(),
             )))
         }
     })
 }
 
-fn with_contract_mut<T, F>(id: &ID, f: F) -> DilazionatoResult<T>
+fn with_contract_mut<T, F>(id: &ID, f: F) -> DeferredResult<T>
 where
-    F: FnOnce(&mut Contract) -> DilazionatoResult<T>,
+    F: FnOnce(&mut Contract) -> DeferredResult<T>,
 {
     CONTRACTS.with_borrow_mut(|contracts| {
         if let Some(mut contract) = contracts.get(&StorableNat::from(id.clone())) {
@@ -59,7 +57,7 @@ where
 
             Ok(res)
         } else {
-            Err(DilazionatoError::Token(TokenError::ContractNotFound(
+            Err(DeferredError::Token(TokenError::ContractNotFound(
                 id.clone(),
             )))
         }
@@ -87,24 +85,24 @@ where
     TOKENS.with_borrow(|tokens| f(tokens))
 }
 
-fn with_token<T, F>(id: &TokenIdentifier, f: F) -> DilazionatoResult<T>
+fn with_token<T, F>(id: &TokenIdentifier, f: F) -> DeferredResult<T>
 where
-    F: FnOnce(&Token) -> DilazionatoResult<T>,
+    F: FnOnce(&Token) -> DeferredResult<T>,
 {
     TOKENS.with_borrow(|tokens| {
         if let Some(token) = tokens.get(&StorableNat::from(id.clone())) {
             f(&token)
         } else {
-            Err(DilazionatoError::Token(TokenError::ContractNotFound(
+            Err(DeferredError::Token(TokenError::ContractNotFound(
                 id.clone(),
             )))
         }
     })
 }
 
-fn with_token_mut<T, F>(id: &TokenIdentifier, f: F) -> DilazionatoResult<T>
+fn with_token_mut<T, F>(id: &TokenIdentifier, f: F) -> DeferredResult<T>
 where
-    F: FnOnce(&mut Token) -> DilazionatoResult<T>,
+    F: FnOnce(&mut Token) -> DeferredResult<T>,
 {
     TOKENS.with_borrow_mut(|tokens| {
         if let Some(mut token) = tokens.get(&StorableNat::from(id.clone())) {
@@ -114,7 +112,7 @@ where
 
             Ok(res)
         } else {
-            Err(DilazionatoError::Token(TokenError::ContractNotFound(
+            Err(DeferredError::Token(TokenError::ContractNotFound(
                 id.clone(),
             )))
         }

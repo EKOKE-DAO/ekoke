@@ -1,6 +1,6 @@
 //! # Pool
 //!
-//! A pool that holds all of the tokens for the dilazionato contracts
+//! A pool that holds all of the tokens for the deferred contracts
 
 use std::cell::RefCell;
 
@@ -22,7 +22,7 @@ thread_local! {
         = RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(POOL_MEMORY_ID))));
 }
 
-/// Pool is a thread-local BTreeMap that holds all of the tokens reserved for reward for the dilazionato contracts
+/// Pool is a thread-local BTreeMap that holds all of the tokens reserved for reward for the deferred contracts
 pub struct Pool;
 
 impl Pool {

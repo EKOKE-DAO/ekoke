@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "dilazionato": {
-      "candid": "src/dilazionato/dilazionato.did",
-      "package": "dilazionato",
+    "deferred": {
+      "candid": "src/deferred/deferred.did",
+      "package": "deferred",
       "type": "rust"
     },
     "fly": {

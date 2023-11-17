@@ -9,18 +9,18 @@ use thiserror::Error;
 use crate::fly::{FlyError, PicoFly};
 use crate::ID;
 
-pub type DilazionatoResult<T> = Result<T, DilazionatoError>;
+pub type DeferredResult<T> = Result<T, DeferredError>;
 
 /// These are the arguments which are taken by the sell contract canister on init
 #[derive(Debug, Clone, CandidType, Deserialize)]
-pub struct DilazionatoInitData {
+pub struct DeferredInitData {
     pub custodians: Vec<Principal>,
     pub fly_canister: Principal,
     pub marketplace_canister: Principal,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
-pub enum DilazionatoError {
+pub enum DeferredError {
     #[error("unauthorized caller")]
     Unauthorized,
     #[error("fly error: {0}")]
@@ -244,7 +244,7 @@ pub struct ContractRegistration {
     pub properties: ContractProperties,
 }
 
-/// Dilazionato user roles. Defines permissions
+/// Deferred user roles. Defines permissions
 #[derive(Clone, Copy, Debug, PartialEq, Eq, CandidType, Deserialize)]
 pub enum Role {
     /// Administrator, follows DIP721 standard

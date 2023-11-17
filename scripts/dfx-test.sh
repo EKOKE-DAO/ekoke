@@ -3,9 +3,9 @@
 cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
-DILAZIONATO_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.dilazionato.local')"
+DILAZIONATO_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
 FLY_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.fly.local')"
-MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.dilazionato.local')" # TODO: fix
+MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')" # TODO: fix
 
 ADMIN_PRINCIPAL="$(dfx identity get-principal)"
 
@@ -16,7 +16,7 @@ dfx start --background
 
 cd ../
 
-deploy_dilazionato "reinstall" "local" "$DILAZIONATO_PRINCIPAL" "$FLY_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
+deploy_deferred "reinstall" "local" "$DILAZIONATO_PRINCIPAL" "$FLY_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
 
 cd ./integration-tests/
 

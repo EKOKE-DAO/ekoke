@@ -30,14 +30,14 @@ type ContractRegistration = record {
   buyers : vec principal;
 };
 type ContractType = variant { Sell; Financing };
-type DilazionatoError = variant {
+type DeferredError = variant {
   Fly : FlyError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
   StorageError;
 };
-type DilazionatoInitData = record {
+type DeferredInitData = record {
   fly_canister : principal;
   custodians : vec principal;
   marketplace_canister : principal;
@@ -89,13 +89,13 @@ type NftError = variant {
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
-type Result = variant { Ok; Err : DilazionatoError };
+type Result = variant { Ok; Err : DeferredError };
 type Result_1 = variant { Ok : nat; Err : NftError };
 type Result_2 = variant { Ok : bool; Err : NftError };
 type Result_3 = variant { Ok : opt principal; Err : NftError };
 type Result_4 = variant { Ok : vec nat; Err : NftError };
 type Result_5 = variant { Ok : vec TokenMetadata; Err : NftError };
-type Result_6 = variant { Ok : nat; Err : DilazionatoError };
+type Result_6 = variant { Ok : nat; Err : DeferredError };
 type Result_7 = variant { Ok : TokenMetadata; Err : NftError };
 type Result_8 = variant { Ok : TxEvent; Err : NftError };
 type Role = variant { Custodian; Agent };
@@ -164,7 +164,7 @@ type Vec = vec record {
     TextContent : text;
   };
 };
-service : (DilazionatoInitData) -> {
+service : (DeferredInitData) -> {
   admin_get_unsigned_contracts : () -> (vec nat) query;
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_fly_canister : (principal) -> ();

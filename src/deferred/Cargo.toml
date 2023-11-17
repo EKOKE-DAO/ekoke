@@ -1,5 +1,5 @@
 [package]
-name = "dilazionato"
+name = "deferred"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -7,7 +7,7 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [[bin]]
-name = "dilazionato-did"
+name = "deferred-did"
 path = "src/lib.rs"
 
 [lib]

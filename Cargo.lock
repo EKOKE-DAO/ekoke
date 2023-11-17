@@ -286,6 +286,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 
 [[package]]
+name = "deferred"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "candid",
+ "did",
+ "dip721",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-stable-structures",
+ "itertools 0.12.0",
+ "pretty_assertions",
+ "thiserror",
+ "time",
+ "tokio",
+]
+
+[[package]]
 name = "did"
 version = "0.1.0"
 dependencies = [
@@ -313,24 +331,6 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
-]
-
-[[package]]
-name = "dilazionato"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "candid",
- "did",
- "dip721",
- "ic-cdk",
- "ic-cdk-macros",
- "ic-stable-structures",
- "itertools 0.12.0",
- "pretty_assertions",
- "thiserror",
- "time",
- "tokio",
 ]
 
 [[package]]

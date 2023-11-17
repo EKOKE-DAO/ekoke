@@ -1,6 +1,6 @@
 //! # Reward
 //!
-//! This module defines functions to calculate Dilazionato contracts rewards.
+//! This module defines functions to calculate Deferred contracts rewards.
 
 use did::fly::{FlyResult, PicoFly};
 use did::ID;

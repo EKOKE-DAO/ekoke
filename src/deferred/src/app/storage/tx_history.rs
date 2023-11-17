@@ -1,5 +1,5 @@
 use candid::Nat;
-use did::dilazionato::Token;
+use did::deferred::Token;
 use dip721::{GenericValue, TxEvent};
 
 use super::{with_tx_history, with_tx_history_mut};

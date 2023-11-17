@@ -1,6 +1,6 @@
-//! # Dilazionato
+//! # Deferred
 //!
-//! API for Dilazionato
+//! API for Deferred
 
 mod configuration;
 mod inspect;
@@ -14,8 +14,8 @@ mod test_utils;
 use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
-use did::dilazionato::{
-    Contract, ContractRegistration, DilazionatoError, DilazionatoInitData, DilazionatoResult, Role,
+use did::deferred::{
+    Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult, Role,
     TokenError,
 };
 use did::ID;
@@ -33,11 +33,11 @@ use crate::utils::caller;
 
 #[derive(Default)]
 /// Sell contract canister API
-pub struct Dilazionato;
+pub struct Deferred;
 
-impl Dilazionato {
+impl Deferred {
     /// On init set custodians and canisters ids
-    pub fn init(init_data: DilazionatoInitData) {
+    pub fn init(init_data: DeferredInitData) {
         RolesManager::set_custodians(init_data.custodians).expect("storage error");
         Configuration::set_fly_canister(init_data.fly_canister).expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
@@ -72,10 +72,7 @@ impl Dilazionato {
     }
 
     /// Update contract buyers. Only the buyer can call this method.
-    pub fn update_contract_buyers(
-        contract_id: ID,
-        buyers: Vec<Principal>,
-    ) -> DilazionatoResult<()> {
+    pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> DeferredResult<()> {
         Inspect::inspect_is_buyer(caller(), contract_id.clone())?;
         ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
@@ -85,7 +82,7 @@ impl Dilazionato {
         contract_id: ID,
         incr_by: u64,
         installments: u64,
-    ) -> DilazionatoResult<()> {
+    ) -> DeferredResult<()> {
         Inspect::inspect_is_seller(caller(), contract_id.clone())?;
 
         // mint new tokens
@@ -99,7 +96,7 @@ impl Dilazionato {
     /// Only a custodian can call this method.
     ///
     /// Returns the contract id
-    pub fn register_contract(data: ContractRegistration) -> DilazionatoResult<Nat> {
+    pub fn register_contract(data: ContractRegistration) -> DeferredResult<Nat> {
         Inspect::inspect_register_contract(
             caller(),
             &data.id,
@@ -131,7 +128,7 @@ impl Dilazionato {
     }
 
     /// Sign contract and mint tokens
-    pub async fn admin_sign_contract(contract_id: ID) -> DilazionatoResult<()> {
+    pub async fn admin_sign_contract(contract_id: ID) -> DeferredResult<()> {
         if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
@@ -139,7 +136,7 @@ impl Dilazionato {
         let contract = match ContractStorage::get_contract(&contract_id) {
             Some(contract) => contract,
             None => {
-                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
+                return Err(DeferredError::Token(TokenError::ContractNotFound(
                     contract_id,
                 )))
             }
@@ -196,7 +193,7 @@ impl Dilazionato {
     /// Remove role from principal.
     ///
     /// Fails if trying to remove the only custodian of the canister
-    pub fn admin_remove_role(principal: Principal, role: Role) -> DilazionatoResult<()> {
+    pub fn admin_remove_role(principal: Principal, role: Role) -> DeferredResult<()> {
         if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }
@@ -206,7 +203,7 @@ impl Dilazionato {
 }
 
 #[async_trait]
-impl Dip721 for Dilazionato {
+impl Dip721 for Deferred {
     /// Returns the Metadata of the NFT canister which includes custodians, logo, name, symbol.
     fn metadata() -> Metadata {
         Metadata {
@@ -458,7 +455,7 @@ impl Dip721 for Dilazionato {
         // transfer token to the new owner
         let tx_id = match ContractStorage::transfer(&token_identifier, to) {
             Ok(tx_id) => tx_id,
-            Err(DilazionatoError::Token(TokenError::TokenNotFound(_))) => {
+            Err(DeferredError::Token(TokenError::TokenNotFound(_))) => {
                 return Err(NftError::TokenNotFound)
             }
             Err(_) => return Err(NftError::UnauthorizedOperator),
@@ -494,9 +491,7 @@ impl Dip721 for Dilazionato {
 
         match ContractStorage::burn_token(&token_identifier) {
             Ok(tx_id) => Ok(tx_id),
-            Err(DilazionatoError::Token(TokenError::TokenNotFound(_))) => {
-                Err(NftError::TokenNotFound)
-            }
+            Err(DeferredError::Token(TokenError::TokenNotFound(_))) => Err(NftError::TokenNotFound),
             Err(_) => Err(NftError::UnauthorizedOperator),
         }
     }
@@ -530,13 +525,13 @@ mod test {
 
     #[test]
     fn test_should_init_canister() {
-        Dilazionato::init(DilazionatoInitData {
+        Deferred::init(DeferredInitData {
             custodians: vec![caller()],
             fly_canister: caller(),
             marketplace_canister: caller(),
         });
 
-        assert_eq!(Dilazionato::custodians(), vec![caller()]);
+        assert_eq!(Deferred::custodians(), vec![caller()]);
         assert_eq!(Configuration::get_fly_canister(), caller());
         assert_eq!(Configuration::get_marketplace_canister(), caller());
     }
@@ -544,11 +539,11 @@ mod test {
     #[test]
     fn test_should_set_upgrade_time_on_post_upgrade() {
         init_canister();
-        let metadata = Dilazionato::metadata();
+        let metadata = Deferred::metadata();
         assert!(metadata.upgraded_at == metadata.created_at);
         std::thread::sleep(Duration::from_millis(100));
-        Dilazionato::post_upgrade();
-        let metadata = Dilazionato::metadata();
+        Deferred::post_upgrade();
+        let metadata = Deferred::metadata();
         assert!(metadata.upgraded_at > metadata.created_at);
     }
 
@@ -556,10 +551,7 @@ mod test {
     fn test_should_get_contract() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(
-            Dilazionato::get_contract(&1.into()).unwrap().id,
-            Nat::from(1)
-        );
+        assert_eq!(Deferred::get_contract(&1.into()).unwrap().id, Nat::from(1));
     }
 
     #[test]
@@ -568,7 +560,7 @@ mod test {
         store_mock_contract(&[1, 2], 1);
         store_mock_contract(&[3, 4], 2);
         assert_eq!(
-            Dilazionato::get_signed_contracts(),
+            Deferred::get_signed_contracts(),
             vec![Nat::from(1), Nat::from(2)]
         );
     }
@@ -583,20 +575,17 @@ mod test {
             id: 1.into(),
             installments: 10,
             properties: vec![],
-            r#type: did::dilazionato::ContractType::Financing,
+            r#type: did::deferred::ContractType::Financing,
             seller: caller(),
             value: 100,
         };
 
-        assert!(Dilazionato::register_contract(contract).is_ok());
-        assert_eq!(Dilazionato::total_supply(), Nat::from(0));
-        assert_eq!(
-            Dilazionato::admin_get_unsigned_contracts(),
-            vec![Nat::from(1)]
-        );
-        assert!(Dilazionato::admin_sign_contract(1.into()).await.is_ok());
-        assert_eq!(Dilazionato::get_signed_contracts(), vec![Nat::from(1)]);
-        assert_eq!(Dilazionato::total_supply(), Nat::from(10));
+        assert!(Deferred::register_contract(contract).is_ok());
+        assert_eq!(Deferred::total_supply(), Nat::from(0));
+        assert_eq!(Deferred::admin_get_unsigned_contracts(), vec![Nat::from(1)]);
+        assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
+        assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(1)]);
+        assert_eq!(Deferred::total_supply(), Nat::from(10));
     }
 
     #[tokio::test]
@@ -609,20 +598,18 @@ mod test {
             id: 1.into(),
             installments: 10,
             properties: vec![],
-            r#type: did::dilazionato::ContractType::Financing,
+            r#type: did::deferred::ContractType::Financing,
             seller: caller(),
             value: 100,
         };
-        assert!(Dilazionato::register_contract(contract).is_ok());
-        assert!(Dilazionato::admin_sign_contract(1.into()).await.is_ok());
+        assert!(Deferred::register_contract(contract).is_ok());
+        assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
 
         // increment value
-        assert!(
-            Dilazionato::seller_increment_contract_value(1.into(), 50, 10)
-                .await
-                .is_ok()
-        );
-        assert_eq!(Dilazionato::total_supply(), Nat::from(20));
+        assert!(Deferred::seller_increment_contract_value(1.into(), 50, 10)
+            .await
+            .is_ok());
+        assert_eq!(Deferred::total_supply(), Nat::from(20));
     }
 
     #[test]
@@ -636,13 +623,13 @@ mod test {
             },
             |_| {},
         );
-        assert!(Dilazionato::update_contract_buyers(
+        assert!(Deferred::update_contract_buyers(
             1.into(),
             vec![Principal::management_canister(), caller()]
         )
         .is_ok());
         assert_eq!(
-            Dilazionato::get_contract(&1.into()).unwrap().buyers,
+            Deferred::get_contract(&1.into()).unwrap().buyers,
             vec![Principal::management_canister(), caller()]
         );
     }
@@ -652,7 +639,7 @@ mod test {
         init_canister();
         let principal = Principal::management_canister();
         let role = Role::Custodian;
-        Dilazionato::admin_set_role(principal, role);
+        Deferred::admin_set_role(principal, role);
         assert!(RolesManager::is_custodian(principal));
     }
 
@@ -661,16 +648,16 @@ mod test {
         init_canister();
         let principal = Principal::management_canister();
         let role = Role::Custodian;
-        Dilazionato::admin_set_role(principal, role);
+        Deferred::admin_set_role(principal, role);
         assert!(RolesManager::is_custodian(principal));
-        Dilazionato::admin_remove_role(principal, role).unwrap();
+        Deferred::admin_remove_role(principal, role).unwrap();
         assert!(!RolesManager::is_custodian(principal));
     }
 
     #[test]
     fn test_should_get_metadata() {
         init_canister();
-        let metadata = Dilazionato::metadata();
+        let metadata = Deferred::metadata();
         assert_eq!(metadata.custodians, vec![caller()]);
         assert_eq!(metadata.logo.as_deref(), Some(DEFAULT_LOGO));
         assert_eq!(metadata.name.as_deref(), Some(DEFAULT_NAME));
@@ -680,7 +667,7 @@ mod test {
     #[test]
     fn test_should_get_stats() {
         init_canister();
-        let stats = Dilazionato::stats();
+        let stats = Deferred::stats();
         assert_eq!(stats.cycles, crate::utils::cycles());
         assert_eq!(stats.total_supply, 0);
         assert_eq!(stats.total_transactions, 0);
@@ -691,73 +678,73 @@ mod test {
     fn test_should_set_logo() {
         init_canister();
         let logo = "logo";
-        Dilazionato::set_logo(logo.to_string());
-        assert_eq!(Dilazionato::logo().as_deref(), Some(logo));
+        Deferred::set_logo(logo.to_string());
+        assert_eq!(Deferred::logo().as_deref(), Some(logo));
     }
 
     #[test]
     fn test_should_set_name() {
         init_canister();
         let name = "name";
-        Dilazionato::set_name(name.to_string());
-        assert_eq!(Dilazionato::name().as_deref(), Some(name));
+        Deferred::set_name(name.to_string());
+        assert_eq!(Deferred::name().as_deref(), Some(name));
     }
 
     #[test]
     fn test_should_set_symbol() {
         init_canister();
         let symbol = "symbol";
-        Dilazionato::set_symbol(symbol.to_string());
-        assert_eq!(Dilazionato::symbol().as_deref(), Some(symbol));
+        Deferred::set_symbol(symbol.to_string());
+        assert_eq!(Deferred::symbol().as_deref(), Some(symbol));
     }
 
     #[test]
     fn test_should_set_custodians() {
         init_canister();
         let custodians = vec![caller(), Principal::management_canister()];
-        Dilazionato::set_custodians(custodians.clone());
-        assert_eq!(Dilazionato::custodians().len(), custodians.len());
+        Deferred::set_custodians(custodians.clone());
+        assert_eq!(Deferred::custodians().len(), custodians.len());
     }
 
     #[test]
     fn test_should_get_cycles() {
         init_canister();
-        assert_eq!(Dilazionato::cycles(), crate::utils::cycles());
+        assert_eq!(Deferred::cycles(), crate::utils::cycles());
     }
 
     #[test]
     fn test_should_get_unique_holders() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Dilazionato::total_unique_holders(), Nat::from(1));
+        assert_eq!(Deferred::total_unique_holders(), Nat::from(1));
     }
 
     #[test]
     fn test_should_get_token_metadata() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        let metadata = Dilazionato::token_metadata(1.into()).unwrap();
+        let metadata = Deferred::token_metadata(1.into()).unwrap();
         assert_eq!(metadata.owner, Some(caller()));
         assert_eq!(metadata.token_identifier, Nat::from(1));
 
         // unexisting token
-        assert!(Dilazionato::token_metadata(5.into()).is_err());
+        assert!(Deferred::token_metadata(5.into()).is_err());
     }
 
     #[test]
     fn test_should_get_balance_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(2));
-        assert!(Dilazionato::balance_of(Principal::management_canister()).is_err());
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(2));
+        assert!(Deferred::balance_of(Principal::management_canister()).is_err());
     }
 
     #[test]
     fn test_should_get_owner_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Dilazionato::owner_of(1.into()).unwrap(), Some(caller()));
-        assert!(Dilazionato::owner_of(5.into()).is_err());
+        assert_eq!(Deferred::owner_of(1.into()).unwrap(), Some(caller()));
+        assert!(Deferred::owner_of(5.into()).is_err());
     }
 
     #[test]
@@ -765,17 +752,17 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         assert_eq!(
-            Dilazionato::owner_token_identifiers(caller()).unwrap(),
+            Deferred::owner_token_identifiers(caller()).unwrap(),
             vec![Nat::from(1), Nat::from(2)]
         );
-        assert!(Dilazionato::owner_token_identifiers(Principal::management_canister()).is_err());
+        assert!(Deferred::owner_token_identifiers(Principal::management_canister()).is_err());
     }
 
     #[test]
     fn test_should_get_owner_token_metadata() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        let metadata = Dilazionato::owner_token_metadata(caller()).unwrap();
+        let metadata = Deferred::owner_token_metadata(caller()).unwrap();
         assert_eq!(metadata.len(), 2);
         assert_eq!(metadata[0].owner, Some(caller()));
         assert_eq!(metadata[0].token_identifier, Nat::from(1));
@@ -783,14 +770,14 @@ mod test {
         assert_eq!(metadata[1].token_identifier, Nat::from(2));
 
         // unexisting owner
-        assert!(Dilazionato::owner_token_metadata(Principal::management_canister()).is_err());
+        assert!(Deferred::owner_token_metadata(Principal::management_canister()).is_err());
     }
 
     #[test]
     fn test_should_get_operator_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Dilazionato::operator_of(1.into()).unwrap(), None);
+        assert_eq!(Deferred::operator_of(1.into()).unwrap(), None);
         store_mock_contract_with(
             &[3],
             2,
@@ -799,11 +786,11 @@ mod test {
         );
 
         assert_eq!(
-            Dilazionato::operator_of(3.into()).unwrap(),
+            Deferred::operator_of(3.into()).unwrap(),
             Some(Principal::management_canister())
         );
 
-        assert!(Dilazionato::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5.into()).is_err());
     }
 
     #[test]
@@ -818,7 +805,7 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(Dilazionato::operator_token_identifiers(caller()).is_err());
+        assert!(Deferred::operator_token_identifiers(caller()).is_err());
 
         // with operator
         store_mock_contract_with(
@@ -828,10 +815,10 @@ mod test {
             |token| token.operator = Some(Principal::management_canister()),
         );
         assert_eq!(
-            Dilazionato::operator_token_identifiers(Principal::management_canister()).unwrap(),
+            Deferred::operator_token_identifiers(Principal::management_canister()).unwrap(),
             vec![Nat::from(3), Nat::from(4)]
         );
-        assert!(Dilazionato::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5.into()).is_err());
     }
 
     #[test]
@@ -846,7 +833,7 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(Dilazionato::operator_token_metadata(caller()).is_err());
+        assert!(Deferred::operator_token_metadata(caller()).is_err());
 
         // with operator
         store_mock_contract_with(
@@ -855,22 +842,21 @@ mod test {
             |_| {},
             |token| token.operator = Some(Principal::management_canister()),
         );
-        let metadata =
-            Dilazionato::operator_token_metadata(Principal::management_canister()).unwrap();
+        let metadata = Deferred::operator_token_metadata(Principal::management_canister()).unwrap();
         assert_eq!(metadata.len(), 2);
         assert_eq!(metadata[0].owner, Some(caller()));
         assert_eq!(metadata[0].token_identifier, Nat::from(3));
         assert_eq!(metadata[1].owner, Some(caller()));
         assert_eq!(metadata[1].token_identifier, Nat::from(4));
 
-        assert!(Dilazionato::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5.into()).is_err());
     }
 
     #[test]
     fn test_should_get_supported_interfaces() {
         init_canister();
         assert_eq!(
-            Dilazionato::supported_interfaces(),
+            Deferred::supported_interfaces(),
             vec![
                 SupportedInterface::Burn,
                 SupportedInterface::TransactionHistory
@@ -883,7 +869,7 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         store_mock_contract(&[3, 4], 2);
-        assert_eq!(Dilazionato::total_supply(), Nat::from(4));
+        assert_eq!(Deferred::total_supply(), Nat::from(4));
     }
 
     #[tokio::test]
@@ -891,22 +877,22 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         // self transfer
-        assert!(Dilazionato::transfer(caller(), 1.into()).await.is_err());
+        assert!(Deferred::transfer(caller(), 1.into()).await.is_err());
 
         // transfer
         assert!(
-            Dilazionato::transfer(Principal::management_canister(), 1.into())
+            Deferred::transfer(Principal::management_canister(), 1.into())
                 .await
                 .is_ok()
         );
-        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(1));
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1));
         assert_eq!(
-            Dilazionato::balance_of(Principal::management_canister()).unwrap(),
+            Deferred::balance_of(Principal::management_canister()).unwrap(),
             Nat::from(1)
         );
         // transfer unexisting
         assert!(
-            Dilazionato::transfer(Principal::management_canister(), 5.into())
+            Deferred::transfer(Principal::management_canister(), 5.into())
                 .await
                 .is_err()
         );
@@ -916,28 +902,28 @@ mod test {
     fn test_should_burn() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert!(Dilazionato::burn(1.into()).is_ok());
-        assert_eq!(Dilazionato::balance_of(caller()).unwrap(), Nat::from(1));
+        assert!(Deferred::burn(1.into()).is_ok());
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1));
 
-        assert!(Dilazionato::burn(5.into()).is_err());
+        assert!(Deferred::burn(5.into()).is_err());
     }
 
     #[test]
     fn test_should_get_tx() {
-        assert!(Dilazionato::transaction(Nat::from(1)).is_err());
+        assert!(Deferred::transaction(Nat::from(1)).is_err());
         let id = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert!(Dilazionato::transaction(id).is_ok());
+        assert!(Deferred::transaction(id).is_ok());
     }
 
     #[test]
     fn test_should_get_total_transactions() {
-        assert_eq!(Dilazionato::total_transactions(), Nat::from(0));
+        assert_eq!(Deferred::total_transactions(), Nat::from(0));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert_eq!(Dilazionato::total_transactions(), Nat::from(1));
+        assert_eq!(Deferred::total_transactions(), Nat::from(1));
     }
 
     fn init_canister() {
-        Dilazionato::init(DilazionatoInitData {
+        Deferred::init(DeferredInitData {
             custodians: vec![caller()],
             fly_canister: caller(),
             marketplace_canister: caller(),

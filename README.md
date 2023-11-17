@@ -1,6 +1,6 @@
-# Dilazionato
+# Deferred
 
-![CI state](https://github.com/veeso-dev/dilazionato/workflows/build-test/badge.svg)
+![CI state](https://github.com/veeso-dev/deferred/workflows/build-test/badge.svg)
 
 Powered by **Internet Computer**
 
@@ -8,7 +8,7 @@ Powered by **Internet Computer**
 
 ---
 
-- [Dilazionato](#dilazionato)
+- [Deferred](#deferred)
   - [Introduction](#introduction)
     - [Project Purpose](#project-purpose)
     - [Project components](#project-components)
@@ -26,11 +26,11 @@ The project aims to facilitate the sale of a property between two or more partie
 
 ### Project components
 
-Dilazionato consists of three main canisters:
+Deferred consists of three main canisters:
 
-- **Dilazionato**: This NFT canister is used to define the sell of a real estate between two parts (the buyer and the seller).
-- **FLY Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Dilazionato method".
-- **Marketplace**: A D-APP which permits to trade Dilazionato NFTs.
+- **Deferred**: This NFT canister is used to define the sell of a real estate between two parts (the buyer and the seller).
+- **FLY Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Deferred method".
+- **Marketplace**: A D-APP which permits to trade Deferred NFTs.
 
 ### Sell flow
 
@@ -49,7 +49,7 @@ The sales process consists of the following steps:
 
 The project is composed by the following components:
 
-- **dilazionato**: A DIP721 ICP canister which represents the MHSC.
+- **deferred**: A DIP721 ICP canister which represents the MHSC.
 - **Fly**: A ICRC-2 token ICP canister which represents the fungible token $FLY.
 - **Marketplace**: A canister which manages the MHSCs sell.
 - **RegisterUI**: A website for the real estate agency to register sell-contracts.

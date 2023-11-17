@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::dilazionato::{DilazionatoError, DilazionatoResult};
+use did::deferred::{DeferredError, DeferredResult};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
@@ -57,9 +57,9 @@ impl Configuration {
         LOGO.with_borrow(|logo| logo.get().clone())
     }
 
-    pub fn set_logo(logo: String) -> DilazionatoResult<()> {
+    pub fn set_logo(logo: String) -> DeferredResult<()> {
         LOGO.with_borrow_mut(|cell| cell.set(Some(logo)))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }
@@ -68,9 +68,9 @@ impl Configuration {
         NAME.with_borrow(|name| name.get().clone())
     }
 
-    pub fn set_name(name: String) -> DilazionatoResult<()> {
+    pub fn set_name(name: String) -> DeferredResult<()> {
         NAME.with_borrow_mut(|cell| cell.set(Some(name)))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }
@@ -79,10 +79,10 @@ impl Configuration {
         SYMBOL.with_borrow(|logo| logo.get().clone())
     }
 
-    pub fn set_symbol(symbol: String) -> DilazionatoResult<()> {
+    pub fn set_symbol(symbol: String) -> DeferredResult<()> {
         SYMBOL
             .with_borrow_mut(|cell| cell.set(Some(symbol)))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }
@@ -97,10 +97,10 @@ impl Configuration {
             .unwrap_or(Self::get_created_at())
     }
 
-    pub fn set_upgraded_at() -> DilazionatoResult<()> {
+    pub fn set_upgraded_at() -> DeferredResult<()> {
         UPGRADED_AT
             .with_borrow_mut(|cell| cell.set(Some(crate::utils::time())))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }
@@ -109,18 +109,18 @@ impl Configuration {
         FLY_CANISTER.with_borrow(|cell| *cell.get().as_principal())
     }
 
-    pub fn set_fly_canister(canister: Principal) -> DilazionatoResult<()> {
+    pub fn set_fly_canister(canister: Principal) -> DeferredResult<()> {
         FLY_CANISTER
             .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }
 
-    pub fn set_marketplace_canister(canister: Principal) -> DilazionatoResult<()> {
+    pub fn set_marketplace_canister(canister: Principal) -> DeferredResult<()> {
         MARKETPLACE_CANISTER
             .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
-            .map_err(|_| DilazionatoError::StorageError)?;
+            .map_err(|_| DeferredError::StorageError)?;
 
         Ok(())
     }

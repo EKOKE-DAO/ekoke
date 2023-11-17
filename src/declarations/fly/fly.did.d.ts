@@ -15,8 +15,8 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'StorageError' : null } |
   { 'Balance' : BalanceError };
 export interface FlyInitData {
+  'deferred_canister' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
-  'dilazionato_canister' : Principal,
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
@@ -29,8 +29,8 @@ export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : FlyError };
 export type Result_2 = { 'Ok' : Transaction } |
   { 'Err' : FlyError };
-export type Role = { 'Admin' : null } |
-  { 'DilazionatoCanister' : null };
+export type Role = { 'DeferredCanister' : null } |
+  { 'Admin' : null };
 export interface Transaction {
   'to' : Account,
   'fee' : bigint,

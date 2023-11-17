@@ -34,12 +34,12 @@ export interface ContractRegistration {
 }
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
-export type DilazionatoError = { 'Fly' : FlyError } |
+export type DeferredError = { 'Fly' : FlyError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null };
-export interface DilazionatoInitData {
+export interface DeferredInitData {
   'fly_canister' : Principal,
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
@@ -87,7 +87,7 @@ export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
 export type RegisterError = { 'TransactionNotFound' : null };
 export type Result = { 'Ok' : null } |
-  { 'Err' : DilazionatoError };
+  { 'Err' : DeferredError };
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : NftError };
 export type Result_2 = { 'Ok' : boolean } |
@@ -99,7 +99,7 @@ export type Result_4 = { 'Ok' : Array<bigint> } |
 export type Result_5 = { 'Ok' : Array<TokenMetadata> } |
   { 'Err' : NftError };
 export type Result_6 = { 'Ok' : bigint } |
-  { 'Err' : DilazionatoError };
+  { 'Err' : DeferredError };
 export type Result_7 = { 'Ok' : TokenMetadata } |
   { 'Err' : NftError };
 export type Result_8 = { 'Ok' : TxEvent } |

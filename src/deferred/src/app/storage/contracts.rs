@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::{Contract, DilazionatoError, DilazionatoResult, Token, TokenError};
+use did::deferred::{Contract, DeferredError, DeferredResult, Token, TokenError};
 use did::{StorableNat, ID};
 use dip721::TokenIdentifier;
 use itertools::Itertools;
@@ -18,20 +18,20 @@ impl ContractStorage {
     }
 
     /// Insert contract
-    pub fn insert_contract(contract: Contract) -> DilazionatoResult<()> {
+    pub fn insert_contract(contract: Contract) -> DeferredResult<()> {
         // check contract existance
         if Self::get_contract(&contract.id).is_some() {
-            return Err(DilazionatoError::Token(TokenError::ContractAlreadyExists(
+            return Err(DeferredError::Token(TokenError::ContractAlreadyExists(
                 contract.id,
             )));
         }
 
         if contract.installments == 0 {
-            return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
+            return Err(DeferredError::Token(TokenError::ContractHasNoTokens));
         }
 
         if !contract.tokens.is_empty() {
-            return Err(DilazionatoError::Token(
+            return Err(DeferredError::Token(
                 TokenError::ContractTokensShouldBeEmpty,
             ));
         }
@@ -45,9 +45,9 @@ impl ContractStorage {
     pub fn sign_contract_and_mint_tokens(
         contract_id: &ID,
         tokens: Vec<Token>,
-    ) -> DilazionatoResult<()> {
+    ) -> DeferredResult<()> {
         if tokens.is_empty() {
-            return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
+            return Err(DeferredError::Token(TokenError::ContractHasNoTokens));
         }
 
         // insert tokens in contract
@@ -58,13 +58,13 @@ impl ContractStorage {
 
         let seller = with_contract_mut(contract_id, |contract| {
             if contract.is_signed {
-                return Err(DilazionatoError::Token(TokenError::ContractAlreadySigned(
+                return Err(DeferredError::Token(TokenError::ContractAlreadySigned(
                     contract.id.clone(),
                 )));
             }
             // check if token mismatch
             if contract.installments != tokens.len() as u64 {
-                return Err(DilazionatoError::Token(TokenError::TokensMismatch));
+                return Err(DeferredError::Token(TokenError::TokensMismatch));
             }
 
             // sign and set tokens
@@ -80,16 +80,16 @@ impl ContractStorage {
     }
 
     /// Add provided tokens to a contract
-    pub fn add_tokens_to_contract(contract_id: &ID, tokens: Vec<Token>) -> DilazionatoResult<()> {
+    pub fn add_tokens_to_contract(contract_id: &ID, tokens: Vec<Token>) -> DeferredResult<()> {
         // check if tokens is empty
         if tokens.is_empty() {
-            return Err(DilazionatoError::Token(TokenError::ContractHasNoTokens));
+            return Err(DeferredError::Token(TokenError::ContractHasNoTokens));
         }
 
         with_contract_mut(contract_id, |contract| {
             // if not signed, return error
             if !contract.is_signed {
-                return Err(DilazionatoError::Token(TokenError::ContractNotSigned(
+                return Err(DeferredError::Token(TokenError::ContractNotSigned(
                     contract.id.clone(),
                 )));
             }
@@ -112,28 +112,24 @@ impl ContractStorage {
         Ok(())
     }
 
-    fn mint_tokens(
-        contract_id: &ID,
-        seller: Principal,
-        tokens: Vec<Token>,
-    ) -> DilazionatoResult<()> {
+    fn mint_tokens(contract_id: &ID, seller: Principal, tokens: Vec<Token>) -> DeferredResult<()> {
         with_tokens_mut(|tokens_storage| {
             for token in tokens {
                 // check if token already exists
                 if tokens_storage.contains_key(&token.id.clone().into()) {
-                    return Err(DilazionatoError::Token(TokenError::TokenAlreadyExists(
+                    return Err(DeferredError::Token(TokenError::TokenAlreadyExists(
                         token.id,
                     )));
                 }
                 // check if token is associated to the contract
                 if &token.contract_id != contract_id {
-                    return Err(DilazionatoError::Token(
+                    return Err(DeferredError::Token(
                         TokenError::TokenDoesNotBelongToContract(token.id),
                     ));
                 }
                 // check if token owner is the seller
                 if token.owner != Some(seller) {
-                    return Err(DilazionatoError::Token(TokenError::BadMintTokenOwner(
+                    return Err(DeferredError::Token(TokenError::BadMintTokenOwner(
                         token.id,
                     )));
                 }
@@ -186,10 +182,7 @@ impl ContractStorage {
     }
 
     /// Update the contract  buyers
-    pub fn update_contract_buyers(
-        contract_id: &ID,
-        buyers: Vec<Principal>,
-    ) -> DilazionatoResult<()> {
+    pub fn update_contract_buyers(contract_id: &ID, buyers: Vec<Principal>) -> DeferredResult<()> {
         with_contract_mut(contract_id, |contract| {
             contract.buyers = buyers;
             Ok(())
@@ -197,7 +190,7 @@ impl ContractStorage {
     }
 
     /// Update the operator for all token to the new operator canister
-    pub fn update_tokens_operator(operator: Principal) -> DilazionatoResult<()> {
+    pub fn update_tokens_operator(operator: Principal) -> DeferredResult<()> {
         with_tokens_mut(|tokens| {
             let new_tokens = tokens
                 .iter()
@@ -216,11 +209,11 @@ impl ContractStorage {
     }
 
     /// Burn token
-    pub fn burn_token(token_id: &TokenIdentifier) -> DilazionatoResult<Nat> {
+    pub fn burn_token(token_id: &TokenIdentifier) -> DeferredResult<Nat> {
         let (tx_id, token) = with_token_mut(token_id, |token| {
             // check if burned
             if token.is_burned {
-                return Err(DilazionatoError::Token(TokenError::TokenIsBurned(
+                return Err(DeferredError::Token(TokenError::TokenIsBurned(
                     token_id.clone(),
                 )));
             }
@@ -242,7 +235,7 @@ impl ContractStorage {
     }
 
     /// Reduce contract value by `decr_by`
-    fn reduce_contract_value_by(contract_id: &ID, decr_by: u64) -> DilazionatoResult<()> {
+    fn reduce_contract_value_by(contract_id: &ID, decr_by: u64) -> DeferredResult<()> {
         with_contract_mut(contract_id, |contract| {
             contract.value -= decr_by;
 
@@ -251,11 +244,11 @@ impl ContractStorage {
     }
 
     /// Transfer token to provided principal
-    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> DilazionatoResult<Nat> {
+    pub fn transfer(token_id: &TokenIdentifier, to: Principal) -> DeferredResult<Nat> {
         with_token_mut(token_id, |token| {
             // check if burned
             if token.is_burned {
-                return Err(DilazionatoError::Token(TokenError::TokenIsBurned(
+                return Err(DeferredError::Token(TokenError::TokenIsBurned(
                     token_id.clone(),
                 )));
             }
@@ -570,7 +563,7 @@ mod test {
         let token_2 = mock_token(2, 1);
         let contract = Contract {
             id: contract_id.clone(),
-            r#type: did::dilazionato::ContractType::Financing,
+            r#type: did::deferred::ContractType::Financing,
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![],

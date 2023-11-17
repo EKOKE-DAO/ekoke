@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::dilazionato::ContractRegistration;
+use did::deferred::ContractRegistration;
 use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]

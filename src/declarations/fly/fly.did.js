@@ -4,8 +4,8 @@ export const idlFactory = ({ IDL }) => {
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const FlyInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
-    'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });
@@ -31,8 +31,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
   const Role = IDL.Variant({
+    'DeferredCanister' : IDL.Null,
     'Admin' : IDL.Null,
-    'DilazionatoCanister' : IDL.Null,
   });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : FlyError });
   const Transaction = IDL.Record({
@@ -60,8 +60,8 @@ export const init = ({ IDL }) => {
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const FlyInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
-    'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });

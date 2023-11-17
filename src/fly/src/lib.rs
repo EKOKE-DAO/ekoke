@@ -1,6 +1,6 @@
 //! # Fly
 //!
-//! The fly canister serves a ICRC-2 token called $FLY, which is the reward token for Dilazionato transactions.
+//! The fly canister serves a ICRC-2 token called $FLY, which is the reward token for Deferred transactions.
 //! It is a deflationary token which ...
 
 mod app;

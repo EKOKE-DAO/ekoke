@@ -46,12 +46,12 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-dependencies = ["dilazionato-did", "fly-did", "dfx-generate"]
+dependencies = ["deferred-did", "fly-did", "dfx-generate"]
 workspace = false
 
-[tasks.dilazionato-did]
-description = "Generate did files for dilazionato"
-script = "cargo run --bin dilazionato-did  --features did > src/dilazionato/dilazionato.did"
+[tasks.deferred-did]
+description = "Generate did files for deferred"
+script = "cargo run --bin deferred-did  --features did > src/deferred/deferred.did"
 workspace = false
 
 [tasks.fly-did]
@@ -67,5 +67,5 @@ workspace = false
 
 [tasks.dfx-setup]
 description = "setup dfx"
-script = "dfx stop; dfx start --background; dfx canister create dilazionato; dfx canister create fly"
+script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create fly"
 workspace = false

@@ -1,9 +1,9 @@
 //! # Inspect
 //!
-//! Dilazionato inspect message handler
+//! Deferred inspect message handler
 
 use candid::{Nat, Principal};
-use did::dilazionato::{DilazionatoError, DilazionatoResult, Token, TokenError};
+use did::deferred::{DeferredError, DeferredResult, Token, TokenError};
 use did::ID;
 use dip721::NftError;
 use itertools::Itertools;
@@ -91,20 +91,20 @@ impl Inspect {
         value: u64,
         installments: u64,
         expiration: &str,
-    ) -> DilazionatoResult<()> {
+    ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
-            return Err(DilazionatoError::Unauthorized);
+            return Err(DeferredError::Unauthorized);
         }
         // check if contract already exists
         if ContractStorage::get_contract(id).is_some() {
-            return Err(DilazionatoError::Token(TokenError::ContractAlreadyExists(
+            return Err(DeferredError::Token(TokenError::ContractAlreadyExists(
                 id.clone(),
             )));
         }
 
         // verify value must be multiple of installments
         if value % installments != 0 {
-            return Err(DilazionatoError::Token(
+            return Err(DeferredError::Token(
                 TokenError::ContractValueIsNotMultipleOfInstallments,
             ));
         }
@@ -112,46 +112,38 @@ impl Inspect {
         // check if expiration is YYYY-MM-DD and is not in the past
         match crate::utils::parse_date(expiration) {
             Ok(timestamp) if timestamp < crate::utils::time() => {
-                return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate));
+                return Err(DeferredError::Token(TokenError::InvalidExpirationDate));
             }
             Ok(_) => {}
-            Err(_) => return Err(DilazionatoError::Token(TokenError::InvalidExpirationDate)),
+            Err(_) => return Err(DeferredError::Token(TokenError::InvalidExpirationDate)),
         }
 
         Ok(())
     }
 
-    pub fn inspect_is_seller(caller: Principal, contract: ID) -> DilazionatoResult<()> {
+    pub fn inspect_is_seller(caller: Principal, contract: ID) -> DeferredResult<()> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
-            None => {
-                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
-                    contract,
-                )))
-            }
+            None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
         };
 
         if contract.seller == caller {
             Ok(())
         } else {
-            Err(DilazionatoError::Unauthorized)
+            Err(DeferredError::Unauthorized)
         }
     }
 
-    pub fn inspect_is_buyer(caller: Principal, contract: ID) -> DilazionatoResult<()> {
+    pub fn inspect_is_buyer(caller: Principal, contract: ID) -> DeferredResult<()> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
-            None => {
-                return Err(DilazionatoError::Token(TokenError::ContractNotFound(
-                    contract,
-                )))
-            }
+            None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
         };
 
         if contract.buyers.contains(&caller) {
             Ok(())
         } else {
-            Err(DilazionatoError::Unauthorized)
+            Err(DeferredError::Unauthorized)
         }
     }
 }
@@ -159,7 +151,7 @@ impl Inspect {
 #[cfg(test)]
 mod test {
 
-    use did::dilazionato::Role;
+    use did::deferred::Role;
     use pretty_assertions::assert_eq;
 
     use super::*;

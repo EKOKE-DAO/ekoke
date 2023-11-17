@@ -1,6 +1,6 @@
 //! # Inspect
 //!
-//! Dilazionato inspect message handler
+//! Deferred inspect message handler
 
 use candid::Principal;
 use did::fly::Role;
@@ -16,9 +16,9 @@ impl Inspect {
         RolesManager::is_admin(caller)
     }
 
-    /// Returns whether caller is dilazionato canister
-    pub fn inspect_is_dilazionato_canister(caller: Principal) -> bool {
-        RolesManager::has_role(caller, Role::DilazionatoCanister)
+    /// Returns whether caller is deferred canister
+    pub fn inspect_is_deferred_canister(caller: Principal) -> bool {
+        RolesManager::has_role(caller, Role::DeferredCanister)
     }
 
     /// Returns whether caller is owner of the wallet
@@ -49,13 +49,13 @@ mod test {
     }
 
     #[test]
-    fn test_should_inspect_is_dilazionato() {
+    fn test_should_inspect_is_deferred() {
         let caller = Principal::anonymous();
-        assert_eq!(Inspect::inspect_is_dilazionato_canister(caller), false);
+        assert_eq!(Inspect::inspect_is_deferred_canister(caller), false);
 
         let caller = Principal::from_text("aaaaa-aa").unwrap();
-        RolesManager::give_role(caller, Role::DilazionatoCanister);
-        assert_eq!(Inspect::inspect_is_dilazionato_canister(caller), true);
+        RolesManager::give_role(caller, Role::DeferredCanister);
+        assert_eq!(Inspect::inspect_is_deferred_canister(caller), true);
     }
 
     #[test]

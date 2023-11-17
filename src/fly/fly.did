@@ -9,8 +9,8 @@ type FlyError = variant {
   Balance : BalanceError;
 };
 type FlyInitData = record {
+  deferred_canister : principal;
   initial_balances : vec record { Account; nat };
-  dilazionato_canister : principal;
   admins : vec principal;
   total_supply : nat64;
 };
@@ -19,7 +19,7 @@ type RegisterError = variant { TransactionNotFound };
 type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat; Err : FlyError };
 type Result_2 = variant { Ok : Transaction; Err : FlyError };
-type Role = variant { Admin; DilazionatoCanister };
+type Role = variant { DeferredCanister; Admin };
 type Transaction = record {
   to : Account;
   fee : nat;

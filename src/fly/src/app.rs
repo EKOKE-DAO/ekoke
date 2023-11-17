@@ -1,6 +1,6 @@
 //! # App
 //!
-//! API implementation for dilazionato canister
+//! API implementation for deferred canister
 
 mod balance;
 mod configuration;
@@ -48,8 +48,8 @@ impl FlyCanister {
         if let Err(err) = RolesManager::set_admins(data.admins) {
             ic_cdk::trap(&format!("Error setting admins: {}", err));
         }
-        // Set dilazionato canister
-        RolesManager::give_role(data.dilazionato_canister, Role::DilazionatoCanister);
+        // Set deferred canister
+        RolesManager::give_role(data.deferred_canister, Role::DeferredCanister);
         // init balances
         Balance::init_balances(
             utils::fly_to_picofly(data.total_supply),
@@ -82,14 +82,14 @@ impl FlyCanister {
 
     /// Get contract reward.
     ///
-    /// This method can be called only by the dilazionato canister.
+    /// This method can be called only by the deferred canister.
     ///
     /// If a pool is already reserved for the provided contract ID, the reserved amount will be returned.
     /// Otherwise, the provided amount will be reserved from canister wallet, if possible and returned.
     ///
     /// If the canister wallet doesn't have enough tokens to reserve `InsufficientBalance` error is returned
     pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
-        if !Inspect::inspect_is_dilazionato_canister(utils::caller()) {
+        if !Inspect::inspect_is_deferred_canister(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
@@ -283,7 +283,7 @@ mod test {
             Principal::anonymous()
         );
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
-        assert!(RolesManager::has_role(caller(), Role::DilazionatoCanister));
+        assert!(RolesManager::has_role(caller(), Role::DeferredCanister));
         // init balance
         assert_eq!(
             Balance::balance_of(alice_account()).unwrap(),
@@ -721,7 +721,7 @@ mod test {
         let data = FlyInitData {
             admins: vec![caller()],
             total_supply: 8_888_888,
-            dilazionato_canister: caller(),
+            deferred_canister: caller(),
             initial_balances: vec![
                 (alice_account(), fly_to_picofly(50_000)),
                 (bob_account(), fly_to_picofly(50_000)),

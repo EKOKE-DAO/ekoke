@@ -188,12 +188,9 @@ mod test {
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
 
-        assert!(!RolesManager::has_role(
-            principal,
-            Role::DilazionatoCanister
-        ));
-        RolesManager::give_role(principal, Role::DilazionatoCanister);
-        assert!(RolesManager::has_role(principal, Role::DilazionatoCanister));
+        assert!(!RolesManager::has_role(principal, Role::DeferredCanister));
+        RolesManager::give_role(principal, Role::DeferredCanister);
+        assert!(RolesManager::has_role(principal, Role::DeferredCanister));
     }
 
     #[test]

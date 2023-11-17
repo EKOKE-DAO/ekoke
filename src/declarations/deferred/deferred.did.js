@@ -1,6 +1,6 @@
 export const idlFactory = ({ IDL }) => {
   const Vec = IDL.Rec();
-  const DilazionatoInitData = IDL.Record({
+  const DeferredInitData = IDL.Record({
     'fly_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
@@ -46,14 +46,14 @@ export const idlFactory = ({ IDL }) => {
     'InvalidExpirationDate' : IDL.Null,
     'BadMintTokenOwner' : IDL.Nat,
   });
-  const DilazionatoError = IDL.Variant({
+  const DeferredError = IDL.Variant({
     'Fly' : FlyError,
     'Configuration' : ConfigurationError_1,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,
   });
-  const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DilazionatoError });
+  const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeferredError });
   const NftError = IDL.Variant({
     'UnauthorizedOperator' : IDL.Null,
     'SelfTransfer' : IDL.Null,
@@ -172,7 +172,7 @@ export const idlFactory = ({ IDL }) => {
     'installments' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
   });
-  const Result_6 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DilazionatoError });
+  const Result_6 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DeferredError });
   const Stats = IDL.Record({
     'cycles' : IDL.Nat,
     'total_transactions' : IDL.Nat,
@@ -283,10 +283,10 @@ export const idlFactory = ({ IDL }) => {
   });
 };
 export const init = ({ IDL }) => {
-  const DilazionatoInitData = IDL.Record({
+  const DeferredInitData = IDL.Record({
     'fly_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
   });
-  return [DilazionatoInitData];
+  return [DeferredInitData];
 };

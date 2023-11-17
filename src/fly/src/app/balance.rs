@@ -112,7 +112,7 @@ impl Balance {
 
     /// Transfer $picoFly tokens from canister to `to` account.
     ///
-    /// This function is meant to be used only by the dilazionato canister and does not apply fees or burns.
+    /// This function is meant to be used only by the deferred canister and does not apply fees or burns.
     pub fn transfer_wno_fees(from: Account, to: Account, value: PicoFly) -> FlyResult<()> {
         Self::with_balance_mut(from, |balance| {
             if balance.amount < value {
