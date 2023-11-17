@@ -4,6 +4,8 @@
 
 Powered by **Internet Computer**
 
+<img src="./docs/images/logo.png" alt="deferred logo" width="128" />
+
 <img src="./docs/images/icp-logo.svg" alt="icp-logo" width="128" />
 
 ---
