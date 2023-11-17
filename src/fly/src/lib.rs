@@ -10,7 +10,7 @@ mod utils;
 
 use app::FlyCanister;
 use candid::{candid_method, Nat, Principal};
-use did::fly::{FlyInitData, FlyResult, PicoFly, Role};
+use did::fly::{FlyInitData, FlyResult, PicoFly, Role, Transaction};
 use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc1::account::Account;
@@ -49,8 +49,8 @@ pub fn admin_remove_role(principal: Principal, role: Role) -> FlyResult<()> {
     FlyCanister::admin_remove_role(principal, role)
 }
 
-#[update]
-#[candid_method(update)]
+#[query]
+#[candid_method(query)]
 pub fn admin_cycles() -> Nat {
     FlyCanister::admin_cycles()
 }
@@ -59,6 +59,12 @@ pub fn admin_cycles() -> Nat {
 #[candid_method(update)]
 pub fn admin_burn(amount: PicoFly) -> FlyResult<()> {
     FlyCanister::admin_burn(amount)
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_transaction(id: u64) -> FlyResult<Transaction> {
+    FlyCanister::get_transaction(id)
 }
 
 #[allow(dead_code)]

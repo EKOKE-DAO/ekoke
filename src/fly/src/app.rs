@@ -59,6 +59,11 @@ impl FlyCanister {
 
     pub fn post_upgrade() {}
 
+    /// Get transaction by id
+    pub fn get_transaction(id: u64) -> FlyResult<Transaction> {
+        Register::get_tx(id)
+    }
+
     /// Reserve a pool for the provided contract ID with the provided amount of $picoFly tokens.
     ///
     /// The tokens are withdrawned from the from's wallet.
@@ -297,6 +302,29 @@ mod test {
             Balance::balance_of(Balance::canister_wallet_account()).unwrap(),
             fly_to_picofly(8_688_888)
         );
+    }
+
+    #[test]
+    fn test_should_get_transaction() {
+        init_canister();
+        let now = utils::time();
+        assert!(Register::insert_tx(Transaction {
+            from: caller_account(),
+            to: bob_account(),
+            amount: fly_to_picofly(10_000),
+            fee: Nat::from(ICRC1_FEE),
+            memo: None,
+            created_at: now,
+        })
+        .is_ok());
+
+        let tx = FlyCanister::get_transaction(0).unwrap();
+        assert_eq!(tx.from, caller_account());
+        assert_eq!(tx.to, bob_account());
+        assert_eq!(tx.amount, fly_to_picofly(10_000));
+        assert_eq!(tx.fee, Nat::from(ICRC1_FEE));
+        assert_eq!(tx.memo, None);
+        assert_eq!(tx.created_at, now);
     }
 
     #[test]
