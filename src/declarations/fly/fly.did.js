@@ -4,7 +4,7 @@ export const idlFactory = ({ IDL }) => {
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const FlyInitData = IDL.Record({
-    'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat64)),
+    'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
@@ -34,12 +34,12 @@ export const idlFactory = ({ IDL }) => {
     'Balance' : BalanceError,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : FlyError });
+  const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : FlyError });
   return IDL.Service({
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
-    'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
-    'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat64], [Result_1], []),
+    'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat], [Result_1], []),
+    'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat], [Result_1], []),
   });
 };
 export const init = ({ IDL }) => {
@@ -48,7 +48,7 @@ export const init = ({ IDL }) => {
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const FlyInitData = IDL.Record({
-    'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat64)),
+    'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'dilazionato_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,

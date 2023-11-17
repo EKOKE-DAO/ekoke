@@ -6,7 +6,7 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
 
-use crate::fly::FlyError;
+use crate::fly::{FlyError, PicoFly};
 use crate::ID;
 
 pub type DilazionatoResult<T> = Result<T, DilazionatoError>;
@@ -135,8 +135,8 @@ pub struct Token {
     pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
-    /// $mFLY (milli-fly) reward for buying a Token
-    pub picofly_reward: u64,
+    /// $picoFly (pico-fly) reward for buying a Token
+    pub picofly_reward: PicoFly,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
     /// Whether the token is burned
@@ -308,7 +308,7 @@ mod test {
                 )
                 .unwrap(),
             ),
-            picofly_reward: 4_000,
+            picofly_reward: 4_000_u64.into(),
             transferred_at: None,
             transferred_by: None,
             approved_at: None,

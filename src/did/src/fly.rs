@@ -1,6 +1,6 @@
 //! Types associated to the "Fly" canister
 
-use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use candid::{CandidType, Decode, Deserialize, Encode, Nat, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
@@ -56,7 +56,7 @@ pub enum RegisterError {
 }
 
 /// 0.000000000001 $fly
-pub type PicoFly = u64;
+pub type PicoFly = Nat;
 
 /// These are the arguments which are taken by the fly canister on init
 #[derive(Debug, Clone, CandidType, Deserialize)]
@@ -169,8 +169,8 @@ mod test {
                 owner: Principal::management_canister(),
                 subaccount: None,
             },
-            amount: 100,
-            fee: 1,
+            amount: 100_u64.into(),
+            fee: 1_u64.into(),
             memo: None,
             created_at: 0,
         };

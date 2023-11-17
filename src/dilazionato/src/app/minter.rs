@@ -43,7 +43,7 @@ impl Minter {
                 owner: Some(seller),
                 transferred_at: None,
                 transferred_by: None,
-                picofly_reward,
+                picofly_reward: picofly_reward.clone(),
                 value: token_value,
             });
             tokens_ids.push(token_id.into());

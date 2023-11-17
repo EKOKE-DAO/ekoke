@@ -27,13 +27,13 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
+pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
     FlyCanister::get_contract_reward(contract_id, installments)
 }
 
 #[update]
 #[candid_method(update)]
-pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: u64) -> FlyResult<PicoFly> {
+pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: PicoFly) -> FlyResult<PicoFly> {
     FlyCanister::reserve_pool(from, contract_id, picofly_amount)
 }
 

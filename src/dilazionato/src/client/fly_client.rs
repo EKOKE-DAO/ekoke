@@ -27,7 +27,7 @@ pub trait FlyClient {
     async fn send_reward(
         &self,
         contract_id: ID,
-        picofly: u64,
+        picofly: PicoFly,
         new_owner: Principal,
     ) -> DilazionatoResult<()>;
 }
@@ -58,7 +58,7 @@ impl FlyClient for IcFlyClient {
     async fn send_reward(
         &self,
         _contract_id: ID,
-        _picofly: u64,
+        _picofly: PicoFly,
         _new_owner: Principal,
     ) -> DilazionatoResult<()> {
         todo!()
@@ -74,14 +74,14 @@ impl FlyClient for IcFlyClient {
         _contract_id: ID,
         _installments: u64,
     ) -> DilazionatoResult<PicoFly> {
-        Ok(71_000)
+        Ok(71_000_u64.into())
     }
 
     /// Send reward to new owner reducing the balance from the pool associated to the contract, for the value of picoFly
     async fn send_reward(
         &self,
         _contract_id: ID,
-        _picofly: u64,
+        _picofly: PicoFly,
         _new_owner: Principal,
     ) -> DilazionatoResult<()> {
         Ok(())

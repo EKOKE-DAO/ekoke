@@ -54,7 +54,7 @@ mod test {
             from: alice_account(),
             to: bob_account(),
             amount: fly_to_picofly(50),
-            fee: ICRC1_FEE,
+            fee: ICRC1_FEE.into(),
             memo: None,
             created_at: crate::utils::time(),
         };
@@ -65,7 +65,7 @@ mod test {
             from: alice_account(),
             to: bob_account(),
             amount: fly_to_picofly(50),
-            fee: ICRC1_FEE,
+            fee: ICRC1_FEE.into(),
             memo: Some(Memo::from(
                 "12341235412523524353451234123541".as_bytes().to_vec(),
             )),

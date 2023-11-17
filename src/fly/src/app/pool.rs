@@ -4,7 +4,7 @@
 
 use std::cell::RefCell;
 
-use did::fly::{FlyError, FlyResult, PoolError};
+use did::fly::{FlyError, FlyResult, PicoFly, PoolError};
 use did::{StorableNat, ID};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
@@ -30,7 +30,11 @@ impl Pool {
     /// If the contract already has a pool, the reward will be incremented
     ///
     /// Returns the new balance
-    pub fn reserve(contract_id: &ID, from_account: Account, picofly: u64) -> FlyResult<u64> {
+    pub fn reserve(
+        contract_id: &ID,
+        from_account: Account,
+        picofly: PicoFly,
+    ) -> FlyResult<PicoFly> {
         let account = Self::with_pool_contract_mut(contract_id, |account| {
             Balance::transfer_wno_fees(from_account, *account, picofly)?;
 
@@ -41,7 +45,7 @@ impl Pool {
     }
 
     /// Returns pool balance for a contract
-    pub fn balance_of(contract_id: &ID) -> FlyResult<u64> {
+    pub fn balance_of(contract_id: &ID) -> FlyResult<PicoFly> {
         Self::with_pool_contract(contract_id, |account| Balance::balance_of(*account))
     }
 
@@ -53,7 +57,7 @@ impl Pool {
     /// Withdraw $picoFly tokens from the pool and give them to `to` wallet
     ///
     /// Returns the new balance
-    pub fn withdraw_tokens(contract_id: &ID, to: Account, picofly: u64) -> FlyResult<u64> {
+    pub fn withdraw_tokens(contract_id: &ID, to: Account, picofly: PicoFly) -> FlyResult<PicoFly> {
         Self::with_pool_contract_mut(contract_id, |account| {
             Balance::transfer_wno_fees(*account, to, picofly)?;
             Balance::balance_of(*account)
@@ -118,7 +122,12 @@ mod test {
         Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
-            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).unwrap(),
+            Pool::reserve(
+                &1_u64.into(),
+                Balance::canister_wallet_account(),
+                7_000_u64.into()
+            )
+            .unwrap(),
             7_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000);
@@ -129,11 +138,21 @@ mod test {
         Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
-            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).unwrap(),
+            Pool::reserve(
+                &1_u64.into(),
+                Balance::canister_wallet_account(),
+                7_000_u64.into()
+            )
+            .unwrap(),
             7_000
         );
         assert_eq!(
-            Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 3_000).unwrap(),
+            Pool::reserve(
+                &1_u64.into(),
+                Balance::canister_wallet_account(),
+                3_000_u64.into()
+            )
+            .unwrap(),
             10_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000);
@@ -143,7 +162,12 @@ mod test {
     fn test_should_tell_whether_has_pool() {
         Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
 
-        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
+        assert!(Pool::reserve(
+            &1_u64.into(),
+            Balance::canister_wallet_account(),
+            7_000_u64.into()
+        )
+        .is_ok());
         assert!(Pool::has_pool(&1_u64.into()));
         assert!(!Pool::has_pool(&2_u64.into()));
     }
@@ -153,9 +177,14 @@ mod test {
         Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
-        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
+        assert!(Pool::reserve(
+            &1_u64.into(),
+            Balance::canister_wallet_account(),
+            7_000_u64.into()
+        )
+        .is_ok());
         assert_eq!(
-            Pool::withdraw_tokens(&1_u64.into(), to, 3_000).unwrap(),
+            Pool::withdraw_tokens(&1_u64.into(), to, 3_000_u64.into()).unwrap(),
             4_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000);
@@ -167,8 +196,13 @@ mod test {
         Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
-        assert!(Pool::reserve(&1_u64.into(), Balance::canister_wallet_account(), 7_000).is_ok());
-        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000).is_err());
+        assert!(Pool::reserve(
+            &1_u64.into(),
+            Balance::canister_wallet_account(),
+            7_000_u64.into()
+        )
+        .is_ok());
+        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000_u64.into()).is_err());
         assert!(Balance::balance_of(to).is_err());
     }
 }

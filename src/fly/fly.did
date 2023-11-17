@@ -9,7 +9,7 @@ type FlyError = variant {
   Balance : BalanceError;
 };
 type FlyInitData = record {
-  initial_balances : vec record { Account; nat64 };
+  initial_balances : vec record { Account; nat };
   dilazionato_canister : principal;
   admins : vec principal;
   total_supply : nat64;
@@ -17,11 +17,11 @@ type FlyInitData = record {
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
 type Result = variant { Ok; Err : FlyError };
-type Result_1 = variant { Ok : nat64; Err : FlyError };
+type Result_1 = variant { Ok : nat; Err : FlyError };
 type Role = variant { Admin; DilazionatoCanister };
 service : (FlyInitData) -> {
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
-  get_contract_reward : (nat, nat64) -> (Result_1);
-  reserve_pool : (Account, nat, nat64) -> (Result_1);
+  get_contract_reward : (nat, nat) -> (Result_1);
+  reserve_pool : (Account, nat, nat) -> (Result_1);
 }

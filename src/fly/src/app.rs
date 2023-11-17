@@ -63,7 +63,11 @@ impl FlyCanister {
     ///
     /// The tokens are withdrawned from the from's wallet.
     /// Obviously `from` wallet must be owned by the caller.
-    pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: u64) -> FlyResult<u64> {
+    pub fn reserve_pool(
+        from: Account,
+        contract_id: ID,
+        picofly_amount: PicoFly,
+    ) -> FlyResult<PicoFly> {
         if !Inspect::inspect_caller_owns_wallet(utils::caller(), from) {
             ic_cdk::trap("You don't own this account");
         }
@@ -79,7 +83,7 @@ impl FlyCanister {
     /// Otherwise, the provided amount will be reserved from canister wallet, if possible and returned.
     ///
     /// If the canister wallet doesn't have enough tokens to reserve `InsufficientBalance` error is returned
-    pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
+    pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
         if !Inspect::inspect_is_dilazionato_canister(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
@@ -141,7 +145,7 @@ impl Icrc1 for FlyCanister {
     }
 
     fn icrc1_total_supply() -> Nat {
-        Balance::total_supply().into()
+        Balance::total_supply()
     }
 
     fn icrc1_minting_account() -> Account {
@@ -149,7 +153,7 @@ impl Icrc1 for FlyCanister {
     }
 
     fn icrc1_balance_of(account: Account) -> Nat {
-        Balance::balance_of(account).unwrap_or_default().into()
+        Balance::balance_of(account).unwrap_or_default()
     }
 
     fn icrc1_transfer(
@@ -162,10 +166,6 @@ impl Icrc1 for FlyCanister {
                 expected_fee: ICRC1_FEE.into(),
             });
         }
-
-        // get u64 values
-        let amount = utils::nat_to_u64(transfer_args.amount)?;
-        let fee = utils::nat_to_u64(fee)?;
 
         // check if the transaction is too old
         let now = Duration::from_nanos(utils::time());
@@ -197,10 +197,15 @@ impl Icrc1 for FlyCanister {
 
         // check if it is a burn
         if transfer_args.to == Self::icrc1_minting_account() {
-            Balance::transfer_wno_fees(from_account, transfer_args.to, amount)
+            Balance::transfer_wno_fees(from_account, transfer_args.to, transfer_args.amount.clone())
         } else {
             // make transfer
-            Balance::transfer(from_account, transfer_args.to, amount, fee)
+            Balance::transfer(
+                from_account,
+                transfer_args.to,
+                transfer_args.amount.clone(),
+                fee.clone(),
+            )
         }
         .map_err(|err| match err {
             FlyError::Balance(BalanceError::InsufficientBalance) => {
@@ -218,7 +223,7 @@ impl Icrc1 for FlyCanister {
         let tx = Transaction {
             from: from_account,
             to: transfer_args.to,
-            amount,
+            amount: transfer_args.amount,
             fee,
             memo: transfer_args.memo,
             created_at: tx_created_at.as_nanos() as u64,
@@ -281,10 +286,13 @@ mod test {
     fn test_should_reserve_pool() {
         init_canister();
         let contract_id = 1.into();
-        let picofly_amount = 1000;
+        let picofly_amount: Nat = 1000_u64.into();
 
-        let result =
-            FlyCanister::reserve_pool(test_utils::caller_account(), contract_id, picofly_amount);
+        let result = FlyCanister::reserve_pool(
+            test_utils::caller_account(),
+            contract_id,
+            picofly_amount.clone(),
+        );
 
         assert_eq!(result, Ok(picofly_amount));
     }
@@ -294,7 +302,7 @@ mod test {
     fn test_should_not_allow_reserve_pool() {
         init_canister();
         let contract_id = 1.into();
-        let picofly_amount = 1000;
+        let picofly_amount = 1000_u64.into();
 
         assert!(
             FlyCanister::reserve_pool(test_utils::bob_account(), contract_id, picofly_amount)

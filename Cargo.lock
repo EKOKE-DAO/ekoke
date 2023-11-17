@@ -415,7 +415,7 @@ dependencies = [
  "ic-cdk-macros",
  "ic-stable-structures",
  "icrc",
- "num-traits",
+ "num-bigint",
  "pretty_assertions",
  "rand",
  "thiserror",

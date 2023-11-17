@@ -2,6 +2,7 @@ use bytes::{Buf, BufMut, Bytes, BytesMut};
 use did::fly::PicoFly;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
+use num_bigint::BigUint;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// Describes the balance of an account
@@ -17,20 +18,26 @@ impl From<PicoFly> for Balance {
 
 impl Storable for Balance {
     const BOUND: Bound = Bound::Bounded {
-        max_size: 8,
+        max_size: 64,
         is_fixed_size: false,
     };
 
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         let mut bytes = Bytes::from(bytes.to_vec());
-        let amount = bytes.get_u64();
+
+        let amount_len = bytes.get_u8();
+
+        bytes.slice(..amount_len as usize);
+        let amount = BigUint::from_bytes_be(&bytes.slice(..amount_len as usize)).into();
 
         Self { amount }
     }
 
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
         let mut bytes = BytesMut::with_capacity(Self::BOUND.max_size() as usize);
-        bytes.put_u64(self.amount);
+        let amount_bytes = self.amount.0.to_bytes_be();
+        bytes.put_u8(amount_bytes.len() as u8);
+        bytes.put(self.amount.0.to_bytes_be().as_slice());
 
         bytes.to_vec().into()
     }
@@ -42,11 +49,12 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
+    use crate::utils::fly_to_picofly;
 
     #[test]
     fn test_should_encode_and_decode_balance() {
         let balance = Balance {
-            amount: 1_000_000_000_000 * 8_888_888,
+            amount: fly_to_picofly(8_888_888),
         };
 
         let encoded = balance.to_bytes();

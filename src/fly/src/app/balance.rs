@@ -7,7 +7,7 @@ mod account_balance;
 
 use std::cell::RefCell;
 
-use candid::Principal;
+use candid::{Nat, Principal};
 use did::fly::{BalanceError, FlyError, FlyResult, PicoFly};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
@@ -57,7 +57,7 @@ impl Balance {
             // init accounts
             for (account, balance) in initial_balances {
                 let storable_account = StorableAccount::from(account);
-                balances.insert(storable_account, balance.into());
+                balances.insert(storable_account, balance.clone().into());
                 total_supply -= balance;
             }
             // set remaining supply to canister account
@@ -70,29 +70,27 @@ impl Balance {
         });
     }
 
-    pub fn total_supply() -> u64 {
+    pub fn total_supply() -> PicoFly {
         let minting_account = Configuration::get_minting_account();
         BALANCES.with_borrow(|balances| {
-            balances
-                .iter()
-                .filter_map(|(account, balance)| {
-                    if minting_account == account.0 {
-                        None
-                    } else {
-                        Some(balance.amount)
-                    }
-                })
-                .sum::<u64>()
+            let mut supply = Nat::from(0);
+            for (account, balance) in balances.iter() {
+                if minting_account != account.0 {
+                    supply += balance.amount;
+                }
+            }
+
+            supply
         })
     }
 
     /// Get balance of account
-    pub fn balance_of(account: Account) -> FlyResult<u64> {
-        Self::with_balance(account, |balance| balance.amount)
+    pub fn balance_of(account: Account) -> FlyResult<PicoFly> {
+        Self::with_balance(account, |balance| balance.amount.clone())
     }
 
     /// Returns canister balance
-    pub fn canister_balance() -> u64 {
+    pub fn canister_balance() -> PicoFly {
         Self::balance_of(Self::canister_wallet_account()).unwrap()
     }
 
@@ -105,7 +103,7 @@ impl Balance {
     pub fn transfer(from: Account, to: Account, value: PicoFly, fee: PicoFly) -> FlyResult<()> {
         Self::transfer_wno_fees(from, to, value)?;
 
-        if fee > 0 {
+        if fee > 0_u64 {
             Self::transfer_wno_fees(from, Configuration::get_minting_account(), fee)
         } else {
             Ok(())
@@ -120,7 +118,7 @@ impl Balance {
             if balance.amount < value {
                 return Err(FlyError::Balance(BalanceError::InsufficientBalance));
             }
-            balance.amount -= value;
+            balance.amount -= value.clone();
             Ok(())
         })?;
         Self::with_balance_mut(to, |balance| {
@@ -150,7 +148,7 @@ impl Balance {
                 Some(balance) => balance,
                 None => {
                     // If balance is not set, create it with 0 balance
-                    balances.insert(storable_account.clone(), AccountBalance::from(0));
+                    balances.insert(storable_account.clone(), AccountBalance::from(Nat::from(0)));
                     balances.get(&storable_account).unwrap()
                 }
             };
