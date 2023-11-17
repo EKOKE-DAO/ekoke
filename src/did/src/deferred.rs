@@ -1,7 +1,7 @@
 //! Types associated to the "Sell Contract" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::{GenericValue, TokenIdentifier, TokenMetadata, TxEvent};
+use dip721::{GenericValue, TokenIdentifier, TxEvent};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
@@ -171,35 +171,6 @@ impl Storable for Token {
 
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         Decode!(&bytes, Self).unwrap()
-    }
-}
-
-impl From<Token> for TokenMetadata {
-    fn from(token: Token) -> Self {
-        Self {
-            approved_at: token.approved_at,
-            approved_by: token.approved_by,
-            burned_at: token.burned_at,
-            burned_by: token.burned_by,
-            is_burned: token.is_burned,
-            minted_at: token.minted_at,
-            minted_by: token.minted_by,
-            operator: token.operator,
-            owner: token.owner,
-            properties: vec![
-                (
-                    "contract_id".to_string(),
-                    GenericValue::TextContent(token.contract_id.to_string()),
-                ),
-                (
-                    "value".to_string(),
-                    GenericValue::NatContent(token.value.into()),
-                ),
-            ],
-            token_identifier: token.id,
-            transferred_at: token.transferred_at,
-            transferred_by: token.transferred_by,
-        }
     }
 }
 

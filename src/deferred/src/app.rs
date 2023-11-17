@@ -302,12 +302,7 @@ impl Dip721 for Deferred {
 
     /// Returns metadata for token
     fn token_metadata(token_identifier: TokenIdentifier) -> Result<TokenMetadata, NftError> {
-        let token = match ContractStorage::get_token(&token_identifier) {
-            Some(token) => token,
-            None => return Err(NftError::TokenNotFound),
-        };
-
-        Ok(token.into())
+        ContractStorage::get_token_metadata(&token_identifier).ok_or(NftError::TokenNotFound)
     }
 
     /// Returns the count of NFTs owned by user.

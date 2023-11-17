@@ -1,7 +1,7 @@
 use candid::{Nat, Principal};
 use did::deferred::{Contract, DeferredError, DeferredResult, Token, TokenError};
 use did::{StorableNat, ID};
-use dip721::TokenIdentifier;
+use dip721::{GenericValue, TokenIdentifier, TokenMetadata};
 use itertools::Itertools;
 
 use super::{
@@ -147,6 +147,48 @@ impl ContractStorage {
     /// Get token by id
     pub fn get_token(id: &TokenIdentifier) -> Option<Token> {
         with_token(id, |token| Ok(token.clone())).ok()
+    }
+
+    /// get token metadata
+    pub fn get_token_metadata(id: &TokenIdentifier) -> Option<TokenMetadata> {
+        let token = Self::get_token(id)?;
+        let contract = Self::get_contract(&token.contract_id)?;
+
+        let mut properties = vec![
+            (
+                "token:contract_id".to_string(),
+                GenericValue::TextContent(token.contract_id.to_string()),
+            ),
+            (
+                "token:value".to_string(),
+                GenericValue::NatContent(token.value.into()),
+            ),
+            (
+                "token:currency".to_string(),
+                GenericValue::TextContent(contract.currency),
+            ),
+            (
+                "token:picofly_reward".to_string(),
+                GenericValue::NatContent(token.picofly_reward),
+            ),
+        ];
+        properties.extend(contract.properties);
+
+        Some(TokenMetadata {
+            approved_at: token.approved_at,
+            approved_by: token.approved_by,
+            burned_at: token.burned_at,
+            burned_by: token.burned_by,
+            is_burned: token.is_burned,
+            minted_at: token.minted_at,
+            minted_by: token.minted_by,
+            operator: token.operator,
+            owner: token.owner,
+            properties,
+            token_identifier: token.id,
+            transferred_at: token.transferred_at,
+            transferred_by: token.transferred_by,
+        })
     }
 
     /// get contracts
@@ -683,5 +725,34 @@ mod test {
 
         assert_eq!(ContractStorage::get_signed_contracts().len(), 1);
         assert_eq!(ContractStorage::get_unsigned_contracts().len(), 1);
+    }
+
+    #[test]
+    fn test_should_get_token_metadata() {
+        let token = mock_token(1, 1);
+        let contract = with_mock_contract(1, 1, |contract| {
+            contract.properties.push((
+                "contract:address".to_string(),
+                dip721::GenericValue::TextContent("Rome".to_string()),
+            ));
+            contract.properties.push((
+                "contract:country".to_string(),
+                dip721::GenericValue::TextContent("Italy".to_string()),
+            ));
+        });
+        assert!(ContractStorage::insert_contract(contract).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1.into(), vec![token]).is_ok());
+
+        let metadata = ContractStorage::get_token_metadata(&1.into()).unwrap();
+        assert_eq!(metadata.token_identifier, 1_u64);
+        assert_eq!(metadata.approved_at, None);
+        assert_eq!(metadata.approved_by, None);
+        assert_eq!(metadata.burned_at, None);
+        assert_eq!(metadata.burned_by, None);
+        assert_eq!(metadata.is_burned, false);
+        assert_eq!(metadata.operator, None);
+        assert_eq!(metadata.properties.len(), 7);
+        assert_eq!(metadata.transferred_at, None);
+        assert_eq!(metadata.transferred_by, None);
     }
 }

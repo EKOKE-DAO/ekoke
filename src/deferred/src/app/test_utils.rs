@@ -40,7 +40,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
         value: 250_000,
         currency: "EUR".to_string(),
         properties: vec![(
-            "Rome".to_string(),
+            "contract:city".to_string(),
             dip721::GenericValue::TextContent("Rome".to_string()),
         )],
     }
