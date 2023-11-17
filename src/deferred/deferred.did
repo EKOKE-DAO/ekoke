@@ -121,6 +121,7 @@ type TokenError = variant {
   TokenIsBurned : nat;
   InvalidExpirationDate;
   BadMintTokenOwner : nat;
+  BadContractProperty;
 };
 type TokenMetadata = record {
   transferred_at : opt nat64;

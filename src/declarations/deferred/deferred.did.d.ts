@@ -129,7 +129,8 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'InvalidExpirationDate' : null } |
-  { 'BadMintTokenOwner' : bigint };
+  { 'BadMintTokenOwner' : bigint } |
+  { 'BadContractProperty' : null };
 export interface TokenMetadata {
   'transferred_at' : [] | [bigint],
   'transferred_by' : [] | [Principal],

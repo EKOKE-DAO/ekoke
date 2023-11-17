@@ -35,6 +35,8 @@ pub enum DeferredError {
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum TokenError {
+    #[error("contract properties should start with 'contract:'")]
+    BadContractProperty,
     #[error("the provided contract ID ({0}) already exists in the canister storage")]
     ContractAlreadyExists(ID),
     #[error("the provided contract ID ({0}) is already signed")]

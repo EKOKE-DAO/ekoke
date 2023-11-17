@@ -45,6 +45,7 @@ export const idlFactory = ({ IDL }) => {
     'TokenIsBurned' : IDL.Nat,
     'InvalidExpirationDate' : IDL.Null,
     'BadMintTokenOwner' : IDL.Nat,
+    'BadContractProperty' : IDL.Null,
   });
   const DeferredError = IDL.Variant({
     'Fly' : FlyError,

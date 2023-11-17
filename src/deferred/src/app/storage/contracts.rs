@@ -36,6 +36,15 @@ impl ContractStorage {
             ));
         }
 
+        // check contract props
+        if contract
+            .properties
+            .iter()
+            .any(|(key, _)| !key.starts_with("contract:"))
+        {
+            return Err(DeferredError::Token(TokenError::BadContractProperty));
+        }
+
         with_contracts_mut(|contracts| contracts.insert(contract.id.clone().into(), contract));
 
         Ok(())
@@ -415,6 +424,18 @@ mod test {
     }
 
     #[test]
+    fn test_should_not_allow_contract_with_bad_property_name() {
+        let contract = with_mock_contract(1, 40, |contract| {
+            contract.properties.push((
+                "contraaa".to_string(),
+                GenericValue::TextContent("Rome".to_string()),
+            ));
+        });
+
+        assert!(ContractStorage::insert_contract(contract.clone()).is_err());
+    }
+
+    #[test]
     fn test_should_not_allow_duped_token() {
         let contract_id = ID::from(1);
         let token_1 = mock_token(1, 1);
@@ -616,7 +637,7 @@ mod test {
             value: 250_000,
             currency: "EUR".to_string(),
             properties: vec![(
-                "Rome".to_string(),
+                "contract:city".to_string(),
                 dip721::GenericValue::TextContent("Rome".to_string()),
             )],
         };
