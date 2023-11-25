@@ -65,6 +65,8 @@ pub enum TokenError {
     ContractValueIsNotMultipleOfInstallments,
     #[error("the provided expiration date is invalid. It must have syntax YYYY-MM-DD")]
     InvalidExpirationDate,
+    #[error("the provided contract has no seller")]
+    ContractHasNoSeller,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

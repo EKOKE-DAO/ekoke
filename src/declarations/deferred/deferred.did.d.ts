@@ -126,6 +126,7 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'TokenNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
   { 'ContractNotSigned' : bigint } |
+  { 'ContractHasNoSeller' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'InvalidExpirationDate' : null } |

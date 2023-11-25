@@ -26,6 +26,10 @@ impl ContractStorage {
             )));
         }
 
+        if contract.seller == Principal::anonymous() {
+            return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
+        }
+
         if contract.installments == 0 {
             return Err(DeferredError::Token(TokenError::ContractHasNoTokens));
         }
@@ -431,7 +435,54 @@ mod test {
     }
 
     #[test]
+    fn test_should_insert_and_get_contract_with_no_buyers() {
+        let seller =
+            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
+                .unwrap();
+        let contract_id = ID::from(1);
+        let next_token_id = ContractStorage::total_supply();
+        assert_eq!(next_token_id, Nat::from(0));
+        let token_1 = with_mock_token(1, 1, |token| {
+            token.operator = Some(seller);
+            token.owner = Some(seller);
+        });
+        let token_2 = with_mock_token(2, 1, |token| {
+            token.owner = Some(seller);
+        });
+
+        let contract = with_mock_contract(1, 2, |contract| {
+            contract.seller = seller;
+            contract.buyers = vec![];
+        });
+
+        assert!(ContractStorage::get_contract(&contract.id).is_none());
+        assert!(ContractStorage::insert_contract(contract.clone(),).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(
+            &contract_id,
+            vec![token_1.clone(), token_2.clone()]
+        )
+        .is_ok());
+        assert!(ContractStorage::get_contract(&contract.id).is_some());
+        assert!(ContractStorage::get_token(&token_1.id).is_some());
+        assert!(ContractStorage::get_token(&token_2.id).is_some());
+        assert_eq!(ContractStorage::total_supply(), 2);
+        assert_eq!(ContractStorage::tokens_by_owner(seller).len(), 2);
+        assert_eq!(ContractStorage::tokens_by_operator(seller).len(), 1);
+        assert_eq!(ContractStorage::get_signed_contracts(), vec![contract.id]);
+    }
+
+    #[test]
     fn test_should_not_allow_duped_contract() {
+        let contract = with_mock_contract(1, 2, |contract| {
+            contract.seller = Principal::anonymous();
+            contract.buyers = vec![];
+        });
+
+        assert!(ContractStorage::insert_contract(contract).is_err());
+    }
+
+    #[test]
+    fn test_should_not_allow_contract_with_anonymous_seller() {
         let contract = mock_contract(1, 2);
 
         assert!(ContractStorage::insert_contract(contract.clone()).is_ok());
@@ -585,11 +636,11 @@ mod test {
     fn test_should_transfer_token() {
         let contract_id = ID::from(1);
         let token_1 = with_mock_token(1, 1, |token| {
-            token.owner = Some(Principal::anonymous());
+            token.owner = Some(Principal::management_canister());
         });
 
         let contract = with_mock_contract(1, 1, |contract| {
-            contract.seller = Principal::anonymous();
+            contract.seller = Principal::management_canister();
         });
 
         let new_owner =

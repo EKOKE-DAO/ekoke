@@ -111,6 +111,7 @@ impl Deferred {
             caller(),
             &data.id,
             data.value,
+            data.seller,
             data.installments,
             &data.expiration,
         )?;

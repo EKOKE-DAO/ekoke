@@ -41,6 +41,7 @@ export const idlFactory = ({ IDL }) => {
     'TokenNotFound' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
     'ContractNotSigned' : IDL.Nat,
+    'ContractHasNoSeller' : IDL.Null,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
     'InvalidExpirationDate' : IDL.Null,

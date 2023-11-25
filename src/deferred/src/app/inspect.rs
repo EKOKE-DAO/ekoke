@@ -133,12 +133,18 @@ impl Inspect {
         caller: Principal,
         id: &ID,
         value: u64,
+        seller: Principal,
         installments: u64,
         expiration: &str,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
         }
+
+        if seller == Principal::anonymous() {
+            return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
+        }
+
         // check if contract already exists
         if ContractStorage::get_contract(id).is_some() {
             return Err(DeferredError::Token(TokenError::ContractAlreadyExists(
@@ -411,9 +417,15 @@ mod test {
         // caller is not custodian
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         assert!(RolesManager::set_custodians(vec![crate::utils::caller()]).is_ok());
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_err()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_err());
     }
 
     #[test]
@@ -422,54 +434,105 @@ mod test {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         test_utils::store_mock_contract(&[1, 2], 2);
-        assert!(
-            Inspect::inspect_register_contract(caller, &2.into(), 100, 25, "2040-01-01").is_err()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &2.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_value_is_not_multiple_of_installments() {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 110, 25, "2040-01-01").is_err()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            110,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_invalid_expiration_date() {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2020-01-01").is_err()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2020-01-01"
+        )
+        .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_caller_is_not_agent() {
         // caller is not agent
         let caller = Principal::from_text("aaaaa-aa").unwrap();
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_err()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_custodian() {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_ok()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_seller_is_anonymous() {
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::anonymous(),
+            25,
+            "2040-01-01"
+        )
+        .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_agent() {
         let caller = crate::utils::caller();
         RolesManager::give_role(caller, Role::Agent);
-        assert!(
-            Inspect::inspect_register_contract(caller, &1.into(), 100, 25, "2040-01-01").is_ok()
-        );
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            Principal::management_canister(),
+            25,
+            "2040-01-01"
+        )
+        .is_ok());
     }
 
     #[test]
