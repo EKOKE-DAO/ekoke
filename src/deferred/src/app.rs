@@ -442,7 +442,7 @@ impl Dip721 for Deferred {
         to: Principal,
         token_identifier: TokenIdentifier,
     ) -> Result<Nat, NftError> {
-        let token = Inspect::inspect_is_owner_or_operator(caller(), &token_identifier)?;
+        let token = Inspect::inspect_transfer_from(caller(), &token_identifier)?;
         let last_owner = token.owner;
         let contract = match ContractStorage::get_contract(&token.contract_id) {
             Some(contract) => contract,

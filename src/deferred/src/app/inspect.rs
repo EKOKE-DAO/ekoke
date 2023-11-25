@@ -46,6 +46,19 @@ impl Inspect {
         Ok(token)
     }
 
+    /// Inspect whether the caller is owner or operator of the token and the token is not burned.
+    pub fn inspect_transfer_from(
+        caller: Principal,
+        token_identifier: &Nat,
+    ) -> Result<Token, NftError> {
+        let token = Self::inspect_is_owner_or_operator(caller, token_identifier)?;
+        if token.is_burned {
+            return Err(NftError::ExistedNFT);
+        }
+
+        Ok(token)
+    }
+
     /// Inspect burn, allow burn only if caller is owner or operator and token is owned by a buyer or a seller.
     pub fn inspect_burn(caller: Principal, token_identifier: &Nat) -> Result<(), NftError> {
         let token = match ContractStorage::get_token(token_identifier) {
@@ -248,6 +261,57 @@ mod test {
         );
         assert!(ContractStorage::transfer(&3.into(), Principal::management_canister()).is_ok());
         assert!(Inspect::inspect_is_owner_or_operator(caller, &3.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_transfer_from() {
+        let caller = caller();
+        test_utils::store_mock_contract_with(
+            &[1],
+            1,
+            |_| {},
+            |token| {
+                token.owner = Some(caller);
+                token.operator = None;
+            },
+        );
+        assert!(Inspect::inspect_transfer_from(caller, &1.into()).is_ok());
+
+        // with operator
+        test_utils::store_mock_contract_with(
+            &[2],
+            2,
+            |_| {},
+            |token| {
+                token.operator = Some(caller);
+            },
+        );
+        assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &2.into()).is_ok());
+
+        // no operator, no owner
+        test_utils::store_mock_contract_with(
+            &[3],
+            3,
+            |_| {},
+            |token| {
+                token.operator = Some(Principal::management_canister());
+            },
+        );
+        assert!(ContractStorage::transfer(&3.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &3.into()).is_err());
+
+        test_utils::store_mock_contract_with(
+            &[4],
+            4,
+            |_| {},
+            |token| {
+                token.owner = Some(caller);
+                token.operator = None;
+            },
+        );
+        assert!(ContractStorage::burn_token(&4.into()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &4.into()).is_err());
     }
 
     #[test]
