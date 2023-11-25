@@ -88,7 +88,7 @@ impl FlyCanister {
     /// Otherwise, the provided amount will be reserved from canister wallet, if possible and returned.
     ///
     /// If the canister wallet doesn't have enough tokens to reserve `InsufficientBalance` error is returned
-    pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
+    pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
         if !Inspect::inspect_is_deferred_canister(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }

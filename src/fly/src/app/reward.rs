@@ -14,13 +14,13 @@ impl Reward {
     /// Calculate reward for the provided contract ID and installments.
     ///
     /// Returns None if unable to reserve enough tokens.
-    pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
+    pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
         // If a pool is already reserved, return the pool
         if let Ok(reward) = Pool::balance_of(&contract_id) {
             return Ok(reward);
         }
 
-        let reward = Self::calc_reward(installments.clone());
+        let reward = Self::calc_reward(installments);
         let amount_to_reserve = reward.clone() * installments;
 
         // reserve pool
@@ -33,7 +33,7 @@ impl Reward {
         Ok(reward)
     }
 
-    fn calc_reward(installments: PicoFly) -> PicoFly {
+    fn calc_reward(installments: u64) -> PicoFly {
         todo!();
     }
 }

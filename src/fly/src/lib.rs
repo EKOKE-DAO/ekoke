@@ -27,7 +27,7 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub fn get_contract_reward(contract_id: ID, installments: PicoFly) -> FlyResult<PicoFly> {
+pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
     FlyCanister::get_contract_reward(contract_id, installments)
 }
 
