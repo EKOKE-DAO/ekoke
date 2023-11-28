@@ -8,17 +8,19 @@ import random
 INITIAL_TOTAL_SUPPLY = 8_700_000.0
 NFT_VALUE = 100
 AVG_REAL_ESTATE_VALUE = 400_000
-INITIAL_RMC = 0.0000042
-INITIAL_RMC_HALVING_INTERVAL = 4 * 12  # 8 years
+INITIAL_RMC = 0.000_004_200
+INITIAL_RMC_HALVING_INTERVAL = 4 * 12  # 4 years
 REAL_ESTATE_PER_MONTH = 1.0
 REWARD_PERIOD = 12 * 100  # 100 years
 INITIAL_AVIDITY = 1.0
+FEE = 0.000_000_010_000
+MIN_REWARD = FEE * 2
 
 
 def calculate_fly_reward(remaining_supply: float, rmc: float, avidity: float) -> float:
     reward = remaining_supply * rmc * avidity
-    if reward < 0.000000000001:  # less than picofly
-        return 0.000000000001
+    if reward < MIN_REWARD:  # less than transfer fee
+        return MIN_REWARD
     else:
         return reward
 
@@ -53,21 +55,22 @@ def write_reward_data(
 def randomize_real_estate_per_month(
     last_real_estate_per_month: float, max_value: int
 ) -> int:
-    minimum_value = max(1, last_real_estate_per_month - 2)
-    max_value = min(max_value, last_real_estate_per_month + 2)
-    return floor(random.uniform(minimum_value, max_value))
+    floor_step = round(last_real_estate_per_month / 10) + 1
+    ceil_step = round(last_real_estate_per_month / 5) + 1
+
+    min_value = max(1, last_real_estate_per_month - floor_step)
+    max_value = min(max_value, last_real_estate_per_month + ceil_step)
+
+    return round(random.uniform(min_value, max_value))
 
 
 def adjust_avidity(avidity: float, last_cpm: float, cpm: float) -> float:
-    # last_cpm : 100 = cpm : x
-    factor = cpm / max(1, last_cpm)
-
-    if factor > 1.0:
-        new_avidity = avidity - (factor - 1)
+    if cpm > last_cpm:
+        new_avidity = avidity - 0.1
     else:
-        new_avidity = avidity + (1 - factor)
+        new_avidity = avidity + 0.1
 
-    return max(0.7, min(1.0, new_avidity))
+    return max(0.1, min(1.0, new_avidity))
 
 
 # Let's make some simulations
@@ -86,7 +89,6 @@ init_csv(handle)
 
 while current_month <= REWARD_PERIOD:
     remaining_months = min(REWARD_PERIOD - current_month + 1, halving_interval)
-    print(current_month)
     for _ in range(0, remaining_months):
         for _ in range(0, floor(real_estate_per_month)):
             # reserve reward for real estate in month
@@ -116,8 +118,7 @@ while current_month <= REWARD_PERIOD:
         max_increasing_value = max(1, floor(current_month / 5))
         real_estate_per_month = randomize_real_estate_per_month(
             real_estate_per_month, max_increasing_value
-        )
-        # increase month
+        )  # increase month
         current_month += 1
         avidity = adjust_avidity(avidity, last_cpm, real_estate_per_month)
         last_cpm = cpm

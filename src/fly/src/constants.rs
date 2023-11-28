@@ -6,8 +6,8 @@ pub const ICRC1_NAME: &str = "fly";
 pub const ICRC1_SYMBOL: &str = "FLY";
 /// pico fly
 pub const ICRC1_DECIMALS: u8 = 12;
-/// Default transfer fee
-pub const ICRC1_FEE: u64 = 100_000;
+/// Default transfer fee (10.000 picofly)
+pub const ICRC1_FEE: u64 = 10_000;
 /// Logo
 pub const ICRC1_LOGO: &str = "";
 /// The ledger will refuse transactions older than this or newer than this
