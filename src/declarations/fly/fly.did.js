@@ -44,13 +44,59 @@ export const idlFactory = ({ IDL }) => {
     'amount' : IDL.Nat,
   });
   const Result_2 = IDL.Variant({ 'Ok' : Transaction, 'Err' : FlyError });
+  const MetadataValue = IDL.Variant({
+    'Int' : IDL.Int,
+    'Nat' : IDL.Nat,
+    'Blob' : IDL.Vec(IDL.Nat8),
+    'Text' : IDL.Text,
+  });
+  const TokenExtension = IDL.Record({ 'url' : IDL.Text, 'name' : IDL.Text });
+  const TransferArg = IDL.Record({
+    'to' : Account,
+    'fee' : IDL.Opt(IDL.Nat),
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'from_subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat,
+  });
+  const TransferError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const Result_3 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferError });
   return IDL.Service({
     'admin_burn' : IDL.Func([IDL.Nat], [Result], []),
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
-    'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat], [Result_1], []),
+    'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
     'get_transaction' : IDL.Func([IDL.Nat64], [Result_2], ['query']),
+    'icrc1_balance_of' : IDL.Func([Account], [IDL.Nat], ['query']),
+    'icrc1_decimals' : IDL.Func([], [IDL.Nat8], ['query']),
+    'icrc1_fee' : IDL.Func([], [IDL.Nat], ['query']),
+    'icrc1_metadata' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, MetadataValue))],
+        ['query'],
+      ),
+    'icrc1_name' : IDL.Func([], [IDL.Text], ['query']),
+    'icrc1_supported_standards' : IDL.Func(
+        [],
+        [IDL.Vec(TokenExtension)],
+        ['query'],
+      ),
+    'icrc1_symbol' : IDL.Func([], [IDL.Text], ['query']),
+    'icrc1_total_supply' : IDL.Func([], [IDL.Nat], ['query']),
+    'icrc1_transfer' : IDL.Func([TransferArg], [Result_3], []),
     'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat], [Result_1], []),
   });
 };

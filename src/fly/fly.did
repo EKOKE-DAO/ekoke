@@ -14,12 +14,20 @@ type FlyInitData = record {
   admins : vec principal;
   total_supply : nat64;
 };
+type MetadataValue = variant {
+  Int : int;
+  Nat : nat;
+  Blob : vec nat8;
+  Text : text;
+};
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
 type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat; Err : FlyError };
 type Result_2 = variant { Ok : Transaction; Err : FlyError };
+type Result_3 = variant { Ok : nat; Err : TransferError };
 type Role = variant { DeferredCanister; Admin };
+type TokenExtension = record { url : text; name : text };
 type Transaction = record {
   to : Account;
   fee : nat;
@@ -28,12 +36,39 @@ type Transaction = record {
   created_at : nat64;
   amount : nat;
 };
+type TransferArg = record {
+  to : Account;
+  fee : opt nat;
+  memo : opt vec nat8;
+  from_subaccount : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type TransferError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
 service : (FlyInitData) -> {
   admin_burn : (nat) -> (Result);
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
-  get_contract_reward : (nat, nat) -> (Result_1);
+  get_contract_reward : (nat, nat64) -> (Result_1);
   get_transaction : (nat64) -> (Result_2) query;
+  icrc1_balance_of : (Account) -> (nat) query;
+  icrc1_decimals : () -> (nat8) query;
+  icrc1_fee : () -> (nat) query;
+  icrc1_metadata : () -> (vec record { text; MetadataValue }) query;
+  icrc1_name : () -> (text) query;
+  icrc1_supported_standards : () -> (vec TokenExtension) query;
+  icrc1_symbol : () -> (text) query;
+  icrc1_total_supply : () -> (nat) query;
+  icrc1_transfer : (TransferArg) -> (Result_3);
   reserve_pool : (Account, nat, nat) -> (Result_1);
 }
