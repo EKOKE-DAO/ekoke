@@ -1,4 +1,4 @@
-use candid::Nat;
+use candid::{CandidType, Nat};
 use icrc_ledger_types::icrc1::transfer::TransferError;
 pub use icrc_ledger_types::icrc1::*;
 
@@ -65,6 +65,7 @@ pub trait Icrc1 {
     fn icrc1_supported_standards() -> Vec<TokenExtension>;
 }
 
+#[derive(CandidType, Clone, Debug)]
 pub struct TokenExtension {
     pub name: String,
     pub url: String,
