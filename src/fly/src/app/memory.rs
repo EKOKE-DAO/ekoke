@@ -5,6 +5,7 @@ pub const BALANCES_MEMORY_ID: MemoryId = MemoryId::new(10);
 pub const POOL_MEMORY_ID: MemoryId = MemoryId::new(11);
 pub const CANISTER_WALLET_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(12);
 pub const REGISTER_MEMORY_ID: MemoryId = MemoryId::new(13);
+pub const SPEND_ALLOWANCE_MEMORY_ID: MemoryId = MemoryId::new(14);
 
 // Configuration
 pub const MINTING_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(20);

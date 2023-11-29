@@ -10,13 +10,14 @@ mod pool;
 mod register;
 mod reward;
 mod roles;
+mod spend_allowance;
 #[cfg(test)]
 mod test_utils;
 
-use std::time::Duration;
-
 use candid::{Nat, Principal};
-use did::fly::{BalanceError, FlyError, FlyInitData, FlyResult, PicoFly, Role, Transaction};
+use did::fly::{
+    AllowanceError, BalanceError, FlyError, FlyInitData, FlyResult, PicoFly, Role, Transaction,
+};
 use did::ID;
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -29,11 +30,10 @@ pub use self::inspect::Inspect;
 use self::pool::Pool;
 use self::reward::Reward;
 use self::roles::RolesManager;
+use self::spend_allowance::SpendAllowance;
 use crate::app::register::Register;
-use crate::constants::{
-    ICRC1_DECIMALS, ICRC1_FEE, ICRC1_LOGO, ICRC1_NAME, ICRC1_SYMBOL, ICRC1_TX_TIME_SKID,
-};
-use crate::utils::{self, random_subaccount};
+use crate::constants::{ICRC1_DECIMALS, ICRC1_FEE, ICRC1_LOGO, ICRC1_NAME, ICRC1_SYMBOL};
+use crate::utils::{self, caller, random_subaccount};
 
 pub struct FlyCanister;
 
@@ -55,9 +55,22 @@ impl FlyCanister {
             utils::fly_to_picofly(data.total_supply),
             data.initial_balances,
         );
+        // set timers
+        Self::set_timers();
     }
 
-    pub fn post_upgrade() {}
+    pub fn post_upgrade() {
+        Self::set_timers();
+    }
+
+    /// Set application timers
+    fn set_timers() {
+        #[cfg(target_family = "wasm")]
+        ic_cdk_timers::set_timer_interval(
+            crate::constants::SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL,
+            SpendAllowance::remove_expired_allowance,
+        );
+    }
 
     /// Get transaction by id
     pub fn get_transaction(id: u64) -> FlyResult<Transaction> {
@@ -182,40 +195,16 @@ impl Icrc1 for FlyCanister {
         transfer_args: icrc1_transfer::TransferArg,
     ) -> Result<Nat, icrc1_transfer::TransferError> {
         // get fee and check if fee is at least ICRC1_FEE
+        Inspect::inspect_transfer(&transfer_args)?;
         let fee = transfer_args.fee.unwrap_or(ICRC1_FEE.into());
-        if fee < ICRC1_FEE {
-            return Err(icrc1_transfer::TransferError::BadFee {
-                expected_fee: ICRC1_FEE.into(),
-            });
-        }
-
-        // check if the transaction is too old
-        let now = Duration::from_nanos(utils::time());
-        let tx_created_at = Duration::from_nanos(transfer_args.created_at_time.unwrap_or_default());
-        if now > tx_created_at && now.saturating_sub(tx_created_at) > ICRC1_TX_TIME_SKID {
-            return Err(icrc1_transfer::TransferError::TooOld);
-        } else if tx_created_at.saturating_sub(now) > ICRC1_TX_TIME_SKID {
-            return Err(icrc1_transfer::TransferError::CreatedInFuture {
-                ledger_time: now.as_nanos() as u64,
-            });
-        }
-
-        // check memo length
-        if let Some(memo) = &transfer_args.memo {
-            if memo.0.len() < 32 || memo.0.len() > 64 {
-                return Err(icrc1_transfer::TransferError::GenericError {
-                    error_code: Nat::from(1),
-                    message: "Invalid memo length. I must have a length between 32 and 64 bytes"
-                        .to_string(),
-                });
-            }
-        }
 
         // get from account
         let from_account = Account {
             owner: utils::caller(),
             subaccount: transfer_args.from_subaccount,
         };
+
+        let created_at = transfer_args.created_at_time.unwrap_or_else(utils::time);
 
         // check if it is a burn
         if transfer_args.to == Self::icrc1_minting_account() {
@@ -248,7 +237,7 @@ impl Icrc1 for FlyCanister {
             amount: transfer_args.amount,
             fee,
             memo: transfer_args.memo,
-            created_at: tx_created_at.as_nanos() as u64,
+            created_at,
         };
         Register::insert_tx(tx).map_err(|_| icrc1_transfer::TransferError::GenericError {
             error_code: Nat::from(4),
@@ -264,14 +253,155 @@ impl Icrc1 for FlyCanister {
     }
 }
 
+impl Icrc2 for FlyCanister {
+    fn icrc2_approve(
+        args: icrc2::approve::ApproveArgs,
+    ) -> Result<Nat, icrc2::approve::ApproveError> {
+        Inspect::inspect_icrc2_approve(caller(), &args)?;
+
+        let caller_account = Account {
+            owner: caller(),
+            subaccount: args.from_subaccount,
+        };
+
+        let current_allowance = SpendAllowance::get_allowance(caller_account, args.spender).0;
+
+        // pay fee
+        let fee = args.fee.clone().unwrap_or(ICRC1_FEE.into());
+        Balance::transfer_wno_fees(caller_account, Configuration::get_minting_account(), fee)
+            .map_err(|_| icrc2::approve::ApproveError::InsufficientFunds {
+                balance: Self::icrc1_balance_of(caller_account),
+            })?;
+
+        // approve spend
+        match SpendAllowance::approve_spend(caller(), args) {
+            Ok(amount) => Ok(amount),
+            Err(FlyError::Allowance(AllowanceError::AllowanceChanged)) => {
+                Err(icrc2::approve::ApproveError::AllowanceChanged { current_allowance })
+            }
+            Err(FlyError::Allowance(AllowanceError::BadExpiration)) => {
+                Err(icrc2::approve::ApproveError::TooOld)
+            }
+            Err(err) => Err(icrc2::approve::ApproveError::GenericError {
+                error_code: 0.into(),
+                message: err.to_string(),
+            }),
+        }
+    }
+
+    fn icrc2_transfer_from(
+        args: icrc2::transfer_from::TransferFromArgs,
+    ) -> Result<Nat, icrc2::transfer_from::TransferFromError> {
+        Inspect::inspect_icrc2_transfer_from(&args)?;
+
+        // check if owner has enough balance
+        let owner_balance = Self::icrc1_balance_of(args.from);
+        if owner_balance < args.amount {
+            return Err(icrc2::transfer_from::TransferFromError::InsufficientFunds {
+                balance: owner_balance,
+            });
+        }
+
+        // check if spender has fee
+        let spender = Account {
+            owner: caller(),
+            subaccount: args.spender_subaccount,
+        };
+        let spender_balance = Self::icrc1_balance_of(spender);
+        let fee = args.fee.clone().unwrap_or(ICRC1_FEE.into());
+        if spender_balance < fee {
+            return Err(icrc2::transfer_from::TransferFromError::InsufficientFunds {
+                balance: spender_balance,
+            });
+        }
+
+        // check allowance
+        let (allowance, expires_at) = SpendAllowance::get_allowance(args.from, spender);
+        if allowance < args.amount {
+            return Err(
+                icrc2::transfer_from::TransferFromError::InsufficientAllowance { allowance },
+            );
+        }
+
+        // check if has expired
+        if expires_at.is_some() && expires_at.unwrap() < utils::time() {
+            return Err(icrc2::transfer_from::TransferFromError::TooOld);
+        }
+
+        // spend allowance
+        match SpendAllowance::spend_allowance(
+            caller(),
+            args.from,
+            args.amount.clone(),
+            args.spender_subaccount,
+        ) {
+            Ok(()) => Ok(()),
+            Err(FlyError::Allowance(AllowanceError::InsufficientFunds)) => {
+                Err(icrc2::transfer_from::TransferFromError::InsufficientAllowance { allowance })
+            }
+            Err(FlyError::Allowance(AllowanceError::AllowanceExpired)) => {
+                Err(icrc2::transfer_from::TransferFromError::TooOld)
+            }
+            Err(e) => Err(icrc2::transfer_from::TransferFromError::GenericError {
+                error_code: 0.into(),
+                message: e.to_string(),
+            }),
+        }?;
+
+        // pay fee
+        Balance::transfer_wno_fees(spender, Configuration::get_minting_account(), fee.clone())
+            .map_err(
+                |_| icrc2::transfer_from::TransferFromError::InsufficientFunds {
+                    balance: Self::icrc1_balance_of(spender),
+                },
+            )?;
+
+        // transfer from `from` balance to `to` balance
+        Balance::transfer_wno_fees(args.from, args.to, args.amount.clone()).map_err(|_| {
+            icrc2::transfer_from::TransferFromError::InsufficientFunds {
+                balance: Self::icrc1_balance_of(args.from),
+            }
+        })?;
+
+        let tx_time = args.created_at_time.unwrap_or_else(utils::time);
+
+        // register transaction
+        let tx = Transaction {
+            from: args.from,
+            to: args.to,
+            amount: args.amount,
+            fee,
+            memo: args.memo,
+            created_at: tx_time,
+        };
+        Register::insert_tx(tx).map_err(|_| icrc2::transfer_from::TransferFromError::GenericError {
+            error_code: Nat::from(4),
+            message: "failed to register transaction".to_string(),
+        })
+    }
+
+    fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowance::Allowance {
+        let (allowance, expires_at) = SpendAllowance::get_allowance(args.account, args.spender);
+        icrc2::allowance::Allowance {
+            allowance,
+            expires_at,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
 
     use icrc::icrc1::transfer::TransferArg;
+    use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
+    use icrc::icrc2::approve::ApproveArgs;
+    use icrc::icrc2::transfer_from::TransferFromArgs;
     use pretty_assertions::{assert_eq, assert_ne};
 
     use super::test_utils::{alice_account, bob_account, caller_account};
     use super::*;
+    use crate::app::test_utils::bob;
+    use crate::constants::ICRC1_TX_TIME_SKID;
     use crate::utils::{caller, fly_to_picofly};
 
     #[test]
@@ -523,7 +653,7 @@ mod test {
             to: bob_account(),
             amount: Nat::from(fly_to_picofly(10_000)),
             fee: Some(Nat::from(ICRC1_FEE)),
-            created_at_time: None,
+            created_at_time: Some(0),
             memo: None,
         };
         assert!(matches!(
@@ -714,6 +844,118 @@ mod test {
         assert_eq!(
             extensions.get(1).unwrap().name,
             icrc1::TokenExtension::icrc2().name
+        );
+    }
+
+    #[test]
+    fn test_should_approve_spending() {
+        init_canister();
+        let approval_args = ApproveArgs {
+            from_subaccount: caller_account().subaccount,
+            spender: bob_account(),
+            amount: Nat::from(fly_to_picofly(10_000)),
+            fee: None,
+            expires_at: None,
+            expected_allowance: None,
+            memo: None,
+            created_at_time: None,
+        };
+
+        assert!(FlyCanister::icrc2_approve(approval_args).is_ok());
+        // check allowance
+        assert_eq!(
+            FlyCanister::icrc2_allowance(AllowanceArgs {
+                account: caller_account(),
+                spender: bob_account(),
+            }),
+            Allowance {
+                allowance: Nat::from(fly_to_picofly(10_000)),
+                expires_at: None,
+            }
+        );
+        // check we have paid fee
+        assert_eq!(
+            FlyCanister::icrc1_balance_of(caller_account()),
+            fly_to_picofly(100_000) - ICRC1_FEE
+        );
+    }
+
+    #[test]
+    fn test_should_not_approve_spending_if_we_cannot_pay_fee() {
+        init_canister();
+        let approval_args = ApproveArgs {
+            from_subaccount: caller_account().subaccount,
+            spender: bob_account(),
+            amount: Nat::from(fly_to_picofly(10_000)),
+            fee: Some(Nat::from(fly_to_picofly(110_000))),
+            expires_at: None,
+            expected_allowance: None,
+            memo: None,
+            created_at_time: None,
+        };
+
+        assert!(FlyCanister::icrc2_approve(approval_args).is_err());
+    }
+
+    #[test]
+    fn test_should_spend_approved_amount() {
+        init_canister();
+        let approval_args = ApproveArgs {
+            from_subaccount: bob_account().subaccount,
+            spender: caller_account(),
+            amount: Nat::from(fly_to_picofly(10_000)),
+            fee: None,
+            expires_at: None,
+            expected_allowance: None,
+            memo: None,
+            created_at_time: None,
+        };
+        assert!(SpendAllowance::approve_spend(bob(), approval_args).is_ok());
+        assert_eq!(
+            FlyCanister::icrc2_allowance(AllowanceArgs {
+                account: bob_account(),
+                spender: caller_account(),
+            }),
+            Allowance {
+                allowance: Nat::from(fly_to_picofly(10_000)),
+                expires_at: None,
+            }
+        );
+
+        // spend
+        assert!(FlyCanister::icrc2_transfer_from(TransferFromArgs {
+            spender_subaccount: caller_account().subaccount,
+            from: bob_account(),
+            to: alice_account(),
+            amount: Nat::from(fly_to_picofly(10_000)),
+            fee: None,
+            memo: None,
+            created_at_time: None,
+        })
+        .is_ok());
+        // verify balance
+        assert_eq!(
+            FlyCanister::icrc1_balance_of(bob_account()),
+            Nat::from(fly_to_picofly(40_000))
+        );
+        assert_eq!(
+            FlyCanister::icrc1_balance_of(alice_account()),
+            Nat::from(fly_to_picofly(60_000))
+        );
+        assert_eq!(
+            FlyCanister::icrc1_balance_of(caller_account()),
+            Nat::from(fly_to_picofly(100_000) - ICRC1_FEE)
+        );
+        // verify allowance
+        assert_eq!(
+            FlyCanister::icrc2_allowance(AllowanceArgs {
+                account: bob_account(),
+                spender: caller_account(),
+            }),
+            Allowance {
+                allowance: Nat::from(fly_to_picofly(0)),
+                expires_at: None,
+            }
         );
     }
 

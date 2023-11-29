@@ -13,6 +13,8 @@ pub type FlyResult<T> = Result<T, FlyError>;
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum FlyError {
+    #[error("allowance error {0}")]
+    Allowance(AllowanceError),
     #[error("balance error {0}")]
     Balance(BalanceError),
     #[error("configuration error {0}")]
@@ -23,6 +25,22 @@ pub enum FlyError {
     Register(RegisterError),
     #[error("storage error")]
     StorageError,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum AllowanceError {
+    #[error("allowance not found")]
+    AllowanceNotFound,
+    #[error("allowance changed")]
+    AllowanceChanged,
+    #[error("allowance expired")]
+    AllowanceExpired,
+    #[error("the spender cannot be the caller")]
+    BadSpender,
+    #[error("the expiration date is in the past")]
+    BadExpiration,
+    #[error("insufficient funds")]
+    InsufficientFunds,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

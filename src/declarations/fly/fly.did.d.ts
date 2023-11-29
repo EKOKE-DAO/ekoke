@@ -5,12 +5,19 @@ export interface Account {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
 }
+export type AllowanceError = { 'AllowanceNotFound' : null } |
+  { 'BadSpender' : null } |
+  { 'AllowanceChanged' : null } |
+  { 'BadExpiration' : null } |
+  { 'AllowanceExpired' : null } |
+  { 'InsufficientFunds' : null };
 export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Pool' : PoolError } |
+  { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
   { 'StorageError' : null } |
   { 'Balance' : BalanceError };

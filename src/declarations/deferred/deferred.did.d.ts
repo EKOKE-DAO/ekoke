@@ -1,6 +1,12 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
+export type AllowanceError = { 'AllowanceNotFound' : null } |
+  { 'BadSpender' : null } |
+  { 'AllowanceChanged' : null } |
+  { 'BadExpiration' : null } |
+  { 'AllowanceExpired' : null } |
+  { 'InsufficientFunds' : null };
 export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
@@ -46,6 +52,7 @@ export interface DeferredInitData {
 }
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Pool' : PoolError } |
+  { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
   { 'StorageError' : null } |
   { 'Balance' : BalanceError };

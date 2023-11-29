@@ -16,7 +16,8 @@ use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::TransferArg;
-use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1};
+use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1 as _};
+use icrc::icrc2::{self, Icrc2 as _};
 
 #[init]
 pub fn init(data: FlyInitData) {
@@ -124,6 +125,28 @@ pub fn icrc1_transfer(transfer_args: TransferArg) -> Result<Nat, icrc1_transfer:
 #[candid_method(query)]
 pub fn icrc1_supported_standards() -> Vec<icrc1::TokenExtension> {
     FlyCanister::icrc1_supported_standards()
+}
+
+#[update]
+#[candid_method(update)]
+pub fn icrc2_approve(
+    args: icrc2::approve::ApproveArgs,
+) -> Result<Nat, icrc2::approve::ApproveError> {
+    FlyCanister::icrc2_approve(args)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn icrc2_transfer_from(
+    args: icrc2::transfer_from::TransferFromArgs,
+) -> Result<Nat, icrc2::transfer_from::TransferFromError> {
+    FlyCanister::icrc2_transfer_from(args)
+}
+
+#[query]
+#[candid_method(query)]
+pub fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowance::Allowance {
+    FlyCanister::icrc2_allowance(args)
 }
 
 #[allow(dead_code)]

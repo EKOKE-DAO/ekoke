@@ -1,9 +1,18 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
+type AllowanceError = variant {
+  AllowanceNotFound;
+  BadSpender;
+  AllowanceChanged;
+  BadExpiration;
+  AllowanceExpired;
+  InsufficientFunds;
+};
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
+  Allowance : AllowanceError;
   Register : RegisterError;
   StorageError;
   Balance : BalanceError;

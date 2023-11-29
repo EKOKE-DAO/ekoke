@@ -12,3 +12,7 @@ pub const ICRC1_FEE: u64 = 10_000;
 pub const ICRC1_LOGO: &str = "";
 /// The ledger will refuse transactions older than this or newer than this
 pub const ICRC1_TX_TIME_SKID: Duration = Duration::from_secs(60 * 5);
+
+#[cfg(target_family = "wasm")]
+pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration =
+    Duration::from_secs(60 * 60 * 24 * 7); // 7 days

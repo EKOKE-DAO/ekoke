@@ -1,3 +1,11 @@
+type AllowanceError = variant {
+  AllowanceNotFound;
+  BadSpender;
+  AllowanceChanged;
+  BadExpiration;
+  AllowanceExpired;
+  InsufficientFunds;
+};
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
@@ -45,6 +53,7 @@ type DeferredInitData = record {
 type FlyError = variant {
   Configuration : ConfigurationError;
   Pool : PoolError;
+  Allowance : AllowanceError;
   Register : RegisterError;
   StorageError;
   Balance : BalanceError;

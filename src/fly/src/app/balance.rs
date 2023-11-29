@@ -101,8 +101,16 @@ impl Balance {
     /// Transfer $picoFly tokens from `from` account to `to` account.
     /// The fee is transferred to the Minting Account, making it burned
     pub fn transfer(from: Account, to: Account, value: PicoFly, fee: PicoFly) -> FlyResult<()> {
+        // verify balance
+        let to_spend = value.clone() + fee.clone();
+        if Self::balance_of(from)? < to_spend {
+            return Err(FlyError::Balance(BalanceError::InsufficientBalance));
+        }
+
+        // transfer without fees from -> to
         Self::transfer_wno_fees(from, to, value)?;
 
+        // then pay fees
         if fee > 0_u64 {
             Self::transfer_wno_fees(from, Configuration::get_minting_account(), fee)
         } else {

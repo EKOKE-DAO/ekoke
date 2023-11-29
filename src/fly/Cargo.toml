@@ -24,10 +24,12 @@ did = { path = "../did" }
 getrandom = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
+ic-cdk-timers = { workspace = true }
 ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
 num-bigint = { workspace = true }
 rand = { workspace = true }
+serde = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

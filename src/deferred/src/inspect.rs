@@ -60,6 +60,6 @@ fn inspect_message_impl() {
     if check_result {
         api::call::accept_message();
     } else {
-        ic_cdk::trap("Unauthorized");
+        ic_cdk::trap("Bad request");
     }
 }

@@ -17,6 +17,14 @@ export const idlFactory = ({ IDL }) => {
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
   });
+  const AllowanceError = IDL.Variant({
+    'AllowanceNotFound' : IDL.Null,
+    'BadSpender' : IDL.Null,
+    'AllowanceChanged' : IDL.Null,
+    'BadExpiration' : IDL.Null,
+    'AllowanceExpired' : IDL.Null,
+    'InsufficientFunds' : IDL.Null,
+  });
   const RegisterError = IDL.Variant({ 'TransactionNotFound' : IDL.Null });
   const BalanceError = IDL.Variant({
     'AccountNotFound' : IDL.Null,
@@ -25,6 +33,7 @@ export const idlFactory = ({ IDL }) => {
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Pool' : PoolError,
+    'Allowance' : AllowanceError,
     'Register' : RegisterError,
     'StorageError' : IDL.Null,
     'Balance' : BalanceError,
