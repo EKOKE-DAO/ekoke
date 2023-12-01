@@ -74,6 +74,12 @@ pub fn update_contract_property(
     Deferred::update_contract_property(contract_id, key, value)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn close_contract(contract_id: ID) -> DeferredResult<()> {
+    Deferred::close_contract(contract_id)
+}
+
 #[query]
 #[candid_method(query)]
 pub fn admin_get_unsigned_contracts() -> Vec<ID> {

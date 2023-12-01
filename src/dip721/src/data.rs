@@ -1,4 +1,5 @@
 use candid::{CandidType, Deserialize, Int, Nat, Principal};
+use thiserror::Error;
 
 /// Metadata for a DIP721 canister
 #[derive(CandidType, Default, Deserialize)]
@@ -71,17 +72,27 @@ pub enum SupportedInterface {
 }
 
 /// Represent an NFT error to return via API
-#[derive(CandidType, Debug, Deserialize, Clone, PartialEq, Eq)]
+#[derive(CandidType, Debug, Deserialize, Clone, PartialEq, Eq, Error)]
 pub enum NftError {
+    #[error("self transfer is not allowed")]
     SelfTransfer,
+    #[error("token not found")]
     TokenNotFound,
+    #[error("transaction not found")]
     TxNotFound,
+    #[error("not approved")]
     SelfApprove,
+    #[error("operator not found")]
     OperatorNotFound,
+    #[error("unauthorized owner")]
     UnauthorizedOwner,
+    #[error("unauthorized operator")]
     UnauthorizedOperator,
+    #[error("NFT existed")]
     ExistedNFT,
+    #[error("owner not found")]
     OwnerNotFound,
+    #[error("{0}")]
     Other(String),
 }
 

@@ -1,7 +1,7 @@
 //! Types associated to the "Deferred" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::{GenericValue, TokenIdentifier, TxEvent};
+use dip721::{GenericValue, NftError, TokenIdentifier, TxEvent};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use thiserror::Error;
@@ -31,6 +31,8 @@ pub enum DeferredError {
     Configuration(ConfigurationError),
     #[error("storage error")]
     StorageError,
+    #[error("nft error: {0}")]
+    Nft(#[from] NftError),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -65,6 +67,8 @@ pub enum TokenError {
     ContractValueIsNotMultipleOfInstallments,
     #[error("the provided contract has no seller")]
     ContractHasNoSeller,
+    #[error("in order to close the contract, all the tokens must be owned by the seller")]
+    CannotCloseContract,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

@@ -45,6 +45,10 @@ fn inspect_message_impl() {
             )
             .is_ok()
         }
+        "close_contract" => {
+            let id = api::call::arg_data::<(ID,)>().0;
+            Inspect::inspect_close_contract(caller(), id).is_ok()
+        }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
             Inspect::inspect_burn(caller(), &token_identifier).is_ok()
