@@ -62,7 +62,7 @@ mod test {
         let contract = Contract {
             id: ID::from(1),
             r#type: ContractType::Sell,
-            seller: vec![
+            sellers: vec![
                 Seller {
                     principal: Principal::from_text(
                         "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
@@ -97,7 +97,7 @@ mod test {
         let decoded_contract = Decode!(&data, Contract).unwrap();
 
         assert_eq!(contract.id, decoded_contract.id);
-        assert_eq!(contract.seller, decoded_contract.seller);
+        assert_eq!(contract.sellers, decoded_contract.sellers);
         assert_eq!(contract.buyers, decoded_contract.buyers);
         assert_eq!(contract.tokens, decoded_contract.tokens);
         assert_eq!(contract.properties, decoded_contract.properties);

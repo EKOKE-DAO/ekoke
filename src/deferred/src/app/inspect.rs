@@ -126,14 +126,14 @@ impl Inspect {
         caller: Principal,
         id: &ID,
         value: u64,
-        seller: &[Seller],
+        sellers: &[Seller],
         installments: u64,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
         }
 
-        if seller
+        if sellers
             .iter()
             .any(|seller| seller.principal == Principal::anonymous())
         {
@@ -154,7 +154,7 @@ impl Inspect {
             ));
         }
 
-        let total_quota = seller.iter().map(|seller| seller.quota).sum::<u8>();
+        let total_quota = sellers.iter().map(|seller| seller.quota).sum::<u8>();
         if total_quota != 100 {
             return Err(DeferredError::Token(
                 TokenError::ContractSellerQuotaIsNot100,
@@ -377,7 +377,7 @@ mod test {
             &[3],
             3,
             |contract| {
-                contract.seller = vec![Seller {
+                contract.sellers = vec![Seller {
                     principal: Principal::management_canister(),
                     quota: 100,
                 }];
@@ -395,7 +395,7 @@ mod test {
             &[4],
             4,
             |contract| {
-                contract.seller = vec![Seller {
+                contract.sellers = vec![Seller {
                     principal: Principal::management_canister(),
                     quota: 100,
                 }];
@@ -426,7 +426,7 @@ mod test {
             &[6],
             6,
             |contract| {
-                contract.seller = vec![Seller {
+                contract.sellers = vec![Seller {
                     principal: Principal::management_canister(),
                     quota: 100,
                 }];

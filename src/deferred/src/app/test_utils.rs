@@ -30,7 +30,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
     Contract {
         id: id.into(),
         r#type: did::deferred::ContractType::Financing,
-        seller: vec![Seller {
+        sellers: vec![Seller {
             principal: caller(),
             quota: 100,
         }],

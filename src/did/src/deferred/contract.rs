@@ -17,7 +17,7 @@ pub struct Contract {
     /// Contract type
     pub r#type: ContractType,
     /// The contractors selling the building with their quota
-    pub seller: Vec<Seller>,
+    pub sellers: Vec<Seller>,
     /// Contract buyers. Those who must pay
     pub buyers: Vec<Principal>,
     /// Tokens associated to the contract, by id
@@ -38,7 +38,7 @@ pub struct Contract {
 
 impl Contract {
     pub fn is_seller(&self, principal: &Principal) -> bool {
-        self.seller.iter().any(|s| &s.principal == principal)
+        self.sellers.iter().any(|s| &s.principal == principal)
     }
 }
 
@@ -78,7 +78,7 @@ pub struct Seller {
 pub struct ContractRegistration {
     pub id: ID,
     pub r#type: ContractType,
-    pub seller: Vec<Seller>,
+    pub sellers: Vec<Seller>,
     pub buyers: Vec<Principal>,
     pub value: u64,
     pub currency: String,

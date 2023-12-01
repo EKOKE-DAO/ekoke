@@ -27,7 +27,7 @@ impl ContractStorage {
         }
 
         if contract
-            .seller
+            .sellers
             .iter()
             .any(|seller| seller.principal == Principal::anonymous())
         {
@@ -73,7 +73,7 @@ impl ContractStorage {
             .map(|t| t.id.clone())
             .collect::<Vec<TokenIdentifier>>();
 
-        let seller = with_contract_mut(contract_id, |contract| {
+        let sellers = with_contract_mut(contract_id, |contract| {
             if contract.is_signed {
                 return Err(DeferredError::Token(TokenError::ContractAlreadySigned(
                     contract.id.clone(),
@@ -88,10 +88,10 @@ impl ContractStorage {
             contract.is_signed = true;
             contract.tokens = token_ids;
 
-            Ok(contract.seller.clone())
+            Ok(contract.sellers.clone())
         })?;
 
-        Self::mint_tokens(contract_id, &seller, tokens)?;
+        Self::mint_tokens(contract_id, &sellers, tokens)?;
 
         Ok(())
     }
@@ -117,7 +117,7 @@ impl ContractStorage {
                 .map(|t| t.id.clone())
                 .collect::<Vec<TokenIdentifier>>();
 
-            Self::mint_tokens(contract_id, &contract.seller, tokens)?;
+            Self::mint_tokens(contract_id, &contract.sellers, tokens)?;
 
             // update contract value and ids
             contract.value = new_value;
@@ -441,7 +441,7 @@ mod test {
         });
 
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
         });
 
         assert!(ContractStorage::get_contract(&contract.id).is_none());
@@ -479,7 +479,7 @@ mod test {
         });
 
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
             contract.buyers = vec![];
         });
 
@@ -502,7 +502,7 @@ mod test {
     #[test]
     fn test_should_not_allow_duped_contract() {
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = vec![Seller {
+            contract.sellers = vec![Seller {
                 principal: Principal::anonymous(),
                 quota: 100,
             }];
@@ -581,7 +581,7 @@ mod test {
         });
 
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
         });
 
         assert!(ContractStorage::insert_contract(contract.clone()).is_ok());
@@ -620,7 +620,7 @@ mod test {
         });
 
         let contract = with_mock_contract(1, 1, |contract| {
-            contract.seller = vec![Seller {
+            contract.sellers = vec![Seller {
                 principal: owner,
                 quota: 100,
             }];
@@ -675,7 +675,7 @@ mod test {
         });
 
         let contract = with_mock_contract(1, 1, |contract| {
-            contract.seller = vec![Seller {
+            contract.sellers = vec![Seller {
                 principal: Principal::management_canister(),
                 quota: 100,
             }];
@@ -714,7 +714,7 @@ mod test {
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(2, 1);
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
         });
 
         assert!(ContractStorage::insert_contract(contract.clone(),).is_ok());
@@ -728,7 +728,7 @@ mod test {
 
     #[test]
     fn test_should_update_token_operator() {
-        let seller = vec![Seller {
+        let sellers = vec![Seller {
             principal: caller(),
             quota: 100,
         }];
@@ -738,7 +738,7 @@ mod test {
         let contract = Contract {
             id: contract_id.clone(),
             r#type: did::deferred::ContractType::Financing,
-            seller,
+            sellers,
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
             installments: 2,
@@ -775,7 +775,7 @@ mod test {
         assert_eq!(next_token_id, Nat::from(0));
         let token_1 = mock_token(next_token_id, 1);
         let contract = with_mock_contract(1, 1, |contract| {
-            contract.seller = vec![Seller {
+            contract.sellers = vec![Seller {
                 principal: seller,
                 quota: 51,
             }];
@@ -808,7 +808,7 @@ mod test {
         assert_eq!(next_token_id, Nat::from(0));
         let token_1 = mock_token(next_token_id, 1);
         let contract = with_mock_contract(1, 1, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
             contract.value = 100;
         });
 
@@ -839,7 +839,7 @@ mod test {
         let next_token_id = ContractStorage::total_supply();
         assert_eq!(next_token_id, Nat::from(0));
         let contract = with_mock_contract(1, 2, |contract| {
-            contract.seller = seller;
+            contract.sellers = seller;
         });
 
         assert!(ContractStorage::insert_contract(contract.clone()).is_ok());

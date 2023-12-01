@@ -93,7 +93,7 @@ impl Deferred {
         incr_by: u64,
         installments: u64,
     ) -> DeferredResult<()> {
-        let contract_sellers = Inspect::inspect_is_seller(caller(), contract_id.clone())?.seller;
+        let contract_sellers = Inspect::inspect_is_seller(caller(), contract_id.clone())?.sellers;
 
         // mint new tokens
         let (tokens, _) =
@@ -126,7 +126,7 @@ impl Deferred {
             caller(),
             &data.id,
             data.value,
-            &data.seller,
+            &data.sellers,
             data.installments,
         )?;
 
@@ -140,7 +140,7 @@ impl Deferred {
             installments: data.installments,
             is_signed: false,
             r#type: data.r#type,
-            seller: data.seller,
+            sellers: data.sellers,
             tokens: vec![],
             value: data.value,
         };
@@ -169,7 +169,7 @@ impl Deferred {
         // mint new tokens
         let (tokens, _) = Minter::mint(
             &contract_id,
-            contract.seller,
+            contract.sellers,
             contract.installments,
             contract.value,
         )
@@ -591,7 +591,7 @@ mod test {
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
-            seller: vec![Seller {
+            sellers: vec![Seller {
                 principal: caller(),
                 quota: 100,
             }],
@@ -616,7 +616,7 @@ mod test {
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
-            seller: vec![Seller {
+            sellers: vec![Seller {
                 principal: caller(),
                 quota: 100,
             }],
