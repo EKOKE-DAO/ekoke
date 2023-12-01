@@ -1,5 +1,5 @@
 use candid::Principal;
-use did::deferred::{Contract, Token};
+use did::deferred::{Contract, Seller, Token};
 use did::ID;
 use dip721::TokenIdentifier;
 
@@ -30,7 +30,10 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
     Contract {
         id: id.into(),
         r#type: did::deferred::ContractType::Financing,
-        seller: caller(),
+        seller: vec![Seller {
+            principal: caller(),
+            quota: 100,
+        }],
         buyers: vec![Principal::management_canister()],
         tokens: vec![],
         installments,

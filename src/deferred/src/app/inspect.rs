@@ -3,7 +3,7 @@
 //! Deferred inspect message handler
 
 use candid::{Nat, Principal};
-use did::deferred::{DeferredError, DeferredResult, Token, TokenError};
+use did::deferred::{Contract, DeferredError, DeferredResult, Seller, Token, TokenError};
 use did::ID;
 use dip721::NftError;
 
@@ -73,7 +73,7 @@ impl Inspect {
             None => return Err(NftError::UnauthorizedOwner),
         };
 
-        if !contract.buyers.contains(&owner) && owner != contract.seller {
+        if !contract.buyers.contains(&owner) && !contract.is_seller(&caller) {
             return Err(NftError::Other(
                 "owner is not nor a buyer nor the seller".to_string(),
             ));
@@ -108,7 +108,7 @@ impl Inspect {
 
         if !Self::inspect_is_custodian(caller)
             && !Self::inspect_is_agent(caller)
-            && caller != contract.seller
+            && !contract.is_seller(&caller)
         {
             Err(DeferredError::Unauthorized)
         } else {
@@ -126,14 +126,17 @@ impl Inspect {
         caller: Principal,
         id: &ID,
         value: u64,
-        seller: Principal,
+        seller: &[Seller],
         installments: u64,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
         }
 
-        if seller == Principal::anonymous() {
+        if seller
+            .iter()
+            .any(|seller| seller.principal == Principal::anonymous())
+        {
             return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
         }
 
@@ -151,17 +154,24 @@ impl Inspect {
             ));
         }
 
+        let total_quota = seller.iter().map(|seller| seller.quota).sum::<u8>();
+        if total_quota != 100 {
+            return Err(DeferredError::Token(
+                TokenError::ContractSellerQuotaIsNot100,
+            ));
+        }
+
         Ok(())
     }
 
-    pub fn inspect_is_seller(caller: Principal, contract: ID) -> DeferredResult<()> {
+    pub fn inspect_is_seller(caller: Principal, contract: ID) -> DeferredResult<Contract> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
             None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
         };
 
-        if contract.seller == caller {
-            Ok(())
+        if contract.is_seller(&caller) {
+            Ok(contract)
         } else {
             Err(DeferredError::Unauthorized)
         }
@@ -174,15 +184,18 @@ impl Inspect {
         };
 
         // check if caller is seller
-        if contract.seller != caller {
+        if !contract.is_seller(&caller) {
             return Err(DeferredError::Unauthorized);
         }
         // verifies that all tokens are owned by the seller
         let tokens = ContractStorage::get_contract_tokens(&contract.id);
-        if tokens
-            .iter()
-            .any(|token| token.owner != Some(contract.seller))
-        {
+        if tokens.iter().any(|token| {
+            if let Some(owner) = token.owner {
+                !contract.is_seller(&owner)
+            } else {
+                false
+            }
+        }) {
             return Err(DeferredError::Token(TokenError::CannotCloseContract));
         }
 
@@ -211,7 +224,7 @@ impl Inspect {
 #[cfg(test)]
 mod test {
 
-    use did::deferred::Role;
+    use did::deferred::{Role, Seller};
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -338,7 +351,6 @@ mod test {
             &[1],
             1,
             |contract| {
-                contract.seller = caller;
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
@@ -352,7 +364,6 @@ mod test {
             &[2],
             2,
             |contract| {
-                contract.seller = caller;
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
@@ -366,7 +377,10 @@ mod test {
             &[3],
             3,
             |contract| {
-                contract.seller = Principal::management_canister();
+                contract.seller = vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }];
                 contract.buyers = vec![caller];
             },
             |token| {
@@ -381,7 +395,10 @@ mod test {
             &[4],
             4,
             |contract| {
-                contract.seller = Principal::management_canister();
+                contract.seller = vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }];
                 contract.buyers = vec![caller];
             },
             |token| {
@@ -396,7 +413,6 @@ mod test {
             &[5],
             5,
             |contract| {
-                contract.seller = caller;
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
@@ -410,7 +426,10 @@ mod test {
             &[6],
             6,
             |contract| {
-                contract.seller = Principal::management_canister();
+                contract.seller = vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }];
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
@@ -431,7 +450,10 @@ mod test {
             caller,
             &1.into(),
             100,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_err());
@@ -447,7 +469,10 @@ mod test {
             caller,
             &2.into(),
             100,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_err());
@@ -461,7 +486,10 @@ mod test {
             caller,
             &1.into(),
             110,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_err());
@@ -475,7 +503,10 @@ mod test {
             caller,
             &1.into(),
             100,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_err());
@@ -489,7 +520,10 @@ mod test {
             caller,
             &1.into(),
             100,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_ok());
@@ -503,7 +537,33 @@ mod test {
             caller,
             &1.into(),
             100,
-            Principal::anonymous(),
+            &[Seller {
+                principal: Principal::anonymous(),
+                quota: 100,
+            }],
+            25,
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_quota_is_not_100() {
+        let caller = crate::utils::caller();
+        RolesManager::give_role(caller, Role::Agent);
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &1.into(),
+            100,
+            &[
+                Seller {
+                    principal: Principal::management_canister(),
+                    quota: 20,
+                },
+                Seller {
+                    principal: caller,
+                    quota: 40,
+                }
+            ],
             25,
         )
         .is_err());
@@ -517,7 +577,10 @@ mod test {
             caller,
             &1.into(),
             100,
-            Principal::management_canister(),
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
             25,
         )
         .is_ok());
@@ -529,9 +592,7 @@ mod test {
         test_utils::store_mock_contract_with(
             &[6],
             1,
-            |contract| {
-                contract.seller = caller;
-            },
+            |_| {},
             |token| {
                 token.owner = Some(caller);
             },
@@ -567,9 +628,7 @@ mod test {
         test_utils::store_mock_contract_with(
             &[6],
             1,
-            |contract| {
-                contract.seller = caller;
-            },
+            |_| {},
             |token| {
                 token.owner = Some(caller);
             },
@@ -606,9 +665,7 @@ mod test {
         test_utils::store_mock_contract_with(
             &[1, 2, 3],
             1,
-            |contract| {
-                contract.seller = caller;
-            },
+            |_| {},
             |token| {
                 token.owner = Some(caller);
             },
@@ -624,7 +681,6 @@ mod test {
             &[4, 5],
             2,
             |contract| {
-                contract.seller = caller;
                 contract.buyers = vec![Principal::management_canister()];
             },
             |token| {
@@ -641,9 +697,7 @@ mod test {
         test_utils::store_mock_contract_with(
             &[1, 2, 3],
             1,
-            |contract| {
-                contract.seller = caller;
-            },
+            |_| {},
             |token| {
                 token.owner = Some(caller);
             },

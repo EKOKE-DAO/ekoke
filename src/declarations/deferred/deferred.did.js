@@ -35,6 +35,18 @@ export const idlFactory = ({ IDL }) => {
     'StorageError' : IDL.Null,
     'Balance' : BalanceError,
   });
+  const NftError = IDL.Variant({
+    'UnauthorizedOperator' : IDL.Null,
+    'SelfTransfer' : IDL.Null,
+    'TokenNotFound' : IDL.Null,
+    'UnauthorizedOwner' : IDL.Null,
+    'TxNotFound' : IDL.Null,
+    'SelfApprove' : IDL.Null,
+    'OperatorNotFound' : IDL.Null,
+    'ExistedNFT' : IDL.Null,
+    'OwnerNotFound' : IDL.Null,
+    'Other' : IDL.Text,
+  });
   const ConfigurationError_1 = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
@@ -48,35 +60,25 @@ export const idlFactory = ({ IDL }) => {
     'ContractTokensShouldBeEmpty' : IDL.Null,
     'TokenDoesNotBelongToContract' : IDL.Nat,
     'TokenNotFound' : IDL.Nat,
+    'ContractSellerQuotaIsNot100' : IDL.Null,
     'ContractNotFound' : IDL.Nat,
+    'CannotCloseContract' : IDL.Null,
     'ContractNotSigned' : IDL.Nat,
     'ContractHasNoSeller' : IDL.Null,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
-    'InvalidExpirationDate' : IDL.Null,
     'BadMintTokenOwner' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });
   const DeferredError = IDL.Variant({
     'Fly' : FlyError,
+    'Nft' : NftError,
     'Configuration' : ConfigurationError_1,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeferredError });
-  const NftError = IDL.Variant({
-    'UnauthorizedOperator' : IDL.Null,
-    'SelfTransfer' : IDL.Null,
-    'TokenNotFound' : IDL.Null,
-    'UnauthorizedOwner' : IDL.Null,
-    'TxNotFound' : IDL.Null,
-    'SelfApprove' : IDL.Null,
-    'OperatorNotFound' : IDL.Null,
-    'ExistedNFT' : IDL.Null,
-    'OwnerNotFound' : IDL.Null,
-    'Other' : IDL.Text,
-  });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : NftError });
   const ContractType = IDL.Variant({
     'Sell' : IDL.Null,
@@ -125,14 +127,17 @@ export const idlFactory = ({ IDL }) => {
     'Principal' : IDL.Principal,
     'TextContent' : IDL.Text,
   });
+  const Seller = IDL.Record({
+    'principal' : IDL.Principal,
+    'quota' : IDL.Nat8,
+  });
   const Contract = IDL.Record({
     'id' : IDL.Nat,
     'value' : IDL.Nat64,
     'type' : ContractType,
     'is_signed' : IDL.Bool,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
-    'seller' : IDL.Principal,
-    'expiration' : IDL.Text,
+    'seller' : IDL.Vec(Seller),
     'tokens' : IDL.Vec(IDL.Nat),
     'currency' : IDL.Text,
     'installments' : IDL.Nat64,
@@ -177,8 +182,7 @@ export const idlFactory = ({ IDL }) => {
     'value' : IDL.Nat64,
     'type' : ContractType,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
-    'seller' : IDL.Principal,
-    'expiration' : IDL.Text,
+    'seller' : IDL.Vec(Seller),
     'currency' : IDL.Text,
     'installments' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
@@ -218,6 +222,7 @@ export const idlFactory = ({ IDL }) => {
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
+    'close_contract' : IDL.Func([IDL.Nat], [Result], []),
     'custodians' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),

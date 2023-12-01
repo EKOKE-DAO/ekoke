@@ -40,7 +40,7 @@ fn inspect_message_impl() {
                 caller(),
                 &data.id,
                 data.value,
-                data.seller,
+                &data.seller,
                 data.installments,
             )
             .is_ok()

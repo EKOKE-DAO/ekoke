@@ -18,8 +18,7 @@ type Contract = record {
   "type" : ContractType;
   is_signed : bool;
   properties : vec record { text; GenericValue };
-  seller : principal;
-  expiration : text;
+  seller : vec Seller;
   tokens : vec nat;
   currency : text;
   installments : nat64;
@@ -31,8 +30,7 @@ type ContractRegistration = record {
   value : nat64;
   "type" : ContractType;
   properties : vec record { text; GenericValue };
-  seller : principal;
-  expiration : text;
+  seller : vec Seller;
   currency : text;
   installments : nat64;
   buyers : vec principal;
@@ -40,6 +38,7 @@ type ContractRegistration = record {
 type ContractType = variant { Sell; Financing };
 type DeferredError = variant {
   Fly : FlyError;
+  Nft : NftError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
@@ -108,6 +107,7 @@ type Result_6 = variant { Ok : nat; Err : DeferredError };
 type Result_7 = variant { Ok : TokenMetadata; Err : NftError };
 type Result_8 = variant { Ok : TxEvent; Err : NftError };
 type Role = variant { Custodian; Agent };
+type Seller = record { "principal" : principal; quota : nat8 };
 type Stats = record {
   cycles : nat;
   total_transactions : nat;
@@ -124,12 +124,13 @@ type TokenError = variant {
   ContractTokensShouldBeEmpty;
   TokenDoesNotBelongToContract : nat;
   TokenNotFound : nat;
+  ContractSellerQuotaIsNot100;
   ContractNotFound : nat;
+  CannotCloseContract;
   ContractNotSigned : nat;
   ContractHasNoSeller;
   ContractHasNoTokens;
   TokenIsBurned : nat;
-  InvalidExpirationDate;
   BadMintTokenOwner : nat;
   BadContractProperty;
 };
@@ -185,6 +186,7 @@ service : (DeferredInitData) -> {
   approve : (principal, nat) -> (Result_1);
   balance_of : (principal) -> (Result_1) query;
   burn : (nat) -> (Result_1);
+  close_contract : (nat) -> (Result);
   custodians : () -> (vec principal) query;
   cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;

@@ -7,7 +7,9 @@ mod error;
 pub type DeferredResult<T> = Result<T, DeferredError>;
 
 pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
-pub use self::contract::{Contract, ContractProperties, ContractRegistration, ContractType, Token};
+pub use self::contract::{
+    Contract, ContractProperties, ContractRegistration, ContractType, Seller, Token,
+};
 pub use self::error::{ConfigurationError, DeferredError, TokenError};
 
 #[cfg(test)]
@@ -60,10 +62,19 @@ mod test {
         let contract = Contract {
             id: ID::from(1),
             r#type: ContractType::Sell,
-            seller: Principal::from_text(
-                "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-            )
-            .unwrap(),
+            seller: vec![
+                Seller {
+                    principal: Principal::from_text(
+                        "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
+                    )
+                    .unwrap(),
+                    quota: 51,
+                },
+                Seller {
+                    principal: Principal::management_canister(),
+                    quota: 49,
+                },
+            ],
             buyers: vec![
                 Principal::anonymous(),
                 Principal::from_text(

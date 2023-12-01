@@ -3,8 +3,11 @@ use dip721::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
-use crate::fly::PicoFly;
 use crate::ID;
+
+mod token;
+
+pub use token::Token;
 
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -14,7 +17,7 @@ pub struct Contract {
     /// Contract type
     pub r#type: ContractType,
     /// The contractors selling the building with their quota
-    pub seller: Principal,
+    pub seller: Vec<Seller>,
     /// Contract buyers. Those who must pay
     pub buyers: Vec<Principal>,
     /// Tokens associated to the contract, by id
@@ -31,6 +34,12 @@ pub struct Contract {
     pub currency: String,
     /// Data associated to the contract
     pub properties: ContractProperties,
+}
+
+impl Contract {
+    pub fn is_seller(&self, principal: &Principal) -> bool {
+        self.seller.iter().any(|s| &s.principal == principal)
+    }
 }
 
 impl Storable for Contract {
@@ -55,54 +64,13 @@ pub enum ContractType {
     Sell,
 }
 
-/// A Non fungible token related to an installment of a contract
-#[derive(Clone, Debug, CandidType, Deserialize)]
-pub struct Token {
-    /// Unique identifier of the token
-    pub id: TokenIdentifier,
-    /// Contract id
-    pub contract_id: ID,
-    /// Token owner. If none the token is burned
-    pub owner: Option<Principal>,
-    /// Value of the single token (FIAT)
-    pub value: u64,
-    /// $picoFly (pico-fly) reward for buying a Token
-    pub picofly_reward: PicoFly,
-    /// A principal who can operate on the token
-    pub operator: Option<Principal>,
-    /// Whether the token is burned
-    pub is_burned: bool,
-    /// Timestamp the token was minted at
-    pub minted_at: u64,
-    /// Principal who minted the token
-    pub minted_by: Principal,
-    /// Timestamp the token was approved at
-    pub approved_at: Option<u64>,
-    /// Principal who approved the token
-    pub approved_by: Option<Principal>,
-    /// Timestamp the token was burned at
-    pub burned_at: Option<u64>,
-    /// Principal who burned the token
-    pub burned_by: Option<Principal>,
-    /// Timestamp the token was transferred at
-    pub transferred_at: Option<u64>,
-    /// Principal who transferred the token
-    pub transferred_by: Option<Principal>,
-}
-
-impl Storable for Token {
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 512,
-        is_fixed_size: false,
-    };
-
-    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
-        Encode!(&self).unwrap().into()
-    }
-
-    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
-        Decode!(&bytes, Self).unwrap()
-    }
+/// A variant which defines a contract seller.
+/// A contract may have more than one seller and the quota defines the percentage of the contract ownership.
+/// The sum of all quotas must be 100.
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub struct Seller {
+    pub principal: Principal,
+    pub quota: u8,
 }
 
 /// Data to be provided to register a contract
@@ -110,7 +78,7 @@ impl Storable for Token {
 pub struct ContractRegistration {
     pub id: ID,
     pub r#type: ContractType,
-    pub seller: Principal,
+    pub seller: Vec<Seller>,
     pub buyers: Vec<Principal>,
     pub value: u64,
     pub currency: String,

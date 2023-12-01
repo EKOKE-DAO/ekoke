@@ -55,6 +55,8 @@ pub enum TokenError {
     ContractHasNoSeller,
     #[error("in order to close the contract, all the tokens must be owned by the seller")]
     CannotCloseContract,
+    #[error("the provided contract seller quota sum is not 100")]
+    ContractSellerQuotaIsNot100,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

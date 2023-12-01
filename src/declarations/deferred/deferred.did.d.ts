@@ -19,8 +19,7 @@ export interface Contract {
   'type' : ContractType,
   'is_signed' : boolean,
   'properties' : Array<[string, GenericValue]>,
-  'seller' : Principal,
-  'expiration' : string,
+  'seller' : Array<Seller>,
   'tokens' : Array<bigint>,
   'currency' : string,
   'installments' : bigint,
@@ -32,8 +31,7 @@ export interface ContractRegistration {
   'value' : bigint,
   'type' : ContractType,
   'properties' : Array<[string, GenericValue]>,
-  'seller' : Principal,
-  'expiration' : string,
+  'seller' : Array<Seller>,
   'currency' : string,
   'installments' : bigint,
   'buyers' : Array<Principal>,
@@ -41,6 +39,7 @@ export interface ContractRegistration {
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DeferredError = { 'Fly' : FlyError } |
+  { 'Nft' : NftError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
@@ -113,6 +112,7 @@ export type Result_8 = { 'Ok' : TxEvent } |
   { 'Err' : NftError };
 export type Role = { 'Custodian' : null } |
   { 'Agent' : null };
+export interface Seller { 'principal' : Principal, 'quota' : number }
 export interface Stats {
   'cycles' : bigint,
   'total_transactions' : bigint,
@@ -131,12 +131,13 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractTokensShouldBeEmpty' : null } |
   { 'TokenDoesNotBelongToContract' : bigint } |
   { 'TokenNotFound' : bigint } |
+  { 'ContractSellerQuotaIsNot100' : null } |
   { 'ContractNotFound' : bigint } |
+  { 'CannotCloseContract' : null } |
   { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoSeller' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
-  { 'InvalidExpirationDate' : null } |
   { 'BadMintTokenOwner' : bigint } |
   { 'BadContractProperty' : null };
 export interface TokenMetadata {
@@ -191,6 +192,7 @@ export interface _SERVICE {
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
   'balance_of' : ActorMethod<[Principal], Result_1>,
   'burn' : ActorMethod<[bigint], Result_1>,
+  'close_contract' : ActorMethod<[bigint], Result>,
   'custodians' : ActorMethod<[], Array<Principal>>,
   'cycles' : ActorMethod<[], bigint>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,

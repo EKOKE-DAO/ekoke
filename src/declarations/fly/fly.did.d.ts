@@ -5,12 +5,38 @@ export interface Account {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
 }
+export interface Allowance {
+  'allowance' : bigint,
+  'expires_at' : [] | [bigint],
+}
+export interface AllowanceArgs { 'account' : Account, 'spender' : Account }
 export type AllowanceError = { 'AllowanceNotFound' : null } |
   { 'BadSpender' : null } |
   { 'AllowanceChanged' : null } |
   { 'BadExpiration' : null } |
   { 'AllowanceExpired' : null } |
   { 'InsufficientFunds' : null };
+export interface ApproveArgs {
+  'fee' : [] | [bigint],
+  'memo' : [] | [Uint8Array | number[]],
+  'from_subaccount' : [] | [Uint8Array | number[]],
+  'created_at_time' : [] | [bigint],
+  'amount' : bigint,
+  'expected_allowance' : [] | [bigint],
+  'expires_at' : [] | [bigint],
+  'spender' : Account,
+}
+export type ApproveError = {
+    'GenericError' : { 'message' : string, 'error_code' : bigint }
+  } |
+  { 'TemporarilyUnavailable' : null } |
+  { 'Duplicate' : { 'duplicate_of' : bigint } } |
+  { 'BadFee' : { 'expected_fee' : bigint } } |
+  { 'AllowanceChanged' : { 'current_allowance' : bigint } } |
+  { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
+  { 'TooOld' : null } |
+  { 'Expired' : { 'ledger_time' : bigint } } |
+  { 'InsufficientFunds' : { 'balance' : bigint } };
 export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
@@ -42,6 +68,10 @@ export type Result_2 = { 'Ok' : Transaction } |
   { 'Err' : FlyError };
 export type Result_3 = { 'Ok' : bigint } |
   { 'Err' : TransferError };
+export type Result_4 = { 'Ok' : bigint } |
+  { 'Err' : ApproveError };
+export type Result_5 = { 'Ok' : bigint } |
+  { 'Err' : TransferFromError };
 export type Role = { 'DeferredCanister' : null } |
   { 'Admin' : null };
 export interface TokenExtension { 'url' : string, 'name' : string }
@@ -71,6 +101,26 @@ export type TransferError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
+export interface TransferFromArgs {
+  'to' : Account,
+  'fee' : [] | [bigint],
+  'spender_subaccount' : [] | [Uint8Array | number[]],
+  'from' : Account,
+  'memo' : [] | [Uint8Array | number[]],
+  'created_at_time' : [] | [bigint],
+  'amount' : bigint,
+}
+export type TransferFromError = {
+    'GenericError' : { 'message' : string, 'error_code' : bigint }
+  } |
+  { 'TemporarilyUnavailable' : null } |
+  { 'InsufficientAllowance' : { 'allowance' : bigint } } |
+  { 'BadBurn' : { 'min_burn_amount' : bigint } } |
+  { 'Duplicate' : { 'duplicate_of' : bigint } } |
+  { 'BadFee' : { 'expected_fee' : bigint } } |
+  { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
+  { 'TooOld' : null } |
+  { 'InsufficientFunds' : { 'balance' : bigint } };
 export interface _SERVICE {
   'admin_burn' : ActorMethod<[bigint], Result>,
   'admin_cycles' : ActorMethod<[], bigint>,
@@ -87,5 +137,8 @@ export interface _SERVICE {
   'icrc1_symbol' : ActorMethod<[], string>,
   'icrc1_total_supply' : ActorMethod<[], bigint>,
   'icrc1_transfer' : ActorMethod<[TransferArg], Result_3>,
+  'icrc2_allowance' : ActorMethod<[AllowanceArgs], Allowance>,
+  'icrc2_approve' : ActorMethod<[ApproveArgs], Result_4>,
+  'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_5>,
   'reserve_pool' : ActorMethod<[Account, bigint, bigint], Result_1>,
 }

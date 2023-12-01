@@ -1,4 +1,6 @@
 type Account = record { owner : principal; subaccount : opt vec nat8 };
+type Allowance = record { allowance : nat; expires_at : opt nat64 };
+type AllowanceArgs = record { account : Account; spender : Account };
 type AllowanceError = variant {
   AllowanceNotFound;
   BadSpender;
@@ -6,6 +8,27 @@ type AllowanceError = variant {
   BadExpiration;
   AllowanceExpired;
   InsufficientFunds;
+};
+type ApproveArgs = record {
+  fee : opt nat;
+  memo : opt vec nat8;
+  from_subaccount : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+  expected_allowance : opt nat;
+  expires_at : opt nat64;
+  spender : Account;
+};
+type ApproveError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  AllowanceChanged : record { current_allowance : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  Expired : record { ledger_time : nat64 };
+  InsufficientFunds : record { balance : nat };
 };
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
@@ -35,6 +58,8 @@ type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat; Err : FlyError };
 type Result_2 = variant { Ok : Transaction; Err : FlyError };
 type Result_3 = variant { Ok : nat; Err : TransferError };
+type Result_4 = variant { Ok : nat; Err : ApproveError };
+type Result_5 = variant { Ok : nat; Err : TransferFromError };
 type Role = variant { DeferredCanister; Admin };
 type TokenExtension = record { url : text; name : text };
 type Transaction = record {
@@ -63,6 +88,26 @@ type TransferError = variant {
   TooOld;
   InsufficientFunds : record { balance : nat };
 };
+type TransferFromArgs = record {
+  to : Account;
+  fee : opt nat;
+  spender_subaccount : opt vec nat8;
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type TransferFromError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  InsufficientAllowance : record { allowance : nat };
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
 service : (FlyInitData) -> {
   admin_burn : (nat) -> (Result);
   admin_cycles : () -> (nat) query;
@@ -79,5 +124,8 @@ service : (FlyInitData) -> {
   icrc1_symbol : () -> (text) query;
   icrc1_total_supply : () -> (nat) query;
   icrc1_transfer : (TransferArg) -> (Result_3);
+  icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
+  icrc2_approve : (ApproveArgs) -> (Result_4);
+  icrc2_transfer_from : (TransferFromArgs) -> (Result_5);
   reserve_pool : (Account, nat, nat) -> (Result_1);
 }

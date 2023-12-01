@@ -93,10 +93,11 @@ impl Deferred {
         incr_by: u64,
         installments: u64,
     ) -> DeferredResult<()> {
-        Inspect::inspect_is_seller(caller(), contract_id.clone())?;
+        let contract_sellers = Inspect::inspect_is_seller(caller(), contract_id.clone())?.seller;
 
         // mint new tokens
-        let (tokens, _) = Minter::mint(&contract_id, caller(), installments, incr_by).await?;
+        let (tokens, _) =
+            Minter::mint(&contract_id, contract_sellers, installments, incr_by).await?;
 
         // update contract
         ContractStorage::add_tokens_to_contract(&contract_id, tokens)
@@ -125,7 +126,7 @@ impl Deferred {
             caller(),
             &data.id,
             data.value,
-            data.seller,
+            &data.seller,
             data.installments,
         )?;
 
@@ -456,11 +457,7 @@ impl Dip721 for Deferred {
         token_identifier: TokenIdentifier,
     ) -> Result<Nat, NftError> {
         let token = Inspect::inspect_transfer_from(caller(), &token_identifier)?;
-        let last_owner = token.owner;
-        let contract = match ContractStorage::get_contract(&token.contract_id) {
-            Some(contract) => contract,
-            None => return Err(NftError::TokenNotFound),
-        };
+        let never_transferred = token.transferred_at.is_none();
         // verify that from owner is the same as the token's
         if token.owner != Some(owner) {
             return Err(NftError::OwnerNotFound);
@@ -479,8 +476,8 @@ impl Dip721 for Deferred {
             Err(_) => return Err(NftError::UnauthorizedOperator),
         };
 
-        // if the previous owner, was the seller, notify fly canister to transfer reward to the new owner
-        if last_owner == Some(contract.seller) {
+        // if the token was never transferred, notify fly canister to transfer reward to the new owner
+        if never_transferred {
             fly_client(Configuration::get_fly_canister())
                 .send_reward(token.contract_id, token.picofly_reward, to)
                 .await
@@ -534,6 +531,7 @@ mod test {
 
     use std::time::Duration;
 
+    use did::deferred::Seller;
     use pretty_assertions::assert_eq;
 
     use super::test_utils::store_mock_contract;
@@ -593,7 +591,10 @@ mod test {
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
-            seller: caller(),
+            seller: vec![Seller {
+                principal: caller(),
+                quota: 100,
+            }],
             value: 100,
         };
 
@@ -615,7 +616,10 @@ mod test {
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
-            seller: caller(),
+            seller: vec![Seller {
+                principal: caller(),
+                quota: 100,
+            }],
             value: 100,
         };
         assert!(Deferred::register_contract(contract).is_ok());
