@@ -18,7 +18,7 @@ type Contract = record {
   "type" : ContractType;
   is_signed : bool;
   properties : vec record { text; GenericValue };
-  seller : vec Seller;
+  sellers : vec Seller;
   tokens : vec nat;
   currency : text;
   installments : nat64;
@@ -30,7 +30,7 @@ type ContractRegistration = record {
   value : nat64;
   "type" : ContractType;
   properties : vec record { text; GenericValue };
-  seller : vec Seller;
+  sellers : vec Seller;
   currency : text;
   installments : nat64;
   buyers : vec principal;
