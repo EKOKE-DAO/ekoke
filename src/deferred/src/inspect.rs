@@ -42,7 +42,6 @@ fn inspect_message_impl() {
                 data.value,
                 data.seller,
                 data.installments,
-                &data.expiration,
             )
             .is_ok()
         }

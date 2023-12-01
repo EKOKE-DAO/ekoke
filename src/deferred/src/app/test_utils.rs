@@ -33,7 +33,6 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
         seller: caller(),
         buyers: vec![Principal::management_canister()],
         tokens: vec![],
-        expiration: "2040-06-01".to_string(),
         installments,
         is_signed: false,
         initial_value: 250_000,

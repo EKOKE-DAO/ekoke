@@ -63,8 +63,6 @@ pub enum TokenError {
     TokenIsBurned(TokenIdentifier),
     #[error("the provided contract value is not a multiple of the number of installments")]
     ContractValueIsNotMultipleOfInstallments,
-    #[error("the provided expiration date is invalid. It must have syntax YYYY-MM-DD")]
-    InvalidExpirationDate,
     #[error("the provided contract has no seller")]
     ContractHasNoSeller,
 }
@@ -88,8 +86,6 @@ pub struct Contract {
     pub seller: Principal,
     /// Contract buyers. Those who must pay
     pub buyers: Vec<Principal>,
-    /// Contract expiration date
-    pub expiration: String,
     /// Tokens associated to the contract, by id
     pub tokens: Vec<TokenIdentifier>,
     /// Number of installments
@@ -212,7 +208,6 @@ pub struct ContractRegistration {
     pub r#type: ContractType,
     pub seller: Principal,
     pub buyers: Vec<Principal>,
-    pub expiration: String,
     pub value: u64,
     pub currency: String,
     pub installments: u64,
@@ -322,7 +317,6 @@ mod test {
                 )
                 .unwrap(),
             ],
-            expiration: "2021-12-31".to_string(),
             installments: 2,
             is_signed: true,
             tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
@@ -340,7 +334,6 @@ mod test {
         assert_eq!(contract.id, decoded_contract.id);
         assert_eq!(contract.seller, decoded_contract.seller);
         assert_eq!(contract.buyers, decoded_contract.buyers);
-        assert_eq!(contract.expiration, decoded_contract.expiration);
         assert_eq!(contract.tokens, decoded_contract.tokens);
         assert_eq!(contract.properties, decoded_contract.properties);
         assert_eq!(contract.value, decoded_contract.value);

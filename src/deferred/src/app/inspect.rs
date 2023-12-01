@@ -135,7 +135,6 @@ impl Inspect {
         value: u64,
         seller: Principal,
         installments: u64,
-        expiration: &str,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
@@ -157,15 +156,6 @@ impl Inspect {
             return Err(DeferredError::Token(
                 TokenError::ContractValueIsNotMultipleOfInstallments,
             ));
-        }
-
-        // check if expiration is YYYY-MM-DD and is not in the past
-        match crate::utils::parse_date(expiration) {
-            Ok(timestamp) if timestamp < crate::utils::time() => {
-                return Err(DeferredError::Token(TokenError::InvalidExpirationDate));
-            }
-            Ok(_) => {}
-            Err(_) => return Err(DeferredError::Token(TokenError::InvalidExpirationDate)),
         }
 
         Ok(())
@@ -423,7 +413,6 @@ mod test {
             100,
             Principal::management_canister(),
             25,
-            "2040-01-01"
         )
         .is_err());
     }
@@ -440,7 +429,6 @@ mod test {
             100,
             Principal::management_canister(),
             25,
-            "2040-01-01"
         )
         .is_err());
     }
@@ -455,22 +443,6 @@ mod test {
             110,
             Principal::management_canister(),
             25,
-            "2040-01-01"
-        )
-        .is_err());
-    }
-
-    #[test]
-    fn test_should_inspect_contract_register_invalid_expiration_date() {
-        let caller = crate::utils::caller();
-        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(Inspect::inspect_register_contract(
-            caller,
-            &1.into(),
-            100,
-            Principal::management_canister(),
-            25,
-            "2020-01-01"
         )
         .is_err());
     }
@@ -485,7 +457,6 @@ mod test {
             100,
             Principal::management_canister(),
             25,
-            "2040-01-01"
         )
         .is_err());
     }
@@ -500,7 +471,6 @@ mod test {
             100,
             Principal::management_canister(),
             25,
-            "2040-01-01"
         )
         .is_ok());
     }
@@ -515,7 +485,6 @@ mod test {
             100,
             Principal::anonymous(),
             25,
-            "2040-01-01"
         )
         .is_err());
     }
@@ -530,7 +499,6 @@ mod test {
             100,
             Principal::management_canister(),
             25,
-            "2040-01-01"
         )
         .is_ok());
     }

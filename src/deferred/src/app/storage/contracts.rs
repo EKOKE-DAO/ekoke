@@ -703,7 +703,6 @@ mod test {
             seller,
             buyers: vec![Principal::anonymous()],
             tokens: vec![],
-            expiration: "2040-06-01".to_string(),
             installments: 2,
             is_signed: false,
             initial_value: 250_000,

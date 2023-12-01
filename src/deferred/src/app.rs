@@ -113,14 +113,12 @@ impl Deferred {
             data.value,
             data.seller,
             data.installments,
-            &data.expiration,
         )?;
 
         // make contract
         let contract = Contract {
             buyers: data.buyers,
             currency: data.currency,
-            expiration: data.expiration,
             id: data.id.clone(),
             initial_value: data.value,
             properties: data.properties,
@@ -577,7 +575,6 @@ mod test {
         let contract = ContractRegistration {
             buyers: vec![caller()],
             currency: "EUR".to_string(),
-            expiration: "2040-01-01".to_string(),
             id: 1.into(),
             installments: 10,
             properties: vec![],
@@ -600,7 +597,6 @@ mod test {
         let contract = ContractRegistration {
             buyers: vec![caller()],
             currency: "EUR".to_string(),
-            expiration: "2040-01-01".to_string(),
             id: 1.into(),
             installments: 10,
             properties: vec![],
