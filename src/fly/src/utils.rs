@@ -1,4 +1,7 @@
+use std::time::{Duration, UNIX_EPOCH};
+
 use candid::{Nat, Principal};
+use chrono::{DateTime, NaiveDate, Utc};
 use did::fly::PicoFly;
 use icrc::icrc1::account::Subaccount;
 
@@ -15,6 +18,15 @@ pub fn time() -> u64 {
     {
         ic_cdk::api::time()
     }
+}
+
+/// Returns current date
+pub fn date() -> NaiveDate {
+    let time = time();
+
+    let duration = Duration::from_nanos(time);
+    let datetime = UNIX_EPOCH + duration;
+    DateTime::<Utc>::from(datetime).date_naive()
 }
 
 /// Returns canister id

@@ -12,6 +12,7 @@ use did::fly::{BalanceError, FlyError, FlyResult, PicoFly};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
 use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
+use num_bigint::BigUint;
 
 pub use self::account::StorableAccount;
 use self::account_balance::Balance as AccountBalance;
@@ -40,7 +41,7 @@ impl Balance {
     ///
     /// WARNING: this function DOESN'T check anything and it's meant to be used only on init.
     /// Panics if initializing more than total supply.
-    pub fn init_balances(mut total_supply: PicoFly, initial_balances: Vec<(Account, PicoFly)>) {
+    pub fn init_balances(total_supply: PicoFly, initial_balances: Vec<(Account, PicoFly)>) {
         // make canister acount
         let canister_account = Account {
             owner: crate::utils::id(),
@@ -54,17 +55,18 @@ impl Balance {
         });
 
         BALANCES.with_borrow_mut(|balances| {
+            let canister_balance =
+                Nat(total_supply.0 - initial_balances.iter().map(|(_, b)| &b.0).sum::<BigUint>());
             // init accounts
             for (account, balance) in initial_balances {
                 let storable_account = StorableAccount::from(account);
                 balances.insert(storable_account, balance.clone().into());
-                total_supply -= balance;
             }
             // set remaining supply to canister account
             balances.insert(
                 StorableAccount::from(canister_account),
                 AccountBalance {
-                    amount: total_supply,
+                    amount: canister_balance,
                 },
             );
         });
