@@ -193,11 +193,11 @@ impl Reward {
 
 #[cfg(test)]
 mod test {
-    use crate::{app::test_utils::bob_account, utils::fly_to_picofly};
+    use pretty_assertions::{assert_eq, assert_ne};
 
     use super::*;
-
-    use pretty_assertions::{assert_eq, assert_ne};
+    use crate::app::test_utils::bob_account;
+    use crate::utils::fly_to_picofly;
 
     #[test]
     fn test_should_get_reward_if_pool_exists() {
