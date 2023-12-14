@@ -70,6 +70,15 @@ export const idlFactory = ({ IDL }) => {
     'BadMintTokenOwner' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });
+  const RejectionCode = IDL.Variant({
+    'NoError' : IDL.Null,
+    'CanisterError' : IDL.Null,
+    'SysTransient' : IDL.Null,
+    'DestinationInvalid' : IDL.Null,
+    'Unknown' : IDL.Null,
+    'SysFatal' : IDL.Null,
+    'CanisterReject' : IDL.Null,
+  });
   const DeferredError = IDL.Variant({
     'Fly' : FlyError,
     'Nft' : NftError,
@@ -77,6 +86,7 @@ export const idlFactory = ({ IDL }) => {
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,
+    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeferredError });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : NftError });

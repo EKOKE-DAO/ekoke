@@ -50,6 +50,7 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
 export interface FlyInitData {
   'deferred_canister' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
+  'marketplace_canister' : Principal,
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
@@ -73,6 +74,7 @@ export type Result_4 = { 'Ok' : bigint } |
 export type Result_5 = { 'Ok' : bigint } |
   { 'Err' : TransferFromError };
 export type Role = { 'DeferredCanister' : null } |
+  { 'MarketplaceCanister' : null } |
   { 'Admin' : null };
 export interface TokenExtension { 'url' : string, 'name' : string }
 export interface Transaction {
@@ -141,4 +143,5 @@ export interface _SERVICE {
   'icrc2_approve' : ActorMethod<[ApproveArgs], Result_4>,
   'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_5>,
   'reserve_pool' : ActorMethod<[Account, bigint, bigint], Result_1>,
+  'send_reward' : ActorMethod<[bigint, bigint, Account], Result>,
 }

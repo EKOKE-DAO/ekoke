@@ -10,6 +10,7 @@ repository = { workspace = true }
 [dependencies]
 candid = { workspace = true }
 dip721 = { path = "../dip721" }
+ic-cdk = { workspace = true }
 ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
 num-bigint = { workspace = true }

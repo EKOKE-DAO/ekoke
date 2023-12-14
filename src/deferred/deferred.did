@@ -43,6 +43,7 @@ type DeferredError = variant {
   Unauthorized;
   Token : TokenError;
   StorageError;
+  CanisterCall : record { RejectionCode; text };
 };
 type DeferredInitData = record {
   fly_canister : principal;
@@ -97,6 +98,15 @@ type NftError = variant {
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
 type Result = variant { Ok; Err : DeferredError };
 type Result_1 = variant { Ok : nat; Err : NftError };
 type Result_2 = variant { Ok : bool; Err : NftError };

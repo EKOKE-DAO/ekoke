@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });
@@ -41,6 +42,7 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
   const Role = IDL.Variant({
     'DeferredCanister' : IDL.Null,
+    'MarketplaceCanister' : IDL.Null,
     'Admin' : IDL.Null,
   });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : FlyError });
@@ -167,6 +169,7 @@ export const idlFactory = ({ IDL }) => {
     'icrc2_approve' : IDL.Func([ApproveArgs], [Result_4], []),
     'icrc2_transfer_from' : IDL.Func([TransferFromArgs], [Result_5], []),
     'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat], [Result_1], []),
+    'send_reward' : IDL.Func([IDL.Nat, IDL.Nat, Account], [Result], []),
   });
 };
 export const init = ({ IDL }) => {
@@ -177,6 +180,7 @@ export const init = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
     'total_supply' : IDL.Nat64,
   });

@@ -27,6 +27,13 @@ fn inspect_message_impl() {
             let account = api::call::arg_data::<(Account, ID, u64)>().0;
             Inspect::inspect_caller_owns_wallet(caller(), account)
         }
+        "get_contract_reward" => Inspect::inspect_is_deferred_canister(caller()),
+        "send_reward" => {
+            let contract_id: candid::Nat = api::call::arg_data::<(ID, u64)>().0;
+
+            Inspect::inspect_is_marketplace_canister(caller())
+                && Inspect::inspect_pool_exists(&contract_id)
+        }
         "icrc1_transfer" => {
             let transfer_arg = api::call::arg_data::<(TransferArg,)>().0;
             Inspect::inspect_transfer(&transfer_arg).is_ok()

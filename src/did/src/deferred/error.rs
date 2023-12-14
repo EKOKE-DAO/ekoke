@@ -1,5 +1,6 @@
 use candid::{CandidType, Deserialize};
 use dip721::{NftError, TokenIdentifier};
+use ic_cdk::api::call::RejectionCode;
 use thiserror::Error;
 
 use crate::fly::FlyError;
@@ -19,6 +20,8 @@ pub enum DeferredError {
     StorageError,
     #[error("nft error: {0}")]
     Nft(#[from] NftError),
+    #[error("inter-canister call error: ({0:?}): {1}")]
+    CanisterCall(RejectionCode, String),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

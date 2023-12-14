@@ -28,7 +28,6 @@ pub use self::inspect::Inspect;
 use self::minter::Minter;
 use self::roles::RolesManager;
 use self::storage::{ContractStorage, TxHistory};
-use crate::client::{fly_client, FlyClient};
 use crate::utils::caller;
 
 #[derive(Default)]
@@ -457,7 +456,6 @@ impl Dip721 for Deferred {
         token_identifier: TokenIdentifier,
     ) -> Result<Nat, NftError> {
         let token = Inspect::inspect_transfer_from(caller(), &token_identifier)?;
-        let never_transferred = token.transferred_at.is_none();
         // verify that from owner is the same as the token's
         if token.owner != Some(owner) {
             return Err(NftError::OwnerNotFound);
@@ -475,14 +473,6 @@ impl Dip721 for Deferred {
             }
             Err(_) => return Err(NftError::UnauthorizedOperator),
         };
-
-        // if the token was never transferred, notify fly canister to transfer reward to the new owner
-        if never_transferred {
-            fly_client(Configuration::get_fly_canister())
-                .send_reward(token.contract_id, token.picofly_reward, to)
-                .await
-                .map_err(|_| NftError::Other("fly canister error".to_string()))?;
-        }
 
         Ok(tx_id)
     }

@@ -43,7 +43,8 @@ export type DeferredError = { 'Fly' : FlyError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
-  { 'StorageError' : null };
+  { 'StorageError' : null } |
+  { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
   'fly_canister' : Principal,
   'custodians' : Array<Principal>,
@@ -92,6 +93,13 @@ export type NftError = { 'UnauthorizedOperator' : null } |
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
 export type RegisterError = { 'TransactionNotFound' : null };
+export type RejectionCode = { 'NoError' : null } |
+  { 'CanisterError' : null } |
+  { 'SysTransient' : null } |
+  { 'DestinationInvalid' : null } |
+  { 'Unknown' : null } |
+  { 'SysFatal' : null } |
+  { 'CanisterReject' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : DeferredError };
 export type Result_1 = { 'Ok' : bigint } |

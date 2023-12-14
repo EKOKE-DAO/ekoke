@@ -6,11 +6,13 @@ use std::time::Duration;
 
 use candid::{Nat, Principal};
 use did::fly::Role;
+use did::ID;
 use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::{TransferArg, TransferError};
 use icrc::icrc2::approve::{ApproveArgs, ApproveError};
 use icrc::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
 
+use super::pool::Pool;
 use super::roles::RolesManager;
 use crate::constants::{ICRC1_FEE, ICRC1_TX_TIME_SKID};
 use crate::utils::time;
@@ -26,6 +28,11 @@ impl Inspect {
     /// Returns whether caller is deferred canister
     pub fn inspect_is_deferred_canister(caller: Principal) -> bool {
         RolesManager::has_role(caller, Role::DeferredCanister)
+    }
+
+    /// Returns whether caller is marketplace canister
+    pub fn inspect_is_marketplace_canister(caller: Principal) -> bool {
+        RolesManager::has_role(caller, Role::MarketplaceCanister)
     }
 
     /// Returns whether caller is owner of the wallet
@@ -161,6 +168,11 @@ impl Inspect {
 
         Ok(())
     }
+
+    /// inspect whether pool exists
+    pub fn inspect_pool_exists(contract_id: &ID) -> bool {
+        Pool::has_pool(contract_id)
+    }
 }
 
 #[cfg(test)]
@@ -170,7 +182,8 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils;
+    use crate::app::balance::Balance;
+    use crate::app::test_utils::{self, alice_account};
 
     #[test]
     fn test_should_inspect_is_custodian() {
@@ -437,5 +450,16 @@ mod test {
         };
 
         assert!(Inspect::inspect_icrc2_transfer_from(&args).is_ok());
+    }
+
+    #[test]
+    fn test_should_inspect_pool_exists() {
+        let contract_id = ID::from(0);
+        assert!(!Inspect::inspect_pool_exists(&contract_id));
+
+        Balance::init_balances(50_000.into(), vec![(alice_account(), 100.into())]);
+        assert!(Pool::reserve(&contract_id, test_utils::alice_account(), 100.into()).is_ok());
+
+        assert!(Inspect::inspect_pool_exists(&contract_id));
     }
 }

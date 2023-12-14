@@ -16,7 +16,8 @@ mod test_utils;
 
 use candid::{Nat, Principal};
 use did::fly::{
-    AllowanceError, BalanceError, FlyError, FlyInitData, FlyResult, PicoFly, Role, Transaction,
+    AllowanceError, BalanceError, FlyError, FlyInitData, FlyResult, PicoFly, PoolError, Role,
+    Transaction,
 };
 use did::ID;
 use icrc::icrc::generic_metadata_value::MetadataValue;
@@ -50,6 +51,8 @@ impl FlyCanister {
         }
         // Set deferred canister
         RolesManager::give_role(data.deferred_canister, Role::DeferredCanister);
+        // set marketplace canister
+        RolesManager::give_role(data.marketplace_canister, Role::MarketplaceCanister);
         // init balances
         Balance::init_balances(
             utils::fly_to_picofly(data.total_supply),
@@ -91,6 +94,21 @@ impl FlyCanister {
         }
 
         Pool::reserve(&contract_id, from, picofly_amount)
+    }
+
+    /// Send reward to buyer reducing the balance from the pool associated to the contract, for the value of picoFly
+    pub fn send_reward(contract_id: ID, picofly: PicoFly, buyer: Account) -> FlyResult<()> {
+        if !Inspect::inspect_is_marketplace_canister(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        if !Inspect::inspect_pool_exists(&contract_id) {
+            return Err(FlyError::Pool(PoolError::PoolNotFound(contract_id)));
+        }
+
+        Pool::withdraw_tokens(&contract_id, buyer, picofly)?;
+
+        Ok(())
     }
 
     /// Get contract reward.
@@ -483,6 +501,49 @@ mod test {
             FlyCanister::reserve_pool(test_utils::bob_account(), contract_id, picofly_amount)
                 .is_err()
         );
+    }
+
+    #[test]
+    fn test_should_send_reward() {
+        init_canister();
+        let contract_id: ID = 1.into();
+
+        let picofly_amount: Nat = 1000_u64.into();
+
+        let result = FlyCanister::reserve_pool(
+            test_utils::caller_account(),
+            contract_id.clone(),
+            picofly_amount.clone(),
+        );
+
+        assert_eq!(result, Ok(picofly_amount));
+
+        // send reward to bob
+        assert!(FlyCanister::send_reward(contract_id, 500_u64.into(), bob_account()).is_ok());
+        assert_eq!(
+            Balance::balance_of(bob_account()).unwrap(),
+            fly_to_picofly(50_000) + 500
+        );
+    }
+
+    #[test]
+    fn test_should_not_send_reward() {
+        init_canister();
+        let contract_id: ID = 1.into();
+
+        let picofly_amount: Nat = 1000_u64.into();
+
+        let result = FlyCanister::reserve_pool(
+            test_utils::caller_account(),
+            contract_id.clone(),
+            picofly_amount.clone(),
+        );
+
+        assert_eq!(result, Ok(picofly_amount));
+
+        // send reward to bob
+        assert!(FlyCanister::send_reward(contract_id, 5000_u64.into(), bob_account()).is_err());
+        assert!(FlyCanister::send_reward(2.into(), 500_u64.into(), bob_account()).is_err());
     }
 
     #[test]
@@ -964,6 +1025,7 @@ mod test {
             admins: vec![caller()],
             total_supply: 8_888_888,
             deferred_canister: caller(),
+            marketplace_canister: caller(),
             initial_balances: vec![
                 (alice_account(), fly_to_picofly(50_000)),
                 (bob_account(), fly_to_picofly(50_000)),

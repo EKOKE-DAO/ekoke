@@ -43,6 +43,7 @@ type FlyError = variant {
 type FlyInitData = record {
   deferred_canister : principal;
   initial_balances : vec record { Account; nat };
+  marketplace_canister : principal;
   admins : vec principal;
   total_supply : nat64;
 };
@@ -60,7 +61,7 @@ type Result_2 = variant { Ok : Transaction; Err : FlyError };
 type Result_3 = variant { Ok : nat; Err : TransferError };
 type Result_4 = variant { Ok : nat; Err : ApproveError };
 type Result_5 = variant { Ok : nat; Err : TransferFromError };
-type Role = variant { DeferredCanister; Admin };
+type Role = variant { DeferredCanister; MarketplaceCanister; Admin };
 type TokenExtension = record { url : text; name : text };
 type Transaction = record {
   to : Account;
@@ -128,4 +129,5 @@ service : (FlyInitData) -> {
   icrc2_approve : (ApproveArgs) -> (Result_4);
   icrc2_transfer_from : (TransferFromArgs) -> (Result_5);
   reserve_pool : (Account, nat, nat) -> (Result_1);
+  send_reward : (nat, nat, Account) -> (Result);
 }

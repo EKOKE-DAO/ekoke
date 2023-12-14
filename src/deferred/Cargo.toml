@@ -26,6 +26,7 @@ ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
 itertools = { workspace = true }
+serde = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true }
 

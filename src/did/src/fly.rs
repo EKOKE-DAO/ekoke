@@ -86,6 +86,8 @@ pub struct FlyInitData {
     pub initial_balances: Vec<(Account, PicoFly)>,
     /// Deferred canister
     pub deferred_canister: Principal,
+    /// Marketplace canister
+    pub marketplace_canister: Principal,
 }
 
 /// Fly user roles. Defines permissions
@@ -95,6 +97,8 @@ pub enum Role {
     Admin,
     /// Call reserved to Deferred Canister
     DeferredCanister,
+    /// Call reserved to the marketplace
+    MarketplaceCanister,
 }
 
 impl Storable for Role {
