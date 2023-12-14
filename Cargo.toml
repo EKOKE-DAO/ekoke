@@ -27,7 +27,6 @@ num-traits = "0.2"
 rand = { version = "0.8", features = ["std_rng", "small_rng"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1.0"
-time = "0.1"
 
 [profile.dev]
 debug = false
