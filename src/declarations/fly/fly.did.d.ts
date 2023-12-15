@@ -46,6 +46,7 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
   { 'StorageError' : null } |
+  { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError };
 export interface FlyInitData {
   'deferred_canister' : Principal,
@@ -54,6 +55,11 @@ export interface FlyInitData {
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
+export interface LiquidityPoolAccounts {
+  'icp' : Uint8Array | number[],
+  'ckbtc' : Account,
+}
+export interface LiquidityPoolBalance { 'icp' : bigint, 'ckbtc' : bigint }
 export type MetadataValue = { 'Int' : bigint } |
   { 'Nat' : bigint } |
   { 'Blob' : Uint8Array | number[] } |
@@ -61,6 +67,13 @@ export type MetadataValue = { 'Int' : bigint } |
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
 export type RegisterError = { 'TransactionNotFound' : null };
+export type RejectionCode = { 'NoError' : null } |
+  { 'CanisterError' : null } |
+  { 'SysTransient' : null } |
+  { 'DestinationInvalid' : null } |
+  { 'Unknown' : null } |
+  { 'SysFatal' : null } |
+  { 'CanisterReject' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : FlyError };
 export type Result_1 = { 'Ok' : bigint } |
@@ -73,6 +86,8 @@ export type Result_4 = { 'Ok' : bigint } |
   { 'Err' : ApproveError };
 export type Result_5 = { 'Ok' : bigint } |
   { 'Err' : TransferFromError };
+export type Result_6 = { 'Ok' : LiquidityPoolBalance } |
+  { 'Err' : FlyError };
 export type Role = { 'DeferredCanister' : null } |
   { 'MarketplaceCanister' : null } |
   { 'Admin' : null };
@@ -142,6 +157,8 @@ export interface _SERVICE {
   'icrc2_allowance' : ActorMethod<[AllowanceArgs], Allowance>,
   'icrc2_approve' : ActorMethod<[ApproveArgs], Result_4>,
   'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_5>,
+  'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
+  'liquidity_pool_balance' : ActorMethod<[], Result_6>,
   'reserve_pool' : ActorMethod<[Account, bigint, bigint], Result_1>,
   'send_reward' : ActorMethod<[bigint, bigint, Account], Result>,
 }

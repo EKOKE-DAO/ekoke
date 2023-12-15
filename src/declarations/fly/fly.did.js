@@ -27,6 +27,15 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientFunds' : IDL.Null,
   });
   const RegisterError = IDL.Variant({ 'TransactionNotFound' : IDL.Null });
+  const RejectionCode = IDL.Variant({
+    'NoError' : IDL.Null,
+    'CanisterError' : IDL.Null,
+    'SysTransient' : IDL.Null,
+    'DestinationInvalid' : IDL.Null,
+    'Unknown' : IDL.Null,
+    'SysFatal' : IDL.Null,
+    'CanisterReject' : IDL.Null,
+  });
   const BalanceError = IDL.Variant({
     'AccountNotFound' : IDL.Null,
     'InsufficientBalance' : IDL.Null,
@@ -37,6 +46,7 @@ export const idlFactory = ({ IDL }) => {
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
     'StorageError' : IDL.Null,
+    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
@@ -141,6 +151,18 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
   const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferFromError });
+  const LiquidityPoolAccounts = IDL.Record({
+    'icp' : IDL.Vec(IDL.Nat8),
+    'ckbtc' : Account,
+  });
+  const LiquidityPoolBalance = IDL.Record({
+    'icp' : IDL.Nat,
+    'ckbtc' : IDL.Nat,
+  });
+  const Result_6 = IDL.Variant({
+    'Ok' : LiquidityPoolBalance,
+    'Err' : FlyError,
+  });
   return IDL.Service({
     'admin_burn' : IDL.Func([IDL.Nat], [Result], []),
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
@@ -168,6 +190,12 @@ export const idlFactory = ({ IDL }) => {
     'icrc2_allowance' : IDL.Func([AllowanceArgs], [Allowance], ['query']),
     'icrc2_approve' : IDL.Func([ApproveArgs], [Result_4], []),
     'icrc2_transfer_from' : IDL.Func([TransferFromArgs], [Result_5], []),
+    'liquidity_pool_accounts' : IDL.Func(
+        [],
+        [LiquidityPoolAccounts],
+        ['query'],
+      ),
+    'liquidity_pool_balance' : IDL.Func([], [Result_6], ['query']),
     'reserve_pool' : IDL.Func([Account, IDL.Nat, IDL.Nat], [Result_1], []),
     'send_reward' : IDL.Func([IDL.Nat, IDL.Nat, Account], [Result], []),
   });

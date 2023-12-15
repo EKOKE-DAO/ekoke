@@ -19,6 +19,10 @@ pub const CPM_MEMORY_ID: MemoryId = MemoryId::new(33);
 pub const LAST_CPM_MEMORY_ID: MemoryId = MemoryId::new(34);
 pub const LAST_MONTH_MEMORY_ID: MemoryId = MemoryId::new(35);
 
+// Liquidity pool
+pub const LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(40);
+pub const LIQUIDITY_POOL_CKBTC_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(41);
+
 thread_local! {
     /// Memory manager
     pub static MEMORY_MANAGER: IcMemoryManager<DefaultMemoryImpl> = IcMemoryManager::init(DefaultMemoryImpl::default());

@@ -10,7 +10,9 @@ mod utils;
 
 use app::FlyCanister;
 use candid::{candid_method, Nat, Principal};
-use did::fly::{FlyInitData, FlyResult, PicoFly, Role, Transaction};
+use did::fly::{
+    FlyInitData, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoFly, Role, Transaction,
+};
 use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
@@ -20,8 +22,8 @@ use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1 as _};
 use icrc::icrc2::{self, Icrc2 as _};
 
 #[init]
-pub fn init(data: FlyInitData) {
-    FlyCanister::init(data);
+pub async fn init(data: FlyInitData) {
+    FlyCanister::init(data).await;
 }
 
 #[post_upgrade]
@@ -45,6 +47,18 @@ pub fn send_reward(contract_id: ID, picofly: PicoFly, buyer: Account) -> FlyResu
 #[candid_method(update)]
 pub fn reserve_pool(from: Account, contract_id: ID, picofly_amount: PicoFly) -> FlyResult<PicoFly> {
     FlyCanister::reserve_pool(from, contract_id, picofly_amount)
+}
+
+#[query]
+#[candid_method(query)]
+pub async fn liquidity_pool_balance() -> FlyResult<LiquidityPoolBalance> {
+    FlyCanister::liquidity_pool_balance().await
+}
+
+#[query]
+#[candid_method(query)]
+pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
+    FlyCanister::liquidity_pool_accounts()
 }
 
 #[update]

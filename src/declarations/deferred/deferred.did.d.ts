@@ -55,6 +55,7 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
   { 'StorageError' : null } |
+  { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |

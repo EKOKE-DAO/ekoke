@@ -23,6 +23,15 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientFunds' : IDL.Null,
   });
   const RegisterError = IDL.Variant({ 'TransactionNotFound' : IDL.Null });
+  const RejectionCode = IDL.Variant({
+    'NoError' : IDL.Null,
+    'CanisterError' : IDL.Null,
+    'SysTransient' : IDL.Null,
+    'DestinationInvalid' : IDL.Null,
+    'Unknown' : IDL.Null,
+    'SysFatal' : IDL.Null,
+    'CanisterReject' : IDL.Null,
+  });
   const BalanceError = IDL.Variant({
     'AccountNotFound' : IDL.Null,
     'InsufficientBalance' : IDL.Null,
@@ -33,6 +42,7 @@ export const idlFactory = ({ IDL }) => {
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
     'StorageError' : IDL.Null,
+    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
   });
   const NftError = IDL.Variant({
@@ -69,15 +79,6 @@ export const idlFactory = ({ IDL }) => {
     'TokenIsBurned' : IDL.Nat,
     'BadMintTokenOwner' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
-  });
-  const RejectionCode = IDL.Variant({
-    'NoError' : IDL.Null,
-    'CanisterError' : IDL.Null,
-    'SysTransient' : IDL.Null,
-    'DestinationInvalid' : IDL.Null,
-    'Unknown' : IDL.Null,
-    'SysFatal' : IDL.Null,
-    'CanisterReject' : IDL.Null,
   });
   const DeferredError = IDL.Variant({
     'Fly' : FlyError,

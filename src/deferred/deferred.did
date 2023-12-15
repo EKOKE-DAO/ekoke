@@ -56,6 +56,7 @@ type FlyError = variant {
   Allowance : AllowanceError;
   Register : RegisterError;
   StorageError;
+  CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
 };
 type GenericValue = variant {

@@ -1,6 +1,7 @@
 //! Types associated to the "Fly" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Nat, Principal};
+use ic_cdk::api::call::RejectionCode;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
@@ -25,6 +26,8 @@ pub enum FlyError {
     Register(RegisterError),
     #[error("storage error")]
     StorageError,
+    #[error("inter-canister call error: ({0:?}): {1}")]
+    CanisterCall(RejectionCode, String),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -161,6 +164,24 @@ impl Storable for Transaction {
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         Decode!(&bytes, Transaction).unwrap()
     }
+}
+
+/// The accounts that hold the liquidity pools for the CKBTC and ICP tokens.
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub struct LiquidityPoolAccounts {
+    /// The account that holds the pool for the CKBTC token.
+    pub ckbtc: Account,
+    /// The account that holds the pool for the ICP tokens.
+    pub icp: Vec<u8>,
+}
+
+/// The balance of the liquidity pool
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+pub struct LiquidityPoolBalance {
+    /// CKBTC tokens hold in the liquidity pool
+    pub ckbtc: Nat,
+    /// ICP tokens hold in the liquidity pool
+    pub icp: Nat,
 }
 
 #[cfg(test)]

@@ -38,6 +38,7 @@ type FlyError = variant {
   Allowance : AllowanceError;
   Register : RegisterError;
   StorageError;
+  CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
 };
 type FlyInitData = record {
@@ -47,6 +48,8 @@ type FlyInitData = record {
   admins : vec principal;
   total_supply : nat64;
 };
+type LiquidityPoolAccounts = record { icp : vec nat8; ckbtc : Account };
+type LiquidityPoolBalance = record { icp : nat; ckbtc : nat };
 type MetadataValue = variant {
   Int : int;
   Nat : nat;
@@ -55,12 +58,22 @@ type MetadataValue = variant {
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
 type Result = variant { Ok; Err : FlyError };
 type Result_1 = variant { Ok : nat; Err : FlyError };
 type Result_2 = variant { Ok : Transaction; Err : FlyError };
 type Result_3 = variant { Ok : nat; Err : TransferError };
 type Result_4 = variant { Ok : nat; Err : ApproveError };
 type Result_5 = variant { Ok : nat; Err : TransferFromError };
+type Result_6 = variant { Ok : LiquidityPoolBalance; Err : FlyError };
 type Role = variant { DeferredCanister; MarketplaceCanister; Admin };
 type TokenExtension = record { url : text; name : text };
 type Transaction = record {
@@ -128,6 +141,8 @@ service : (FlyInitData) -> {
   icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
   icrc2_approve : (ApproveArgs) -> (Result_4);
   icrc2_transfer_from : (TransferFromArgs) -> (Result_5);
+  liquidity_pool_accounts : () -> (LiquidityPoolAccounts) query;
+  liquidity_pool_balance : () -> (Result_6) query;
   reserve_pool : (Account, nat, nat) -> (Result_1);
   send_reward : (nat, nat, Account) -> (Result);
 }
