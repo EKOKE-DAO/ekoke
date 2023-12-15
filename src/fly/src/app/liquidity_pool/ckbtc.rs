@@ -1,4 +1,6 @@
 use candid::Nat;
+#[cfg(target_arch = "wasm32")]
+use candid::Principal;
 use did::fly::FlyResult;
 use icrc::icrc1::account::Account;
 
