@@ -6,13 +6,27 @@ export const idlFactory = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'swap_account' : Account,
     'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'total_supply' : IDL.Nat64,
+    'total_supply' : IDL.Nat,
   });
   const ConfigurationError = IDL.Variant({
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
+  });
+  const TransferError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
@@ -40,14 +54,31 @@ export const idlFactory = ({ IDL }) => {
     'AccountNotFound' : IDL.Null,
     'InsufficientBalance' : IDL.Null,
   });
+  const TransferFromError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'InsufficientAllowance' : IDL.Record({ 'allowance' : IDL.Nat }),
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
+    'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
+    'XrcError' : IDL.Null,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
+    'Icrc2Transfer' : TransferFromError,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
   const Role = IDL.Variant({
@@ -79,19 +110,6 @@ export const idlFactory = ({ IDL }) => {
     'from_subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
     'created_at_time' : IDL.Opt(IDL.Nat64),
     'amount' : IDL.Nat,
-  });
-  const TransferError = IDL.Variant({
-    'GenericError' : IDL.Record({
-      'message' : IDL.Text,
-      'error_code' : IDL.Nat,
-    }),
-    'TemporarilyUnavailable' : IDL.Null,
-    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
-    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
-    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
-    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
-    'TooOld' : IDL.Null,
-    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
   const Result_3 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferError });
   const AllowanceArgs = IDL.Record({
@@ -136,20 +154,6 @@ export const idlFactory = ({ IDL }) => {
     'created_at_time' : IDL.Opt(IDL.Nat64),
     'amount' : IDL.Nat,
   });
-  const TransferFromError = IDL.Variant({
-    'GenericError' : IDL.Record({
-      'message' : IDL.Text,
-      'error_code' : IDL.Nat,
-    }),
-    'TemporarilyUnavailable' : IDL.Null,
-    'InsufficientAllowance' : IDL.Record({ 'allowance' : IDL.Nat }),
-    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
-    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
-    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
-    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
-    'TooOld' : IDL.Null,
-    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
-  });
   const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferFromError });
   const LiquidityPoolAccounts = IDL.Record({
     'icp' : IDL.Vec(IDL.Nat8),
@@ -168,6 +172,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
+    'admin_set_swap_account' : IDL.Func([Account], [], []),
     'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
     'get_transaction' : IDL.Func([IDL.Nat64], [Result_2], ['query']),
     'icrc1_balance_of' : IDL.Func([Account], [IDL.Nat], ['query']),
@@ -208,9 +213,10 @@ export const init = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'swap_account' : Account,
     'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'total_supply' : IDL.Nat64,
+    'total_supply' : IDL.Nat,
   });
   return [FlyInitData];
 };

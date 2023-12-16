@@ -34,19 +34,23 @@ type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type FlyError = variant {
   Configuration : ConfigurationError;
+  Icrc1Transfer : TransferError;
   Pool : PoolError;
   Allowance : AllowanceError;
   Register : RegisterError;
+  XrcError;
   StorageError;
   CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
+  Icrc2Transfer : TransferFromError;
 };
 type FlyInitData = record {
   deferred_canister : principal;
   initial_balances : vec record { Account; nat };
+  swap_account : Account;
   marketplace_canister : principal;
   admins : vec principal;
-  total_supply : nat64;
+  total_supply : nat;
 };
 type LiquidityPoolAccounts = record { icp : vec nat8; ckbtc : Account };
 type LiquidityPoolBalance = record { icp : nat; ckbtc : nat };
@@ -127,6 +131,7 @@ service : (FlyInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
+  admin_set_swap_account : (Account) -> ();
   get_contract_reward : (nat, nat64) -> (Result_1);
   get_transaction : (nat64) -> (Result_2) query;
   icrc1_balance_of : (Account) -> (nat) query;

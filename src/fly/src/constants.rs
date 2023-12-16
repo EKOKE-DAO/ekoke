@@ -28,3 +28,6 @@ pub const CKBTC_LEDGER_CANISTER: &str = "mxzaz-hqaaa-aaaar-qaada-cai";
 #[cfg(target_family = "wasm")]
 pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration =
     Duration::from_secs(60 * 60 * 24 * 7); // 7 days
+
+#[cfg(target_family = "wasm")]
+pub const LIQUIDITY_POOL_SWAP_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24); // 1 day

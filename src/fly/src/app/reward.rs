@@ -196,8 +196,7 @@ mod test {
     use pretty_assertions::{assert_eq, assert_ne};
 
     use super::*;
-    use crate::app::test_utils::bob_account;
-    use crate::utils::fly_to_picofly;
+    use crate::app::test_utils::{bob_account, fly_to_picofly};
 
     #[test]
     fn test_should_get_reward_if_pool_exists() {

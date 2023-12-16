@@ -119,7 +119,7 @@ mod test {
 
     #[test]
     fn test_should_reserve_new_pool() {
-        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
             Pool::reserve(
@@ -135,7 +135,7 @@ mod test {
 
     #[test]
     fn test_should_reserve_more_tokens() {
-        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
             Pool::reserve(
@@ -160,7 +160,7 @@ mod test {
 
     #[test]
     fn test_should_tell_whether_has_pool() {
-        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert!(Pool::reserve(
             &1_u64.into(),
@@ -174,7 +174,7 @@ mod test {
 
     #[test]
     fn test_should_withdraw_tokens_from_pool() {
-        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
         assert!(Pool::reserve(
@@ -193,7 +193,7 @@ mod test {
 
     #[test]
     fn test_should_not_withdraw_more_tokens_than_available() {
-        Balance::init_balances(utils::fly_to_picofly(8_000_000), vec![]);
+        Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
         assert!(Pool::reserve(

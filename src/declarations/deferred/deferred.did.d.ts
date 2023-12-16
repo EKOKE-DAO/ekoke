@@ -51,12 +51,15 @@ export interface DeferredInitData {
   'marketplace_canister' : Principal,
 }
 export type FlyError = { 'Configuration' : ConfigurationError } |
+  { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
+  { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
-  { 'Balance' : BalanceError };
+  { 'Balance' : BalanceError } |
+  { 'Icrc2Transfer' : TransferFromError };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |
@@ -164,6 +167,27 @@ export interface TokenMetadata {
   'minted_at' : bigint,
   'minted_by' : Principal,
 }
+export type TransferError = {
+    'GenericError' : { 'message' : string, 'error_code' : bigint }
+  } |
+  { 'TemporarilyUnavailable' : null } |
+  { 'BadBurn' : { 'min_burn_amount' : bigint } } |
+  { 'Duplicate' : { 'duplicate_of' : bigint } } |
+  { 'BadFee' : { 'expected_fee' : bigint } } |
+  { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
+  { 'TooOld' : null } |
+  { 'InsufficientFunds' : { 'balance' : bigint } };
+export type TransferFromError = {
+    'GenericError' : { 'message' : string, 'error_code' : bigint }
+  } |
+  { 'TemporarilyUnavailable' : null } |
+  { 'InsufficientAllowance' : { 'allowance' : bigint } } |
+  { 'BadBurn' : { 'min_burn_amount' : bigint } } |
+  { 'Duplicate' : { 'duplicate_of' : bigint } } |
+  { 'BadFee' : { 'expected_fee' : bigint } } |
+  { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
+  { 'TooOld' : null } |
+  { 'InsufficientFunds' : { 'balance' : bigint } };
 export interface TxEvent {
   'time' : bigint,
   'operation' : string,

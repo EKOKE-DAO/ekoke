@@ -44,9 +44,8 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils::{alice_account, bob_account};
+    use crate::app::test_utils::{alice_account, bob_account, fly_to_picofly};
     use crate::constants::ICRC1_FEE;
-    use crate::utils::fly_to_picofly;
 
     #[test]
     fn test_should_insert_tx() {

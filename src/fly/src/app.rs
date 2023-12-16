@@ -48,6 +48,8 @@ impl FlyCanister {
             owner: utils::id(),
             subaccount: Some(random_subaccount()),
         });
+        // set swap account
+        Configuration::set_swap_account(data.swap_account);
         // init liquidity pool
         LiquidityPool::init().await;
         // set roles
@@ -59,10 +61,7 @@ impl FlyCanister {
         // set marketplace canister
         RolesManager::give_role(data.marketplace_canister, Role::MarketplaceCanister);
         // init balances
-        Balance::init_balances(
-            utils::fly_to_picofly(data.total_supply),
-            data.initial_balances,
-        );
+        Balance::init_balances(data.total_supply, data.initial_balances);
         // set timers
         Self::set_timers();
     }
@@ -74,10 +73,19 @@ impl FlyCanister {
     /// Set application timers
     fn set_timers() {
         #[cfg(target_family = "wasm")]
+        async fn swap_icp_to_btc_timer() {
+            let _ = LiquidityPool::swap_icp_to_btc().await;
+        }
+
+        #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(
             crate::constants::SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL,
             SpendAllowance::remove_expired_allowance,
         );
+        #[cfg(target_family = "wasm")]
+        ic_cdk_timers::set_timer_interval(crate::constants::LIQUIDITY_POOL_SWAP_INTERVAL, || {
+            ic_cdk::spawn(swap_icp_to_btc_timer());
+        });
     }
 
     /// Get transaction by id
@@ -173,6 +181,14 @@ impl FlyCanister {
             ic_cdk::trap("Unauthorized");
         }
         Balance::burn(amount)
+    }
+
+    /// Set swap account
+    pub fn admin_set_swap_account(account: Account) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_swap_account(account);
     }
 }
 
@@ -431,11 +447,11 @@ mod test {
     use icrc::icrc2::transfer_from::TransferFromArgs;
     use pretty_assertions::{assert_eq, assert_ne};
 
-    use super::test_utils::{alice_account, bob_account, caller_account};
+    use super::test_utils::{alice_account, bob_account, caller_account, fly_to_picofly};
     use super::*;
     use crate::app::test_utils::bob;
     use crate::constants::ICRC1_TX_TIME_SKID;
-    use crate::utils::{caller, fly_to_picofly};
+    use crate::utils::caller;
 
     #[tokio::test]
     async fn test_should_init_canister() {
@@ -467,11 +483,11 @@ mod test {
         );
 
         // liquidity pool
-        assert_ne!(
-            LiquidityPool::accounts().ckbtc.owner,
-            Principal::anonymous()
-        );
-        assert!(LiquidityPool::accounts().ckbtc.subaccount.is_some());
+        assert_eq!(LiquidityPool::accounts().ckbtc.owner, utils::id());
+        assert!(LiquidityPool::accounts().ckbtc.subaccount.is_none());
+
+        // swap account
+        assert_eq!(Configuration::get_swap_account(), bob_account());
     }
 
     #[tokio::test]
@@ -1045,9 +1061,10 @@ mod test {
     async fn init_canister() {
         let data = FlyInitData {
             admins: vec![caller()],
-            total_supply: 8_888_888,
+            total_supply: fly_to_picofly(8_888_888),
             deferred_canister: caller(),
             marketplace_canister: caller(),
+            swap_account: bob_account(),
             initial_balances: vec![
                 (alice_account(), fly_to_picofly(50_000)),
                 (bob_account(), fly_to_picofly(50_000)),

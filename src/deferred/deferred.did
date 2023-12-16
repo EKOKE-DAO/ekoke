@@ -52,12 +52,15 @@ type DeferredInitData = record {
 };
 type FlyError = variant {
   Configuration : ConfigurationError;
+  Icrc1Transfer : TransferError;
   Pool : PoolError;
   Allowance : AllowanceError;
   Register : RegisterError;
+  XrcError;
   StorageError;
   CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
+  Icrc2Transfer : TransferFromError;
 };
 type GenericValue = variant {
   Nat64Content : nat64;
@@ -159,6 +162,27 @@ type TokenMetadata = record {
   burned_by : opt principal;
   minted_at : nat64;
   minted_by : principal;
+};
+type TransferError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+type TransferFromError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  InsufficientAllowance : record { allowance : nat };
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
 };
 type TxEvent = record {
   time : nat64;

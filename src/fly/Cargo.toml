@@ -33,6 +33,7 @@ num-traits = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

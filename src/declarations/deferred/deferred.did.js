@@ -10,6 +10,19 @@ export const idlFactory = ({ IDL }) => {
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
   });
+  const TransferError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
@@ -36,14 +49,31 @@ export const idlFactory = ({ IDL }) => {
     'AccountNotFound' : IDL.Null,
     'InsufficientBalance' : IDL.Null,
   });
+  const TransferFromError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'InsufficientAllowance' : IDL.Record({ 'allowance' : IDL.Nat }),
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
+    'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
+    'XrcError' : IDL.Null,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
+    'Icrc2Transfer' : TransferFromError,
   });
   const NftError = IDL.Variant({
     'UnauthorizedOperator' : IDL.Null,

@@ -6,6 +6,7 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::Memo;
+use icrc::{icrc1, icrc2};
 use thiserror::Error;
 
 use crate::ID;
@@ -28,6 +29,30 @@ pub enum FlyError {
     StorageError,
     #[error("inter-canister call error: ({0:?}): {1}")]
     CanisterCall(RejectionCode, String),
+    #[error("icrc2 transfer error {0:?}")]
+    Icrc2Transfer(icrc2::transfer_from::TransferFromError),
+    #[error("icrc1 transfer error {0:?}")]
+    Icrc1Transfer(icrc1::transfer::TransferError),
+    #[error("xrc error")]
+    XrcError,
+}
+
+impl From<icrc2::transfer_from::TransferFromError> for FlyError {
+    fn from(value: icrc2::transfer_from::TransferFromError) -> Self {
+        Self::Icrc2Transfer(value)
+    }
+}
+
+impl From<icrc1::transfer::TransferError> for FlyError {
+    fn from(value: icrc1::transfer::TransferError) -> Self {
+        Self::Icrc1Transfer(value)
+    }
+}
+
+impl From<xrc::ExchangeRateError> for FlyError {
+    fn from(_: xrc::ExchangeRateError) -> Self {
+        Self::XrcError
+    }
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
@@ -83,14 +108,16 @@ pub type PicoFly = Nat;
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct FlyInitData {
     pub admins: Vec<Principal>,
-    /// Total supply of $fly tokens
-    pub total_supply: u64,
+    /// Total supply of $picofly tokens
+    pub total_supply: PicoFly,
     /// Initial balances (wallet subaccount -> picofly)
     pub initial_balances: Vec<(Account, PicoFly)>,
     /// Deferred canister
     pub deferred_canister: Principal,
     /// Marketplace canister
     pub marketplace_canister: Principal,
+    /// Swap account
+    pub swap_account: Account,
 }
 
 /// Fly user roles. Defines permissions

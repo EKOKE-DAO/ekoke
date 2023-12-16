@@ -186,8 +186,8 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils::{alice_account, bob_account};
-    use crate::utils::{self, fly_to_picofly};
+    use crate::app::test_utils::{alice_account, bob_account, fly_to_picofly};
+    use crate::utils::{self};
 
     #[test]
     fn test_should_init_balances() {

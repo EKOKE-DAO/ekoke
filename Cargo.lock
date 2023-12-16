@@ -351,6 +351,7 @@ dependencies = [
  "pretty_assertions",
  "serde",
  "thiserror",
+ "xrc",
 ]
 
 [[package]]
@@ -460,6 +461,7 @@ dependencies = [
  "serde",
  "thiserror",
  "tokio",
+ "xrc",
 ]
 
 [[package]]
@@ -673,6 +675,16 @@ name = "ic-stable-structures"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4867a1d9f232e99ca68682161d1fc67dff9501f4f1bf42d69a9358289ad0f8"
+
+[[package]]
+name = "ic-xrc-types"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05ab6861ccddba2da35148d8a09b6448ccad9e9f3cb5bb83fe6e3dde9559b6ea"
+dependencies = [
+ "candid",
+ "serde",
+]
 
 [[package]]
 name = "ic0"
@@ -1699,6 +1711,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "829846f3e3db426d4cee4510841b71a8e58aa2a76b1132579487ae430ccd9c7b"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "xrc"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "ic-cdk",
+ "ic-xrc-types",
+ "pretty_assertions",
+ "serde",
 ]
 
 [[package]]

@@ -1,5 +1,6 @@
 [package]
-name = "did"
+name = "xrc"
+description = "EXchange Rate Canister client"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -9,14 +10,9 @@ repository = { workspace = true }
 
 [dependencies]
 candid = { workspace = true }
-dip721 = { path = "../dip721" }
 ic-cdk = { workspace = true }
-ic-stable-structures = { workspace = true }
-icrc = { path = "../icrc" }
-num-bigint = { workspace = true }
+ic-xrc-types = { workspace = true }
 serde = { workspace = true }
-thiserror = { workspace = true }
-xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

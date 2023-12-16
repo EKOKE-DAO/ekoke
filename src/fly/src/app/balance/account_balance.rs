@@ -49,7 +49,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::utils::fly_to_picofly;
+    use crate::app::test_utils::fly_to_picofly;
 
     #[test]
     fn test_should_encode_and_decode_balance() {

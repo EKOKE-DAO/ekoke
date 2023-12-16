@@ -2,7 +2,6 @@ use std::time::{Duration, UNIX_EPOCH};
 
 use candid::{Nat, Principal};
 use chrono::{DateTime, NaiveDate, Utc};
-use did::fly::PicoFly;
 use icrc::icrc1::account::Subaccount;
 
 /// Returns current time in nanoseconds
@@ -67,26 +66,4 @@ pub fn caller() -> Principal {
 /// Generates a random subaccount
 pub fn random_subaccount() -> Subaccount {
     Subaccount::from([rand::random::<u8>(); 32])
-}
-
-/// Convert fly to picofly
-pub fn fly_to_picofly(amount: u64) -> PicoFly {
-    let amount = Nat::from(amount);
-    let multiplier = Nat::from(1_000_000_000_000_u64);
-    amount * multiplier
-}
-
-#[cfg(test)]
-mod test {
-
-    use pretty_assertions::assert_eq;
-
-    use super::*;
-
-    #[test]
-    fn test_should_convert_fly_to_picofly() {
-        assert_eq!(fly_to_picofly(1), 1_000_000_000_000_u64);
-        assert_eq!(fly_to_picofly(20), 20_000_000_000_000_u64);
-        assert_eq!(fly_to_picofly(300), 300_000_000_000_000_u64);
-    }
 }

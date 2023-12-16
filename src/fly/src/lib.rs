@@ -85,6 +85,12 @@ pub fn admin_burn(amount: PicoFly) -> FlyResult<()> {
     FlyCanister::admin_burn(amount)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn admin_set_swap_account(account: Account) {
+    FlyCanister::admin_set_swap_account(account)
+}
+
 #[query]
 #[candid_method(query)]
 pub fn get_transaction(id: u64) -> FlyResult<Transaction> {

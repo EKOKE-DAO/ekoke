@@ -42,15 +42,19 @@ export type BalanceError = { 'AccountNotFound' : null } |
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
+  { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
+  { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
-  { 'Balance' : BalanceError };
+  { 'Balance' : BalanceError } |
+  { 'Icrc2Transfer' : TransferFromError };
 export interface FlyInitData {
   'deferred_canister' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
+  'swap_account' : Account,
   'marketplace_canister' : Principal,
   'admins' : Array<Principal>,
   'total_supply' : bigint,
@@ -143,6 +147,7 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
+  'admin_set_swap_account' : ActorMethod<[Account], undefined>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
   'get_transaction' : ActorMethod<[bigint], Result_2>,
   'icrc1_balance_of' : ActorMethod<[Account], bigint>,

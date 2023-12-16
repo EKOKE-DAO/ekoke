@@ -5,22 +5,25 @@
 
 mod ckbtc;
 mod icp_ledger;
+mod xrc;
 
 use std::cell::RefCell;
 
-use candid::Principal;
-use did::fly::{FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance};
+use candid::{Nat, Principal};
+use did::fly::{BalanceError, FlyError, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
 use self::ckbtc::CkBtc;
 use self::icp_ledger::IcpLedger;
+use self::xrc::Xrc;
 use super::balance::StorableAccount;
+use crate::app::configuration::Configuration;
 use crate::app::memory::{
     LIQUIDITY_POOL_ACCOUNT_MEMORY_ID, LIQUIDITY_POOL_CKBTC_ACCOUNT_MEMORY_ID, MEMORY_MANAGER,
 };
-use crate::utils::{self, random_subaccount};
+use crate::utils;
 
 thread_local! {
     /// ICP ledger account
@@ -51,14 +54,14 @@ impl LiquidityPool {
                 .set(
                     Account {
                         owner: utils::id(),
-                        subaccount: Some(random_subaccount()),
+                        subaccount: None,
                     }
                     .into(),
                 )
                 .unwrap();
         });
         // get account from ICP ledger
-        let icp_account = IcpLedger::account_identifier(utils::id()).await;
+        let icp_account = IcpLedger::account_identifier(utils::id(), None).await;
         ICP_ACCOUNT.with_borrow_mut(|account| {
             account.set(icp_account).unwrap();
         });
@@ -80,6 +83,91 @@ impl LiquidityPool {
 
         Ok(LiquidityPoolBalance { icp, ckbtc })
     }
+
+    /// Swap the current liquidity pool in ICP to BTC using the swap account
+    #[allow(dead_code)]
+    pub async fn swap_icp_to_btc() -> FlyResult<()> {
+        // get the current exchange rate ICP/BTC
+        let rate = Xrc::get_icp_to_btc_rate().await?;
+        // get current balance of swap account of CKBTC
+        let swap_account_balance =
+            CkBtc::icrc1_balance_of(Configuration::get_swap_account()).await?;
+        // get current ICP balance of the liquidity pool
+        let accounts = Self::accounts();
+        let liquidity_pool_balance = Self::balance().await?;
+
+        // check ckbtc allowance
+        let allowance = CkBtc::icrc2_allowance(accounts.ckbtc, Configuration::get_swap_account())
+            .await?
+            .allowance;
+
+        // get amounts to trade
+        let amounts = Self::get_exchange_amounts(
+            rate,
+            allowance,
+            swap_account_balance,
+            liquidity_pool_balance.icp.clone(),
+        );
+
+        // check ICP balance
+        if liquidity_pool_balance.icp < amounts.icp {
+            // abort
+            return Err(FlyError::Balance(BalanceError::InsufficientBalance));
+        }
+
+        // send ICP to swap account
+        IcpLedger::icrc1_transfer(
+            Configuration::get_swap_account(),
+            liquidity_pool_balance.icp,
+        )
+        .await?;
+        // send BTC to liquidity pool
+        CkBtc::icrc2_transfer_from(
+            accounts.ckbtc.subaccount,
+            Configuration::get_swap_account(),
+            accounts.ckbtc,
+            amounts.btc,
+        )
+        .await?;
+
+        Ok(())
+    }
+
+    /// given exchange rates, the maximum allowance and the swap account balance and the liquidity pool balance
+    /// calculate the values to exchange in both ICP and BTC.
+    /// The values must match if converted to the same currency.
+    fn get_exchange_amounts(
+        icp_btc_rate: f64,
+        allowance: Nat,
+        swap_account_balance: Nat,
+        liquidity_pool_icp_balance: Nat,
+    ) -> ExchangeAmounts {
+        let sats_rate = Nat::from((icp_btc_rate * 100_000_000_f64) as u64);
+        // convert the ICP to Sats
+        let liquidity_pool_btc_balance =
+            (liquidity_pool_icp_balance.clone() * sats_rate.clone()) / 10_u32.pow(8);
+        println!("liquidity_pool_btc_balance: {}", liquidity_pool_btc_balance);
+
+        // get the amount to exchange
+        // get the minimum between the allowance, the swap account BTC balance and the liquidity pool ICP balance (expressed in sats)
+        let sats_to_send_to_liquidity_pool = swap_account_balance
+            .min(allowance)
+            .min(liquidity_pool_btc_balance);
+        // convert to ICP
+        let icp_to_send_to_swap_account =
+            sats_to_send_to_liquidity_pool.clone() * 10_u32.pow(8) / sats_rate;
+
+        ExchangeAmounts {
+            icp: icp_to_send_to_swap_account,
+            btc: sats_to_send_to_liquidity_pool,
+        }
+    }
+}
+
+struct ExchangeAmounts {
+    icp: Nat,
+    /// Sats
+    btc: Nat,
 }
 
 #[cfg(test)]
@@ -109,5 +197,35 @@ mod test {
         let balance = LiquidityPool::balance().await.unwrap();
         assert_eq!(balance.ckbtc, 88_378_u64);
         assert_eq!(balance.icp, 1_216_794_022);
+    }
+
+    #[test]
+    fn test_should_calculate_the_exchange_amounts_icp_lt_btc() {
+        let icp_btc_rate = 0.00021543;
+        let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
+        let allowance: Nat = 5_000_000.into();
+        let icp_balance: Nat = 716_774_022.into(); // about 65$
+
+        // get amounts
+        let amounts =
+            LiquidityPool::get_exchange_amounts(icp_btc_rate, allowance, swap_balance, icp_balance);
+
+        assert_eq!(amounts.btc, 154_414);
+        assert_eq!(amounts.icp, 716_771_108);
+    }
+
+    #[test]
+    fn test_should_calculate_the_exchange_amounts_icp_gt_btc() {
+        let icp_btc_rate = 0.00021543;
+        let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
+        let allowance: Nat = 50_000.into(); // about 40$
+        let icp_balance: Nat = 716_774_022.into(); // about 65$
+
+        // get amounts
+        let amounts =
+            LiquidityPool::get_exchange_amounts(icp_btc_rate, allowance, swap_balance, icp_balance);
+
+        assert_eq!(amounts.btc, 50_000);
+        assert_eq!(amounts.icp, 232_093_951);
     }
 }

@@ -3,7 +3,11 @@ use candid::CandidType;
 use candid::{Nat, Principal};
 use did::fly::FlyResult;
 #[cfg(target_arch = "wasm32")]
+use icrc::icrc1;
+#[cfg(target_arch = "wasm32")]
 use serde::Deserialize;
+
+use crate::Account;
 
 /// ICP ledger canister client
 pub struct IcpLedger;
@@ -11,7 +15,7 @@ pub struct IcpLedger;
 impl IcpLedger {
     /// Get account identifier
     #[allow(unused_variables)]
-    pub async fn account_identifier(id: Principal) -> Vec<u8> {
+    pub async fn account_identifier(id: Principal, subaccount: Option<Vec<u8>>) -> Vec<u8> {
         #[cfg(not(target_arch = "wasm32"))]
         {
             vec![
@@ -27,7 +31,7 @@ impl IcpLedger {
                 "account_identifier",
                 (AccountIdentifierRequest {
                     owner: id,
-                    subaccount: None,
+                    subaccount,
                 },),
             )
             .await
@@ -55,6 +59,32 @@ impl IcpLedger {
             .map_err(|(code, err)| did::fly::FlyError::CanisterCall(code, err))?;
 
             Ok(result.0.e8s)
+        }
+    }
+
+    /// Transfer ICP from `from` account to `to` account
+    #[allow(unused_variables)]
+    pub async fn icrc1_transfer(to: Account, amount: Nat) -> FlyResult<Nat> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Ok(amount)
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let args = icrc1::transfer::TransferArg {
+                to,
+                from_subaccount: None,
+                fee: None,
+                created_at_time: None,
+                memo: None,
+                amount,
+            };
+            let result: (Result<Nat, icrc1::transfer::TransferError>,) =
+                ic_cdk::call(Self::icp_ledger_canister(), "icrc1_transfer", (args,))
+                    .await
+                    .map_err(|(code, err)| did::fly::FlyError::CanisterCall(code, err))?;
+
+            Ok(result.0?)
         }
     }
 

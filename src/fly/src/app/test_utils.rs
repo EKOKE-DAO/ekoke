@@ -1,4 +1,5 @@
-use candid::Principal;
+use candid::{Nat, Principal};
+use did::fly::PicoFly;
 use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
 
 use crate::utils::caller;
@@ -33,5 +34,26 @@ pub fn caller_account() -> Account {
     Account {
         owner: caller(),
         subaccount: Some(*DEFAULT_SUBACCOUNT),
+    }
+}
+
+/// Convert fly to picofly
+pub fn fly_to_picofly(amount: u64) -> PicoFly {
+    let amount = Nat::from(amount);
+    let multiplier = Nat::from(1_000_000_000_000_u64);
+    amount * multiplier
+}
+
+mod test {
+
+    use pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_should_convert_fly_to_picofly() {
+        assert_eq!(fly_to_picofly(1), 1_000_000_000_000_u64);
+        assert_eq!(fly_to_picofly(20), 20_000_000_000_000_u64);
+        assert_eq!(fly_to_picofly(300), 300_000_000_000_000_u64);
     }
 }
