@@ -22,7 +22,7 @@ jobs:
           sudo apt update && sudo apt install -y libssl-dev pkg-config jq && \
           cargo install cargo-make && \
           wget https://download.dfinity.systems/ic/69e1408347723dbaa7a6cd2faa9b65c42abbe861/openssl-static-binaries/x86_64-linux/pocket-ic.gz && \
-          gzipd -d pocket-ic.gz && \
+          gzip -d pocket-ic.gz && \
           chmod +x pocket-ic && \
           mv pocket-ic ./integration-tests/pocket-ic
       - name: Install dfx
