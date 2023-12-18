@@ -34,7 +34,7 @@ jobs:
           components: rustfmt, clippy
       - name: Test
         run: cargo make test
-      - name: Integration tests
+      - name: Deploy local
         run: cargo make deploy-local
       - name: Format
         run: cargo make check-format

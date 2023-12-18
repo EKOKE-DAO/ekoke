@@ -46,7 +46,7 @@ impl FlyCanister {
         // Set minting account
         Configuration::set_minting_account(Account {
             owner: utils::id(),
-            subaccount: Some(random_subaccount()),
+            subaccount: Some(random_subaccount().await),
         });
         // set swap account
         Configuration::set_swap_account(data.swap_account);
@@ -97,7 +97,7 @@ impl FlyCanister {
     ///
     /// The tokens are withdrawned from the from's wallet.
     /// Obviously `from` wallet must be owned by the caller.
-    pub fn reserve_pool(
+    pub async fn reserve_pool(
         from: Account,
         contract_id: ID,
         picofly_amount: PicoFly,
@@ -106,7 +106,7 @@ impl FlyCanister {
             ic_cdk::trap("You don't own this account");
         }
 
-        Pool::reserve(&contract_id, from, picofly_amount)
+        Pool::reserve(&contract_id, from, picofly_amount).await
     }
 
     /// Get liquidity pool balance from the different ledgers
@@ -120,7 +120,7 @@ impl FlyCanister {
     }
 
     /// Send reward to buyer reducing the balance from the pool associated to the contract, for the value of picoFly
-    pub fn send_reward(contract_id: ID, picofly: PicoFly, buyer: Account) -> FlyResult<()> {
+    pub async fn send_reward(contract_id: ID, picofly: PicoFly, buyer: Account) -> FlyResult<()> {
         if !Inspect::inspect_is_marketplace_canister(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
@@ -129,7 +129,7 @@ impl FlyCanister {
             return Err(FlyError::Pool(PoolError::PoolNotFound(contract_id)));
         }
 
-        Pool::withdraw_tokens(&contract_id, buyer, picofly)?;
+        Pool::withdraw_tokens(&contract_id, buyer, picofly).await?;
 
         Ok(())
     }
@@ -142,12 +142,12 @@ impl FlyCanister {
     /// Otherwise, the provided amount will be reserved from canister wallet, if possible and returned.
     ///
     /// If the canister wallet doesn't have enough tokens to reserve `InsufficientBalance` error is returned
-    pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
+    pub async fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
         if !Inspect::inspect_is_deferred_canister(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
-        Reward::get_contract_reward(contract_id, installments)
+        Reward::get_contract_reward(contract_id, installments).await
     }
 
     /// Set role to the provided principal
@@ -523,7 +523,8 @@ mod test {
             test_utils::caller_account(),
             contract_id,
             picofly_amount.clone(),
-        );
+        )
+        .await;
 
         assert_eq!(result, Ok(picofly_amount));
     }
@@ -537,6 +538,7 @@ mod test {
 
         assert!(
             FlyCanister::reserve_pool(test_utils::bob_account(), contract_id, picofly_amount)
+                .await
                 .is_err()
         );
     }
@@ -552,12 +554,17 @@ mod test {
             test_utils::caller_account(),
             contract_id.clone(),
             picofly_amount.clone(),
-        );
+        )
+        .await;
 
         assert_eq!(result, Ok(picofly_amount));
 
         // send reward to bob
-        assert!(FlyCanister::send_reward(contract_id, 500_u64.into(), bob_account()).is_ok());
+        assert!(
+            FlyCanister::send_reward(contract_id, 500_u64.into(), bob_account())
+                .await
+                .is_ok()
+        );
         assert_eq!(
             Balance::balance_of(bob_account()).unwrap(),
             fly_to_picofly(50_000) + 500
@@ -575,13 +582,22 @@ mod test {
             test_utils::caller_account(),
             contract_id.clone(),
             picofly_amount.clone(),
-        );
+        )
+        .await;
 
         assert_eq!(result, Ok(picofly_amount));
 
         // send reward to bob
-        assert!(FlyCanister::send_reward(contract_id, 5000_u64.into(), bob_account()).is_err());
-        assert!(FlyCanister::send_reward(2.into(), 500_u64.into(), bob_account()).is_err());
+        assert!(
+            FlyCanister::send_reward(contract_id, 5000_u64.into(), bob_account())
+                .await
+                .is_err()
+        );
+        assert!(
+            FlyCanister::send_reward(2.into(), 500_u64.into(), bob_account())
+                .await
+                .is_err()
+        );
     }
 
     #[tokio::test]
@@ -716,7 +732,7 @@ mod test {
         assert_eq!(
             FlyCanister::icrc1_balance_of(Account {
                 owner: utils::id(),
-                subaccount: Some(utils::random_subaccount()),
+                subaccount: Some(utils::random_subaccount().await),
             }),
             Nat::from(0)
         );

@@ -68,7 +68,7 @@ impl Reward {
     /// Calculate reward for the provided contract ID and installments.
     ///
     /// Returns None if unable to reserve enough tokens.
-    pub fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
+    pub async fn get_contract_reward(contract_id: ID, installments: u64) -> FlyResult<PicoFly> {
         // If a pool is already reserved, return the pool balance divided by the installments
         if let Ok(pool_balance) = Pool::balance_of(&contract_id) {
             return Ok(pool_balance / installments);
@@ -82,7 +82,8 @@ impl Reward {
             &contract_id,
             Balance::canister_wallet_account(),
             amount_to_reserve,
-        )?;
+        )
+        .await?;
 
         Ok(reward)
     }
@@ -198,24 +199,30 @@ mod test {
     use super::*;
     use crate::app::test_utils::{bob_account, fly_to_picofly};
 
-    #[test]
-    fn test_should_get_reward_if_pool_exists() {
+    #[tokio::test]
+    async fn test_should_get_reward_if_pool_exists() {
         let contract_id = 1.into();
         let installments = 5;
         let pool_balance: PicoFly = 100.into();
         // set pool balance
         Balance::init_balances(500.into(), vec![(bob_account(), 200.into())]);
-        assert!(Pool::reserve(&contract_id, bob_account(), pool_balance.clone()).is_ok());
+        assert!(
+            Pool::reserve(&contract_id, bob_account(), pool_balance.clone())
+                .await
+                .is_ok()
+        );
         // get reward
-        let reward = Reward::get_contract_reward(contract_id, installments).unwrap();
+        let reward = Reward::get_contract_reward(contract_id, installments)
+            .await
+            .unwrap();
         assert_eq!(reward, pool_balance / installments);
     }
 
-    #[test]
-    fn test_should_get_reward_if_pool_doesnt_exist() {
+    #[tokio::test]
+    async fn test_should_get_reward_if_pool_doesnt_exist() {
         Balance::init_balances(fly_to_picofly(8_700_000).into(), vec![]);
         assert_eq!(
-            Reward::get_contract_reward(1.into(), 4_000).unwrap(),
+            Reward::get_contract_reward(1.into(), 4_000).await.unwrap(),
             36_540_000_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
@@ -223,7 +230,7 @@ mod test {
 
         // next reward should be less
         assert_eq!(
-            Reward::get_contract_reward(2.into(), 4_000).unwrap(),
+            Reward::get_contract_reward(2.into(), 4_000).await.unwrap(),
             35_926_128_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);

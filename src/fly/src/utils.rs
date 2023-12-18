@@ -64,6 +64,20 @@ pub fn caller() -> Principal {
 }
 
 /// Generates a random subaccount
-pub fn random_subaccount() -> Subaccount {
-    Subaccount::from([rand::random::<u8>(); 32])
+pub async fn random_subaccount() -> Subaccount {
+    #[cfg(test)]
+    {
+        let random_bytes = rand::random::<[u8; 32]>();
+        Subaccount::from(random_bytes)
+    }
+    #[cfg(not(test))]
+    {
+        let random_bytes = ic_cdk::api::management_canister::main::raw_rand()
+            .await
+            .unwrap()
+            .0;
+
+        let random_bytes: [u8; 32] = random_bytes.try_into().unwrap();
+        Subaccount::from(random_bytes)
+    }
 }

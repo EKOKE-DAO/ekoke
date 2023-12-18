@@ -22,7 +22,6 @@ bytes = { workspace = true }
 candid = { workspace = true }
 chrono = { workspace = true }
 did = { path = "../did" }
-getrandom = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-cdk-timers = { workspace = true }
@@ -30,11 +29,11 @@ ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
 num-bigint = { workspace = true }
 num-traits = { workspace = true }
-rand = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"
+rand = "0.8.5"
 tokio = { version = "1", features = ["full"] }

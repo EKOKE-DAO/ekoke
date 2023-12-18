@@ -30,7 +30,7 @@ impl Pool {
     /// If the contract already has a pool, the reward will be incremented
     ///
     /// Returns the new balance
-    pub fn reserve(
+    pub async fn reserve(
         contract_id: &ID,
         from_account: Account,
         picofly: PicoFly,
@@ -39,7 +39,8 @@ impl Pool {
             Balance::transfer_wno_fees(from_account, *account, picofly)?;
 
             Ok(*account)
-        })?;
+        })
+        .await?;
 
         Balance::balance_of(account)
     }
@@ -57,11 +58,16 @@ impl Pool {
     /// Withdraw $picoFly tokens from the pool and give them to `to` wallet
     ///
     /// Returns the new balance
-    pub fn withdraw_tokens(contract_id: &ID, to: Account, picofly: PicoFly) -> FlyResult<PicoFly> {
+    pub async fn withdraw_tokens(
+        contract_id: &ID,
+        to: Account,
+        picofly: PicoFly,
+    ) -> FlyResult<PicoFly> {
         Self::with_pool_contract_mut(contract_id, |account| {
             Balance::transfer_wno_fees(*account, to, picofly)?;
             Balance::balance_of(*account)
         })
+        .await
     }
 
     fn with_pool_contract<F, T>(contract_id: &ID, f: F) -> FlyResult<T>
@@ -77,10 +83,17 @@ impl Pool {
         })
     }
 
-    fn with_pool_contract_mut<F, T>(contract_id: &ID, f: F) -> FlyResult<T>
+    async fn with_pool_contract_mut<F, T>(contract_id: &ID, f: F) -> FlyResult<T>
     where
         F: FnOnce(&mut Account) -> FlyResult<T>,
     {
+        let should_generate_subaccount = !Self::has_pool(contract_id);
+        let subaccount = if should_generate_subaccount {
+            Some(utils::random_subaccount().await)
+        } else {
+            None
+        };
+
         POOL.with_borrow_mut(|pool| {
             let key = contract_id.clone().into();
             if let Some(mut contract_pool) = pool.get(&key) {
@@ -92,7 +105,7 @@ impl Pool {
                 // generate account
                 let mut new_account = Account {
                     owner: utils::id(),
-                    subaccount: Some(utils::random_subaccount()),
+                    subaccount,
                 };
                 // check if account already exists or if it's the minting account
                 if Balance::balance_of(new_account).is_ok()
@@ -117,8 +130,8 @@ mod test {
     use super::*;
     use crate::app::test_utils;
 
-    #[test]
-    fn test_should_reserve_new_pool() {
+    #[tokio::test]
+    async fn test_should_reserve_new_pool() {
         Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
@@ -127,14 +140,15 @@ mod test {
                 Balance::canister_wallet_account(),
                 7_000_u64.into()
             )
+            .await
             .unwrap(),
             7_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000);
     }
 
-    #[test]
-    fn test_should_reserve_more_tokens() {
+    #[tokio::test]
+    async fn test_should_reserve_more_tokens() {
         Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert_eq!(
@@ -143,6 +157,7 @@ mod test {
                 Balance::canister_wallet_account(),
                 7_000_u64.into()
             )
+            .await
             .unwrap(),
             7_000
         );
@@ -152,14 +167,15 @@ mod test {
                 Balance::canister_wallet_account(),
                 3_000_u64.into()
             )
+            .await
             .unwrap(),
             10_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000);
     }
 
-    #[test]
-    fn test_should_tell_whether_has_pool() {
+    #[tokio::test]
+    async fn test_should_tell_whether_has_pool() {
         Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
 
         assert!(Pool::reserve(
@@ -167,13 +183,14 @@ mod test {
             Balance::canister_wallet_account(),
             7_000_u64.into()
         )
+        .await
         .is_ok());
         assert!(Pool::has_pool(&1_u64.into()));
         assert!(!Pool::has_pool(&2_u64.into()));
     }
 
-    #[test]
-    fn test_should_withdraw_tokens_from_pool() {
+    #[tokio::test]
+    async fn test_should_withdraw_tokens_from_pool() {
         Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
@@ -182,17 +199,20 @@ mod test {
             Balance::canister_wallet_account(),
             7_000_u64.into()
         )
+        .await
         .is_ok());
         assert_eq!(
-            Pool::withdraw_tokens(&1_u64.into(), to, 3_000_u64.into()).unwrap(),
+            Pool::withdraw_tokens(&1_u64.into(), to, 3_000_u64.into())
+                .await
+                .unwrap(),
             4_000
         );
         assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000);
         assert_eq!(Balance::balance_of(to).unwrap(), 3_000);
     }
 
-    #[test]
-    fn test_should_not_withdraw_more_tokens_than_available() {
+    #[tokio::test]
+    async fn test_should_not_withdraw_more_tokens_than_available() {
         Balance::init_balances(test_utils::fly_to_picofly(8_000_000), vec![]);
         let to = test_utils::bob_account();
 
@@ -201,8 +221,11 @@ mod test {
             Balance::canister_wallet_account(),
             7_000_u64.into()
         )
+        .await
         .is_ok());
-        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000_u64.into()).is_err());
+        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000_u64.into())
+            .await
+            .is_err());
         assert!(Balance::balance_of(to).is_err());
     }
 }

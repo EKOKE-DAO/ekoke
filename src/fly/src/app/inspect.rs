@@ -452,13 +452,17 @@ mod test {
         assert!(Inspect::inspect_icrc2_transfer_from(&args).is_ok());
     }
 
-    #[test]
-    fn test_should_inspect_pool_exists() {
+    #[tokio::test]
+    async fn test_should_inspect_pool_exists() {
         let contract_id = ID::from(0);
         assert!(!Inspect::inspect_pool_exists(&contract_id));
 
         Balance::init_balances(50_000.into(), vec![(alice_account(), 100.into())]);
-        assert!(Pool::reserve(&contract_id, test_utils::alice_account(), 100.into()).is_ok());
+        assert!(
+            Pool::reserve(&contract_id, test_utils::alice_account(), 100.into())
+                .await
+                .is_ok()
+        );
 
         assert!(Inspect::inspect_pool_exists(&contract_id));
     }

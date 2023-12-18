@@ -219,14 +219,14 @@ mod test {
         );
     }
 
-    #[test]
-    fn test_should_transfer_from_canister() {
+    #[tokio::test]
+    async fn test_should_transfer_from_canister() {
         let total_supply = fly_to_picofly(8_888_888);
         let initial_balances = vec![];
 
         let recipient_account = Account {
             owner: utils::id(),
-            subaccount: Some(utils::random_subaccount()),
+            subaccount: Some(utils::random_subaccount().await),
         };
 
         Balance::init_balances(total_supply, initial_balances);
