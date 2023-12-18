@@ -11,7 +11,7 @@ use candid::{Nat, Principal};
 use did::fly::{BalanceError, FlyError, FlyResult, PicoFly};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
-use icrc::icrc1::account::{Account, DEFAULT_SUBACCOUNT};
+use icrc::icrc1::account::Account;
 use num_bigint::BigUint;
 
 pub use self::account::StorableAccount;
@@ -45,7 +45,7 @@ impl Balance {
         // make canister acount
         let canister_account = Account {
             owner: crate::utils::id(),
-            subaccount: Some(*DEFAULT_SUBACCOUNT),
+            subaccount: None,
         };
         // set canister
         CANISTER_WALLET_ACCOUNT.with_borrow_mut(|wallet| {

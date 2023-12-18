@@ -36,22 +36,19 @@ use self::roles::RolesManager;
 use self::spend_allowance::SpendAllowance;
 use crate::app::register::Register;
 use crate::constants::{ICRC1_DECIMALS, ICRC1_FEE, ICRC1_LOGO, ICRC1_NAME, ICRC1_SYMBOL};
-use crate::utils::{self, caller, random_subaccount};
+use crate::utils::{self, caller};
 
 pub struct FlyCanister;
 
 impl FlyCanister {
     /// Init fly canister
-    pub async fn init(data: FlyInitData) {
+    pub fn init(data: FlyInitData) {
         // Set minting account
-        Configuration::set_minting_account(Account {
-            owner: utils::id(),
-            subaccount: Some(random_subaccount().await),
-        });
+        Configuration::set_minting_account(data.minting_account);
         // set swap account
         Configuration::set_swap_account(data.swap_account);
         // init liquidity pool
-        LiquidityPool::init().await;
+        LiquidityPool::init();
         // set roles
         if let Err(err) = RolesManager::set_admins(data.admins) {
             ic_cdk::trap(&format!("Error setting admins: {}", err));
@@ -455,7 +452,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_init_canister() {
-        init_canister().await;
+        init_canister();
 
         assert_ne!(
             Configuration::get_minting_account().owner,
@@ -492,7 +489,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_transaction() {
-        init_canister().await;
+        init_canister();
         let now = utils::time();
         assert!(Register::insert_tx(Transaction {
             from: caller_account(),
@@ -515,7 +512,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_reserve_pool() {
-        init_canister().await;
+        init_canister();
         let contract_id = 1.into();
         let picofly_amount: Nat = 1000_u64.into();
 
@@ -532,7 +529,7 @@ mod test {
     #[tokio::test]
     #[should_panic]
     async fn test_should_not_allow_reserve_pool() {
-        init_canister().await;
+        init_canister();
         let contract_id = 1.into();
         let picofly_amount = 1000_u64.into();
 
@@ -545,7 +542,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_send_reward() {
-        init_canister().await;
+        init_canister();
         let contract_id: ID = 1.into();
 
         let picofly_amount: Nat = 1000_u64.into();
@@ -573,7 +570,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_send_reward() {
-        init_canister().await;
+        init_canister();
         let contract_id: ID = 1.into();
 
         let picofly_amount: Nat = 1000_u64.into();
@@ -602,7 +599,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_set_role() {
-        init_canister().await;
+        init_canister();
         let principal = Principal::management_canister();
         let role = Role::Admin;
         FlyCanister::admin_set_role(principal, role);
@@ -611,7 +608,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_remove_role() {
-        init_canister().await;
+        init_canister();
         let principal = Principal::management_canister();
         let role = Role::Admin;
         FlyCanister::admin_set_role(principal, role);
@@ -622,13 +619,13 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_cycles() {
-        init_canister().await;
+        init_canister();
         assert_eq!(FlyCanister::admin_cycles(), utils::cycles());
     }
 
     #[tokio::test]
     async fn test_should_burn() {
-        init_canister().await;
+        init_canister();
         let canister_balance = Balance::canister_balance();
         let amount = fly_to_picofly(1000);
         assert!(FlyCanister::admin_burn(amount.clone()).is_ok());
@@ -638,31 +635,31 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_name() {
-        init_canister().await;
+        init_canister();
         assert_eq!(FlyCanister::icrc1_name(), ICRC1_NAME);
     }
 
     #[tokio::test]
     async fn test_should_get_symbol() {
-        init_canister().await;
+        init_canister();
         assert_eq!(FlyCanister::icrc1_symbol(), ICRC1_SYMBOL);
     }
 
     #[tokio::test]
     async fn test_should_get_decimals() {
-        init_canister().await;
+        init_canister();
         assert_eq!(FlyCanister::icrc1_decimals(), ICRC1_DECIMALS);
     }
 
     #[tokio::test]
     async fn test_should_get_fee() {
-        init_canister().await;
+        init_canister();
         assert_eq!(FlyCanister::icrc1_fee(), Nat::from(ICRC1_FEE));
     }
 
     #[tokio::test]
     async fn test_should_get_metadata() {
-        init_canister().await;
+        init_canister();
         let metadata = FlyCanister::icrc1_metadata();
         assert_eq!(metadata.len(), 5);
         assert_eq!(
@@ -698,7 +695,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_total_supply() {
-        init_canister().await;
+        init_canister();
         assert_eq!(
             FlyCanister::icrc1_total_supply(),
             Nat::from(fly_to_picofly(8_888_888))
@@ -707,7 +704,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_minting_account() {
-        init_canister().await;
+        init_canister();
         assert_eq!(
             FlyCanister::icrc1_minting_account(),
             Configuration::get_minting_account()
@@ -716,7 +713,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_balance_of() {
-        init_canister().await;
+        init_canister();
         assert_eq!(
             FlyCanister::icrc1_balance_of(alice_account()),
             Nat::from(fly_to_picofly(50_000))
@@ -740,7 +737,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_transfer() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -762,7 +759,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_transfer_with_bad_time() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -779,7 +776,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_transfer_with_old_time() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -796,7 +793,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_transfer_with_time_in_future() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -813,7 +810,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_transfer_with_bad_fee() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -831,7 +828,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_transfer_with_null_fee() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -849,7 +846,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_transfer_with_higher_fee() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -867,7 +864,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_allow_bad_memo() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -899,7 +896,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_transfer_with_memo() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: bob_account(),
@@ -927,7 +924,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_burn_from_transfer() {
-        init_canister().await;
+        init_canister();
         let transfer_args = TransferArg {
             from_subaccount: caller_account().subaccount,
             to: FlyCanister::icrc1_minting_account(),
@@ -949,7 +946,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_supported_extensions() {
-        init_canister().await;
+        init_canister();
         let extensions = FlyCanister::icrc1_supported_standards();
         assert_eq!(extensions.len(), 2);
         assert_eq!(
@@ -964,7 +961,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_approve_spending() {
-        init_canister().await;
+        init_canister();
         let approval_args = ApproveArgs {
             from_subaccount: caller_account().subaccount,
             spender: bob_account(),
@@ -997,7 +994,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_not_approve_spending_if_we_cannot_pay_fee() {
-        init_canister().await;
+        init_canister();
         let approval_args = ApproveArgs {
             from_subaccount: caller_account().subaccount,
             spender: bob_account(),
@@ -1014,7 +1011,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_spend_approved_amount() {
-        init_canister().await;
+        init_canister();
         let approval_args = ApproveArgs {
             from_subaccount: bob_account().subaccount,
             spender: caller_account(),
@@ -1074,19 +1071,20 @@ mod test {
         );
     }
 
-    async fn init_canister() {
+    fn init_canister() {
         let data = FlyInitData {
             admins: vec![caller()],
             total_supply: fly_to_picofly(8_888_888),
             deferred_canister: caller(),
             marketplace_canister: caller(),
             swap_account: bob_account(),
+            minting_account: test_utils::minting_account(),
             initial_balances: vec![
                 (alice_account(), fly_to_picofly(50_000)),
                 (bob_account(), fly_to_picofly(50_000)),
                 (caller_account(), fly_to_picofly(100_000)),
             ],
         };
-        FlyCanister::init(data).await;
+        FlyCanister::init(data);
     }
 }

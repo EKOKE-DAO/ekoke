@@ -53,6 +53,7 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Icrc2Transfer' : TransferFromError };
 export interface FlyInitData {
   'deferred_canister' : Principal,
+  'minting_account' : Account,
   'initial_balances' : Array<[Account, bigint]>,
   'swap_account' : Account,
   'marketplace_canister' : Principal,

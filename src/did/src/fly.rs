@@ -118,6 +118,8 @@ pub struct FlyInitData {
     pub marketplace_canister: Principal,
     /// Swap account
     pub swap_account: Account,
+    /// Minting account, the account that can mint new tokens and burn them
+    pub minting_account: Account,
 }
 
 /// Fly user roles. Defines permissions

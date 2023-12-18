@@ -9,7 +9,7 @@ account() {
   if [ -z "$SUBACCOUNT" ]; then
     echo "record { owner = principal \"$OWNER\"; }"
   else
-    echo "record { owner = principal \"$OWNER\"; subaccount = \"$SUBACCOUNT\"; }"
+    echo "record { owner = principal \"$OWNER\"; subaccount = opt vec $SUBACCOUNT; }"
   fi
 }
 

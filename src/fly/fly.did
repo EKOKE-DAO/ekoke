@@ -46,6 +46,7 @@ type FlyError = variant {
 };
 type FlyInitData = record {
   deferred_canister : principal;
+  minting_account : Account;
   initial_balances : vec record { Account; nat };
   swap_account : Account;
   marketplace_canister : principal;

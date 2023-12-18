@@ -5,6 +5,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
+    'minting_account' : Account,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'swap_account' : Account,
     'marketplace_canister' : IDL.Principal,
@@ -212,6 +213,7 @@ export const init = ({ IDL }) => {
   });
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
+    'minting_account' : Account,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'swap_account' : Account,
     'marketplace_canister' : IDL.Principal,

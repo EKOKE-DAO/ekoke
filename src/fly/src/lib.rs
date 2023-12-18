@@ -22,8 +22,8 @@ use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1 as _};
 use icrc::icrc2::{self, Icrc2 as _};
 
 #[init]
-pub async fn init(data: FlyInitData) {
-    FlyCanister::init(data).await;
+pub fn init(data: FlyInitData) {
+    FlyCanister::init(data);
 }
 
 #[post_upgrade]

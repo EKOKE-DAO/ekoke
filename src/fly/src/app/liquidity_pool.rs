@@ -50,7 +50,7 @@ pub struct LiquidityPool;
 
 impl LiquidityPool {
     /// Init liquidity pool
-    pub async fn init() {
+    pub fn init() {
         // generate CkBTC account
         CKBTC_ACCOUNT.with_borrow_mut(|account| {
             account
@@ -187,9 +187,9 @@ mod test {
 
     use super::*;
 
-    #[tokio::test]
-    async fn test_should_init_and_get_accounts() {
-        LiquidityPool::init().await;
+    #[test]
+    fn test_should_init_and_get_accounts() {
+        LiquidityPool::init();
         let account = LiquidityPool::accounts();
         assert_eq!(account.ckbtc.owner, utils::id());
         assert_eq!(account.icp.owner, utils::id());
@@ -205,7 +205,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_balance() {
-        LiquidityPool::init().await;
+        LiquidityPool::init();
         let balance = LiquidityPool::balance().await.unwrap();
         assert_eq!(balance.ckbtc, 88_378_u64);
         assert_eq!(balance.icp, 1_216_794_022);

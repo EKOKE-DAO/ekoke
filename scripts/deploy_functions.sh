@@ -32,6 +32,7 @@ deploy_fly() {
   DEFERRED_PRINCIPAL="$7"
   MARKETPLACE_PRINCIPAL="$8"
   SWAP_ACCOUNT="$9"
+  MINTING_ACCOUNT="${10}"
 
   echo "deploying fly canister $FLY_PRINCIPAL"
 
@@ -42,6 +43,7 @@ deploy_fly() {
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
     total_supply = $TOTAL_SUPPLY;
     initial_balances = $INITIAL_BALANCES;
+    minting_account = $MINTING_ACCOUNT;
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$fly_init_args" fly
