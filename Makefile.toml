@@ -22,9 +22,9 @@ args = ["test", "--lib"]
 dependencies = ["did"]
 workspace = false
 
-[tasks.dfx-test]
-description = "Run integration tests with dfx"
-script = "./scripts/dfx-test.sh"
+[tasks.deploy-local]
+description = "Deploy testnet with dfx"
+script = "./scripts/deploy_local.sh"
 dependencies = ["dfx-setup", "build", "did"]
 workspace = false
 

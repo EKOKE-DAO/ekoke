@@ -2,15 +2,15 @@
 
 set -e
 
-deploy_deferred() {
-  echo "deploying sell contract $DILAZIONATO_PRINCIPAL"
-
+deploy_deferred() {\
   INSTALL_MODE="$1"
   NETWORK="$2"
-  DILAZIONATO_PRINCIPAL="$3"
+  DEFERRED_PRINCIPAL="$3"
   FLY_PRINCIPAL="$4"
   MARKETPLACE_PRINCIPAL="$5"
   ADMIN_PRINCIPAL="$6"
+
+  echo "deploying deferred canister $DEFERRED_PRINCIPAL"
 
   deferred_init_args="(record {
     fly_canister = principal \"$FLY_PRINCIPAL\";
@@ -19,5 +19,31 @@ deploy_deferred() {
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$deferred_init_args" deferred
+
+}
+
+deploy_fly() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  FLY_PRINCIPAL="$3"
+  ADMINS="$4"
+  TOTAL_SUPPLY="$5"
+  INITIAL_BALANCES="$6"
+  DEFERRED_PRINCIPAL="$7"
+  MARKETPLACE_PRINCIPAL="$8"
+  SWAP_ACCOUNT="$9"
+
+  echo "deploying fly canister $FLY_PRINCIPAL"
+
+  fly_init_args="(record {
+    deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
+    marketplace_canister = principal \"$MARKETPLACE_PRINCIPAL\";
+    swap_account = $SWAP_ACCOUNT;
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    total_supply = $TOTAL_SUPPLY;
+    initial_balances = $INITIAL_BALANCES;
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$fly_init_args" fly
 
 }

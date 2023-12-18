@@ -35,7 +35,7 @@ jobs:
       - name: Test
         run: cargo make test
       - name: Integration tests
-        run: cargo make dfx-test
+        run: cargo make deploy-local
       - name: Format
         run: cargo make check-format
       - name: Clippy
