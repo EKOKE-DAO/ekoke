@@ -35,10 +35,10 @@ jobs:
           target: wasm32-unknown-unknown
       - name: Unit Tests
         run: cargo make test
-      - name: Integration Tests
-        run: cargo make integration-tests
       - name: Deploy local
         run: cargo make deploy-local
+      - name: Integration Tests
+        run: cargo make integration-tests
       - name: Format
         run: cargo make check-format
       - name: Lint
