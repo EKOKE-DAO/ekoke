@@ -219,7 +219,6 @@ export const idlFactory = ({ IDL }) => {
     'Err' : NftError,
   });
   const ContractRegistration = IDL.Record({
-    'id' : IDL.Nat,
     'value' : IDL.Nat64,
     'type' : ContractType,
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),

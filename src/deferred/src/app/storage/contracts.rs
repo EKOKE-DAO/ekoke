@@ -12,6 +12,11 @@ use super::{
 pub struct ContractStorage;
 
 impl ContractStorage {
+    /// Get next contract id
+    pub fn next_contract_id() -> Nat {
+        with_contracts(|contracts| Nat::from(contracts.len()))
+    }
+
     /// Get contract by id
     pub fn get_contract(id: &ID) -> Option<Contract> {
         with_contract(id, |contract| Ok(contract.clone())).ok()
@@ -422,6 +427,12 @@ mod test {
     use super::*;
     use crate::app::test_utils::{mock_contract, mock_token, with_mock_contract, with_mock_token};
     use crate::utils::caller;
+
+    #[test]
+    fn test_should_get_next_contract_id() {
+        let next_contract_id = ContractStorage::next_contract_id();
+        assert_eq!(next_contract_id, Nat::from(0));
+    }
 
     #[test]
     fn test_should_insert_and_get_contract() {

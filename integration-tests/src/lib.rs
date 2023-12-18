@@ -9,10 +9,11 @@ use std::io::Read as _;
 use std::path::PathBuf;
 use std::vec;
 
-use candid::{Encode, Nat, Principal};
+use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
 use did::fly::{FlyInitData, PicoFly};
-use pocket_ic::PocketIc;
+use pocket_ic::{PocketIc, WasmResult};
+use serde::de::DeserializeOwned;
 
 use self::wasm::Canister;
 
@@ -27,6 +28,53 @@ pub struct TestEnv {
 }
 
 impl TestEnv {
+    pub fn query<R>(
+        &self,
+        canister: Principal,
+        caller: Principal,
+        method: &str,
+        payload: Vec<u8>,
+    ) -> anyhow::Result<R>
+    where
+        R: DeserializeOwned + CandidType,
+    {
+        let result = match self.pic.query_call(canister, caller, method, payload) {
+            Ok(result) => result,
+            Err(e) => anyhow::bail!("Error calling {}: {:?}", method, e),
+        };
+        let reply = match result {
+            WasmResult::Reply(r) => r,
+            WasmResult::Reject(r) => anyhow::bail!("{} was rejected: {:?}", method, r),
+        };
+        let ret_type = Decode!(&reply, R)?;
+
+        Ok(ret_type)
+    }
+
+    pub fn update<R>(
+        &self,
+        canister: Principal,
+        caller: Principal,
+        method: &str,
+        payload: Vec<u8>,
+    ) -> anyhow::Result<R>
+    where
+        R: DeserializeOwned + CandidType,
+    {
+        let result = match self.pic.update_call(canister, caller, method, payload) {
+            Ok(result) => result,
+            Err(e) => anyhow::bail!("Error calling {}: {:?}", method, e),
+        };
+
+        let reply = match result {
+            WasmResult::Reply(r) => r,
+            WasmResult::Reject(r) => anyhow::bail!("{} was rejected: {:?}", method, r),
+        };
+        let ret_type = Decode!(&reply, R)?;
+
+        Ok(ret_type)
+    }
+
     /// Install the canisters needed for the tests
     pub fn init() -> TestEnv {
         let pic = PocketIc::new();

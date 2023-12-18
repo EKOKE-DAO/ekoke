@@ -38,7 +38,6 @@ fn inspect_message_impl() {
             let data = api::call::arg_data::<(ContractRegistration,)>().0;
             Inspect::inspect_register_contract(
                 caller(),
-                &data.id,
                 data.value,
                 &data.sellers,
                 data.installments,

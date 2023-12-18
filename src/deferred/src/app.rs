@@ -120,20 +120,16 @@ impl Deferred {
     /// Only a custodian can call this method.
     ///
     /// Returns the contract id
-    pub fn register_contract(data: ContractRegistration) -> DeferredResult<Nat> {
-        Inspect::inspect_register_contract(
-            caller(),
-            &data.id,
-            data.value,
-            &data.sellers,
-            data.installments,
-        )?;
+    pub fn register_contract(data: ContractRegistration) -> DeferredResult<ID> {
+        Inspect::inspect_register_contract(caller(), data.value, &data.sellers, data.installments)?;
+
+        let next_contract_id = ContractStorage::next_contract_id();
 
         // make contract
         let contract = Contract {
             buyers: data.buyers,
             currency: data.currency,
-            id: data.id.clone(),
+            id: next_contract_id.clone(),
             initial_value: data.value,
             properties: data.properties,
             installments: data.installments,
@@ -147,7 +143,7 @@ impl Deferred {
         // register contract
         ContractStorage::insert_contract(contract)?;
 
-        Ok(data.id)
+        Ok(next_contract_id)
     }
 
     /// Sign contract and mint tokens
@@ -577,7 +573,6 @@ mod test {
         let contract = ContractRegistration {
             buyers: vec![caller()],
             currency: "EUR".to_string(),
-            id: 1.into(),
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
@@ -588,7 +583,7 @@ mod test {
             value: 100,
         };
 
-        assert!(Deferred::register_contract(contract).is_ok());
+        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
         assert_eq!(Deferred::total_supply(), Nat::from(0));
         assert_eq!(Deferred::admin_get_unsigned_contracts(), vec![Nat::from(1)]);
         assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
@@ -602,7 +597,6 @@ mod test {
         let contract = ContractRegistration {
             buyers: vec![caller()],
             currency: "EUR".to_string(),
-            id: 1.into(),
             installments: 10,
             properties: vec![],
             r#type: did::deferred::ContractType::Financing,
@@ -612,7 +606,7 @@ mod test {
             }],
             value: 100,
         };
-        assert!(Deferred::register_contract(contract).is_ok());
+        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
         assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
 
         // increment value

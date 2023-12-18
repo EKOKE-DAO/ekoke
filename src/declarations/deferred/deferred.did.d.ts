@@ -27,7 +27,6 @@ export interface Contract {
   'buyers' : Array<Principal>,
 }
 export interface ContractRegistration {
-  'id' : bigint,
   'value' : bigint,
   'type' : ContractType,
   'properties' : Array<[string, GenericValue]>,

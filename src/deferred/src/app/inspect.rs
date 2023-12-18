@@ -124,7 +124,6 @@ impl Inspect {
     /// - expiration must be in the future
     pub fn inspect_register_contract(
         caller: Principal,
-        id: &ID,
         value: u64,
         sellers: &[Seller],
         installments: u64,
@@ -138,13 +137,6 @@ impl Inspect {
             .any(|seller| seller.principal == Principal::anonymous())
         {
             return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
-        }
-
-        // check if contract already exists
-        if ContractStorage::get_contract(id).is_some() {
-            return Err(DeferredError::Token(TokenError::ContractAlreadyExists(
-                id.clone(),
-            )));
         }
 
         // verify value must be multiple of installments
@@ -448,26 +440,6 @@ mod test {
         assert!(RolesManager::set_custodians(vec![crate::utils::caller()]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
-            100,
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            25,
-        )
-        .is_err());
-    }
-
-    #[test]
-    fn test_should_inspect_contract_register_contract_already_exists() {
-        // contract already exists
-        let caller = crate::utils::caller();
-        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        test_utils::store_mock_contract(&[1, 2], 2);
-        assert!(Inspect::inspect_register_contract(
-            caller,
-            &2.into(),
             100,
             &[Seller {
                 principal: Principal::management_canister(),
@@ -484,7 +456,6 @@ mod test {
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             110,
             &[Seller {
                 principal: Principal::management_canister(),
@@ -501,7 +472,6 @@ mod test {
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             100,
             &[Seller {
                 principal: Principal::management_canister(),
@@ -518,7 +488,6 @@ mod test {
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             100,
             &[Seller {
                 principal: Principal::management_canister(),
@@ -535,7 +504,6 @@ mod test {
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             100,
             &[Seller {
                 principal: Principal::anonymous(),
@@ -552,7 +520,6 @@ mod test {
         RolesManager::give_role(caller, Role::Agent);
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             100,
             &[
                 Seller {
@@ -575,7 +542,6 @@ mod test {
         RolesManager::give_role(caller, Role::Agent);
         assert!(Inspect::inspect_register_contract(
             caller,
-            &1.into(),
             100,
             &[Seller {
                 principal: Principal::management_canister(),

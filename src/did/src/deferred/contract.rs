@@ -1,5 +1,5 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::{GenericValue, TokenIdentifier};
+pub use dip721::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
@@ -76,7 +76,6 @@ pub struct Seller {
 /// Data to be provided to register a contract
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct ContractRegistration {
-    pub id: ID,
     pub r#type: ContractType,
     pub sellers: Vec<Seller>,
     pub buyers: Vec<Principal>,

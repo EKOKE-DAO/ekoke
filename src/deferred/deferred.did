@@ -26,7 +26,6 @@ type Contract = record {
   buyers : vec principal;
 };
 type ContractRegistration = record {
-  id : nat;
   value : nat64;
   "type" : ContractType;
   properties : vec record { text; GenericValue };

@@ -883,11 +883,15 @@ dependencies = [
 name = "integration-tests"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "candid",
  "did",
+ "dip721",
  "icrc",
  "pocket-ic",
  "pretty_assertions",
+ "serde",
+ "tokio",
 ]
 
 [[package]]
