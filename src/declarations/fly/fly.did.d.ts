@@ -59,10 +59,7 @@ export interface FlyInitData {
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
-export interface LiquidityPoolAccounts {
-  'icp' : Uint8Array | number[],
-  'ckbtc' : Account,
-}
+export interface LiquidityPoolAccounts { 'icp' : Account, 'ckbtc' : Account }
 export interface LiquidityPoolBalance { 'icp' : bigint, 'ckbtc' : bigint }
 export type MetadataValue = { 'Int' : bigint } |
   { 'Nat' : bigint } |

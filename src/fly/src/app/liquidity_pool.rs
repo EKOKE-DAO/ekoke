@@ -27,9 +27,12 @@ use crate::utils;
 
 thread_local! {
     /// ICP ledger account
-    static ICP_ACCOUNT: RefCell<StableCell<Vec<u8>, VirtualMemory<DefaultMemoryImpl>>> =
+    static ICP_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(LIQUIDITY_POOL_ACCOUNT_MEMORY_ID)),
-            vec![]).unwrap()
+            Account {
+                owner: Principal::anonymous(),
+                subaccount: None,
+            }.into()).unwrap()
     );
 
     /// Pool map is an association between a contract-id and the account which holds the pool for that contract.
@@ -60,17 +63,24 @@ impl LiquidityPool {
                 )
                 .unwrap();
         });
-        // get account from ICP ledger
-        let icp_account = IcpLedger::account_identifier(utils::id(), None).await;
+        // generate CkBTC account
         ICP_ACCOUNT.with_borrow_mut(|account| {
-            account.set(icp_account).unwrap();
+            account
+                .set(
+                    Account {
+                        owner: utils::id(),
+                        subaccount: None,
+                    }
+                    .into(),
+                )
+                .unwrap();
         });
     }
 
     /// Get liquidity pool accounts
     pub fn accounts() -> LiquidityPoolAccounts {
         LiquidityPoolAccounts {
-            icp: ICP_ACCOUNT.with_borrow(|account| account.get().clone()),
+            icp: ICP_ACCOUNT.with_borrow(|account| account.get().clone()).0,
             ckbtc: CKBTC_ACCOUNT.with_borrow(|account| account.get().clone()).0,
         }
     }
@@ -78,7 +88,7 @@ impl LiquidityPool {
     /// Get liquidity pool balance
     pub async fn balance() -> FlyResult<LiquidityPoolBalance> {
         let accounts = Self::accounts();
-        let icp = IcpLedger::account_balance(accounts.icp).await?;
+        let icp = IcpLedger::icrc1_balance_of(accounts.icp).await?;
         let ckbtc = CkBtc::icrc1_balance_of(accounts.ckbtc).await?;
 
         Ok(LiquidityPoolBalance { icp, ckbtc })
@@ -181,13 +191,15 @@ mod test {
     async fn test_should_init_and_get_accounts() {
         LiquidityPool::init().await;
         let account = LiquidityPool::accounts();
+        assert_eq!(account.ckbtc.owner, utils::id());
+        assert_eq!(account.icp.owner, utils::id());
         assert_eq!(
             account.ckbtc,
             CKBTC_ACCOUNT.with_borrow(|account| account.get().clone()).0
         );
         assert_eq!(
             account.icp,
-            ICP_ACCOUNT.with_borrow(|account| account.get().clone())
+            ICP_ACCOUNT.with_borrow(|account| account.get().clone()).0
         );
     }
 

@@ -52,7 +52,7 @@ type FlyInitData = record {
   admins : vec principal;
   total_supply : nat;
 };
-type LiquidityPoolAccounts = record { icp : vec nat8; ckbtc : Account };
+type LiquidityPoolAccounts = record { icp : Account; ckbtc : Account };
 type LiquidityPoolBalance = record { icp : nat; ckbtc : nat };
 type MetadataValue = variant {
   Int : int;

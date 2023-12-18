@@ -156,7 +156,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferFromError });
   const LiquidityPoolAccounts = IDL.Record({
-    'icp' : IDL.Vec(IDL.Nat8),
+    'icp' : Account,
     'ckbtc' : Account,
   });
   const LiquidityPoolBalance = IDL.Record({

@@ -199,7 +199,7 @@ pub struct LiquidityPoolAccounts {
     /// The account that holds the pool for the CKBTC token.
     pub ckbtc: Account,
     /// The account that holds the pool for the ICP tokens.
-    pub icp: Vec<u8>,
+    pub icp: Account,
 }
 
 /// The balance of the liquidity pool
