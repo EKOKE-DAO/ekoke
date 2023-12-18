@@ -1,8 +1,6 @@
-use std::time::{Duration, UNIX_EPOCH};
-
 use candid::{Nat, Principal};
-use chrono::{DateTime, NaiveDate, Utc};
 use icrc::icrc1::account::Subaccount;
+use time::{Date, OffsetDateTime};
 
 /// Returns current time in nanoseconds
 pub fn time() -> u64 {
@@ -20,12 +18,11 @@ pub fn time() -> u64 {
 }
 
 /// Returns current date
-pub fn date() -> NaiveDate {
+pub fn date() -> Date {
     let time = time();
 
-    let duration = Duration::from_nanos(time);
-    let datetime = UNIX_EPOCH + duration;
-    DateTime::<Utc>::from(datetime).date_naive()
+    let date = OffsetDateTime::from_unix_timestamp_nanos(time as i128).unwrap();
+    date.date()
 }
 
 /// Returns canister id

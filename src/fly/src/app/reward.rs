@@ -4,7 +4,6 @@
 
 use std::cell::RefCell;
 
-use chrono::Datelike;
 use did::fly::{FlyError, FlyResult, PicoFly, PoolError};
 use did::ID;
 use ic_stable_structures::memory_manager::VirtualMemory;
@@ -54,9 +53,9 @@ thread_local! {
         ).unwrap()
     );
 
-    static LAST_MONTH: RefCell<StableCell<u32, VirtualMemory<DefaultMemoryImpl>>> =
+    static LAST_MONTH: RefCell<StableCell<u8, VirtualMemory<DefaultMemoryImpl>>> =
     RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(LAST_MONTH_MEMORY_ID)),
-        crate::utils::date().month()
+        crate::utils::date().month() as u8
     ).unwrap()
 );
 
@@ -152,7 +151,7 @@ impl Reward {
     /// Check if current month is different from the last month.
     fn should_adjust_avidity() -> bool {
         let last_month = LAST_MONTH.with_borrow(|last_month| *last_month.get());
-        let current_month = crate::utils::date().month();
+        let current_month = crate::utils::date().month() as u8;
         // check time
         current_month != last_month
     }
@@ -187,7 +186,7 @@ impl Reward {
         });
         // update last month
         LAST_MONTH.with_borrow_mut(|last_month| {
-            last_month.set(crate::utils::date().month()).unwrap();
+            last_month.set(crate::utils::date().month() as u8).unwrap();
         });
     }
 }
@@ -267,7 +266,7 @@ mod test {
 
     #[test]
     fn test_should_tell_whether_to_adjust_avidity() {
-        let month = crate::utils::date().month();
+        let month = crate::utils::date().month() as u8;
         LAST_MONTH.with_borrow_mut(|last_month| {
             last_month.set(month - 1).unwrap();
         });
