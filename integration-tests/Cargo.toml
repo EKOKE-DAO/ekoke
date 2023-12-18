@@ -1,0 +1,16 @@
+[package]
+name = "integration-tests"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+candid = { workspace = true }
+did = { path = "../src/did" }
+icrc = { path = "../src/icrc" }
+pocket-ic = "2"
+
+[dev-dependencies]
+pretty_assertions = "1"

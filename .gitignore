@@ -21,3 +21,5 @@ target/
 
 # dfx temp files
 .dfx/
+
+integration-tests/pocket-ic

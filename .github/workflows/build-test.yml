@@ -18,13 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y libssl-dev pkg-config jq && cargo install cargo-make
-      - name: Install Node.js 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install yarn
-        run: npm install -g yarn
+        run: |
+          sudo apt update && sudo apt install -y libssl-dev pkg-config jq && \
+          cargo install cargo-make && \
+          wget https://download.dfinity.systems/ic/69e1408347723dbaa7a6cd2faa9b65c42abbe861/openssl-static-binaries/x86_64-linux/pocket-ic.gz && \
+          gzipd -d pocket-ic.gz && \
+          chmod +x pocket-ic && \
+          mv pocket-ic ./integration-tests/pocket-ic
       - name: Install dfx
         run: echo y | sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
       - uses: actions-rs/toolchain@v1
@@ -32,11 +32,14 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
-      - name: Test
+          target: wasm32-unknown-unknown
+      - name: Unit Tests
         run: cargo make test
+      - name: Integration Tests
+        run: cargo make integration-tests
       - name: Deploy local
         run: cargo make deploy-local
       - name: Format
         run: cargo make check-format
-      - name: Clippy
+      - name: Lint
         run: cargo make lint

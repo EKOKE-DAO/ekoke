@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "integration-tests",
   "src/did",
   "src/dip721",
   "src/deferred",
