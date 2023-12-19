@@ -64,6 +64,14 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     assert_eq!(token.is_burned, false);
     assert_eq!(token.owner.unwrap(), alice());
     assert_eq!(token.operator, Some(env.marketplace_id));
+    let token_value = token
+        .properties
+        .iter()
+        .find(|(k, _)| k == "token:value")
+        .unwrap()
+        .1
+        .clone();
+    assert_eq!(token_value, GenericValue::NatContent(100_u64.into()));
 
     let token = deferred_client.token_metadata(Nat::from(2000)).unwrap();
     assert_eq!(token.owner.unwrap(), bob());

@@ -1,3 +1,4 @@
+use did::fly::PicoFly;
 use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
@@ -24,12 +25,12 @@ fn inspect_message_impl() {
     let check_result = match method.as_str() {
         method if method.starts_with("admin_") => Inspect::inspect_is_admin(caller()),
         "reserve_pool" => {
-            let account = api::call::arg_data::<(Account, ID, u64)>().0;
+            let account = api::call::arg_data::<(Account, ID, PicoFly)>().0;
             Inspect::inspect_caller_owns_wallet(caller(), account)
         }
         "get_contract_reward" => Inspect::inspect_is_deferred_canister(caller()),
         "send_reward" => {
-            let contract_id: candid::Nat = api::call::arg_data::<(ID, u64)>().0;
+            let contract_id: candid::Nat = api::call::arg_data::<(ID, PicoFly)>().0;
 
             Inspect::inspect_is_marketplace_canister(caller())
                 && Inspect::inspect_pool_exists(&contract_id)

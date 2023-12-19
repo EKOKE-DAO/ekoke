@@ -1,14 +1,10 @@
 use candid::{Encode, Nat};
-use did::{
-    deferred::{ContractRegistration, DeferredResult},
-    ID,
-};
+use did::deferred::{ContractRegistration, DeferredResult};
+use did::ID;
 use dip721::{NftError, TokenMetadata};
 
-use crate::{
-    actor::{admin, alice},
-    TestEnv,
-};
+use crate::actor::{admin, alice};
+use crate::TestEnv;
 
 pub struct DeferredClient<'a> {
     pub env: &'a TestEnv,
