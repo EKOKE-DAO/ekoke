@@ -213,19 +213,6 @@ impl Inspect {
 
         Ok(())
     }
-
-    pub fn inspect_is_buyer(caller: Principal, contract: ID) -> DeferredResult<()> {
-        let contract = match ContractStorage::get_contract(&contract) {
-            Some(contract) => contract,
-            None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
-        };
-
-        if contract.buyers.contains(&caller) {
-            Ok(())
-        } else {
-            Err(DeferredError::Unauthorized)
-        }
-    }
 }
 
 #[cfg(test)]
@@ -602,25 +589,6 @@ mod test {
         .is_err());
         // unexisting contract
         assert!(Inspect::inspect_seller_increment_contract_value(caller, 2.into()).is_err());
-    }
-
-    #[test]
-    fn test_should_inspect_caller_is_contract_buyer() {
-        let caller = crate::utils::caller();
-        test_utils::store_mock_contract_with(
-            &[6],
-            1,
-            |contract| {
-                contract.buyers = vec![caller];
-            },
-            |token| {
-                token.owner = Some(caller);
-            },
-        );
-        assert!(Inspect::inspect_is_buyer(caller, 1.into()).is_ok());
-        assert!(Inspect::inspect_is_buyer(Principal::management_canister(), 1.into()).is_err());
-        // unexisting contract
-        assert!(Inspect::inspect_is_buyer(caller, 2.into()).is_err());
     }
 
     #[test]
