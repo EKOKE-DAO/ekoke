@@ -11,7 +11,7 @@ pub struct FlyClient<'a> {
 
 impl<'a> From<&'a TestEnv> for FlyClient<'a> {
     fn from(env: &'a TestEnv) -> Self {
-        Self::new(&env)
+        Self::new(env)
     }
 }
 

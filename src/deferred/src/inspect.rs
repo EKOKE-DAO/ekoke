@@ -34,6 +34,10 @@ fn inspect_message_impl() {
             let (id, key, _) = api::call::arg_data::<(ID, String, u64)>();
             Inspect::inspect_update_contract_property(caller(), &id, &key).is_ok()
         }
+        "update_contract_buyers" => {
+            let (id, _) = api::call::arg_data::<(ID, Vec<Principal>)>();
+            Inspect::inspect_is_seller(caller(), id).is_ok()
+        }
         "register_contract" => {
             let data = api::call::arg_data::<(ContractRegistration,)>().0;
             Inspect::inspect_register_contract(

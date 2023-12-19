@@ -1,4 +1,4 @@
-use candid::{Encode, Nat};
+use candid::{Encode, Nat, Principal};
 use did::deferred::{ContractRegistration, DeferredResult};
 use did::ID;
 use dip721::{NftError, TokenMetadata};
@@ -12,7 +12,7 @@ pub struct DeferredClient<'a> {
 
 impl<'a> From<&'a TestEnv> for DeferredClient<'a> {
     fn from(env: &'a TestEnv) -> Self {
-        Self::new(&env)
+        Self::new(env)
     }
 }
 
@@ -43,6 +43,25 @@ impl<'a> DeferredClient<'a> {
                 admin(),
                 "admin_sign_contract",
                 Encode!(&id).unwrap(),
+            )
+            .unwrap();
+
+        res
+    }
+
+    pub fn update_contract_buyers(
+        &self,
+        caller: Principal,
+        contract_id: ID,
+        buyers: Vec<Principal>,
+    ) -> DeferredResult<()> {
+        let res: DeferredResult<()> = self
+            .env
+            .update(
+                self.env.deferred_id,
+                caller,
+                "update_contract_buyers",
+                Encode!(&contract_id, &buyers).unwrap(),
             )
             .unwrap();
 

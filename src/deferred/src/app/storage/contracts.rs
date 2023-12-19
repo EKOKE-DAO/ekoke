@@ -195,6 +195,28 @@ impl ContractStorage {
         let token = Self::get_token(id)?;
         let contract = Self::get_contract(&token.contract_id)?;
 
+        let buyers = contract
+            .buyers
+            .iter()
+            .map(|buyer| {
+                (
+                    "contract:buyer".to_string(),
+                    GenericValue::Principal(*buyer),
+                )
+            })
+            .collect::<Vec<(String, GenericValue)>>();
+
+        let sellers = contract
+            .sellers
+            .iter()
+            .map(|seller| {
+                (
+                    "contract:seller".to_string(),
+                    GenericValue::Principal(seller.principal),
+                )
+            })
+            .collect::<Vec<(String, GenericValue)>>();
+
         let mut properties = vec![
             (
                 "token:contract_id".to_string(),
@@ -211,6 +233,14 @@ impl ContractStorage {
             (
                 "token:picofly_reward".to_string(),
                 GenericValue::NatContent(token.picofly_reward),
+            ),
+            (
+                "contract:buyers".to_string(),
+                GenericValue::NestedContent(buyers),
+            ),
+            (
+                "contract:sellers".to_string(),
+                GenericValue::NestedContent(sellers),
             ),
         ];
         properties.extend(contract.properties);

@@ -70,9 +70,9 @@ impl Deferred {
         ContractStorage::get_unsigned_contracts()
     }
 
-    /// Update contract buyers. Only the buyer can call this method.
+    /// Update contract buyers. Only the seller can call this method.
     pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> DeferredResult<()> {
-        Inspect::inspect_is_buyer(caller(), contract_id.clone())?;
+        Inspect::inspect_is_seller(caller(), contract_id.clone())?;
         ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
 
