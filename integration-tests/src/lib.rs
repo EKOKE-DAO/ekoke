@@ -3,6 +3,7 @@
 //! This is a test module that is compiled as a separate crate for testing
 
 pub mod actor;
+pub mod client;
 mod wasm;
 
 use std::io::Read as _;
