@@ -224,7 +224,6 @@ export interface _SERVICE {
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
   'balance_of' : ActorMethod<[Principal], Result_1>,
   'burn' : ActorMethod<[bigint], Result_1>,
-  'close_contract' : ActorMethod<[bigint], Result>,
   'custodians' : ActorMethod<[], Array<Principal>>,
   'cycles' : ActorMethod<[], bigint>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,

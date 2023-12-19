@@ -1,5 +1,5 @@
 use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller};
-use integration_tests::actor::{alice, bob};
+use integration_tests::actor::alice;
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
@@ -35,4 +35,10 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
     assert!(res.is_ok());
 
     // increment contract value
+    assert!(deferred_client
+        .seller_increment_contract_value(alice(), contract_id, 100_000, 1_000)
+        .is_ok());
+
+    // verify new value and supply
+    assert_eq!(deferred_client.total_supply(), 5_000);
 }

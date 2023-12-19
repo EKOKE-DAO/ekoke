@@ -58,7 +58,9 @@ impl Inspect {
         Ok(token)
     }
 
-    /// Inspect burn, allow burn only if caller is owner or operator and token is owned by a buyer or a seller.
+    /// Inspect burn, allow burn only if:
+    /// - caller is owner or operator
+    /// - token is owned by a buyer or a seller.
     pub fn inspect_burn(caller: Principal, token_identifier: &Nat) -> Result<(), NftError> {
         let token = match ContractStorage::get_token(token_identifier) {
             Some(token) => token,
@@ -89,6 +91,7 @@ impl Inspect {
     ///
     /// - caller must be one of custodian,seller,agent
     /// - contract must exist
+    /// - key must start with "contract:"
     pub fn inspect_update_contract_property(
         caller: Principal,
         id: &ID,
@@ -118,10 +121,9 @@ impl Inspect {
 
     /// Inspect register contract parameters:
     ///
-    /// - caller must be custodian
-    /// - contract must not exist
+    /// - caller must be custodian or agent
     /// - value must be multiple of installments
-    /// - expiration must be in the future
+    /// - must have sellers
     pub fn inspect_register_contract(
         caller: Principal,
         value: u64,
@@ -182,36 +184,6 @@ impl Inspect {
         }
 
         Ok(contract)
-    }
-
-    pub fn inspect_close_contract(caller: Principal, contract: ID) -> DeferredResult<()> {
-        let contract = match ContractStorage::get_contract(&contract) {
-            Some(contract) => contract,
-            None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
-        };
-
-        // check if caller is seller
-        if !contract.is_seller(&caller) {
-            return Err(DeferredError::Unauthorized);
-        }
-        // verifies that all tokens are owned by the seller
-        let tokens = ContractStorage::get_contract_tokens(&contract.id);
-        if tokens.iter().any(|token| {
-            if let Some(owner) = token.owner {
-                !contract.is_seller(&owner)
-            } else {
-                false
-            }
-        }) {
-            return Err(DeferredError::Token(TokenError::CannotCloseContract));
-        }
-
-        // inspect burn
-        for token in tokens {
-            Self::inspect_burn(caller, &token.id)?;
-        }
-
-        Ok(())
     }
 }
 
@@ -626,52 +598,5 @@ mod test {
             "contract:address"
         )
         .is_ok());
-    }
-
-    #[test]
-    fn test_should_inspect_close_contract() {
-        let caller = crate::utils::caller();
-        test_utils::store_mock_contract_with(
-            &[1, 2, 3],
-            1,
-            |_| {},
-            |token| {
-                token.owner = Some(caller);
-            },
-        );
-        assert!(Inspect::inspect_close_contract(caller, 1.into()).is_ok());
-        assert!(
-            Inspect::inspect_close_contract(Principal::management_canister(), 1.into()).is_err()
-        );
-        // unexisting contract
-        assert!(Inspect::inspect_close_contract(caller, 2.into()).is_err());
-        // buyer owns a token
-        test_utils::store_mock_contract_with(
-            &[4, 5],
-            2,
-            |contract| {
-                contract.buyers = vec![Principal::management_canister()];
-            },
-            |token| {
-                token.owner = Some(caller);
-            },
-        );
-        assert!(ContractStorage::transfer(&4_u64.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_close_contract(caller, 2.into()).is_err());
-    }
-
-    #[test]
-    fn test_should_inspect_close_contract_with_burned_token() {
-        let caller = crate::utils::caller();
-        test_utils::store_mock_contract_with(
-            &[1, 2, 3],
-            1,
-            |_| {},
-            |token| {
-                token.owner = Some(caller);
-            },
-        );
-        assert!(ContractStorage::burn_token(&1.into()).is_ok());
-        assert!(Inspect::inspect_close_contract(caller, 1.into()).is_ok());
     }
 }

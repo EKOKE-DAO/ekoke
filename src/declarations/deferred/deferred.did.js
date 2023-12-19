@@ -262,7 +262,6 @@ export const idlFactory = ({ IDL }) => {
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
-    'close_contract' : IDL.Func([IDL.Nat], [Result], []),
     'custodians' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),

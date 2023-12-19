@@ -1,7 +1,7 @@
 use candid::{Encode, Nat, Principal};
 use did::deferred::{ContractRegistration, DeferredResult};
 use did::ID;
-use dip721::{NftError, TokenMetadata};
+use dip721::{GenericValue, NftError, TokenMetadata};
 
 use crate::actor::{admin, alice};
 use crate::TestEnv;
@@ -66,6 +66,40 @@ impl<'a> DeferredClient<'a> {
             .unwrap();
 
         res
+    }
+
+    pub fn seller_increment_contract_value(
+        &self,
+        caller: Principal,
+        id: ID,
+        value: u64,
+        installments: u64,
+    ) -> DeferredResult<()> {
+        self.env
+            .update(
+                self.env.deferred_id,
+                caller,
+                "seller_increment_contract_value",
+                Encode!(&id, &value, &installments).unwrap(),
+            )
+            .unwrap()
+    }
+
+    pub fn update_contract_property(
+        &self,
+        caller: Principal,
+        id: ID,
+        key: String,
+        property: GenericValue,
+    ) -> DeferredResult<()> {
+        self.env
+            .update(
+                self.env.deferred_id,
+                caller,
+                "update_contract_property",
+                Encode!(&id, &key, &property).unwrap(),
+            )
+            .unwrap()
     }
 
     pub fn get_signed_contracts(&self) -> Vec<ID> {
@@ -133,5 +167,22 @@ impl<'a> DeferredClient<'a> {
                 Encode!(&principals).unwrap(),
             )
             .unwrap();
+    }
+
+    pub fn transfer_from(
+        &self,
+        caller: Principal,
+        from: Principal,
+        to: Principal,
+        id: ID,
+    ) -> Result<ID, NftError> {
+        self.env
+            .update(
+                self.env.deferred_id,
+                caller,
+                "transfer_from",
+                Encode!(&from, &to, &id).unwrap(),
+            )
+            .unwrap()
     }
 }

@@ -169,22 +169,6 @@ impl ContractStorage {
         })
     }
 
-    /// Get tokens by contract id
-    pub fn get_contract_tokens(contract_id: &ID) -> Vec<Token> {
-        with_tokens(|tokens| {
-            tokens
-                .iter()
-                .filter_map(|(_, token)| {
-                    if token.contract_id == *contract_id && !token.is_burned {
-                        Some(token)
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<Token>>()
-        })
-    }
-
     /// Get token by id
     pub fn get_token(id: &TokenIdentifier) -> Option<Token> {
         with_token(id, |token| Ok(token.clone())).ok()
@@ -498,7 +482,6 @@ mod test {
         assert_eq!(ContractStorage::total_supply(), 2);
         assert_eq!(ContractStorage::tokens_by_owner(caller()).len(), 2);
         assert_eq!(ContractStorage::tokens_by_operator(caller()).len(), 1);
-        assert_eq!(ContractStorage::get_contract_tokens(&contract_id).len(), 2);
         assert_eq!(ContractStorage::get_signed_contracts(), vec![contract.id]);
     }
 

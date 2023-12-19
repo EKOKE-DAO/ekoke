@@ -1,6 +1,7 @@
 use candid::{Nat, Principal};
 use did::deferred::ContractRegistration;
 use did::ID;
+use dip721::GenericValue;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
@@ -31,7 +32,7 @@ fn inspect_message_impl() {
             Inspect::inspect_seller_increment_contract_value(caller(), id).is_ok()
         }
         "update_contract_property" => {
-            let (id, key, _) = api::call::arg_data::<(ID, String, u64)>();
+            let (id, key, _) = api::call::arg_data::<(ID, String, GenericValue)>();
             Inspect::inspect_update_contract_property(caller(), &id, &key).is_ok()
         }
         "update_contract_buyers" => {
@@ -48,10 +49,6 @@ fn inspect_message_impl() {
             )
             .is_ok()
         }
-        "close_contract" => {
-            let id = api::call::arg_data::<(ID,)>().0;
-            Inspect::inspect_close_contract(caller(), id).is_ok()
-        }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
             Inspect::inspect_burn(caller(), &token_identifier).is_ok()
@@ -66,6 +63,6 @@ fn inspect_message_impl() {
     if check_result {
         api::call::accept_message();
     } else {
-        ic_cdk::trap("Bad request");
+        ic_cdk::trap(&format!("Unauthorized call to {}", method));
     }
 }

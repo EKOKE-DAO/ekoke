@@ -104,20 +104,6 @@ impl Deferred {
         ContractStorage::add_tokens_to_contract(&contract_id, tokens)
     }
 
-    /// Close contract. Only the seller can call this method and only if all the tokens are owned by the seller.
-    /// Once called all the tokens are immediately burned.
-    pub fn close_contract(contract_id: ID) -> DeferredResult<()> {
-        Inspect::inspect_is_seller(caller(), contract_id.clone())?;
-        let contract_tokens = ContractStorage::get_contract_tokens(&contract_id);
-
-        // burn all the tokens
-        for token in contract_tokens {
-            Self::burn(token.id)?;
-        }
-
-        Ok(())
-    }
-
     /// Register contract inside of the canister.
     /// Only a custodian can call this method.
     ///

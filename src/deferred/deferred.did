@@ -220,7 +220,6 @@ service : (DeferredInitData) -> {
   approve : (principal, nat) -> (Result_1);
   balance_of : (principal) -> (Result_1) query;
   burn : (nat) -> (Result_1);
-  close_contract : (nat) -> (Result);
   custodians : () -> (vec principal) query;
   cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;
