@@ -1,6 +1,7 @@
 use candid::{Encode, Nat};
 use did::deferred::{ContractRegistration, ContractType, DeferredResult, GenericValue, Seller};
 use did::ID;
+use dip721::NftError;
 use integration_tests::actor::{admin, alice, bob};
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
@@ -420,4 +421,45 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
         .unwrap();
 
     assert!(result.is_err());
+}
+
+#[test]
+fn test_should_inspect_burn() {
+    let env = TestEnv::init();
+    let client = DeferredClient::new(&env);
+
+    let registration_data = ContractRegistration {
+        r#type: ContractType::Sell,
+        sellers: vec![Seller {
+            principal: alice(),
+            quota: 100,
+        }],
+        buyers: vec![bob()],
+        value: 400_000,
+        currency: "EUR".to_string(),
+        installments: 400_000 / 100,
+        properties: vec![(
+            "contract:address".to_string(),
+            GenericValue::TextContent("via roma 10".to_string()),
+        )],
+    };
+
+    let contract_id = client.register_contract(registration_data).unwrap();
+    assert!(client.admin_sign_contract(contract_id.clone()).is_ok());
+
+    // transfer token to buyer
+    let token_id = Nat::from(1);
+    assert!(client
+        .transfer_from(alice(), alice(), bob(), token_id.clone())
+        .is_ok());
+
+    // check burn
+    assert!(env
+        .update::<Result<Nat, NftError>>(
+            env.deferred_id,
+            bob(),
+            "burn",
+            Encode!(&token_id).unwrap(),
+        )
+        .is_ok());
 }
