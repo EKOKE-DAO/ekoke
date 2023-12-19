@@ -92,7 +92,9 @@ impl Deferred {
         incr_by: u64,
         installments: u64,
     ) -> DeferredResult<()> {
-        let contract_sellers = Inspect::inspect_is_seller(caller(), contract_id.clone())?.sellers;
+        let contract_sellers =
+            Inspect::inspect_seller_increment_contract_value(caller(), contract_id.clone())?
+                .sellers;
 
         // mint new tokens
         let (tokens, _) =
@@ -585,9 +587,9 @@ mod test {
 
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
         assert_eq!(Deferred::total_supply(), Nat::from(0));
-        assert_eq!(Deferred::admin_get_unsigned_contracts(), vec![Nat::from(1)]);
-        assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
-        assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(1)]);
+        assert_eq!(Deferred::admin_get_unsigned_contracts(), vec![Nat::from(0)]);
+        assert!(Deferred::admin_sign_contract(0.into()).await.is_ok());
+        assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0)]);
         assert_eq!(Deferred::total_supply(), Nat::from(10));
     }
 
@@ -607,10 +609,10 @@ mod test {
             value: 100,
         };
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
-        assert!(Deferred::admin_sign_contract(1.into()).await.is_ok());
+        assert!(Deferred::admin_sign_contract(0.into()).await.is_ok());
 
         // increment value
-        assert!(Deferred::seller_increment_contract_value(1.into(), 50, 10)
+        assert!(Deferred::seller_increment_contract_value(0.into(), 50, 10)
             .await
             .is_ok());
         assert_eq!(Deferred::total_supply(), Nat::from(20));

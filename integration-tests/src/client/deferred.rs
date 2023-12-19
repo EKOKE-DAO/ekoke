@@ -68,20 +68,6 @@ impl<'a> DeferredClient<'a> {
         res
     }
 
-    pub fn admin_get_unsigned_contracts(&self) -> Vec<ID> {
-        let unsigned_contracts: Vec<ID> = self
-            .env
-            .query(
-                self.env.deferred_id,
-                admin(),
-                "admin_get_unsigned_contracts",
-                Encode!(&()).unwrap(),
-            )
-            .unwrap();
-
-        unsigned_contracts
-    }
-
     pub fn get_signed_contracts(&self) -> Vec<ID> {
         let signed_contract: Vec<ID> = self
             .env
@@ -122,5 +108,30 @@ impl<'a> DeferredClient<'a> {
             .unwrap();
 
         token
+    }
+
+    pub fn admin_get_unsigned_contracts(&self) -> Vec<ID> {
+        let unsigned_contracts: Vec<ID> = self
+            .env
+            .query(
+                self.env.deferred_id,
+                admin(),
+                "admin_get_unsigned_contracts",
+                Encode!(&()).unwrap(),
+            )
+            .unwrap();
+
+        unsigned_contracts
+    }
+
+    pub fn set_custodians(&self, principals: Vec<Principal>) {
+        self.env
+            .update::<()>(
+                self.env.deferred_id,
+                admin(),
+                "set_custodians",
+                Encode!(&principals).unwrap(),
+            )
+            .unwrap();
     }
 }

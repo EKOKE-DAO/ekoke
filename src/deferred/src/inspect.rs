@@ -28,7 +28,7 @@ fn inspect_message_impl() {
         }
         "seller_increment_contract_value" => {
             let (id, _, _) = api::call::arg_data::<(ID, u64, u64)>();
-            Inspect::inspect_is_buyer(caller(), id).is_ok()
+            Inspect::inspect_seller_increment_contract_value(caller(), id).is_ok()
         }
         "update_contract_property" => {
             let (id, key, _) = api::call::arg_data::<(ID, String, u64)>();

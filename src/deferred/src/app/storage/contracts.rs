@@ -928,7 +928,7 @@ mod test {
         assert_eq!(metadata.burned_by, None);
         assert_eq!(metadata.is_burned, false);
         assert_eq!(metadata.operator, None);
-        assert_eq!(metadata.properties.len(), 7);
+        assert_eq!(metadata.properties.len(), 9);
         assert_eq!(metadata.transferred_at, None);
         assert_eq!(metadata.transferred_by, None);
     }

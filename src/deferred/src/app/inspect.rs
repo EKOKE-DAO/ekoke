@@ -169,6 +169,21 @@ impl Inspect {
         }
     }
 
+    pub fn inspect_seller_increment_contract_value(
+        caller: Principal,
+        contract: ID,
+    ) -> DeferredResult<Contract> {
+        let contract = Self::inspect_is_seller(caller, contract)?;
+        // check if is signed
+        if !contract.is_signed {
+            return Err(DeferredError::Token(TokenError::ContractNotSigned(
+                contract.id,
+            )));
+        }
+
+        Ok(contract)
+    }
+
     pub fn inspect_close_contract(caller: Principal, contract: ID) -> DeferredResult<()> {
         let contract = match ContractStorage::get_contract(&contract) {
             Some(contract) => contract,
@@ -567,6 +582,26 @@ mod test {
         assert!(Inspect::inspect_is_seller(Principal::management_canister(), 1.into()).is_err());
         // unexisting contract
         assert!(Inspect::inspect_is_seller(caller, 2.into()).is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_seller_increment_contract_value() {
+        let caller = crate::utils::caller();
+        let contract = test_utils::with_mock_contract(0, 1, |_| {});
+        assert!(ContractStorage::insert_contract(contract).is_ok());
+        let tokens = vec![test_utils::mock_token(0, 0)];
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0.into()).is_err());
+        // sign contract
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&0.into(), tokens).is_ok());
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0.into()).is_ok());
+        // not seller
+        assert!(Inspect::inspect_seller_increment_contract_value(
+            Principal::management_canister(),
+            1.into()
+        )
+        .is_err());
+        // unexisting contract
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 2.into()).is_err());
     }
 
     #[test]
