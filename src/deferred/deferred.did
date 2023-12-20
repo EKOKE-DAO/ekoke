@@ -128,6 +128,23 @@ type Stats = record {
   total_supply : nat;
 };
 type SupportedInterface = variant { Burn; Mint; Approval; TransactionHistory };
+type Token = record {
+  id : nat;
+  transferred_at : opt nat64;
+  transferred_by : opt principal;
+  value : nat64;
+  picofly_reward : nat;
+  owner : opt principal;
+  operator : opt principal;
+  approved_at : opt nat64;
+  approved_by : opt principal;
+  contract_id : nat;
+  is_burned : bool;
+  burned_at : opt nat64;
+  burned_by : opt principal;
+  minted_at : nat64;
+  minted_by : principal;
+};
 type TokenError = variant {
   ContractAlreadySigned : nat;
   ContractValueIsNotMultipleOfInstallments;
@@ -147,6 +164,7 @@ type TokenError = variant {
   BadMintTokenOwner : nat;
   BadContractProperty;
 };
+type TokenInfo = record { token : Token; contract : Contract };
 type TokenMetadata = record {
   transferred_at : opt nat64;
   transferred_by : opt principal;
@@ -224,6 +242,7 @@ service : (DeferredInitData) -> {
   cycles : () -> (nat) query;
   get_contract : (nat) -> (opt Contract) query;
   get_signed_contracts : () -> (vec nat) query;
+  get_token : (nat) -> (opt TokenInfo) query;
   is_approved_for_all : (principal, principal) -> (Result_2);
   logo : () -> (opt text) query;
   metadata : () -> (Metadata) query;

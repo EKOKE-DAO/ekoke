@@ -185,6 +185,24 @@ export const idlFactory = ({ IDL }) => {
     'initial_value' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Principal),
   });
+  const Token = IDL.Record({
+    'id' : IDL.Nat,
+    'transferred_at' : IDL.Opt(IDL.Nat64),
+    'transferred_by' : IDL.Opt(IDL.Principal),
+    'value' : IDL.Nat64,
+    'picofly_reward' : IDL.Nat,
+    'owner' : IDL.Opt(IDL.Principal),
+    'operator' : IDL.Opt(IDL.Principal),
+    'approved_at' : IDL.Opt(IDL.Nat64),
+    'approved_by' : IDL.Opt(IDL.Principal),
+    'contract_id' : IDL.Nat,
+    'is_burned' : IDL.Bool,
+    'burned_at' : IDL.Opt(IDL.Nat64),
+    'burned_by' : IDL.Opt(IDL.Principal),
+    'minted_at' : IDL.Nat64,
+    'minted_by' : IDL.Principal,
+  });
+  const TokenInfo = IDL.Record({ 'token' : Token, 'contract' : Contract });
   const Result_2 = IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : NftError });
   const Metadata = IDL.Record({
     'logo' : IDL.Opt(IDL.Text),
@@ -266,6 +284,7 @@ export const idlFactory = ({ IDL }) => {
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+    'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
     'is_approved_for_all' : IDL.Func(
         [IDL.Principal, IDL.Principal],
         [Result_2],

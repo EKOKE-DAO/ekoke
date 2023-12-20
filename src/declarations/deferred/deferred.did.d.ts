@@ -134,6 +134,23 @@ export type SupportedInterface = { 'Burn' : null } |
   { 'Mint' : null } |
   { 'Approval' : null } |
   { 'TransactionHistory' : null };
+export interface Token {
+  'id' : bigint,
+  'transferred_at' : [] | [bigint],
+  'transferred_by' : [] | [Principal],
+  'value' : bigint,
+  'picofly_reward' : bigint,
+  'owner' : [] | [Principal],
+  'operator' : [] | [Principal],
+  'approved_at' : [] | [bigint],
+  'approved_by' : [] | [Principal],
+  'contract_id' : bigint,
+  'is_burned' : boolean,
+  'burned_at' : [] | [bigint],
+  'burned_by' : [] | [Principal],
+  'minted_at' : bigint,
+  'minted_by' : Principal,
+}
 export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
@@ -151,6 +168,7 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'TokenIsBurned' : bigint } |
   { 'BadMintTokenOwner' : bigint } |
   { 'BadContractProperty' : null };
+export interface TokenInfo { 'token' : Token, 'contract' : Contract }
 export interface TokenMetadata {
   'transferred_at' : [] | [bigint],
   'transferred_by' : [] | [Principal],
@@ -228,6 +246,7 @@ export interface _SERVICE {
   'cycles' : ActorMethod<[], bigint>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
+  'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
   'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
   'logo' : ActorMethod<[], [] | [string]>,
   'metadata' : ActorMethod<[], Metadata>,

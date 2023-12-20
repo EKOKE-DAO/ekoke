@@ -5,8 +5,10 @@ use ic_stable_structures::Storable;
 
 use crate::ID;
 
+mod info;
 mod token;
 
+pub use info::TokenInfo;
 pub use token::Token;
 
 /// A sell contract for a building

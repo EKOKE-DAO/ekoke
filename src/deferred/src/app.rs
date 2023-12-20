@@ -16,7 +16,7 @@ use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::deferred::{
     Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult, Role,
-    TokenError,
+    TokenError, TokenInfo,
 };
 use did::ID;
 use dip721::{
@@ -49,6 +49,14 @@ impl Deferred {
         if let Err(err) = Configuration::set_upgraded_at() {
             ic_cdk::trap(&err.to_string());
         }
+    }
+
+    /// get token and contract info by token identifier
+    pub fn get_token(token_identifier: &TokenIdentifier) -> Option<TokenInfo> {
+        let token = ContractStorage::get_token(token_identifier)?;
+        let contract = ContractStorage::get_contract(&token.contract_id)?;
+
+        Some(TokenInfo { token, contract })
     }
 
     /// get contract by id
@@ -535,6 +543,16 @@ mod test {
         Deferred::post_upgrade();
         let metadata = Deferred::metadata();
         assert!(metadata.upgraded_at > metadata.created_at);
+    }
+
+    #[test]
+    fn test_should_get_token_info() {
+        init_canister();
+        store_mock_contract(&[1, 2], 1);
+
+        let token_info = Deferred::get_token(&2.into()).unwrap();
+        assert_eq!(token_info.token.id, Nat::from(2));
+        assert_eq!(token_info.contract.id, Nat::from(1));
     }
 
     #[test]

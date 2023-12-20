@@ -5,9 +5,11 @@
 //! financing from third parties buying the NFTs and getting rewards in $FLY tokens
 
 use candid::{candid_method, Nat, Principal};
-use did::deferred::{Contract, ContractRegistration, DeferredInitData, DeferredResult, Role};
+use did::deferred::{
+    Contract, ContractRegistration, DeferredInitData, DeferredResult, Role, TokenInfo,
+};
 use did::ID;
-use dip721::{Dip721 as _, GenericValue};
+use dip721::{Dip721 as _, GenericValue, TokenIdentifier};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 
 mod app;
@@ -50,6 +52,12 @@ pub async fn seller_increment_contract_value(
     installments: u64,
 ) -> DeferredResult<()> {
     Deferred::seller_increment_contract_value(contract_id, value, installments).await
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_token(token_id: TokenIdentifier) -> Option<TokenInfo> {
+    Deferred::get_token(&token_id)
 }
 
 #[query]
