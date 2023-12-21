@@ -8,7 +8,6 @@ mod constants;
 mod inspect;
 mod utils;
 
-use app::FlyCanister;
 use candid::{candid_method, Nat, Principal};
 use did::fly::{
     FlyInitData, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoFly, Role, Transaction,
@@ -20,6 +19,8 @@ use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::TransferArg;
 use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1 as _};
 use icrc::icrc2::{self, Icrc2 as _};
+
+use self::app::FlyCanister;
 
 #[init]
 pub fn init(data: FlyInitData) {

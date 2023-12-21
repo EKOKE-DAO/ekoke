@@ -1060,6 +1060,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "marketplace"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "did",
+ "ic-cdk 0.11.3",
+ "ic-cdk-macros 0.8.1",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "icrc",
+ "pretty_assertions",
+ "rand",
+ "serde",
+ "thiserror",
+ "tokio",
+ "xrc",
+]
+
+[[package]]
 name = "matchers"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

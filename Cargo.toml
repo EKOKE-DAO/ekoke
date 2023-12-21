@@ -6,6 +6,7 @@ members = [
   "src/deferred",
   "src/fly",
   "src/icrc",
+  "src/marketplace",
   "src/xrc",
 ]
 resolver = "2"
