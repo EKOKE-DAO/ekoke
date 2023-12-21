@@ -9,19 +9,29 @@ use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 
-use crate::app::memory::{DEFERRED_CANISTER_MEMORY_ID, FLY_CANISTER_MEMORY_ID, MEMORY_MANAGER};
+use crate::app::memory::{
+    DEFERRED_CANISTER_MEMORY_ID, FLY_CANISTER_MEMORY_ID, INTEREST_FOR_BUYER_MEMORY_ID,
+    MEMORY_MANAGER,
+};
+use crate::constants::DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER;
 
 thread_local! {
-    /// Minting account
+    /// Fly canister
     static FLY_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
     );
 
-    /// Swap account
+    /// Deferred canister
     static DEFERRED_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(DEFERRED_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
+    );
+
+    /// Interest for buyer
+    static INTEREST_RATE_FOR_BUYER: RefCell<StableCell<f64, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(INTEREST_FOR_BUYER_MEMORY_ID)),
+        DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER).unwrap()
     );
 }
 
@@ -43,6 +53,13 @@ impl Configuration {
         });
     }
 
+    /// Set interest rate for buyer
+    pub fn set_interest_rate_for_buyer(interest_rate: f64) {
+        INTEREST_RATE_FOR_BUYER.with_borrow_mut(|cell| {
+            cell.set(interest_rate).unwrap();
+        });
+    }
+
     /// Get minting account address
     pub fn get_fly_canister() -> Principal {
         FLY_CANISTER.with(|ma| ma.borrow().get().0)
@@ -51,6 +68,11 @@ impl Configuration {
     /// Get swap account address
     pub fn get_deferred_canister() -> Principal {
         DEFERRED_CANISTER.with(|sa| sa.borrow().get().0)
+    }
+
+    /// Get interest rate for buyer
+    pub fn get_interest_rate_for_buyer() -> f64 {
+        INTEREST_RATE_FOR_BUYER.with(|ir| *ir.borrow().get())
     }
 }
 
@@ -74,5 +96,16 @@ mod test {
         let canister = id();
         Configuration::set_fly_canister(canister);
         assert_eq!(Configuration::get_fly_canister(), canister);
+    }
+
+    #[test]
+    fn test_should_set_interest_rate_for_buyer() {
+        let interest_rate = 1.2;
+        assert_eq!(
+            Configuration::get_interest_rate_for_buyer(),
+            DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER
+        );
+        Configuration::set_interest_rate_for_buyer(interest_rate);
+        assert_eq!(Configuration::get_interest_rate_for_buyer(), interest_rate);
     }
 }

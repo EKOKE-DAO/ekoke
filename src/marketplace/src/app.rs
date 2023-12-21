@@ -14,7 +14,6 @@ pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
 use crate::client::{DeferredClient, FlyClient, IcpLedgerClient};
-use crate::constants::INTEREST_MULTIPLIER_FOR_BUYER;
 use crate::utils::caller;
 
 pub struct Marketplace;
@@ -48,6 +47,16 @@ impl Marketplace {
         Configuration::set_fly_canister(canister)
     }
 
+    pub fn admin_set_interest_rate_for_buyer(interest_rate: f64) {
+        if !Inspect::inspect_is_admin(caller()) {
+            ic_cdk::trap("unauthorized");
+        }
+        if interest_rate <= 1.0 {
+            ic_cdk::trap("interest rate must be greater than 1.0");
+        }
+        Configuration::set_interest_rate_for_buyer(interest_rate)
+    }
+
     /// Given a token id, returns the price of the token in ICP.
     pub async fn get_token_price_icp(token_id: TokenIdentifier) -> MarketplaceResult<u64> {
         // get token info
@@ -63,7 +72,7 @@ impl Marketplace {
         let icp_price = icp_rate.convert(token_info.token.value);
         // multiply the price if needed by the interest rate
         Ok(if is_caller_contract_buyer {
-            (icp_price as f64 * INTEREST_MULTIPLIER_FOR_BUYER).round() as u64
+            (icp_price as f64 * Configuration::get_interest_rate_for_buyer()).round() as u64
         } else {
             icp_price
         })
@@ -102,6 +111,25 @@ mod test {
             Configuration::get_deferred_canister(),
             new_deferred_canister
         );
+    }
+
+    #[test]
+    fn test_should_change_interest_rate_for_buyer() {
+        init_canister();
+        let new_interest_rate = 1.2;
+        Marketplace::admin_set_interest_rate_for_buyer(new_interest_rate);
+        assert_eq!(
+            Configuration::get_interest_rate_for_buyer(),
+            new_interest_rate
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_should_not_allow_invalid_interest_rate_value() {
+        init_canister();
+        let new_interest_rate = 1.0;
+        Marketplace::admin_set_interest_rate_for_buyer(new_interest_rate);
     }
 
     #[tokio::test]
