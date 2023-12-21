@@ -1,4 +1,5 @@
 mod configuration;
+mod exchange_rate;
 mod inspect;
 mod memory;
 mod roles;

@@ -1,8 +1,6 @@
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager as IcMemoryManager};
 use ic_stable_structures::DefaultMemoryImpl;
 
-pub const EXCHANGE_RATES_MEMORY_ID: MemoryId = MemoryId::new(10);
-
 // Configuration
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(20);
 pub const DEFERRED_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(21);
