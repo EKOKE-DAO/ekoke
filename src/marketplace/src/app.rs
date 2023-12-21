@@ -6,11 +6,15 @@ mod roles;
 mod test_utils;
 
 use candid::Principal;
-use did::marketplace::{MarketplaceInitData, MarketplaceResult};
+use did::marketplace::{MarketplaceError, MarketplaceInitData, MarketplaceResult};
+use dip721::TokenIdentifier;
 
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
+use crate::app::exchange_rate::ExchangeRate;
+use crate::client::{DeferredClient, FlyClient, IcpLedgerClient};
+use crate::constants::INTEREST_MULTIPLIER_FOR_BUYER;
 use crate::utils::caller;
 
 pub struct Marketplace;
@@ -42,6 +46,27 @@ impl Marketplace {
             ic_cdk::trap("unauthorized");
         }
         Configuration::set_fly_canister(canister)
+    }
+
+    /// Given a token id, returns the price of the token in ICP.
+    pub async fn get_token_price_icp(token_id: TokenIdentifier) -> MarketplaceResult<u64> {
+        // get token info
+        let deferred_client = DeferredClient::from(Configuration::get_deferred_canister());
+        let token_info = match deferred_client.get_token(&token_id).await? {
+            Some(token_info) => token_info,
+            None => return Err(MarketplaceError::TokenNotFound),
+        };
+        // check if caller is a contract buyer
+        let is_caller_contract_buyer = token_info.contract.buyers.contains(&caller());
+        // get the price of the token in ICP
+        let icp_rate = ExchangeRate::get_rate(&token_info.contract.currency).await?;
+        let icp_price = icp_rate.convert(token_info.token.value);
+        // multiply the price if needed by the interest rate
+        Ok(if is_caller_contract_buyer {
+            (icp_price as f64 * INTEREST_MULTIPLIER_FOR_BUYER).round() as u64
+        } else {
+            icp_price
+        })
     }
 }
 
@@ -77,6 +102,15 @@ mod test {
             Configuration::get_deferred_canister(),
             new_deferred_canister
         );
+    }
+
+    #[tokio::test]
+    async fn test_should_get_icp_price() {
+        init_canister();
+        let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1))
+            .await
+            .unwrap();
+        assert_eq!(icp_price, 1230012300);
     }
 
     fn init_canister() {

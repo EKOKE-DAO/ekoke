@@ -46,6 +46,17 @@ impl ExchangeRate {
     }
 }
 
+impl Rate {
+    /// Converts a the provided amount to a token value using the rate and decimals.
+    pub fn convert(&self, amount: u64) -> u64 {
+        let amount = amount as f64;
+        let rate = self.rate as f64;
+        let decimals = self.decimals as f64;
+
+        (((amount * 10_f64.powf(decimals)) / rate) * 10_f64.powf(decimals)).round() as u64
+    }
+}
+
 #[cfg(test)]
 mod test {
 

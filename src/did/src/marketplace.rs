@@ -33,6 +33,8 @@ pub enum MarketplaceError {
     Icrc1Transfer(icrc1::transfer::TransferError),
     #[error("xrc error")]
     XrcError,
+    #[error("token not found")]
+    TokenNotFound,
 }
 
 impl From<icrc2::transfer_from::TransferFromError> for MarketplaceError {
