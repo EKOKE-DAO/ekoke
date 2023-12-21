@@ -8,11 +8,10 @@ mod test_utils;
 use candid::Principal;
 use did::marketplace::{MarketplaceInitData, MarketplaceResult};
 
-use crate::utils::caller;
-
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
+use crate::utils::caller;
 
 pub struct Marketplace;
 

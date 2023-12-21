@@ -1,11 +1,15 @@
 //! Types associated to the "Fly" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use dip721::NftError;
 use ic_cdk::api::call::RejectionCode;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::{icrc1, icrc2};
 use thiserror::Error;
+
+use crate::deferred::DeferredError;
+use crate::fly::FlyError;
 
 pub type MarketplaceResult<T> = Result<T, MarketplaceError>;
 
@@ -15,6 +19,12 @@ pub enum MarketplaceError {
     Configuration(ConfigurationError),
     #[error("storage error")]
     StorageError,
+    #[error("fly canister error {0}")]
+    FlyCanister(#[from] FlyError),
+    #[error("deferred canister error {0}")]
+    DeferredCanister(#[from] DeferredError),
+    #[error("dip721 error {0}")]
+    Dip721(#[from] NftError),
     #[error("inter-canister call error: ({0:?}): {1}")]
     CanisterCall(RejectionCode, String),
     #[error("icrc2 transfer error {0:?}")]

@@ -20,6 +20,7 @@ did = []
 [dependencies]
 candid = { workspace = true }
 did = { path = "../did" }
+dip721 = { path = "../dip721" }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-cdk-timers = { workspace = true }

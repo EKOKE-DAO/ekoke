@@ -1065,6 +1065,7 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "did",
+ "dip721",
  "ic-cdk 0.11.3",
  "ic-cdk-macros 0.8.1",
  "ic-cdk-timers",

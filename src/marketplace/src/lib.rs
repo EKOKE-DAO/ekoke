@@ -1,4 +1,5 @@
 mod app;
+mod client;
 mod constants;
 mod inspect;
 mod utils;
