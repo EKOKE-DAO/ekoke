@@ -5,7 +5,7 @@ mod memory;
 mod roles;
 mod test_utils;
 
-use candid::Principal;
+use candid::{Nat, Principal};
 use did::marketplace::{MarketplaceError, MarketplaceInitData, MarketplaceResult};
 use dip721::TokenIdentifier;
 
@@ -14,7 +14,7 @@ pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
 use crate::client::{DeferredClient, FlyClient, IcpLedgerClient};
-use crate::utils::caller;
+use crate::utils::{caller, cycles};
 
 pub struct Marketplace;
 
@@ -23,6 +23,13 @@ impl Marketplace {
         Configuration::set_deferred_canister(data.deferred_canister);
         Configuration::set_fly_canister(data.fly_canister);
         RolesManager::set_admins(data.admins).unwrap();
+    }
+
+    pub fn admin_cycles() -> Nat {
+        if !Inspect::inspect_is_admin(caller()) {
+            ic_cdk::trap("unauthorized");
+        }
+        cycles()
     }
 
     /// Sets the admins of the marketplace.
