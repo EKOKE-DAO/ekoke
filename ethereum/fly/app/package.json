@@ -1,0 +1,51 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "description": "web interface to deploy contract",
+  "author": "Christian Visintin <christian.visintin@veeso.dev>",
+  "license": "MIT",
+  "browserslist": {
+    "production": [
+      "> 5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "> 5%",
+      "not dead",
+      "not op_mini all"
+    ]
+  },
+  "scripts": {
+    "build": "yarn clean && parcel build src/index.html --reporter @parcel/reporter-bundle-analyzer && cp sitemap.xml dist/sitemap.xml && cp robots.txt dist/robots.txt",
+    "clean": "rm -rf dist/* .parcel-cache/",
+    "dev": "parcel src/index.html",
+    "lint": "eslint . --ext .ts --ext .tsx --max-warnings=0",
+    "prettier": "prettier --config .prettierrc --write src/",
+    "prettier:check": "prettier --config .prettierrc --check src/"
+  },
+  "dependencies": {
+    "metamask-react": "^2.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-feather": "^2.0.10",
+    "react-helmet": "^6.1.0",
+    "web3": "^4.3.0"
+  },
+  "devDependencies": {
+    "@parcel/reporter-bundle-analyzer": "^2.11.0",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
+    "@types/react-helmet": "^6.1.11",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "parcel": "^2.11.0",
+    "postcss": "^8.4.33",
+    "prettier": "^3.1.1",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
