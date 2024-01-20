@@ -1,3 +1,4 @@
+use candid::Principal;
 #[cfg(target_arch = "wasm32")]
 use did::fly::FlyError;
 use did::fly::FlyResult;
@@ -10,14 +11,15 @@ impl Xrc {
     /// Get the ICP to BTC rate
     /// Then you can convert ICP to BTC with:
     /// BTC = value * ExchangeRate
-    pub async fn get_icp_to_btc_rate() -> FlyResult<f64> {
+    #[allow(unused_variables)]
+    pub async fn get_icp_to_btc_rate(xrc_principal: Principal) -> FlyResult<f64> {
         #[cfg(not(target_arch = "wasm32"))]
         {
             Ok(0.0002162)
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let xrc = XrcClient::default();
+            let xrc = XrcClient::new(xrc_principal);
 
             // Base is the one on the left ICP/BTC
             let base_asset = Asset {

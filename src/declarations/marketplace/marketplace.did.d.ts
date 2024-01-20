@@ -48,6 +48,7 @@ export type MarketplaceError = { 'Buy' : BuyError } |
 export interface MarketplaceInitData {
   'deferred_canister' : Principal,
   'fly_canister' : Principal,
+  'xrc_canister' : Principal,
   'admins' : Array<Principal>,
 }
 export type NftError = { 'UnauthorizedOperator' : null } |
@@ -118,6 +119,7 @@ export interface _SERVICE {
   'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_fly_canister' : ActorMethod<[Principal], Result>,
   'admin_set_interest_rate_for_buyer' : ActorMethod<[number], undefined>,
+  'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
   'buy_token' : ActorMethod<[bigint, [] | [Uint8Array | number[]]], Result>,
   'get_token_price_icp' : ActorMethod<[bigint], Result_1>,
 }

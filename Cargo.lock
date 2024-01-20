@@ -892,6 +892,7 @@ dependencies = [
  "pretty_assertions",
  "serde",
  "tokio",
+ "xrc",
 ]
 
 [[package]]

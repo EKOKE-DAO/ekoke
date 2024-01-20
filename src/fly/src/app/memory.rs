@@ -11,6 +11,7 @@ pub const SPEND_ALLOWANCE_MEMORY_ID: MemoryId = MemoryId::new(14);
 pub const MINTING_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(20);
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(21);
 pub const SWAP_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(22);
+pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(23);
 
 // Rewards
 pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(30);

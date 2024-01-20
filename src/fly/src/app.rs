@@ -47,6 +47,8 @@ impl FlyCanister {
         Configuration::set_minting_account(data.minting_account);
         // set swap account
         Configuration::set_swap_account(data.swap_account);
+        // set xrc canister
+        Configuration::set_xrc_canister(data.xrc_canister);
         // init liquidity pool
         LiquidityPool::init();
         // set roles
@@ -71,7 +73,8 @@ impl FlyCanister {
     fn set_timers() {
         #[cfg(target_family = "wasm")]
         async fn swap_icp_to_btc_timer() {
-            let _ = LiquidityPool::swap_icp_to_btc().await;
+            let xrc_principal = Configuration::set_xrc_canister();
+            let _ = LiquidityPool::swap_icp_to_btc(xrc_principal).await;
         }
 
         #[cfg(target_family = "wasm")]
@@ -186,6 +189,14 @@ impl FlyCanister {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_swap_account(account);
+    }
+
+    /// Set xrc canister
+    pub fn admin_set_xrc_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_xrc_canister(canister_id);
     }
 }
 
@@ -437,6 +448,8 @@ impl Icrc2 for FlyCanister {
 
 #[cfg(test)]
 mod test {
+
+    use std::str::FromStr as _;
 
     use icrc::icrc1::transfer::TransferArg;
     use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
@@ -709,6 +722,14 @@ mod test {
             FlyCanister::icrc1_minting_account(),
             Configuration::get_minting_account()
         );
+    }
+
+    #[test]
+    fn test_should_set_xrc_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        FlyCanister::admin_set_xrc_canister(canister_id);
+        assert_eq!(Configuration::get_xrc_canister(), canister_id);
     }
 
     #[tokio::test]
@@ -1084,6 +1105,7 @@ mod test {
                 (bob_account(), fly_to_picofly(50_000)),
                 (caller_account(), fly_to_picofly(100_000)),
             ],
+            xrc_canister: caller(),
         };
         FlyCanister::init(data);
     }

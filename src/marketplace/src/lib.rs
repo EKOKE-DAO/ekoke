@@ -37,6 +37,12 @@ pub fn admin_set_deferred_canister(canister: Principal) {
 
 #[update]
 #[candid_method(update)]
+pub fn admin_set_xrc_canister(canister: Principal) {
+    Marketplace::admin_set_xrc_canister(canister)
+}
+
+#[update]
+#[candid_method(update)]
 pub async fn admin_set_fly_canister(canister: Principal) -> MarketplaceResult<()> {
     Marketplace::admin_set_fly_canister(canister).await
 }

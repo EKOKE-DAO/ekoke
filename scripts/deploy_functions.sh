@@ -44,6 +44,7 @@ deploy_fly() {
     total_supply = $TOTAL_SUPPLY;
     initial_balances = $INITIAL_BALANCES;
     minting_account = $MINTING_ACCOUNT;
+    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$fly_init_args" fly
@@ -63,6 +64,7 @@ deploy_marketplace() {
   marketplace_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
     fly_canister = principal \"$FLY_PRINCIPAL\";
+    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
   })"
 

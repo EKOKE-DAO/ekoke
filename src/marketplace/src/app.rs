@@ -35,6 +35,7 @@ impl Marketplace {
     pub fn init(data: MarketplaceInitData) {
         Configuration::set_deferred_canister(data.deferred_canister);
         Configuration::set_fly_canister(data.fly_canister);
+        Configuration::set_xrc_canister(data.xrc_canister);
         RolesManager::set_admins(data.admins).unwrap();
     }
 
@@ -79,6 +80,14 @@ impl Marketplace {
             ic_cdk::trap("interest rate must be greater than 1.0");
         }
         Configuration::set_interest_rate_for_buyer(interest_rate)
+    }
+
+    /// Set xrc canister
+    pub fn admin_set_xrc_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_xrc_canister(canister_id);
     }
 
     /// Given a token id, returns the price of the token in ICP.
@@ -184,7 +193,11 @@ impl Marketplace {
         // check if caller is a contract buyer
         let is_caller_contract_buyer = token_info.contract.buyers.contains(&caller());
         // get the price of the token in ICP
-        let icp_rate = ExchangeRate::get_rate(&token_info.contract.currency).await?;
+        let icp_rate = ExchangeRate::get_rate(
+            Configuration::get_xrc_canister(),
+            &token_info.contract.currency,
+        )
+        .await?;
         let icp_price_without_interest = icp_rate.convert(token_info.token.value);
 
         let icp_price_with_interest = if is_caller_contract_buyer {
@@ -264,6 +277,8 @@ impl Marketplace {
 #[cfg(test)]
 mod test {
 
+    use std::str::FromStr as _;
+
     use super::test_utils::{deferred_canister, fly_canister};
     use super::*;
     use crate::utils::caller;
@@ -301,6 +316,14 @@ mod test {
             Configuration::get_deferred_canister(),
             new_deferred_canister
         );
+    }
+
+    #[test]
+    fn test_should_set_xrc_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        Marketplace::admin_set_xrc_canister(canister_id);
+        assert_eq!(Configuration::get_xrc_canister(), canister_id);
     }
 
     #[test]
@@ -448,6 +471,7 @@ mod test {
             deferred_canister: deferred_canister(),
             fly_canister: fly_canister(),
             admins: vec![caller()],
+            xrc_canister: caller(),
         };
         Marketplace::init(data);
     }

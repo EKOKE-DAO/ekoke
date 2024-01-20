@@ -85,6 +85,8 @@ pub struct MarketplaceInitData {
     pub deferred_canister: Principal,
     /// Fly canister
     pub fly_canister: Principal,
+    /// XRC canister
+    pub xrc_canister: Principal,
 }
 
 /// Marketplace user roles. Defines permissions

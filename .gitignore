@@ -20,6 +20,8 @@ target/
 **/.DS_Store
 
 # dfx temp files
+!.dfx/local/canisters/xrc/xrc.wasm
 .dfx/
 
 integration-tests/pocket-ic
+

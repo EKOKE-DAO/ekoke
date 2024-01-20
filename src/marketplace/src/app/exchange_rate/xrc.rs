@@ -1,3 +1,4 @@
+use candid::Principal;
 #[cfg(target_arch = "wasm32")]
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;
@@ -13,7 +14,7 @@ impl Xrc {
     /// Then you can convert currency to ICP with:
     /// ICP = value * ExchangeRate
     #[allow(unused_variables)]
-    pub async fn get_rate(currency: &str) -> MarketplaceResult<Rate> {
+    pub async fn get_rate(xrc_principal: Principal, currency: &str) -> MarketplaceResult<Rate> {
         #[cfg(not(target_arch = "wasm32"))]
         {
             Ok(Rate {
@@ -23,7 +24,7 @@ impl Xrc {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let xrc = XrcClient::default();
+            let xrc = XrcClient::new(xrc_principal);
 
             // Base is the one on the left {currency}/ICP
             let base_asset = Asset {

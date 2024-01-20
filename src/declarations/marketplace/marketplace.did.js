@@ -2,6 +2,7 @@ export const idlFactory = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'fly_canister' : IDL.Principal,
+    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   const BuyError = IDL.Variant({
@@ -144,6 +145,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_fly_canister' : IDL.Func([IDL.Principal], [Result], []),
     'admin_set_interest_rate_for_buyer' : IDL.Func([IDL.Float64], [], []),
+    'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
     'buy_token' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Vec(IDL.Nat8))], [Result], []),
     'get_token_price_icp' : IDL.Func([IDL.Nat], [Result_1], []),
   });
@@ -152,6 +154,7 @@ export const init = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'fly_canister' : IDL.Principal,
+    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   return [MarketplaceInitData];

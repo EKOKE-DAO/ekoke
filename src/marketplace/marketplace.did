@@ -55,6 +55,7 @@ type MarketplaceError = variant {
 type MarketplaceInitData = record {
   deferred_canister : principal;
   fly_canister : principal;
+  xrc_canister : principal;
   admins : vec principal;
 };
 type NftError = variant {
@@ -128,6 +129,7 @@ service : (MarketplaceInitData) -> {
   admin_set_deferred_canister : (principal) -> ();
   admin_set_fly_canister : (principal) -> (Result);
   admin_set_interest_rate_for_buyer : (float64) -> ();
+  admin_set_xrc_canister : (principal) -> ();
   buy_token : (nat, opt vec nat8) -> (Result);
   get_token_price_icp : (nat) -> (Result_1);
 }

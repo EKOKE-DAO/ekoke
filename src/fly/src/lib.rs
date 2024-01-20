@@ -96,6 +96,12 @@ pub fn admin_set_swap_account(account: Account) {
     FlyCanister::admin_set_swap_account(account)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn admin_set_xrc_canister(canister_id: Principal) {
+    FlyCanister::admin_set_xrc_canister(canister_id)
+}
+
 #[query]
 #[candid_method(query)]
 pub fn get_transaction(id: u64) -> FlyResult<Transaction> {

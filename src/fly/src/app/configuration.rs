@@ -5,12 +5,14 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::StorableAccount;
+use did::{StorableAccount, StorablePrincipal};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
-use crate::app::memory::{MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID};
+use crate::app::memory::{
+    MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
+};
 
 thread_local! {
     /// Minting account
@@ -29,6 +31,12 @@ thread_local! {
             owner: Principal::anonymous(),
             subaccount: None
         }.into()).unwrap()
+    );
+
+    /// Swap account
+    static XRC_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(XRC_CANISTER_MEMORY_ID)),
+        Principal::anonymous().into()).unwrap()
     );
 }
 
@@ -59,10 +67,25 @@ impl Configuration {
     pub fn get_swap_account() -> Account {
         SWAP_ACCOUNT.with(|sa| sa.borrow().get().0)
     }
+
+    /// Set xrc canister address
+    pub fn set_xrc_canister(canister_id: Principal) {
+        XRC_CANISTER.with_borrow_mut(|cell| {
+            cell.set(canister_id.into()).unwrap();
+        });
+    }
+
+    /// Get xrc canister address
+    #[allow(dead_code)]
+    pub fn get_xrc_canister() -> Principal {
+        XRC_CANISTER.with(|xrc| xrc.borrow().get().0)
+    }
 }
 
 #[cfg(test)]
 mod test {
+
+    use std::str::FromStr as _;
 
     use pretty_assertions::assert_eq;
 
@@ -81,5 +104,14 @@ mod test {
         let swap_account = bob_account();
         Configuration::set_swap_account(swap_account);
         assert_eq!(Configuration::get_swap_account(), swap_account);
+    }
+
+    #[test]
+    fn test_should_set_xrc_canister() {
+        let principal =
+            Principal::from_str("bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe")
+                .unwrap();
+        Configuration::set_xrc_canister(principal);
+        assert_eq!(Configuration::get_xrc_canister(), principal);
     }
 }

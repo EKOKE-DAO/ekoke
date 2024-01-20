@@ -96,9 +96,9 @@ impl LiquidityPool {
 
     /// Swap the current liquidity pool in ICP to BTC using the swap account
     #[allow(dead_code)]
-    pub async fn swap_icp_to_btc() -> FlyResult<()> {
+    pub async fn swap_icp_to_btc(xrc_principal: Principal) -> FlyResult<()> {
         // get the current exchange rate ICP/BTC
-        let rate = Xrc::get_icp_to_btc_rate().await?;
+        let rate = Xrc::get_icp_to_btc_rate(xrc_principal).await?;
         // get current balance of swap account of CKBTC
         let swap_account_balance =
             CkBtc::icrc1_balance_of(Configuration::get_swap_account()).await?;

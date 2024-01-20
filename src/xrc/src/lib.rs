@@ -4,8 +4,9 @@
 
 use candid::Principal;
 use ic_cdk::api::call::RejectionCode;
-pub use ic_xrc_types::{Asset, AssetClass, ExchangeRateError};
-use ic_xrc_types::{GetExchangeRateRequest, GetExchangeRateResult};
+pub use ic_xrc_types::{
+    Asset, AssetClass, ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult,
+};
 
 /// Client for the XRC canister
 pub struct XrcClient {

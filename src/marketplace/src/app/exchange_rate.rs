@@ -4,6 +4,7 @@ mod xrc;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use candid::Principal;
 use did::marketplace::MarketplaceResult;
 
 use self::ic_cache::IcCache;
@@ -23,7 +24,7 @@ pub struct Rate {
 }
 
 impl ExchangeRate {
-    pub async fn get_rate(currency: &str) -> MarketplaceResult<Rate> {
+    pub async fn get_rate(xrc_principal: Principal, currency: &str) -> MarketplaceResult<Rate> {
         let rate = EXCHANGE_RATE
             .with_borrow(|rates| rates.get(currency).and_then(|rate| rate.get().cloned()));
 
@@ -31,7 +32,7 @@ impl ExchangeRate {
         let rate = if let Some(rate) = rate {
             rate
         } else {
-            let rate = xrc::Xrc::get_rate(currency).await?;
+            let rate = xrc::Xrc::get_rate(xrc_principal, currency).await?;
             // expires at the end of the day
             let expiration = time() - (time() % NANOSECONDS_IN_A_DAY) + NANOSECONDS_IN_A_DAY;
 
@@ -66,7 +67,9 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_rate() {
-        let rate = ExchangeRate::get_rate("EUR").await.unwrap();
+        let rate = ExchangeRate::get_rate(Principal::anonymous(), "EUR")
+            .await
+            .unwrap();
         assert_eq!(rate.rate, 813000000);
         assert_eq!(rate.decimals, 8);
     }

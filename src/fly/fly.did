@@ -49,6 +49,7 @@ type FlyInitData = record {
   minting_account : Account;
   initial_balances : vec record { Account; nat };
   swap_account : Account;
+  xrc_canister : principal;
   marketplace_canister : principal;
   admins : vec principal;
   total_supply : nat;
@@ -133,6 +134,7 @@ service : (FlyInitData) -> {
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_role : (principal, Role) -> ();
   admin_set_swap_account : (Account) -> ();
+  admin_set_xrc_canister : (principal) -> ();
   get_contract_reward : (nat, nat64) -> (Result_1);
   get_transaction : (nat64) -> (Result_2) query;
   icrc1_balance_of : (Account) -> (nat) query;
