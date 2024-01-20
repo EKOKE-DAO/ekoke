@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-import { ABI, CONTRACT_ADDRESS } from './contracts/MyToken';
+import { ABI, CONTRACT_ADDRESS } from './contracts/Fly';
 import { ChainId } from '../components/MetamaskConnect';
 
 export default class Web3Client {
@@ -36,6 +36,11 @@ export default class Web3Client {
   async balanceOf(address: string): Promise<number> {
     const contract = this.getContract();
     return contract.methods.balanceOf(address).call();
+  }
+
+  async swappedSupply(): Promise<number> {
+    const contract = this.getContract();
+    return contract.methods.swappedSupply().call();
   }
 
   private getContract() {

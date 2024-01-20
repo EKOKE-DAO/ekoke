@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { Fly } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-// const INITIAL_SUPPLY = "8880101010000000000"; // 8 milions
+const TOTAL_SUPPLY = "8880101010000000000"; // 8 milions
 const NAME = "Fly";
 const SYMBOL = "FLY";
 const DECIMALS = 12;
@@ -117,6 +117,14 @@ describe("Fly", () => {
     await token.transfer(flyCanister.address, 250);
     expect(await token.balanceOf(flyCanister.address)).to.equal(250);
     expect(await token.balanceOf(owner.address)).to.equal(750);
+  });
+
+  it("should get total supply and swapped supply", async () => {
+    const { flyCanister, owner, token } = deploy;
+    await token.transcribeSwap(owner.address, 1_000);
+
+    expect(await token.totalSupply()).to.equal(TOTAL_SUPPLY);
+    expect(await token.swappedSupply()).to.equal(1_000);
   });
 
   it("Should update swap fee", async () => {

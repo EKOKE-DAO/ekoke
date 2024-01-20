@@ -4,29 +4,19 @@ export const ABI = [
   {
     inputs: [
       {
-        internalType: 'string',
-        name: 'name',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'symbol',
-        type: 'string',
+        internalType: 'address',
+        name: '_initialOwner',
+        type: 'address',
       },
       {
         internalType: 'address',
-        name: 'initialOwner',
+        name: '_fly_canister_address',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: 'initialSupply',
+        name: '_swapFee',
         type: 'uint256',
-      },
-      {
-        internalType: 'uint8',
-        name: 'decs',
-        type: 'uint8',
       },
     ],
     stateMutability: 'nonpayable',
@@ -171,6 +161,31 @@ export const ABI = [
       {
         indexed: true,
         internalType: 'address',
+        name: '_from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: '_principal',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'FlySwapped',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'previousOwner',
         type: 'address',
       },
@@ -291,6 +306,19 @@ export const ABI = [
   },
   {
     inputs: [],
+    name: 'getFlyCanisterAddress',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'name',
     outputs: [
       {
@@ -323,6 +351,63 @@ export const ABI = [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_swapFee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setSwapFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: '_recipient',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'swap',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'swapFee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'swappedSupply',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'symbol',
     outputs: [
@@ -346,6 +431,24 @@ export const ABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_recipient',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'transcribeSwap',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {

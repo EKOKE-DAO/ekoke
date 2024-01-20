@@ -40,6 +40,18 @@ contract Fly is ERC20, Ownable {
         return _decimals;
     }
 
+    function totalSupply() public view virtual override returns (uint256) {
+        return 8_880_101_010_000_000_000;
+    }
+
+    /**
+     * @dev Returns the total supply of tokens swapped from Ethereum blockchain to IC. Basically it's the circulating supply of the token on Ethereum.
+     * @return The total supply of tokens swapped from Ethereum blockchain to IC.
+     */
+    function swappedSupply() public view returns (uint256) {
+        return ERC20.totalSupply();
+    }
+
     /**
      * @dev Returns the address of the fly canister.
      * @return The address of the fly canister.

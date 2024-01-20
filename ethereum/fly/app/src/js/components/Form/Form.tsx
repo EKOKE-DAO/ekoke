@@ -8,6 +8,7 @@ import ChangeOwnerForm from './ChangeOwner/ChangeOwnerForm';
 import Balance from './Balance';
 import TransferForm from './Transfer/TransferForm';
 import RenounceOwnershipForm from './RenounceOwnership/RenounceOwnershipForm';
+import SwappedSupply from './SwappedSupply';
 
 const Form = () => {
   const { status } = useMetaMask();
@@ -16,6 +17,7 @@ const Form = () => {
     status === 'connected' ? (
       <Container.FlexCols className="gap-8">
         <Balance />
+        <SwappedSupply />
         <Card>
           <TransferForm />
         </Card>
