@@ -23,7 +23,7 @@ jobs:
           wget -O /tmp/cargo-make.zip https://github.com/sagiegurari/cargo-make/releases/download/0.37.5/cargo-make-v0.37.5-x86_64-unknown-linux-gnu.zip && \
           sudo unzip /tmp/cargo-make.zip -d /tmp && \
           sudo mv /tmp/cargo-make-v0.37.5-x86_64-unknown-linux-gnu/cargo-make $HOME/.cargo/bin/cargo-make && \
-          sudo chmod +x $HOME/.cargo/bin/cargo-make \
+          sudo chmod +x $HOME/.cargo/bin/cargo-make && \
           wget https://download.dfinity.systems/ic/69e1408347723dbaa7a6cd2faa9b65c42abbe861/openssl-static-binaries/x86_64-linux/pocket-ic.gz && \
           gzip -d pocket-ic.gz && \
           chmod +x pocket-ic && \
