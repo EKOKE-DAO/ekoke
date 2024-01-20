@@ -35,8 +35,14 @@ impl DeferredClient {
                 token: Token {
                     id: token_id.clone(),
                     contract_id: 1.into(),
-                    owner: Some(caller()),
-                    transferred_at: None,
+                    owner: match token_id {
+                        id if id == &candid::Nat::from(2_u64) => Some(caller()),
+                        _ => Some(Principal::management_canister()),
+                    },
+                    transferred_at: match token_id {
+                        id if id == &candid::Nat::from(2_u64) => Some(0),
+                        _ => None,
+                    },
                     transferred_by: None,
                     approved_at: None,
                     approved_by: None,
@@ -56,7 +62,10 @@ impl DeferredClient {
                         principal: caller(),
                         quota: 100,
                     }],
-                    buyers: vec![Principal::management_canister()],
+                    buyers: match token_id {
+                        id if id == &candid::Nat::from(2_u64) => vec![caller()],
+                        _ => vec![Principal::management_canister()],
+                    },
                     tokens: vec![],
                     installments: 4_000,
                     is_signed: false,
