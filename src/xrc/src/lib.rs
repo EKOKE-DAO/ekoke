@@ -8,6 +8,9 @@ pub use ic_xrc_types::{
     Asset, AssetClass, ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult,
 };
 
+/// 10Billions cycles
+const XRC_CYCLES_COST: u64 = 10_000_000_000;
+
 /// Client for the XRC canister
 pub struct XrcClient {
     principal: Principal,
@@ -37,8 +40,13 @@ impl XrcClient {
             quote_asset,
             timestamp: None,
         };
-        let result: (GetExchangeRateResult,) =
-            ic_cdk::call(self.principal, "get_exchange_rate", (request,)).await?;
+        let result: (GetExchangeRateResult,) = ic_cdk::api::call::call_with_payment(
+            self.principal,
+            "get_exchange_rate",
+            (request,),
+            XRC_CYCLES_COST,
+        )
+        .await?;
 
         Ok(result.0)
     }

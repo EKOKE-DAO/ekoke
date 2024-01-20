@@ -14,6 +14,7 @@ dip721 = { path = "../src/dip721" }
 icrc = { path = "../src/icrc" }
 pocket-ic = "2"
 serde = { workspace = true }
+xrc = { path = "../src/xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

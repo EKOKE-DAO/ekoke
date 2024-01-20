@@ -27,6 +27,7 @@ pub struct TestEnv {
     pub deferred_id: Principal,
     pub fly_id: Principal,
     pub marketplace_id: Principal,
+    pub xrc_id: Principal,
 }
 
 impl TestEnv {
@@ -82,20 +83,23 @@ impl TestEnv {
         let pic = PocketIc::new();
 
         // create canisters
+        let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
         let fly_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
 
         // install deferred canister
         Self::install_deferred(&pic, deferred_id, fly_id, marketplace_id);
-        Self::install_fly(&pic, fly_id, deferred_id, marketplace_id);
-        Self::install_marketplace(&pic, marketplace_id, deferred_id, fly_id);
+        Self::install_fly(&pic, fly_id, deferred_id, marketplace_id, xrc_id);
+        Self::install_marketplace(&pic, marketplace_id, deferred_id, fly_id, xrc_id);
+        Self::install_xrc(&pic, xrc_id);
 
         TestEnv {
             pic,
             deferred_id,
             fly_id,
             marketplace_id,
+            xrc_id,
         }
     }
 
@@ -123,6 +127,7 @@ impl TestEnv {
         fly_id: Principal,
         deferred_id: Principal,
         marketplace_id: Principal,
+        xrc_canister: Principal,
     ) {
         pic.add_cycles(fly_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Fly);
@@ -138,6 +143,7 @@ impl TestEnv {
             deferred_canister: deferred_id,
             marketplace_canister: marketplace_id,
             swap_account: actor::swap_account(),
+            xrc_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
@@ -149,6 +155,7 @@ impl TestEnv {
         marketplace_id: Principal,
         deferred_id: Principal,
         fly_id: Principal,
+        xrc_canister: Principal,
     ) {
         pic.add_cycles(marketplace_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Marketplace);
@@ -157,10 +164,19 @@ impl TestEnv {
             admins: vec![actor::admin()],
             deferred_canister: deferred_id,
             fly_canister: fly_id,
+            xrc_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
         pic.install_canister(marketplace_id, wasm_bytes, init_arg, None);
+    }
+
+    fn install_xrc(pic: &PocketIc, xrc_id: Principal) {
+        pic.add_cycles(xrc_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::Xrc);
+        let init_arg = Encode!(&()).unwrap();
+
+        pic.install_canister(xrc_id, wasm_bytes, init_arg, None);
     }
 
     fn load_wasm(canister: Canister) -> Vec<u8> {
