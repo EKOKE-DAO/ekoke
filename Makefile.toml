@@ -53,7 +53,7 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-dependencies = ["deferred-did", "fly-did", "dfx-generate"]
+dependencies = ["deferred-did", "fly-did", "marketplace-did", "dfx-generate"]
 workspace = false
 
 [tasks.deferred-did]
@@ -66,6 +66,11 @@ description = "Generate did files for fly"
 script = "cargo run --bin fly-did  --features did > src/fly/fly.did"
 workspace = false
 
+[tasks.marketplace-did]
+description = "Generate did files for marketplace"
+script = "cargo run --bin marketplace-did  --features did > src/marketplace/marketplace.did"
+workspace = false
+
 [tasks.dfx-generate]
 description = "Generate dfx did"
 command = "dfx"
@@ -74,5 +79,5 @@ workspace = false
 
 [tasks.dfx-setup]
 description = "setup dfx"
-script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create fly"
+script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create fly; dfx canister create marketplace"
 workspace = false

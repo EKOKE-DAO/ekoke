@@ -9,6 +9,11 @@
       "candid": "src/fly/fly.did",
       "package": "fly",
       "type": "rust"
+    },
+    "marketplace": {
+      "candid": "src/marketplace/marketplace.did",
+      "package": "marketplace",
+      "type": "rust"
     }
   },
   "defaults": {

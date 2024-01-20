@@ -49,3 +49,22 @@ deploy_fly() {
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$fly_init_args" fly
 
 }
+
+deploy_marketplace() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  MARKETPLACE_PRINCIPAL="$3"
+  DEFERRED_PRINCIPAL="$4"
+  FLY_PRINCIPAL="$5"
+  ADMINS="$6"
+
+  echo "deploying marketplace canister $MARKETPLACE_PRINCIPAL"
+
+  marketplace_init_args="(record {
+    deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
+    fly_canister = principal \"$FLY_PRINCIPAL\";
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$marketplace_init_args" marketplace
+}

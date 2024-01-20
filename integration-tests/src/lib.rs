@@ -13,6 +13,7 @@ use std::vec;
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
 use did::fly::{FlyInitData, PicoFly};
+use did::marketplace::MarketplaceInitData;
 use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
 
@@ -88,7 +89,7 @@ impl TestEnv {
         // install deferred canister
         Self::install_deferred(&pic, deferred_id, fly_id, marketplace_id);
         Self::install_fly(&pic, fly_id, deferred_id, marketplace_id);
-        // TODO: install marketplace
+        Self::install_marketplace(&pic, marketplace_id, deferred_id, fly_id);
 
         TestEnv {
             pic,
@@ -141,6 +142,25 @@ impl TestEnv {
         let init_arg = Encode!(&init_arg).unwrap();
 
         pic.install_canister(fly_id, wasm_bytes, init_arg, None);
+    }
+
+    fn install_marketplace(
+        pic: &PocketIc,
+        marketplace_id: Principal,
+        deferred_id: Principal,
+        fly_id: Principal,
+    ) {
+        pic.add_cycles(marketplace_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::Marketplace);
+
+        let init_arg = MarketplaceInitData {
+            admins: vec![actor::admin()],
+            deferred_canister: deferred_id,
+            fly_canister: fly_id,
+        };
+        let init_arg = Encode!(&init_arg).unwrap();
+
+        pic.install_canister(marketplace_id, wasm_bytes, init_arg, None);
     }
 
     fn load_wasm(canister: Canister) -> Vec<u8> {

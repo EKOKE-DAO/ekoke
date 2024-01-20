@@ -5,7 +5,7 @@ cd "$(dirname "$0")" || exit 1
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
 FLY_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.fly.local')"
-MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')" # TODO: fix
+MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
 
 source ./deploy_functions.sh
 source ./did.sh
@@ -23,6 +23,7 @@ cd ../
 
 deploy_deferred "reinstall" "local" "$DEFERRED_PRINCIPAL" "$FLY_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
 deploy_fly "reinstall" "local" "$FLY_PRINCIPAL" "$ADMIN_PRINCIPAL" "$INITIAL_SUPPLY" "$FLY_INITIAL_BALANCES" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$SWAP_ACCOUNT" "$FLY_MINTING_ACCOUNT"
+deploy_marketplace "reinstall" "local" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$FLY_PRINCIPAL" "$ADMIN_PRINCIPAL"
 
 dfx stop
 
