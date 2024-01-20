@@ -13,7 +13,7 @@ impl Canister {
             Canister::Deferred => Path::new("deferred/deferred.wasm"),
             Canister::Fly => Path::new("fly/fly.wasm"),
             Canister::Marketplace => Path::new("marketplace/marketplace.wasm"),
-            Canister::Xrc => Path::new("xrc/xrc.wasm"),
+            Canister::Xrc => Path::new("test/xrc.wasm"),
         }
     }
 }
