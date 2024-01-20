@@ -27,11 +27,11 @@ impl FlyClient {
         {
             Ok(LiquidityPoolAccounts {
                 icp: Account {
-                    owner: Principal::anonymous(),
+                    owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
                     subaccount: None,
                 },
                 ckbtc: Account {
-                    owner: Principal::anonymous(),
+                    owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
                     subaccount: None,
                 },
             })

@@ -1,9 +1,8 @@
 use candid::{CandidType, Decode, Deserialize, Encode};
+use did::StorableAccount;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
-
-use crate::app::balance::StorableAccount;
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 /// Allowance key for mapping (from, spender) to allowance

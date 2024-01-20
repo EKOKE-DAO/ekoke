@@ -35,6 +35,8 @@ pub enum MarketplaceError {
     XrcError,
     #[error("token not found")]
     TokenNotFound,
+    #[error("buy error: {0}")]
+    Buy(#[from] BuyError),
 }
 
 impl From<icrc2::transfer_from::TransferFromError> for MarketplaceError {
@@ -61,6 +63,18 @@ pub enum ConfigurationError {
     AdminsCantBeEmpty,
     #[error("the canister admin cannot be anonymous")]
     AnonymousAdmin,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum BuyError {
+    #[error("token has no owner")]
+    TokenHasNoOwner,
+    #[error("caller already owns token")]
+    CallerAlreadyOwnsToken,
+    #[error("ICP allowance has expired")]
+    IcpAllowanceExpired,
+    #[error("ICP allowance is not enough")]
+    IcpAllowanceNotEnough,
 }
 
 /// These are the arguments which are taken by the marketplace canister on init

@@ -5,12 +5,12 @@
 use std::cell::RefCell;
 
 use did::fly::{FlyError, FlyResult, PicoFly, PoolError};
-use did::{StorableNat, ID};
+use did::{StorableAccount, StorableNat, ID};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 use icrc::icrc1::account::Account;
 
-use super::balance::{Balance, StorableAccount};
+use super::balance::Balance;
 use super::configuration::Configuration;
 use crate::app::memory::{MEMORY_MANAGER, POOL_MEMORY_ID};
 use crate::utils;

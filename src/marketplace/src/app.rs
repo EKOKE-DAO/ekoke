@@ -3,19 +3,22 @@ mod exchange_rate;
 mod inspect;
 mod memory;
 mod roles;
+#[cfg(test)]
 mod test_utils;
 
 use candid::{Nat, Principal};
 use did::deferred::TokenInfo;
-use did::marketplace::{MarketplaceError, MarketplaceInitData, MarketplaceResult};
+use did::marketplace::{BuyError, MarketplaceError, MarketplaceInitData, MarketplaceResult};
 use dip721::TokenIdentifier;
+use icrc::icrc1::account::{Account, Subaccount};
+use icrc::icrc2;
 
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
 use crate::client::{DeferredClient, FlyClient, IcpLedgerClient};
-use crate::utils::{caller, cycles};
+use crate::utils::{caller, cycles, id, time};
 
 struct TokenInfoWithPrice {
     token_info: TokenInfo,
@@ -23,6 +26,7 @@ struct TokenInfoWithPrice {
     icp_price_with_interest: u64,
     interest: u64,
     is_caller_contract_buyer: bool,
+    is_first_sell: bool,
 }
 
 pub struct Marketplace;
@@ -56,11 +60,15 @@ impl Marketplace {
         Configuration::set_deferred_canister(canister)
     }
 
-    pub fn admin_set_fly_canister(canister: Principal) {
+    pub async fn admin_set_fly_canister(canister: Principal) -> MarketplaceResult<()> {
         if !Inspect::inspect_is_admin(caller()) {
             ic_cdk::trap("unauthorized");
         }
-        Configuration::set_fly_canister(canister)
+        Configuration::set_fly_canister(canister);
+        // update liquidity pool canister
+        Configuration::update_fly_liquidity_pool_account().await?;
+
+        Ok(())
     }
 
     pub fn admin_set_interest_rate_for_buyer(interest_rate: f64) {
@@ -84,21 +92,88 @@ impl Marketplace {
     /// Buy token with the provided id. The buy process, given the IC price, consits of:
     ///
     /// 0. marketplace checks whether the token owner is not the caller
-    /// 1. marketplace verifies that the caller has given Marketplace enough ICP allowance to buy the NFT
+    /// 1. marketplace verifies that the caller has given Marketplace enough ICP allowance to buy the NFT `icrc2_allowance`
     /// 2. marketplace checks whether the caller is the contract buyer
     ///     2.1 If so, it gets the liquidity pool address for fly token (liquity_pool_address)
     ///     2.2 It transfers the `interest_rate` value to the liquidity pool (icrc2_transfer_from)
-    /// 3. marketplace calls `transfer_from` on deferred and transfers the NFT to the caller
-    /// 4. marketplace calls `icrc2_transfer_from` on icp canister and transfers the ICP price to the previous owner
-    /// 5. marketplace checks whether the NFT has been buought for the first time
+    /// 3. marketplace calls `icrc2_transfer_from` on icp canister and transfers the ICP price to the previous owner
+    /// 4. marketplace calls `transfer_from` on deferred and transfers the NFT to the caller
+    /// 5. marketplace checks whether the NFT has been bought for the first time
     ///     5.1 if so, is calls `send_reward` on the fly canister passing the caller as the recipient
     /// 6. marketplace checks whether the caller is the contract buyer
     ///     6.1 if so it calls `burn` on deferred passing the token id
-    pub async fn buy_token(token_id: TokenIdentifier) -> MarketplaceResult<()> {
+    pub async fn buy_token(
+        token_id: TokenIdentifier,
+        subaccount: Option<Subaccount>,
+    ) -> MarketplaceResult<()> {
+        let caller_account = Self::caller_account(subaccount);
+        let deferred_client = DeferredClient::from(Configuration::get_deferred_canister());
+        let fly_client = FlyClient::from(Configuration::get_fly_canister());
         // get token info
-        let token_info = Self::get_token_info_with_price(&token_id).await?;
+        let info = Self::get_token_info_with_price(&token_id).await?;
+        // 0. checks whether already owns the token
+        if Some(caller()) == info.token_info.token.owner {
+            return Err(MarketplaceError::Buy(BuyError::CallerAlreadyOwnsToken));
+        }
+        // 0.1 checks whether token has an owner
+        let token_owner = match info.token_info.token.owner {
+            Some(owner) => owner,
+            None => return Err(MarketplaceError::Buy(BuyError::TokenHasNoOwner)),
+        };
 
-        todo!()
+        // 1. checks whether caller has given allowance to marketplace to transfer ICP()
+        let allowance = Self::get_caller_icp_allowance(caller_account).await?;
+        // check whether allowance has expired
+        if allowance
+            .expires_at
+            .map(|expiration| expiration < time())
+            .unwrap_or_default()
+        {
+            return Err(MarketplaceError::Buy(BuyError::IcpAllowanceExpired));
+        }
+
+        // check if allowance is enough
+        if allowance.allowance < info.icp_price_with_interest {
+            return Err(MarketplaceError::Buy(BuyError::IcpAllowanceNotEnough));
+        }
+
+        // 2. pay interest to fly liquidity pool
+        if info.is_caller_contract_buyer {
+            Self::top_up_liquidity_pool(caller_account, Nat::from(info.interest)).await?;
+        }
+
+        // 3. transfer ICP from caller to token owner
+        Self::spend_caller_icp(
+            caller_account,
+            Account::from(token_owner),
+            Nat::from(info.icp_price_without_interest),
+        )
+        .await?;
+
+        // 4. transfer token from deferred to caller
+        deferred_client
+            .transfer_from(token_owner, caller(), &token_id)
+            .await?;
+
+        // 5. marketplace checks whether the NFT has been buought for the first time
+        if info.is_first_sell {
+            // call `send_reward` on the fly canister passing the caller as the recipient
+            fly_client
+                .send_reward(
+                    &info.token_info.contract.id,
+                    info.token_info.token.picofly_reward,
+                    caller_account,
+                )
+                .await?;
+        }
+
+        // 6. marketplace checks whether the caller is the contract buyer
+        if info.is_caller_contract_buyer {
+            // call `burn` on deferred passing the token id
+            deferred_client.burn(&token_id).await?;
+        }
+
+        Ok(())
     }
 
     /// Get token info with price and interest
@@ -108,12 +183,6 @@ impl Marketplace {
         let token_info = Self::get_token_info(token_id).await?;
         // check if caller is a contract buyer
         let is_caller_contract_buyer = token_info.contract.buyers.contains(&caller());
-        println!(
-            "{:?}, {:?} is buyer {}",
-            token_info.contract.buyers,
-            caller(),
-            is_caller_contract_buyer
-        );
         // get the price of the token in ICP
         let icp_rate = ExchangeRate::get_rate(&token_info.contract.currency).await?;
         let icp_price_without_interest = icp_rate.convert(token_info.token.value);
@@ -127,6 +196,7 @@ impl Marketplace {
         let interest = icp_price_with_interest - icp_price_without_interest;
 
         Ok(TokenInfoWithPrice {
+            is_first_sell: token_info.token.transferred_at.is_none(),
             token_info,
             icp_price_without_interest,
             icp_price_with_interest,
@@ -139,9 +209,54 @@ impl Marketplace {
     async fn get_token_info(token_id: &TokenIdentifier) -> MarketplaceResult<TokenInfo> {
         // get token info
         let deferred_client = DeferredClient::from(Configuration::get_deferred_canister());
-        match deferred_client.get_token(&token_id).await? {
+        match deferred_client.get_token(token_id).await? {
             Some(token_info) => Ok(token_info),
-            None => return Err(MarketplaceError::TokenNotFound),
+            None => Err(MarketplaceError::TokenNotFound),
+        }
+    }
+
+    /// Get ICP token allowance the marketplace can spend for the caller
+    async fn get_caller_icp_allowance(
+        caller_account: Account,
+    ) -> MarketplaceResult<icrc2::allowance::Allowance> {
+        IcpLedgerClient::icrc2_allowance(Self::marketplace_account(), caller_account)
+            .await
+            .map_err(MarketplaceError::FlyCanister)
+    }
+
+    /// Spend caller allowance in ICP token and send them to the provided recipient
+    async fn spend_caller_icp(
+        caller_account: Account,
+        recipient: Account,
+        amount: Nat,
+    ) -> MarketplaceResult<Nat> {
+        IcpLedgerClient::icrc2_transfer_from(caller_account, recipient, amount)
+            .await
+            .map_err(MarketplaceError::FlyCanister)
+    }
+
+    /// Top up Fly canister liquidity pool with the provided amount from the caller account
+    async fn top_up_liquidity_pool(caller_account: Account, amount: Nat) -> MarketplaceResult<()> {
+        // get liquidity pool account
+        let liquidity_pool_account = Configuration::get_fly_liquidity_pool_account().await?;
+        // transfer interest rate to liquidity from caller
+        Self::spend_caller_icp(caller_account, liquidity_pool_account, amount).await?;
+
+        Ok(())
+    }
+
+    /// Returns the marketplace account
+    #[inline]
+    fn marketplace_account() -> Account {
+        Account::from(id())
+    }
+
+    /// Returns the caller account passing its subaccount
+    #[inline]
+    fn caller_account(subaccount: Option<Subaccount>) -> Account {
+        Account {
+            owner: caller(),
+            subaccount,
         }
     }
 }
@@ -161,12 +276,20 @@ mod test {
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
     }
 
-    #[test]
-    fn test_should_change_fly_canister() {
+    #[tokio::test]
+    async fn test_should_change_fly_canister() {
         init_canister();
         let new_fly_canister = Principal::anonymous();
-        Marketplace::admin_set_fly_canister(new_fly_canister);
+        Marketplace::admin_set_fly_canister(new_fly_canister)
+            .await
+            .unwrap();
         assert_eq!(Configuration::get_fly_canister(), new_fly_canister);
+        assert_eq!(
+            Configuration::get_fly_liquidity_pool_account()
+                .await
+                .unwrap(),
+            Account::from(Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap())
+        );
     }
 
     #[test]
@@ -230,6 +353,7 @@ mod test {
             token_info.icp_price_without_interest
         );
         assert_eq!(token_info.interest, 0);
+        assert_eq!(token_info.is_first_sell, true);
 
         let token_info = Marketplace::get_token_info_with_price(&TokenIdentifier::from(2))
             .await
@@ -241,6 +365,82 @@ mod test {
             token_info.interest,
             token_info.icp_price_with_interest - token_info.icp_price_without_interest
         );
+        assert_eq!(token_info.is_first_sell, false);
+    }
+
+    #[tokio::test]
+    async fn test_should_return_caller_icp_allowance() {
+        init_canister();
+        let allowance = Marketplace::get_caller_icp_allowance(Account::from(caller()))
+            .await
+            .unwrap();
+        assert_eq!(
+            allowance,
+            icrc2::allowance::Allowance {
+                allowance: 5000000000_u64.into(),
+                expires_at: None,
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_not_allow_to_buy_token_already_owned() {
+        init_canister();
+        assert!(matches!(
+            Marketplace::buy_token(TokenIdentifier::from(2), None)
+                .await
+                .unwrap_err(),
+            MarketplaceError::Buy(BuyError::CallerAlreadyOwnsToken)
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_should_not_allow_to_buy_token_without_owner() {
+        init_canister();
+        assert!(matches!(
+            Marketplace::buy_token(TokenIdentifier::from(3), None)
+                .await
+                .unwrap_err(),
+            MarketplaceError::Buy(BuyError::TokenHasNoOwner)
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_should_not_allow_to_buy_if_allowance_is_not_enough() {
+        init_canister();
+        assert!(matches!(
+            Marketplace::buy_token(TokenIdentifier::from(1), Some([1; 32]))
+                .await
+                .unwrap_err(),
+            MarketplaceError::Buy(BuyError::IcpAllowanceNotEnough)
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_should_not_allow_to_buy_if_allowance_is_expired() {
+        init_canister();
+        assert!(matches!(
+            Marketplace::buy_token(TokenIdentifier::from(1), Some([2; 32]))
+                .await
+                .unwrap_err(),
+            MarketplaceError::Buy(BuyError::IcpAllowanceExpired)
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_should_buy_token_if_not_buyer() {
+        init_canister();
+        assert!(Marketplace::buy_token(TokenIdentifier::from(1), None)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_should_buy_token_if_buyer() {
+        init_canister();
+        assert!(Marketplace::buy_token(TokenIdentifier::from(4), None)
+            .await
+            .is_ok());
     }
 
     fn init_canister() {

@@ -2,19 +2,18 @@
 //!
 //! ICRC-1 token balances
 
-mod account;
 mod account_balance;
 
 use std::cell::RefCell;
 
 use candid::{Nat, Principal};
 use did::fly::{BalanceError, FlyError, FlyResult, PicoFly};
+use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap, StableCell};
 use icrc::icrc1::account::Account;
 use num_bigint::BigUint;
 
-pub use self::account::StorableAccount;
 use self::account_balance::Balance as AccountBalance;
 use super::configuration::Configuration;
 use crate::app::memory::{BALANCES_MEMORY_ID, CANISTER_WALLET_ACCOUNT_MEMORY_ID, MEMORY_MANAGER};

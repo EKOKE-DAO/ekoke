@@ -11,6 +11,7 @@ use std::cell::RefCell;
 
 use candid::{Nat, Principal};
 use did::fly::{BalanceError, FlyError, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance};
+use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
@@ -18,7 +19,6 @@ use icrc::icrc1::account::Account;
 use self::ckbtc::CkBtc;
 use self::icp_ledger::IcpLedger;
 use self::xrc::Xrc;
-use super::balance::StorableAccount;
 use crate::app::configuration::Configuration;
 use crate::app::memory::{
     LIQUIDITY_POOL_ACCOUNT_MEMORY_ID, LIQUIDITY_POOL_CKBTC_ACCOUNT_MEMORY_ID, MEMORY_MANAGER,

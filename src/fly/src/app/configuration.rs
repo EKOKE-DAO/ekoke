@@ -5,11 +5,11 @@
 use std::cell::RefCell;
 
 use candid::Principal;
+use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
-use super::balance::StorableAccount;
 use crate::app::memory::{MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID};
 
 thread_local! {

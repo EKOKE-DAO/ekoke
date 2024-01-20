@@ -6,6 +6,7 @@ use icrc::icrc1::account::Account;
 use icrc::icrc2;
 
 /// CKBTC ledger canister client
+#[derive(Default)]
 pub struct IcpLedgerClient;
 
 impl IcpLedgerClient {
@@ -17,10 +18,20 @@ impl IcpLedgerClient {
     ) -> FlyResult<icrc2::allowance::Allowance> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            Ok(icrc2::allowance::Allowance {
-                allowance: 5_000_000.into(),
-                expires_at: None,
-            })
+            match account.subaccount {
+                None => Ok(icrc2::allowance::Allowance {
+                    allowance: 5_000_000_000_u64.into(),
+                    expires_at: None,
+                }),
+                Some(subaccount) if subaccount == [2; 32] => Ok(icrc2::allowance::Allowance {
+                    allowance: 5_000_000_000_u64.into(),
+                    expires_at: Some(0),
+                }),
+                Some(_) => Ok(icrc2::allowance::Allowance {
+                    allowance: 5_000_000.into(),
+                    expires_at: None,
+                }),
+            }
         }
         #[cfg(target_arch = "wasm32")]
         {

@@ -8,6 +8,7 @@ use candid::{candid_method, Nat, Principal};
 use did::marketplace::{MarketplaceInitData, MarketplaceResult};
 use dip721::TokenIdentifier;
 use ic_cdk_macros::{init, query, update};
+use icrc::icrc1::account::Subaccount;
 
 use self::app::Marketplace;
 
@@ -36,8 +37,8 @@ pub fn admin_set_deferred_canister(canister: Principal) {
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_fly_canister(canister: Principal) {
-    Marketplace::admin_set_fly_canister(canister)
+pub async fn admin_set_fly_canister(canister: Principal) -> MarketplaceResult<()> {
+    Marketplace::admin_set_fly_canister(canister).await
 }
 
 #[update]
@@ -50,6 +51,15 @@ pub fn admin_set_interest_rate_for_buyer(interest_rate: f64) {
 #[candid_method(update)]
 pub async fn get_token_price_icp(token_id: TokenIdentifier) -> MarketplaceResult<u64> {
     Marketplace::get_token_price_icp(token_id).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn buy_token(
+    token_id: TokenIdentifier,
+    subaccount: Option<Subaccount>,
+) -> MarketplaceResult<()> {
+    Marketplace::buy_token(token_id, subaccount).await
 }
 
 #[allow(dead_code)]

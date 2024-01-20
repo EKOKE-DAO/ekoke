@@ -37,6 +37,7 @@ impl DeferredClient {
                     contract_id: 1.into(),
                     owner: match token_id {
                         id if id == &candid::Nat::from(2_u64) => Some(caller()),
+                        id if id == &candid::Nat::from(3_u64) => None,
                         _ => Some(Principal::management_canister()),
                     },
                     transferred_at: match token_id {
@@ -64,6 +65,7 @@ impl DeferredClient {
                     }],
                     buyers: match token_id {
                         id if id == &candid::Nat::from(2_u64) => vec![caller()],
+                        id if id == &candid::Nat::from(4_u64) => vec![caller()],
                         _ => vec![Principal::management_canister()],
                     },
                     tokens: vec![],

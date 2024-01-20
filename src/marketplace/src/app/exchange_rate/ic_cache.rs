@@ -1,32 +1,22 @@
 use crate::utils::time;
 
-pub enum IcCache<T> {
-    /// Found value and its timestamp
-    Hit(T, u64),
-    /// Value not found
-    Miss,
-}
+/// Found value and its timestamp
+pub struct IcCache<T>(T, u64);
 
 impl<T> IcCache<T> {
     pub fn new(value: T, expires_at: u64) -> Self {
-        Self::Hit(value, expires_at)
+        Self(value, expires_at)
     }
 
     pub fn get(&self) -> Option<&T> {
         if self.is_expired(time()) {
             return None;
         }
-        match self {
-            Self::Hit(value, _) => Some(value),
-            Self::Miss => None,
-        }
+        Some(&self.0)
     }
 
     pub fn is_expired(&self, now: u64) -> bool {
-        match self {
-            Self::Hit(_, expires_at) => *expires_at < now,
-            Self::Miss => true,
-        }
+        self.1 < now
     }
 }
 

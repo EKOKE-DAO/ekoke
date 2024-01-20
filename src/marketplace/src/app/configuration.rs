@@ -5,14 +5,17 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use did::StorablePrincipal;
+use did::marketplace::MarketplaceResult;
+use did::{StorableAccount, StorablePrincipal};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
+use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
-    DEFERRED_CANISTER_MEMORY_ID, FLY_CANISTER_MEMORY_ID, INTEREST_FOR_BUYER_MEMORY_ID,
-    MEMORY_MANAGER,
+    DEFERRED_CANISTER_MEMORY_ID, FLY_CANISTER_MEMORY_ID, FLY_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID,
+    INTEREST_FOR_BUYER_MEMORY_ID, MEMORY_MANAGER,
 };
+use crate::client::FlyClient;
 use crate::constants::DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER;
 
 thread_local! {
@@ -32,6 +35,15 @@ thread_local! {
     static INTEREST_RATE_FOR_BUYER: RefCell<StableCell<f64, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(INTEREST_FOR_BUYER_MEMORY_ID)),
         DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER).unwrap()
+    );
+
+    /// Fly liquidity pool account
+    static FLY_LIQUIDITY_POOL_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID)),
+            Account {
+                owner: Principal::anonymous(),
+                subaccount: None,
+            }.into()).unwrap()
     );
 }
 
@@ -74,6 +86,29 @@ impl Configuration {
     pub fn get_interest_rate_for_buyer() -> f64 {
         INTEREST_RATE_FOR_BUYER.with(|ir| *ir.borrow().get())
     }
+
+    /// Get fly liquidity pool account
+    pub async fn get_fly_liquidity_pool_account() -> MarketplaceResult<Account> {
+        let account = FLY_LIQUIDITY_POOL_ACCOUNT.with(|sa| sa.borrow().get().0);
+        if account.owner == Principal::anonymous() {
+            Self::update_fly_liquidity_pool_account().await
+        } else {
+            Ok(account)
+        }
+    }
+
+    /// Update fly liquidity pool account
+    pub async fn update_fly_liquidity_pool_account() -> MarketplaceResult<Account> {
+        // call fly
+        let liquidity_pool_account = FlyClient::from(Configuration::get_fly_canister())
+            .liquidity_pool_accounts()
+            .await?
+            .icp;
+        FLY_LIQUIDITY_POOL_ACCOUNT.with_borrow_mut(|cell| {
+            cell.set(liquidity_pool_account.into()).unwrap();
+        });
+        Ok(liquidity_pool_account)
+    }
 }
 
 #[cfg(test)]
@@ -107,5 +142,15 @@ mod test {
         );
         Configuration::set_interest_rate_for_buyer(interest_rate);
         assert_eq!(Configuration::get_interest_rate_for_buyer(), interest_rate);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_fly_liquidity_pool_account() {
+        assert_eq!(
+            Configuration::get_fly_liquidity_pool_account()
+                .await
+                .unwrap(),
+            Account::from(Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap())
+        )
     }
 }

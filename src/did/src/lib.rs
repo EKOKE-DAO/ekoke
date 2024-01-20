@@ -7,4 +7,4 @@ mod common;
 pub mod deferred;
 pub mod fly;
 pub mod marketplace;
-pub use common::{StorableNat, StorablePrincipal, ID};
+pub use common::{StorableAccount, StorableNat, StorablePrincipal, ID};

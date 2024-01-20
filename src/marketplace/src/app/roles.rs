@@ -24,11 +24,6 @@ impl RolesManager {
         Self::with_principal(principal, |roles| roles.0.contains(&Role::Admin)).unwrap_or(false)
     }
 
-    /// Returns whether principal has provided role
-    pub fn has_role(principal: Principal, role: Role) -> bool {
-        Self::with_principal(principal, |roles| roles.0.contains(&role)).unwrap_or(false)
-    }
-
     /// Get canister admins
     pub fn get_admins() -> Vec<Principal> {
         CANISTER_ROLES.with_borrow(|roles_map| {
@@ -76,32 +71,6 @@ impl RolesManager {
                 }
             });
         }
-
-        Ok(())
-    }
-
-    /// Give a certain principal the provided role
-    pub fn give_role(principal: Principal, role: Role) {
-        Self::with_principal_mut(principal, |roles| {
-            if !roles.0.contains(&role) {
-                roles.0.push(role);
-            }
-        });
-    }
-
-    /// Remove a role from the provided role.
-    /// Fails if trying to remove the only admin of the canister
-    pub fn remove_role(principal: Principal, role: Role) -> MarketplaceResult<()> {
-        let admins = Self::get_admins();
-        if admins.len() == 1 && admins.contains(&principal) && role == Role::Admin {
-            return Err(MarketplaceError::Configuration(
-                ConfigurationError::AdminsCantBeEmpty,
-            ));
-        }
-
-        Self::with_principal_mut(principal, |roles| {
-            roles.0.retain(|r| r != &role);
-        });
 
         Ok(())
     }
@@ -182,52 +151,5 @@ mod test {
         assert!(RolesManager::set_admins(vec![principal]).is_ok());
         assert!(RolesManager::is_admin(principal));
         assert!(!RolesManager::is_admin(Principal::anonymous()));
-    }
-
-    #[test]
-    fn test_should_tell_if_has_role() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-
-        assert!(!RolesManager::has_role(principal, Role::Admin));
-        RolesManager::give_role(principal, Role::Admin);
-        assert!(RolesManager::has_role(principal, Role::Admin));
-    }
-
-    #[test]
-    fn test_should_give_role() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-        assert!(!RolesManager::is_admin(principal));
-        RolesManager::give_role(principal, Role::Admin);
-        assert!(RolesManager::is_admin(principal));
-    }
-
-    #[test]
-    fn test_should_remove_role() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-        assert!(!RolesManager::is_admin(principal));
-        RolesManager::give_role(principal, Role::Admin);
-        assert!(RolesManager::is_admin(principal));
-
-        RolesManager::give_role(Principal::management_canister(), Role::Admin);
-        assert!(RolesManager::remove_role(principal, Role::Admin).is_ok());
-        assert!(!RolesManager::is_admin(principal));
-    }
-
-    #[test]
-    fn test_should_not_allow_to_remove_the_only_admin() {
-        let principal =
-            Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
-                .unwrap();
-        assert!(RolesManager::set_admins(vec![principal]).is_ok());
-        assert!(RolesManager::is_admin(principal));
-
-        assert!(RolesManager::remove_role(principal, Role::Admin).is_err());
-        assert!(RolesManager::is_admin(principal));
     }
 }
