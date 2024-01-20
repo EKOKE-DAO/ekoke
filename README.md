@@ -1,6 +1,7 @@
 # Deferred
 
 ![CI state](https://github.com/veeso-dev/deferred/workflows/build-test/badge.svg)
+![Ethereum](https://github.com/veeso-dev/deferred/workflows/ethereum/badge.svg)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 <img src="./docs/images/logo.png" alt="deferred logo" width="128" />

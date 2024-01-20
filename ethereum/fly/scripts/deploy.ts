@@ -1,17 +1,15 @@
 import { ethers } from "hardhat";
 require("dotenv").config();
 
-const { OWNER_ADDRESS } = process.env;
+const { OWNER_ADDRESS, FLY_CANISTER_ETH_ADDRESS } = process.env;
 
 async function main() {
   // deploy contract
-  const Contract = await ethers.getContractFactory("MyToken");
+  const Contract = await ethers.getContractFactory("Fly");
   const contract = await Contract.deploy(
-    "Fly",
-    "FLY",
     OWNER_ADDRESS!,
-    "8880101010000000000",
-    12
+    FLY_CANISTER_ETH_ADDRESS!,
+    761_035
   );
   await contract.waitForDeployment();
   const address = await contract.getAddress();
