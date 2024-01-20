@@ -47,6 +47,7 @@ export type MarketplaceError = { 'Buy' : BuyError } |
   { 'Icrc2Transfer' : TransferFromError };
 export interface MarketplaceInitData {
   'deferred_canister' : Principal,
+  'icp_ledger_canister' : Principal,
   'fly_canister' : Principal,
   'xrc_canister' : Principal,
   'admins' : Array<Principal>,
@@ -118,6 +119,7 @@ export interface _SERVICE {
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,
   'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_fly_canister' : ActorMethod<[Principal], Result>,
+  'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_interest_rate_for_buyer' : ActorMethod<[number], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
   'buy_token' : ActorMethod<[bigint, [] | [Uint8Array | number[]]], Result>,

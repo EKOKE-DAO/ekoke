@@ -75,6 +75,6 @@ impl IcpLedgerClient {
     #[inline]
     #[cfg(target_arch = "wasm32")]
     fn icp_ledger_canister() -> Principal {
-        Principal::from_text(crate::constants::ICP_LEDGER_CANISTER).unwrap()
+        crate::app::Configuration::get_icp_ledger_canister()
     }
 }

@@ -12,6 +12,8 @@ pub const MINTING_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(20);
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(21);
 pub const SWAP_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(22);
 pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(23);
+pub const CKBTC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(24);
+pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
 
 // Rewards
 pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(30);

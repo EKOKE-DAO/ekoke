@@ -102,6 +102,18 @@ pub fn admin_set_xrc_canister(canister_id: Principal) {
     FlyCanister::admin_set_xrc_canister(canister_id)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn admin_set_ckbtc_canister(canister_id: Principal) {
+    FlyCanister::admin_set_ckbtc_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
+    FlyCanister::admin_set_icp_ledger_canister(canister_id)
+}
+
 #[query]
 #[candid_method(query)]
 pub fn get_transaction(id: u64) -> FlyResult<Transaction> {

@@ -45,6 +45,8 @@ deploy_fly() {
     initial_balances = $INITIAL_BALANCES;
     minting_account = $MINTING_ACCOUNT;
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
+    ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
+    icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$fly_init_args" fly
@@ -66,6 +68,7 @@ deploy_marketplace() {
     fly_canister = principal \"$FLY_PRINCIPAL\";
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$marketplace_init_args" marketplace

@@ -13,7 +13,7 @@ use dip721::TokenIdentifier;
 use icrc::icrc1::account::{Account, Subaccount};
 use icrc::icrc2;
 
-use self::configuration::Configuration;
+pub use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
@@ -36,6 +36,7 @@ impl Marketplace {
         Configuration::set_deferred_canister(data.deferred_canister);
         Configuration::set_fly_canister(data.fly_canister);
         Configuration::set_xrc_canister(data.xrc_canister);
+        Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
         RolesManager::set_admins(data.admins).unwrap();
     }
 
@@ -88,6 +89,14 @@ impl Marketplace {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_xrc_canister(canister_id);
+    }
+
+    /// Set icp ledger canister
+    pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_icp_ledger_canister(canister_id);
     }
 
     /// Given a token id, returns the price of the token in ICP.
@@ -289,6 +298,10 @@ mod test {
         assert_eq!(Configuration::get_deferred_canister(), deferred_canister());
         assert_eq!(Configuration::get_fly_canister(), fly_canister());
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
+
+        // check canisters
+        assert_eq!(Configuration::get_xrc_canister(), caller());
+        assert_eq!(Configuration::get_icp_ledger_canister(), caller());
     }
 
     #[tokio::test]
@@ -466,10 +479,19 @@ mod test {
             .is_ok());
     }
 
+    #[test]
+    fn test_should_set_icp_ledger_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        Marketplace::admin_set_icp_ledger_canister(canister_id);
+        assert_eq!(Configuration::get_icp_ledger_canister(), canister_id);
+    }
+
     fn init_canister() {
         let data = MarketplaceInitData {
             deferred_canister: deferred_canister(),
             fly_canister: fly_canister(),
+            icp_ledger_canister: caller(),
             admins: vec![caller()],
             xrc_canister: caller(),
         };

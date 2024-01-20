@@ -18,6 +18,7 @@ use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
 
 use self::wasm::Canister;
+use crate::wasm::Icrc2InitArgs;
 
 const DEFAULT_CYCLES: u128 = 2_000_000_000_000;
 
@@ -26,6 +27,7 @@ pub struct TestEnv {
     pub pic: PocketIc,
     pub deferred_id: Principal,
     pub fly_id: Principal,
+    pub icp_ledger_id: Principal,
     pub marketplace_id: Principal,
     pub xrc_id: Principal,
 }
@@ -83,24 +85,65 @@ impl TestEnv {
         let pic = PocketIc::new();
 
         // create canisters
+        let icp_ledger_id = pic.create_canister();
+        let ckbtc_id = pic.create_canister();
         let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
         let fly_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
 
         // install deferred canister
+        Self::install_icrc2(&pic, icp_ledger_id, "ICP", "Internet Computer", 8);
+        Self::install_icrc2(&pic, ckbtc_id, "ckBTC", "ckBTC", 8);
         Self::install_deferred(&pic, deferred_id, fly_id, marketplace_id);
-        Self::install_fly(&pic, fly_id, deferred_id, marketplace_id, xrc_id);
-        Self::install_marketplace(&pic, marketplace_id, deferred_id, fly_id, xrc_id);
+        Self::install_fly(
+            &pic,
+            fly_id,
+            deferred_id,
+            marketplace_id,
+            xrc_id,
+            icp_ledger_id,
+            ckbtc_id,
+        );
+        Self::install_marketplace(
+            &pic,
+            marketplace_id,
+            deferred_id,
+            fly_id,
+            xrc_id,
+            icp_ledger_id,
+        );
         Self::install_xrc(&pic, xrc_id);
 
         TestEnv {
             pic,
             deferred_id,
+            icp_ledger_id,
             fly_id,
             marketplace_id,
             xrc_id,
         }
+    }
+
+    fn install_icrc2(pic: &PocketIc, id: Principal, symbol: &str, name: &str, decimals: u8) {
+        pic.add_cycles(id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::Icrc2);
+        let init_arg = Encode!(&Icrc2InitArgs {
+            name: name.to_string(),
+            symbol: symbol.to_string(),
+            decimals,
+            fee: 10,
+            logo: "https://ic0.app/img/logo.png".to_string(),
+            minting_account: actor::minting_account(),
+            total_supply: Nat::from(21_268_400_889_u64),
+            accounts: vec![
+                (actor::alice_account(), Nat::from(1_000_000_000)),
+                (actor::bob_account(), Nat::from(1_000_000_000)),
+            ],
+        })
+        .unwrap();
+
+        pic.install_canister(id, wasm_bytes, init_arg, None);
     }
 
     fn install_deferred(
@@ -128,6 +171,8 @@ impl TestEnv {
         deferred_id: Principal,
         marketplace_id: Principal,
         xrc_canister: Principal,
+        icp_ledger_canister: Principal,
+        ckbtc_canister: Principal,
     ) {
         pic.add_cycles(fly_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Fly);
@@ -144,6 +189,8 @@ impl TestEnv {
             marketplace_canister: marketplace_id,
             swap_account: actor::swap_account(),
             xrc_canister,
+            icp_ledger_canister,
+            ckbtc_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
@@ -156,6 +203,7 @@ impl TestEnv {
         deferred_id: Principal,
         fly_id: Principal,
         xrc_canister: Principal,
+        icp_ledger_canister: Principal,
     ) {
         pic.add_cycles(marketplace_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Marketplace);
@@ -165,6 +213,7 @@ impl TestEnv {
             deferred_canister: deferred_id,
             fly_canister: fly_id,
             xrc_canister,
+            icp_ledger_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 

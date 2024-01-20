@@ -108,12 +108,16 @@ pub type PicoFly = Nat;
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct FlyInitData {
     pub admins: Vec<Principal>,
+    /// The canister ID of the CKBTC canister
+    pub ckbtc_canister: Principal,
     /// Total supply of $picofly tokens
     pub total_supply: PicoFly,
     /// Initial balances (wallet subaccount -> picofly)
     pub initial_balances: Vec<(Account, PicoFly)>,
     /// Deferred canister
     pub deferred_canister: Principal,
+    /// ICP ledger canister
+    pub icp_ledger_canister: Principal,
     /// Marketplace canister
     pub marketplace_canister: Principal,
     /// Swap account

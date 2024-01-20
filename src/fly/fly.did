@@ -46,7 +46,9 @@ type FlyError = variant {
 };
 type FlyInitData = record {
   deferred_canister : principal;
+  icp_ledger_canister : principal;
   minting_account : Account;
+  ckbtc_canister : principal;
   initial_balances : vec record { Account; nat };
   swap_account : Account;
   xrc_canister : principal;
@@ -132,6 +134,8 @@ service : (FlyInitData) -> {
   admin_burn : (nat) -> (Result);
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
+  admin_set_ckbtc_canister : (principal) -> ();
+  admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   admin_set_swap_account : (Account) -> ();
   admin_set_xrc_canister : (principal) -> ();

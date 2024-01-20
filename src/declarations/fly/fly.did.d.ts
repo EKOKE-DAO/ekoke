@@ -53,7 +53,9 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Icrc2Transfer' : TransferFromError };
 export interface FlyInitData {
   'deferred_canister' : Principal,
+  'icp_ledger_canister' : Principal,
   'minting_account' : Account,
+  'ckbtc_canister' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
   'swap_account' : Account,
   'xrc_canister' : Principal,
@@ -145,6 +147,8 @@ export interface _SERVICE {
   'admin_burn' : ActorMethod<[bigint], Result>,
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
+  'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'admin_set_swap_account' : ActorMethod<[Account], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,

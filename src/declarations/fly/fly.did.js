@@ -5,7 +5,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
+    'icp_ledger_canister' : IDL.Principal,
     'minting_account' : Account,
+    'ckbtc_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'swap_account' : Account,
     'xrc_canister' : IDL.Principal,
@@ -173,6 +175,8 @@ export const idlFactory = ({ IDL }) => {
     'admin_burn' : IDL.Func([IDL.Nat], [Result], []),
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
+    'admin_set_ckbtc_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
     'admin_set_swap_account' : IDL.Func([Account], [], []),
     'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
@@ -215,7 +219,9 @@ export const init = ({ IDL }) => {
   });
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
+    'icp_ledger_canister' : IDL.Principal,
     'minting_account' : Account,
+    'ckbtc_canister' : IDL.Principal,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
     'swap_account' : Account,
     'xrc_canister' : IDL.Principal,

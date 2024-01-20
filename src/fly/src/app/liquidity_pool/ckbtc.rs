@@ -93,6 +93,6 @@ impl CkBtc {
     #[inline]
     #[cfg(target_arch = "wasm32")]
     fn ckbtc_ledger_canister() -> Principal {
-        Principal::from_text(crate::constants::CKBTC_LEDGER_CANISTER).unwrap()
+        crate::app::Configuration::get_ckbtc_canister()
     }
 }

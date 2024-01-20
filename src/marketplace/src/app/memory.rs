@@ -8,6 +8,7 @@ pub const FLY_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(22);
 pub const INTEREST_FOR_BUYER_MEMORY_ID: MemoryId = MemoryId::new(23);
 pub const FLY_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(24);
 pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
+pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
 
 thread_local! {
     /// Memory manager

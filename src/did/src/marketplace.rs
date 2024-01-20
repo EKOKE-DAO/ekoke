@@ -85,6 +85,8 @@ pub struct MarketplaceInitData {
     pub deferred_canister: Principal,
     /// Fly canister
     pub fly_canister: Principal,
+    /// ICP ledger canister
+    pub icp_ledger_canister: Principal,
     /// XRC canister
     pub xrc_canister: Principal,
 }

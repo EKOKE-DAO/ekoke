@@ -47,8 +47,10 @@ impl FlyCanister {
         Configuration::set_minting_account(data.minting_account);
         // set swap account
         Configuration::set_swap_account(data.swap_account);
-        // set xrc canister
+        // set canisters
         Configuration::set_xrc_canister(data.xrc_canister);
+        Configuration::set_ckbtc_canister(data.ckbtc_canister);
+        Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
         // init liquidity pool
         LiquidityPool::init();
         // set roles
@@ -73,7 +75,7 @@ impl FlyCanister {
     fn set_timers() {
         #[cfg(target_family = "wasm")]
         async fn swap_icp_to_btc_timer() {
-            let xrc_principal = Configuration::set_xrc_canister();
+            let xrc_principal = Configuration::get_xrc_canister();
             let _ = LiquidityPool::swap_icp_to_btc(xrc_principal).await;
         }
 
@@ -197,6 +199,22 @@ impl FlyCanister {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_xrc_canister(canister_id);
+    }
+
+    /// Set ckbtc canister
+    pub fn admin_set_ckbtc_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_ckbtc_canister(canister_id);
+    }
+
+    /// Set icp ledger canister
+    pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_icp_ledger_canister(canister_id);
     }
 }
 
@@ -498,6 +516,11 @@ mod test {
 
         // swap account
         assert_eq!(Configuration::get_swap_account(), bob_account());
+
+        // check canisters
+        assert_eq!(Configuration::get_xrc_canister(), caller());
+        assert_eq!(Configuration::get_ckbtc_canister(), caller());
+        assert_eq!(Configuration::get_icp_ledger_canister(), caller());
     }
 
     #[tokio::test]
@@ -730,6 +753,22 @@ mod test {
         let canister_id = Principal::from_str("aaaaa-aa").unwrap();
         FlyCanister::admin_set_xrc_canister(canister_id);
         assert_eq!(Configuration::get_xrc_canister(), canister_id);
+    }
+
+    #[test]
+    fn test_should_set_ckbtc_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        FlyCanister::admin_set_ckbtc_canister(canister_id);
+        assert_eq!(Configuration::get_ckbtc_canister(), canister_id);
+    }
+
+    #[test]
+    fn test_should_set_icp_ledger_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        FlyCanister::admin_set_icp_ledger_canister(canister_id);
+        assert_eq!(Configuration::get_icp_ledger_canister(), canister_id);
     }
 
     #[tokio::test]
@@ -1106,6 +1145,8 @@ mod test {
                 (caller_account(), fly_to_picofly(100_000)),
             ],
             xrc_canister: caller(),
+            ckbtc_canister: caller(),
+            icp_ledger_canister: caller(),
         };
         FlyCanister::init(data);
     }
