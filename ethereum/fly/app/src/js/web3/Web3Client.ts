@@ -33,6 +33,13 @@ export default class Web3Client {
       .send({ from: this.address });
   }
 
+  async mintTestnetTokens(recipient: string, amount: number) {
+    const contract = this.getContract();
+    return contract.methods
+      .mintTestnetTokens(recipient, amount)
+      .send({ from: this.address });
+  }
+
   async balanceOf(address: string): Promise<number> {
     const contract = this.getContract();
     return contract.methods.balanceOf(address).call();

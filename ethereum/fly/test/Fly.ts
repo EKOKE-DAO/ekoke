@@ -61,8 +61,8 @@ describe("Fly", () => {
   });
 
   it("Should swap 100 tokens", async () => {
-    const { token, owner, flyCanister } = deploy;
-    await token.transcribeSwap(owner.address, 100);
+    const { token, owner } = deploy;
+    await token.mintTestnetTokens(owner.address, 100);
     const fee = await token.swapFee();
 
     const initialBalance = await ethers.provider.getBalance(owner.address);
@@ -86,8 +86,8 @@ describe("Fly", () => {
   });
 
   it("should fail swap if fee is not paid", async () => {
-    const { token, owner, flyCanister } = deploy;
-    await token.transcribeSwap(owner.address, 100);
+    const { token, owner } = deploy;
+    await token.mintTestnetTokens(owner.address, 100);
 
     await expect(
       token.swap(DUMMY_PRINCIPAL, 75, {
@@ -99,8 +99,8 @@ describe("Fly", () => {
   });
 
   it("should fail swap if has not enough tokens", async () => {
-    const { token, owner, flyCanister } = deploy;
-    await token.transcribeSwap(owner.address, 100);
+    const { token, owner } = deploy;
+    await token.mintTestnetTokens(owner.address, 100);
     const fee = await token.swapFee();
 
     await expect(
@@ -112,7 +112,7 @@ describe("Fly", () => {
 
   it("Should transfer 500 tokens", async () => {
     const { flyCanister, owner, token } = deploy;
-    await token.transcribeSwap(owner.address, 1_000);
+    await token.mintTestnetTokens(owner.address, 1_000);
 
     await token.transfer(flyCanister.address, 250);
     expect(await token.balanceOf(flyCanister.address)).to.equal(250);
@@ -120,8 +120,8 @@ describe("Fly", () => {
   });
 
   it("should get total supply and swapped supply", async () => {
-    const { flyCanister, owner, token } = deploy;
-    await token.transcribeSwap(owner.address, 1_000);
+    const { owner, token } = deploy;
+    await token.mintTestnetTokens(owner.address, 1_000);
 
     expect(await token.totalSupply()).to.equal(TOTAL_SUPPLY);
     expect(await token.swappedSupply()).to.equal(1_000);
@@ -139,6 +139,12 @@ describe("Fly", () => {
     expect(await token.owner()).to.equal(
       "0x0000000000000000000000000000000000000000"
     );
+  });
+
+  it("should mint testnet tokens", async () => {
+    const { flyCanister, token } = deploy;
+    await token.mintTestnetTokens(flyCanister.address, 1_000);
+    expect(await token.balanceOf(flyCanister.address)).to.equal(1_000);
   });
 
   it("should transfer ownership of the contract", async () => {

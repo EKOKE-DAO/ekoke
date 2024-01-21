@@ -12,6 +12,9 @@ contract Fly is ERC20, Ownable {
     uint8 private _decimals;
     uint256 public swapFee;
 
+    uint256 private constant GOERLI_CHAIN_ID = 5;
+    uint256 private constant HARDHAT_CHAIN_ID = 31337;
+
     event FlySwapped(
         address indexed _from,
         bytes32 indexed _principal,
@@ -32,6 +35,15 @@ contract Fly is ERC20, Ownable {
         require(
             msg.sender == fly_canister_address,
             "Fly: caller is not the fly canister"
+        );
+        _;
+    }
+
+    modifier onlyTestnet() {
+        require(
+            block.chainid == GOERLI_CHAIN_ID ||
+                block.chainid == HARDHAT_CHAIN_ID,
+            "Fly: this function can only be called on testnets"
         );
         _;
     }
@@ -102,6 +114,18 @@ contract Fly is ERC20, Ownable {
         uint256 _amount
     ) public onlyFlyCanister {
         // mint the tokens to the recipient
+        _mint(_recipient, _amount);
+    }
+
+    /**
+     * @dev Mints the provided amount of tokens to the recipient. This function is only callable on testnets.
+     * @param _recipient the address that will receive the ETH Fly tokens.
+     * @param _amount the amount of tokens to mint.
+     */
+    function mintTestnetTokens(
+        address _recipient,
+        uint256 _amount
+    ) public onlyTestnet onlyOwner {
         _mint(_recipient, _amount);
     }
 }

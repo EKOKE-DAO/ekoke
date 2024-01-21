@@ -9,6 +9,7 @@ import Balance from './Balance';
 import TransferForm from './Transfer/TransferForm';
 import RenounceOwnershipForm from './RenounceOwnership/RenounceOwnershipForm';
 import SwappedSupply from './SwappedSupply';
+import MintTestnetTokens from './MintTestnetTokens/MintTestnetTokens';
 
 const Form = () => {
   const { status } = useMetaMask();
@@ -18,6 +19,9 @@ const Form = () => {
       <Container.FlexCols className="gap-8">
         <Balance />
         <SwappedSupply />
+        <Card>
+          <MintTestnetTokens />
+        </Card>
         <Card>
           <TransferForm />
         </Card>
