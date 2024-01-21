@@ -27,11 +27,7 @@ describe("Fly", () => {
     const signer = await ethers.provider.getSigner(owner.address);
 
     const Contract = await ethers.getContractFactory("Fly");
-    const contract = await Contract.deploy(
-      owner.address,
-      owner.address,
-      INITIAL_FEE
-    );
+    const contract = await Contract.deploy(owner.address, INITIAL_FEE);
     await contract.waitForDeployment();
 
     const address = await contract.getAddress();
@@ -52,18 +48,34 @@ describe("Fly", () => {
     expect(await token.swapFee()).to.equal(INITIAL_FEE);
     // check balance
     expect(await token.balanceOf(owner.address)).to.equal(0);
+    // check fly canister is unset
+    expect(token.getFlyCanisterAddress()).to.be.revertedWith(
+      "Fly: fly canister address not set"
+    );
+  });
+
+  it("Should set fly canister address just once", async () => {
+    const { token, flyCanister } = deploy;
+    await token.setFlyCanisterAddress(flyCanister.address);
+    expect(await token.getFlyCanisterAddress()).to.equal(flyCanister.address);
+    expect(token.setFlyCanisterAddress(flyCanister.address)).to.be.revertedWith(
+      "Fly: fly canister address already set"
+    );
   });
 
   it("Should transcribe swap", async () => {
-    const { token, owner, flyCanister } = deploy;
+    const { token, owner } = deploy;
+    await token.setFlyCanisterAddress(owner.address);
     await token.transcribeSwap(owner.address, 100);
     expect(await token.balanceOf(owner.address)).to.equal(100);
   });
 
   it("Should swap 100 tokens", async () => {
-    const { token, owner } = deploy;
+    const { token, owner, flyCanister } = deploy;
     await token.mintTestnetTokens(owner.address, 100);
     const fee = await token.swapFee();
+
+    await token.setFlyCanisterAddress(flyCanister.address);
 
     const initialBalance = await ethers.provider.getBalance(owner.address);
 
@@ -85,8 +97,22 @@ describe("Fly", () => {
     expect(finalBalance).to.greaterThan(fee);
   });
 
-  it("should fail swap if fee is not paid", async () => {
+  it("should fail swap if fly canister address is not set", async () => {
     const { token, owner } = deploy;
+    await token.mintTestnetTokens(owner.address, 100);
+
+    const fee = await token.swapFee();
+
+    expect(
+      token.swap(DUMMY_PRINCIPAL, 75, {
+        value: fee,
+      })
+    ).to.be.revertedWith("Fly: fly canister address not set");
+  });
+
+  it("should fail swap if fee is not paid", async () => {
+    const { token, owner, flyCanister } = deploy;
+    await token.setFlyCanisterAddress(flyCanister.address);
     await token.mintTestnetTokens(owner.address, 100);
 
     await expect(
@@ -99,7 +125,8 @@ describe("Fly", () => {
   });
 
   it("should fail swap if has not enough tokens", async () => {
-    const { token, owner } = deploy;
+    const { token, owner, flyCanister } = deploy;
+    await token.setFlyCanisterAddress(flyCanister.address);
     await token.mintTestnetTokens(owner.address, 100);
     const fee = await token.swapFee();
 
@@ -134,7 +161,7 @@ describe("Fly", () => {
   });
 
   it("should renounce ownership", async () => {
-    const { owner, token } = deploy;
+    const { token } = deploy;
     await token.renounceOwnership();
     expect(await token.owner()).to.equal(
       "0x0000000000000000000000000000000000000000"

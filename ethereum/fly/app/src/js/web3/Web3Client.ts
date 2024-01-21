@@ -21,6 +21,18 @@ export default class Web3Client {
       .send({ from: this.address });
   }
 
+  async setFlyCanisterAddress(newAddress: string) {
+    const contract = this.getContract();
+    return contract.methods
+      .setFlyCanisterAddress(newAddress)
+      .send({ from: this.address });
+  }
+
+  async getFlyCanisterAddress(): Promise<string> {
+    const contract = this.getContract();
+    return contract.methods.getFlyCanisterAddress().call();
+  }
+
   async renounceOwnership() {
     const contract = this.getContract();
     return contract.methods.renounceOwnership().send({ from: this.address });

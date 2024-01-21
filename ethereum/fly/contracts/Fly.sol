@@ -8,7 +8,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 // import "hardhat/console.sol";
 
 contract Fly is ERC20, Ownable {
-    address private immutable fly_canister_address;
+    address private fly_canister_address;
     uint8 private _decimals;
     uint256 public swapFee;
 
@@ -23,17 +23,17 @@ contract Fly is ERC20, Ownable {
 
     constructor(
         address _initialOwner,
-        address _fly_canister_address,
         uint256 _swapFee
     ) ERC20("Fly", "FLY") Ownable(_initialOwner) {
         _decimals = 12;
-        fly_canister_address = _fly_canister_address;
         swapFee = _swapFee;
+        fly_canister_address = address(0);
     }
 
     modifier onlyFlyCanister() {
         require(
-            msg.sender == fly_canister_address,
+            msg.sender == fly_canister_address &&
+                fly_canister_address != address(0),
             "Fly: caller is not the fly canister"
         );
         _;
@@ -69,7 +69,25 @@ contract Fly is ERC20, Ownable {
      * @return The address of the fly canister.
      */
     function getFlyCanisterAddress() public view returns (address) {
+        require(
+            fly_canister_address != address(0),
+            "Fly: fly canister address not set"
+        );
         return fly_canister_address;
+    }
+
+    /**
+     * @dev Sets the address of the fly canister. The address can only be set once.
+     * @param _fly_canister_address The new address of the fly canister.
+     */
+    function setFlyCanisterAddress(
+        address _fly_canister_address
+    ) public onlyOwner {
+        require(
+            fly_canister_address == address(0),
+            "Fly: fly canister address already set"
+        );
+        fly_canister_address = _fly_canister_address;
     }
 
     /**
@@ -86,6 +104,11 @@ contract Fly is ERC20, Ownable {
      * @param _amount The amount of tokens to swap.
      */
     function swap(bytes32 _recipient, uint256 _amount) public payable {
+        // check if the fly canister address is set
+        require(
+            fly_canister_address != address(0),
+            "Fly: fly canister address not set"
+        );
         // check if the caller has enough tokens to swap
         require(
             balanceOf(msg.sender) >= _amount,

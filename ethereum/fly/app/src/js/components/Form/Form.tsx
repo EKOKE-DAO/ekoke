@@ -10,6 +10,7 @@ import TransferForm from './Transfer/TransferForm';
 import RenounceOwnershipForm from './RenounceOwnership/RenounceOwnershipForm';
 import SwappedSupply from './SwappedSupply';
 import MintTestnetTokens from './MintTestnetTokens/MintTestnetTokens';
+import SetFlyCanisterAddressForm from './SetFlyCanisterAddress/SetFlyCanisterAddressForm';
 
 const Form = () => {
   const { status } = useMetaMask();
@@ -30,6 +31,9 @@ const Form = () => {
         </Card>
         <Card>
           <RenounceOwnershipForm />
+        </Card>
+        <Card>
+          <SetFlyCanisterAddressForm />
         </Card>
       </Container.FlexCols>
     ) : (

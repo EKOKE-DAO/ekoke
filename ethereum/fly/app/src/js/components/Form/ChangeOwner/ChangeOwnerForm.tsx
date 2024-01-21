@@ -34,7 +34,7 @@ const ChangeOwnerForm = () => {
       });
   };
 
-  const btnDisabled = newOwner.length == 0 || pendingTx;
+  const btnDisabled = newOwner.length != 42 || pendingTx;
 
   return (
     <Container.FlexCols className="items-center">

@@ -9,11 +9,6 @@ export const ABI = [
         type: 'address',
       },
       {
-        internalType: 'address',
-        name: '_fly_canister_address',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
         name: '_swapFee',
         type: 'uint256',
@@ -364,6 +359,19 @@ export const ABI = [
   {
     inputs: [],
     name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_fly_canister_address',
+        type: 'address',
+      },
+    ],
+    name: 'setFlyCanisterAddress',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
