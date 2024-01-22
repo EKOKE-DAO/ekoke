@@ -131,6 +131,8 @@ dist
 
 node_modules
 .env
+.env.*
+!.env.github
 coverage
 coverage.json
 typechain
