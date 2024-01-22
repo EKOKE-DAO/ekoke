@@ -555,10 +555,10 @@ interface ContractAddress {
 }
 
 export const CONTRACT_ADDRESS: ContractAddress = {
-  [ChainId.Goerli]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-  [ChainId.Kovan]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-  [ChainId.Mainnet]: '0xa0647F0Da8B541C8876C234Bc9C4dC50F19515ea',
-  [ChainId.Rinkeby]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-  [ChainId.Ropsten]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+  [ChainId.Goerli]: '0x9F6Bb017c1cB84690BeeaDc1339857BFed350EB7',
+  [ChainId.Kovan]: '',
+  [ChainId.Mainnet]: '',
+  [ChainId.Rinkeby]: '',
+  [ChainId.Ropsten]: '',
   [ChainId.Hardhat]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
 };

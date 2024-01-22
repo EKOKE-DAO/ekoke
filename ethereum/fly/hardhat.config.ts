@@ -9,10 +9,17 @@ const {
   DEV_PRIVATE_KEY,
   PROD_PRIVATE_KEY,
   LOCAL_PRIVATE_KEY,
+  ETHERSCAN_API_KEY,
 } = process.env;
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
+  sourcify: {
+    enabled: true,
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
   networks: {
     ethereum: {
       url: ETHEREUM_API_URL,
