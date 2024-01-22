@@ -5,16 +5,21 @@ import Container from '../reusable/Container';
 import Heading from '../reusable/Heading';
 import { ChainId } from '../MetamaskConnect';
 
-const SwappedSupply = () => {
+const SwappedSupply = ({ decimals }: { decimals: number }) => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
-  const [swappedSupply, setSwappedSupply] = React.useState(0);
+  const [swappedSupply, setSwappedSupply] = React.useState<string>('0');
 
   React.useEffect(() => {
     const client = new Web3Client(account, ethereum, chainId as ChainId);
     client.swappedSupply().then((supply) => {
-      setSwappedSupply(supply);
+      // put comma in `decimals` position
+      const supplyStr = supply.toString();
+      const arr = supplyStr.split('');
+      arr.splice(arr.length - decimals, 0, ',');
+      console.log(arr);
+      setSwappedSupply(arr.join(''));
     });
-  });
+  }, [decimals]);
 
   return (
     <Container.Container>

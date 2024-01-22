@@ -11,15 +11,34 @@ import RenounceOwnershipForm from './RenounceOwnership/RenounceOwnershipForm';
 import SwappedSupply from './SwappedSupply';
 import MintTestnetTokens from './MintTestnetTokens/MintTestnetTokens';
 import SetFlyCanisterAddressForm from './SetFlyCanisterAddress/SetFlyCanisterAddressForm';
+import Web3Client from '../../web3/Web3Client';
+import { ChainId } from '../MetamaskConnect';
 
 const Form = () => {
-  const { status } = useMetaMask();
+  const { status, account, ethereum, chainId } = useMetaMask();
+
+  const [decimals, setDecimals] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    if (status === 'connected' && account && ethereum && chainId) {
+      const client = new Web3Client(account, ethereum, chainId as ChainId);
+      client
+        .decimals()
+        .then((decs) => {
+          console.log('decimals', decs);
+          setDecimals(Number(decs));
+        })
+        .catch((e) => {
+          console.log('failed to get balance', e);
+        });
+    }
+  }, [status, account, ethereum, chainId]);
 
   const content =
     status === 'connected' ? (
       <Container.FlexCols className="gap-8">
-        <Balance />
-        <SwappedSupply />
+        <Balance decimals={decimals} />
+        <SwappedSupply decimals={decimals} />
         <Card>
           <MintTestnetTokens />
         </Card>

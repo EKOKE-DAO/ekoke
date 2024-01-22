@@ -44,7 +44,7 @@ const setFlyCanisterAddressForm = () => {
           setAddressSet(address);
         })
         .catch((e) => {
-          console.log(e);
+          console.log('fly canister is probably unset', e);
           setAddressSet(null);
         });
     }
