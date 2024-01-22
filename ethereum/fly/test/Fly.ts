@@ -76,6 +76,9 @@ describe("Fly", () => {
     const fee = await token.swapFee();
 
     await token.setFlyCanisterAddress(flyCanister.address);
+    const initialFlyCanisterBalance = await ethers.provider.getBalance(
+      flyCanister.address
+    );
 
     const initialBalance = await ethers.provider.getBalance(owner.address);
 
@@ -93,8 +96,13 @@ describe("Fly", () => {
     // check owner has paid FEE ethers
     const finalBalance =
       initialBalance - (await ethers.provider.getBalance(owner.address));
-
     expect(finalBalance).to.greaterThan(fee);
+
+    // check fly canister has received the swap fee
+    const expectedFlyCanisterBalance = initialFlyCanisterBalance + fee;
+    expect(await ethers.provider.getBalance(flyCanister.address)).to.equal(
+      expectedFlyCanisterBalance
+    );
   });
 
   it("should fail swap if fly canister address is not set", async () => {
