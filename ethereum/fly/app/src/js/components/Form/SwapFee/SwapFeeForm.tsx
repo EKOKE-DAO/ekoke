@@ -9,31 +9,25 @@ import Web3Client from '../../../web3/Web3Client';
 import Alerts from '../../reusable/Alerts';
 import { ChainId } from '../../MetamaskConnect';
 
-const MintTestnetTokens = () => {
+const SwapFeeForm = () => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
-  const [recipientAddress, setRecipientAddress] = React.useState('');
-  const [amount, setAmount] = React.useState('');
+  const [fee, setFee] = React.useState<string>('');
+  const [currentFee, setCurrentFee] = React.useState<number>();
   const [pendingTx, setPendingTx] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string>();
 
-  const onRecipientAddressChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRecipientAddress(event.target.value);
+  const onFeeChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFee(event.target.value);
   };
 
-  const onAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(event.target.value);
-  };
-
-  const onMint = () => {
+  const onChangeFee = () => {
     setPendingTx(true);
     const client = new Web3Client(account, ethereum, chainId as ChainId);
 
-    const amoutNum = Number(amount);
+    const feeNum = Number(fee);
 
     client
-      .mintTestnetTokens(recipientAddress, amoutNum)
+      .setSwapFee(feeNum)
       .then(() => {
         setPendingTx(false);
         setError(undefined);
@@ -44,31 +38,41 @@ const MintTestnetTokens = () => {
       });
   };
 
-  const btnDisabled =
-    !isAmountNumber(amount) || recipientAddress.length !== 42 || pendingTx;
+  React.useEffect(() => {
+    if (!account || !ethereum || !chainId) {
+      return;
+    }
 
-  if (chainId !== ChainId.Goerli && chainId !== ChainId.Hardhat) {
-    return null;
-  }
+    const client = new Web3Client(account, ethereum, chainId as ChainId);
+    client
+      .swapFee()
+      .then((currFee) => {
+        setCurrentFee(Number(currFee));
+      })
+      .catch((e) => {
+        setError(e.message);
+      });
+  }, [account, ethereum, chainId]);
+
+  const btnDisabled = !isAmountNumber(fee) || pendingTx;
 
   return (
     <Container.FlexCols className="items-center">
-      <Heading.H2>Mint testnet tokens</Heading.H2>
+      <Heading.H2>Swap Fee</Heading.H2>
+      <span>Current Swap Fee: {currentFee}</span>
       <Input.Input
-        id="mint-form-recipient-address"
-        label="Recipient address"
-        onChange={onRecipientAddressChange}
-        value={recipientAddress}
-      />
-      <Input.Input
-        id="mint-form-token-amount"
-        label="Token amount"
+        id="swap-fee-form-fee"
+        label="New Fee"
         type="number"
-        onChange={onAmountChange}
-        value={amount}
+        onChange={onFeeChanged}
+        value={fee}
       />
-      <Button.Primary disabled={btnDisabled} onClick={onMint} className="!mt-4">
-        Mint
+      <Button.Primary
+        disabled={btnDisabled}
+        onClick={onChangeFee}
+        className="!mt-4"
+      >
+        Change swap fee
       </Button.Primary>
       {error && (
         <Alerts.Danger>
@@ -84,4 +88,4 @@ const isAmountNumber = (amount: string) => {
   return !isNaN(amountNum);
 };
 
-export default MintTestnetTokens;
+export default SwapFeeForm;
