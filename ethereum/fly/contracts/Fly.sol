@@ -39,6 +39,15 @@ contract Fly is ERC20, Ownable {
         _;
     }
 
+    modifier isOwnerOrFlyCanister() {
+        require(
+            (msg.sender == fly_canister_address &&
+                fly_canister_address != address(0)) || msg.sender == owner(),
+            "Fly: caller is not the fly canister nor the owner"
+        );
+        _;
+    }
+
     modifier onlyTestnet() {
         require(
             block.chainid == GOERLI_CHAIN_ID ||
@@ -94,7 +103,7 @@ contract Fly is ERC20, Ownable {
      * @dev Sets the swap fee.
      * @param _swapFee The new swap fee.
      */
-    function setSwapFee(uint256 _swapFee) public onlyOwner {
+    function setSwapFee(uint256 _swapFee) public isOwnerOrFlyCanister {
         swapFee = _swapFee;
     }
 

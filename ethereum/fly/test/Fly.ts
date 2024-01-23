@@ -162,10 +162,45 @@ describe("Fly", () => {
     expect(await token.swappedSupply()).to.equal(1_000);
   });
 
-  it("Should update swap fee", async () => {
+  it("Should update swap fee if owner", async () => {
     const { token } = deploy;
     await token.setSwapFee(200);
     expect(await token.swapFee()).to.equal(200);
+  });
+
+  it("Should update swap fee if fly canister", async () => {
+    const { token, owner, flyCanister } = deploy;
+    // set fly canister address to owner
+    await token.setFlyCanisterAddress(owner.address);
+    // transfer ownership to fly canister
+    await token.transferOwnership(flyCanister.address);
+    // update fee
+    await token.setSwapFee(200);
+    expect(await token.swapFee()).to.equal(200);
+  });
+
+  it("Should fail to set swap fee if not owner or fly canister", async () => {
+    const { token, flyCanister } = deploy;
+    // set fly canister address to owner
+    await token.setFlyCanisterAddress(flyCanister.address);
+    // transfer ownership to fly canister
+    await token.transferOwnership(flyCanister.address);
+    // update fee
+    await expect(token.setSwapFee(200)).to.be.revertedWith(
+      "Fly: caller is not the fly canister nor the owner"
+    );
+    expect(await token.swapFee()).to.equal(INITIAL_FEE);
+  });
+
+  it("Should fail to set swap fee if not owner and fly canister is unset", async () => {
+    const { token, flyCanister } = deploy;
+    // transfer ownership to fly canister
+    await token.transferOwnership(flyCanister.address);
+    // update fee
+    await expect(token.setSwapFee(200)).to.be.revertedWith(
+      "Fly: caller is not the fly canister nor the owner"
+    );
+    expect(await token.swapFee()).to.equal(INITIAL_FEE);
   });
 
   it("should renounce ownership", async () => {
