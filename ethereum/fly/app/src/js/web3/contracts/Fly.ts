@@ -524,7 +524,7 @@ interface ContractAddress {
 }
 
 export const CONTRACT_ADDRESS: ContractAddress = {
-  [ChainId.Goerli]: '0xB9df4f733527586A6bce70B870E5eAcC1F7e8B2c',
+  [ChainId.Goerli]: '0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663',
   [ChainId.Kovan]: '',
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
