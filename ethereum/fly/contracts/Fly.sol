@@ -10,7 +10,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract Fly is ERC20, Ownable {
     address private fly_canister_address;
     uint8 private _decimals;
-    uint256 public swapFee;
 
     uint256 private constant GOERLI_CHAIN_ID = 5;
     uint256 private constant HARDHAT_CHAIN_ID = 31337;
@@ -22,11 +21,9 @@ contract Fly is ERC20, Ownable {
     );
 
     constructor(
-        address _initialOwner,
-        uint256 _swapFee
+        address _initialOwner
     ) ERC20("Fly", "FLY") Ownable(_initialOwner) {
         _decimals = 12;
-        swapFee = _swapFee;
         fly_canister_address = address(0);
     }
 
@@ -100,19 +97,11 @@ contract Fly is ERC20, Ownable {
     }
 
     /**
-     * @dev Sets the swap fee.
-     * @param _swapFee The new swap fee.
-     */
-    function setSwapFee(uint256 _swapFee) public isOwnerOrFlyCanister {
-        swapFee = _swapFee;
-    }
-
-    /**
      * @dev Swaps the Fly tokens from Ethereum blockchain to IC from the caller to the recipient principal for the provided amount.
      * @param _recipient The principal to receive the tokens.
      * @param _amount The amount of tokens to swap.
      */
-    function swap(bytes32 _recipient, uint256 _amount) public payable {
+    function swap(bytes32 _recipient, uint256 _amount) public {
         // check if the fly canister address is set
         require(
             fly_canister_address != address(0),
@@ -123,17 +112,10 @@ contract Fly is ERC20, Ownable {
             balanceOf(msg.sender) >= _amount,
             "Fly: caller does not have enough tokens to swap"
         );
-        // check if the caller has enough ether to pay the fee
-        require(
-            msg.value >= swapFee,
-            "Fly: caller does not have enough ether to pay the fee"
-        );
         // burn the tokens from the caller
         _burn(msg.sender, _amount);
         // emit swap event
         emit FlySwapped(msg.sender, _recipient, _amount);
-        // pay fee
-        payable(fly_canister_address).transfer(msg.value);
     }
 
     /**

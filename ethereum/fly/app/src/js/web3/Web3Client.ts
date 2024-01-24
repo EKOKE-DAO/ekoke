@@ -67,16 +67,6 @@ export default class Web3Client {
     return contract.methods.swappedSupply().call();
   }
 
-  async swapFee(): Promise<BigInt> {
-    const contract = this.getContract();
-    return contract.methods.swapFee().call();
-  }
-
-  async setSwapFee(fee: number) {
-    const contract = this.getContract();
-    return contract.methods.setSwapFee(fee).send({ from: this.address });
-  }
-
   private getContract() {
     return new this.web3.eth.Contract(ABI, CONTRACT_ADDRESS[this.chainId]);
   }

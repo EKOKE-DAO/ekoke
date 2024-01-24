@@ -13,7 +13,6 @@ import MintTestnetTokens from './MintTestnetTokens/MintTestnetTokens';
 import SetFlyCanisterAddressForm from './SetFlyCanisterAddress/SetFlyCanisterAddressForm';
 import Web3Client from '../../web3/Web3Client';
 import { ChainId } from '../MetamaskConnect';
-import SwapFeeForm from './SwapFee/SwapFeeForm';
 
 const Form = () => {
   const { status, account, ethereum, chainId } = useMetaMask();
@@ -45,9 +44,6 @@ const Form = () => {
         </Card>
         <Card>
           <TransferForm />
-        </Card>
-        <Card>
-          <SwapFeeForm />
         </Card>
         <Card>
           <ChangeOwnerForm />

@@ -8,11 +8,6 @@ export const ABI = [
         name: '_initialOwner',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: '_swapFee',
-        type: 'uint256',
-      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -379,19 +374,6 @@ export const ABI = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '_swapFee',
-        type: 'uint256',
-      },
-    ],
-    name: 'setSwapFee',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'bytes32',
         name: '_recipient',
         type: 'bytes32',
@@ -404,20 +386,7 @@ export const ABI = [
     ],
     name: 'swap',
     outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'swapFee',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
