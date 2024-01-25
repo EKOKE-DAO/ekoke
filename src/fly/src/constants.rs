@@ -18,9 +18,13 @@ pub const INITIAL_RMC: f64 = 0.0000042;
 /// Minimum reward
 pub const MIN_REWARD: u64 = ICRC1_FEE * 2;
 
+/// Factor to multiply the swap fee by
+pub const ERC20_SWAP_FEE_MULTIPLIER: f64 = 1.3;
+
+pub const ONE_WEEK: Duration = Duration::from_secs(60 * 60 * 24 * 7);
+
 #[cfg(target_family = "wasm")]
-pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration =
-    Duration::from_secs(60 * 60 * 24 * 7); // 7 days
+pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration = ONE_WEEK;
 
 #[cfg(target_family = "wasm")]
 pub const LIQUIDITY_POOL_SWAP_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24); // 1 day
