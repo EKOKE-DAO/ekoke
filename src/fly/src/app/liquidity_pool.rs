@@ -3,8 +3,6 @@
 //! The pool can both contain ICP and ckBTC.
 // ! The pool is not owned by anyone, and is not controlled by anyone, except the canister.
 
-mod ckbtc;
-mod icp_ledger;
 mod xrc;
 
 use std::cell::RefCell;
@@ -15,9 +13,8 @@ use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
+use icrc::IcrcLedgerClient;
 
-use self::ckbtc::CkBtc;
-use self::icp_ledger::IcpLedger;
 use self::xrc::Xrc;
 use crate::app::configuration::Configuration;
 use crate::app::memory::{
@@ -88,10 +85,22 @@ impl LiquidityPool {
     /// Get liquidity pool balance
     pub async fn balance() -> FlyResult<LiquidityPoolBalance> {
         let accounts = Self::accounts();
-        let icp = IcpLedger::icrc1_balance_of(accounts.icp).await?;
-        let ckbtc = CkBtc::icrc1_balance_of(accounts.ckbtc).await?;
+        let icp_client = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister());
+        let ckbtc_client = IcrcLedgerClient::from(Configuration::get_ckbtc_canister());
 
-        Ok(LiquidityPoolBalance { icp, ckbtc })
+        let icp_balance = icp_client
+            .icrc1_balance_of(accounts.icp)
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?;
+        let ckbtc_balance = ckbtc_client
+            .icrc1_balance_of(accounts.ckbtc)
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?;
+
+        Ok(LiquidityPoolBalance {
+            icp: icp_balance,
+            ckbtc: ckbtc_balance,
+        })
     }
 
     /// Swap the current liquidity pool in ICP to BTC using the swap account
@@ -99,16 +108,21 @@ impl LiquidityPool {
     pub async fn swap_icp_to_btc(xrc_principal: Principal) -> FlyResult<()> {
         // get the current exchange rate ICP/BTC
         let rate = Xrc::get_icp_to_btc_rate(xrc_principal).await?;
+        let ckbtc_client = IcrcLedgerClient::from(Configuration::get_ckbtc_canister());
         // get current balance of swap account of CKBTC
-        let swap_account_balance =
-            CkBtc::icrc1_balance_of(Configuration::get_swap_account()).await?;
+        let swap_account_balance = ckbtc_client
+            .icrc1_balance_of(Configuration::get_swap_account())
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?;
         // get current ICP balance of the liquidity pool
         let accounts = Self::accounts();
         let liquidity_pool_balance = Self::balance().await?;
 
         // check ckbtc allowance
-        let allowance = CkBtc::icrc2_allowance(accounts.ckbtc, Configuration::get_swap_account())
-            .await?
+        let allowance = ckbtc_client
+            .icrc2_allowance(accounts.ckbtc, Configuration::get_swap_account())
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?
             .allowance;
 
         // get amounts to trade
@@ -126,19 +140,26 @@ impl LiquidityPool {
         }
 
         // send ICP to swap account
-        IcpLedger::icrc1_transfer(
-            Configuration::get_swap_account(),
-            liquidity_pool_balance.icp,
-        )
-        .await?;
+        let icp_client = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister());
+        icp_client
+            .icrc1_transfer(
+                Configuration::get_swap_account(),
+                liquidity_pool_balance.icp,
+            )
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?
+            .map_err(FlyError::Icrc1Transfer)?;
         // send BTC to liquidity pool
-        CkBtc::icrc2_transfer_from(
-            accounts.ckbtc.subaccount,
-            Configuration::get_swap_account(),
-            accounts.ckbtc,
-            amounts.btc,
-        )
-        .await?;
+        ckbtc_client
+            .icrc2_transfer_from(
+                accounts.ckbtc.subaccount,
+                Configuration::get_swap_account(),
+                accounts.ckbtc,
+                amounts.btc,
+            )
+            .await
+            .map_err(|(code, msg)| FlyError::CanisterCall(code, msg))?
+            .map_err(FlyError::Icrc2Transfer)?;
 
         Ok(())
     }

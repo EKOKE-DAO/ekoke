@@ -11,13 +11,13 @@ use did::deferred::TokenInfo;
 use did::marketplace::{BuyError, MarketplaceError, MarketplaceInitData, MarketplaceResult};
 use dip721::TokenIdentifier;
 use icrc::icrc1::account::{Account, Subaccount};
-use icrc::icrc2;
+use icrc::{icrc2, IcrcLedgerClient};
 
 pub use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
-use crate::client::{DeferredClient, FlyClient, IcpLedgerClient};
+use crate::client::{DeferredClient, FlyClient};
 use crate::utils::{caller, cycles, id, time};
 
 struct TokenInfoWithPrice {
@@ -241,9 +241,11 @@ impl Marketplace {
     async fn get_caller_icp_allowance(
         caller_account: Account,
     ) -> MarketplaceResult<icrc2::allowance::Allowance> {
-        IcpLedgerClient::icrc2_allowance(Self::marketplace_account(), caller_account)
+        let icp_ledger_client = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister());
+        icp_ledger_client
+            .icrc2_allowance(Self::marketplace_account(), caller_account)
             .await
-            .map_err(MarketplaceError::FlyCanister)
+            .map_err(|(code, msg)| MarketplaceError::CanisterCall(code, msg))
     }
 
     /// Spend caller allowance in ICP token and send them to the provided recipient
@@ -252,9 +254,12 @@ impl Marketplace {
         recipient: Account,
         amount: Nat,
     ) -> MarketplaceResult<Nat> {
-        IcpLedgerClient::icrc2_transfer_from(caller_account, recipient, amount)
+        let icp_ledger_client = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister());
+        icp_ledger_client
+            .icrc2_transfer_from(None, caller_account, recipient, amount)
             .await
-            .map_err(MarketplaceError::FlyCanister)
+            .map_err(|(code, msg)| MarketplaceError::CanisterCall(code, msg))?
+            .map_err(MarketplaceError::Icrc2Transfer)
     }
 
     /// Top up Fly canister liquidity pool with the provided amount from the caller account
