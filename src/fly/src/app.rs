@@ -523,7 +523,7 @@ mod test {
     use crate::utils::caller;
 
     const ERC20_BRIDGE_ADDRESS: &str = "0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663";
-    const ERC20_SWAP_FEE: u64 = 178_180_000_000_000;
+    const ERC20_SWAP_FEE: u64 = 231_634_000_000_000;
 
     #[tokio::test]
     async fn test_should_init_canister() {
