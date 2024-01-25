@@ -51,6 +51,10 @@ impl FlyCanister {
         Configuration::set_xrc_canister(data.xrc_canister);
         Configuration::set_ckbtc_canister(data.ckbtc_canister);
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
+        Configuration::set_cketh_ledger_canister(data.cketh_ledger_canister);
+        Configuration::set_cketh_minter_canister(data.cketh_minter_canister);
+        // set ERC20 bridge address
+        Configuration::set_erc20_bridge_address(data.erc20_bridge_address);
         // init liquidity pool
         LiquidityPool::init();
         // set roles
@@ -469,6 +473,7 @@ mod test {
 
     use std::str::FromStr as _;
 
+    use did::H160;
     use icrc::icrc1::transfer::TransferArg;
     use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
     use icrc::icrc2::approve::ApproveArgs;
@@ -480,6 +485,8 @@ mod test {
     use crate::app::test_utils::bob;
     use crate::constants::ICRC1_TX_TIME_SKID;
     use crate::utils::caller;
+
+    const ERC20_BRIDGE_ADDRESS: &str = "0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663";
 
     #[tokio::test]
     async fn test_should_init_canister() {
@@ -521,6 +528,12 @@ mod test {
         assert_eq!(Configuration::get_xrc_canister(), caller());
         assert_eq!(Configuration::get_ckbtc_canister(), caller());
         assert_eq!(Configuration::get_icp_ledger_canister(), caller());
+        assert_eq!(Configuration::get_cketh_ledger_canister(), caller());
+        assert_eq!(Configuration::get_cketh_minter_canister(), caller());
+        assert_eq!(
+            Configuration::get_erc20_bridge_address(),
+            H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap()
+        );
     }
 
     #[tokio::test]
@@ -1147,6 +1160,9 @@ mod test {
             xrc_canister: caller(),
             ckbtc_canister: caller(),
             icp_ledger_canister: caller(),
+            cketh_minter_canister: caller(),
+            cketh_ledger_canister: caller(),
+            erc20_bridge_address: H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap(),
         };
         FlyCanister::init(data);
     }

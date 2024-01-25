@@ -9,7 +9,7 @@ use icrc::icrc1::transfer::Memo;
 use icrc::{icrc1, icrc2};
 use thiserror::Error;
 
-use crate::ID;
+use crate::{H160, ID};
 
 pub type FlyResult<T> = Result<T, FlyError>;
 
@@ -110,6 +110,12 @@ pub struct FlyInitData {
     pub admins: Vec<Principal>,
     /// The canister ID of the CKBTC canister
     pub ckbtc_canister: Principal,
+    /// The canister ID of the CKETH ledger canister
+    pub cketh_ledger_canister: Principal,
+    /// The canister ID of the CKETH minter canister
+    pub cketh_minter_canister: Principal,
+    /// The Ethereum address of the ERC20 bridge
+    pub erc20_bridge_address: H160,
     /// Total supply of $picofly tokens
     pub total_supply: PicoFly,
     /// Initial balances (wallet subaccount -> picofly)
