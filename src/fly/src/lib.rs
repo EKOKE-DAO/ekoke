@@ -132,6 +132,12 @@ pub fn admin_set_erc20_bridge_address(address: H160) {
     FlyCanister::admin_set_erc20_bridge_address(address)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn admin_set_erc20_swap_fee(fee: u64) {
+    FlyCanister::admin_set_erc20_swap_fee(fee)
+}
+
 #[query]
 #[candid_method(query)]
 pub fn get_transaction(id: u64) -> FlyResult<Transaction> {

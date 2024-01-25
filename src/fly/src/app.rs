@@ -4,6 +4,7 @@
 
 mod balance;
 mod configuration;
+mod erc20_bridge;
 mod inspect;
 mod liquidity_pool;
 mod memory;
@@ -28,6 +29,7 @@ use icrc::icrc2::{self, Icrc2};
 
 use self::balance::Balance;
 use self::configuration::Configuration;
+use self::erc20_bridge::Erc20Bridge;
 pub use self::inspect::Inspect;
 use self::liquidity_pool::LiquidityPool;
 use self::pool::Pool;
@@ -55,6 +57,8 @@ impl FlyCanister {
         Configuration::set_cketh_minter_canister(data.cketh_minter_canister);
         // set ERC20 bridge address
         Configuration::set_erc20_bridge_address(data.erc20_bridge_address);
+        // Set initial swap fee
+        Erc20Bridge::set_swap_fee(data.erc20_swap_fee).unwrap();
         // init liquidity pool
         LiquidityPool::init();
         // set roles
@@ -243,6 +247,14 @@ impl FlyCanister {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_erc20_bridge_address(address);
+    }
+
+    /// Set ERC20 swap fee
+    pub fn admin_set_erc20_swap_fee(fee: u64) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Erc20Bridge::set_swap_fee(fee).unwrap()
     }
 }
 
@@ -511,6 +523,7 @@ mod test {
     use crate::utils::caller;
 
     const ERC20_BRIDGE_ADDRESS: &str = "0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663";
+    const ERC20_SWAP_FEE: u64 = 178_180_000_000_000;
 
     #[tokio::test]
     async fn test_should_init_canister() {
@@ -558,6 +571,7 @@ mod test {
             Configuration::get_erc20_bridge_address(),
             H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap()
         );
+        assert_eq!(Erc20Bridge::get_swap_fee(), ERC20_SWAP_FEE);
     }
 
     #[tokio::test]
@@ -830,6 +844,13 @@ mod test {
         let address = H160::from_hex_str("0xbf380c52c18d5ead99ea719b6fcfbba551df2f7f").unwrap();
         FlyCanister::admin_set_erc20_bridge_address(address.clone());
         assert_eq!(Configuration::get_erc20_bridge_address(), address);
+    }
+
+    #[test]
+    fn test_should_set_erc20_swap_fee() {
+        init_canister();
+        FlyCanister::admin_set_erc20_swap_fee(10);
+        assert_eq!(Erc20Bridge::get_swap_fee(), 10);
     }
 
     #[tokio::test]
@@ -1211,6 +1232,7 @@ mod test {
             cketh_minter_canister: caller(),
             cketh_ledger_canister: caller(),
             erc20_bridge_address: H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap(),
+            erc20_swap_fee: ERC20_SWAP_FEE,
         };
         FlyCanister::init(data);
     }

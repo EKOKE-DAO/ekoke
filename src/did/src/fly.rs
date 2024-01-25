@@ -116,6 +116,8 @@ pub struct FlyInitData {
     pub cketh_minter_canister: Principal,
     /// The Ethereum address of the ERC20 bridge
     pub erc20_bridge_address: H160,
+    /// Initial ERC20 swap fee
+    pub erc20_swap_fee: u64,
     /// Total supply of $picofly tokens
     pub total_supply: PicoFly,
     /// Initial balances (wallet subaccount -> picofly)

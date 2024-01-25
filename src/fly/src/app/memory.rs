@@ -34,6 +34,7 @@ pub const LIQUIDITY_POOL_CKBTC_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(41);
 pub const FLY_CANISTER_ETH_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(50);
 pub const ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(51);
 pub const ERC20_SWAP_FEE_MEMORY_ID: MemoryId = MemoryId::new(52);
+pub const ERC20_SWAP_FEE_LAST_UPDATE_MEMORY_ID: MemoryId = MemoryId::new(53);
 
 thread_local! {
     /// Memory manager

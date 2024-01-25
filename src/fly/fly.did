@@ -52,6 +52,7 @@ type FlyInitData = record {
   ckbtc_canister : principal;
   erc20_bridge_address : text;
   initial_balances : vec record { Account; nat };
+  erc20_swap_fee : nat64;
   swap_account : Account;
   xrc_canister : principal;
   marketplace_canister : principal;
@@ -141,6 +142,7 @@ service : (FlyInitData) -> {
   admin_set_cketh_ledger_canister : (principal) -> ();
   admin_set_cketh_minter_canister : (principal) -> ();
   admin_set_erc20_bridge_address : (text) -> ();
+  admin_set_erc20_swap_fee : (nat64) -> ();
   admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   admin_set_swap_account : (Account) -> ();
