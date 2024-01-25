@@ -49,6 +49,7 @@ type DeferredInitData = record {
   custodians : vec principal;
   marketplace_canister : principal;
 };
+type EcdsaError = variant { InvalidPublicKey };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Icrc1Transfer : TransferError;
@@ -60,6 +61,7 @@ type FlyError = variant {
   CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
   Icrc2Transfer : TransferFromError;
+  Ecdsa : EcdsaError;
 };
 type GenericValue = variant {
   Nat64Content : nat64;

@@ -63,6 +63,7 @@ export const idlFactory = ({ IDL }) => {
     'TooOld' : IDL.Null,
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
+  const EcdsaError = IDL.Variant({ 'InvalidPublicKey' : IDL.Null });
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Icrc1Transfer' : TransferError,
@@ -74,6 +75,7 @@ export const idlFactory = ({ IDL }) => {
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
     'Icrc2Transfer' : TransferFromError,
+    'Ecdsa' : EcdsaError,
   });
   const NftError = IDL.Variant({
     'UnauthorizedOperator' : IDL.Null,

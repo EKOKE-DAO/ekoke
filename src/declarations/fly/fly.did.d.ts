@@ -41,6 +41,7 @@ export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
+export type EcdsaError = { 'InvalidPublicKey' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
@@ -50,7 +51,8 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError } |
-  { 'Icrc2Transfer' : TransferFromError };
+  { 'Icrc2Transfer' : TransferFromError } |
+  { 'Ecdsa' : EcdsaError };
 export interface FlyInitData {
   'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,

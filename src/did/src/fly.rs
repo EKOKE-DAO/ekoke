@@ -21,6 +21,8 @@ pub enum FlyError {
     Balance(BalanceError),
     #[error("configuration error {0}")]
     Configuration(ConfigurationError),
+    #[error("ecdsa error {0}")]
+    Ecdsa(EcdsaError),
     #[error("pool error {0}")]
     Pool(PoolError),
     #[error("register error {0}")]
@@ -85,6 +87,12 @@ pub enum ConfigurationError {
     AdminsCantBeEmpty,
     #[error("the canister admin cannot be anonymous")]
     AnonymousAdmin,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum EcdsaError {
+    #[error("invalid public key")]
+    InvalidPublicKey,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

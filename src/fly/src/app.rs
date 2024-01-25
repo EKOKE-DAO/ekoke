@@ -256,6 +256,13 @@ impl FlyCanister {
         }
         Erc20Bridge::set_swap_fee(fee).unwrap()
     }
+
+    pub async fn admin_eth_wallet_address() -> H160 {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Erc20Bridge::get_wallet_address().await.unwrap()
+    }
 }
 
 impl Icrc1 for FlyCanister {

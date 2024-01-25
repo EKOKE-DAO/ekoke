@@ -32,6 +32,7 @@ type ApproveError = variant {
 };
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
+type EcdsaError = variant { InvalidPublicKey };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Icrc1Transfer : TransferError;
@@ -43,6 +44,7 @@ type FlyError = variant {
   CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
   Icrc2Transfer : TransferFromError;
+  Ecdsa : EcdsaError;
 };
 type FlyInitData = record {
   deferred_canister : principal;

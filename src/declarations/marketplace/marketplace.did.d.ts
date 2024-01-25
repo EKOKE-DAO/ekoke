@@ -24,6 +24,7 @@ export type DeferredError = { 'Fly' : FlyError } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
+export type EcdsaError = { 'InvalidPublicKey' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
@@ -33,7 +34,8 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError } |
-  { 'Icrc2Transfer' : TransferFromError };
+  { 'Icrc2Transfer' : TransferFromError } |
+  { 'Ecdsa' : EcdsaError };
 export type MarketplaceError = { 'Buy' : BuyError } |
   { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |

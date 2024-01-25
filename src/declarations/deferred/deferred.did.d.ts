@@ -49,6 +49,7 @@ export interface DeferredInitData {
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
 }
+export type EcdsaError = { 'InvalidPublicKey' : null };
 export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
@@ -58,7 +59,8 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError } |
-  { 'Icrc2Transfer' : TransferFromError };
+  { 'Icrc2Transfer' : TransferFromError } |
+  { 'Ecdsa' : EcdsaError };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |

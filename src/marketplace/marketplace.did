@@ -27,6 +27,7 @@ type DeferredError = variant {
   StorageError;
   CanisterCall : record { RejectionCode; text };
 };
+type EcdsaError = variant { InvalidPublicKey };
 type FlyError = variant {
   Configuration : ConfigurationError;
   Icrc1Transfer : TransferError;
@@ -38,6 +39,7 @@ type FlyError = variant {
   CanisterCall : record { RejectionCode; text };
   Balance : BalanceError;
   Icrc2Transfer : TransferFromError;
+  Ecdsa : EcdsaError;
 };
 type MarketplaceError = variant {
   Buy : BuyError;
