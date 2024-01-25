@@ -12,7 +12,7 @@ use candid::{candid_method, Nat, Principal};
 use did::fly::{
     FlyInitData, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoFly, Role, Transaction,
 };
-use did::ID;
+use did::{H160, ID};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -112,6 +112,24 @@ pub fn admin_set_ckbtc_canister(canister_id: Principal) {
 #[candid_method(update)]
 pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
     FlyCanister::admin_set_icp_ledger_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
+    FlyCanister::admin_set_cketh_ledger_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_cketh_minter_canister(canister_id: Principal) {
+    FlyCanister::admin_set_cketh_minter_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_erc20_bridge_address(address: H160) {
+    FlyCanister::admin_set_erc20_bridge_address(address)
 }
 
 #[query]

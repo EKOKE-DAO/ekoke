@@ -47,13 +47,16 @@ type FlyError = variant {
 type FlyInitData = record {
   deferred_canister : principal;
   icp_ledger_canister : principal;
+  cketh_ledger_canister : principal;
   minting_account : Account;
   ckbtc_canister : principal;
+  erc20_bridge_address : text;
   initial_balances : vec record { Account; nat };
   swap_account : Account;
   xrc_canister : principal;
   marketplace_canister : principal;
   admins : vec principal;
+  cketh_minter_canister : principal;
   total_supply : nat;
 };
 type LiquidityPoolAccounts = record { icp : Account; ckbtc : Account };
@@ -135,6 +138,9 @@ service : (FlyInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_ckbtc_canister : (principal) -> ();
+  admin_set_cketh_ledger_canister : (principal) -> ();
+  admin_set_cketh_minter_canister : (principal) -> ();
+  admin_set_erc20_bridge_address : (text) -> ();
   admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   admin_set_swap_account : (Account) -> ();

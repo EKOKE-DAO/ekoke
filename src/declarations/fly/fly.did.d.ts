@@ -54,13 +54,16 @@ export type FlyError = { 'Configuration' : ConfigurationError } |
 export interface FlyInitData {
   'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
+  'cketh_ledger_canister' : Principal,
   'minting_account' : Account,
   'ckbtc_canister' : Principal,
+  'erc20_bridge_address' : string,
   'initial_balances' : Array<[Account, bigint]>,
   'swap_account' : Account,
   'xrc_canister' : Principal,
   'marketplace_canister' : Principal,
   'admins' : Array<Principal>,
+  'cketh_minter_canister' : Principal,
   'total_supply' : bigint,
 }
 export interface LiquidityPoolAccounts { 'icp' : Account, 'ckbtc' : Account }
@@ -148,6 +151,9 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_cketh_ledger_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_cketh_minter_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_erc20_bridge_address' : ActorMethod<[string], undefined>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'admin_set_swap_account' : ActorMethod<[Account], undefined>,

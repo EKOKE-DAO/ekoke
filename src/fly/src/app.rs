@@ -20,7 +20,7 @@ use did::fly::{
     AllowanceError, BalanceError, FlyError, FlyInitData, FlyResult, LiquidityPoolAccounts,
     LiquidityPoolBalance, PicoFly, PoolError, Role, Transaction,
 };
-use did::ID;
+use did::{H160, ID};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
 use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1};
@@ -219,6 +219,30 @@ impl FlyCanister {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_icp_ledger_canister(canister_id);
+    }
+
+    /// Set ckETH ledger canister
+    pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_cketh_ledger_canister(canister_id);
+    }
+
+    /// Set ckETH minter canister
+    pub fn admin_set_cketh_minter_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_cketh_minter_canister(canister_id);
+    }
+
+    /// Set ERC20 bridge address
+    pub fn admin_set_erc20_bridge_address(address: H160) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_erc20_bridge_address(address);
     }
 }
 
@@ -782,6 +806,30 @@ mod test {
         let canister_id = Principal::from_str("aaaaa-aa").unwrap();
         FlyCanister::admin_set_icp_ledger_canister(canister_id);
         assert_eq!(Configuration::get_icp_ledger_canister(), canister_id);
+    }
+
+    #[test]
+    fn test_should_set_cketh_ledger_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        FlyCanister::admin_set_cketh_ledger_canister(canister_id);
+        assert_eq!(Configuration::get_cketh_ledger_canister(), canister_id);
+    }
+
+    #[test]
+    fn test_should_set_cketh_minter_canister() {
+        init_canister();
+        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
+        FlyCanister::admin_set_cketh_minter_canister(canister_id);
+        assert_eq!(Configuration::get_cketh_minter_canister(), canister_id);
+    }
+
+    #[test]
+    fn test_should_set_erc20_bridge_address() {
+        init_canister();
+        let address = H160::from_hex_str("0xbf380c52c18d5ead99ea719b6fcfbba551df2f7f").unwrap();
+        FlyCanister::admin_set_erc20_bridge_address(address.clone());
+        assert_eq!(Configuration::get_erc20_bridge_address(), address);
     }
 
     #[tokio::test]
