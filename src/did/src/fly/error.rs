@@ -30,6 +30,8 @@ pub enum FlyError {
     Icrc1Transfer(icrc1::transfer::TransferError),
     #[error("xrc error")]
     XrcError,
+    #[error("eth rpc error: ({0}): {1}")]
+    EthRpcError(i32, String),
 }
 
 impl From<icrc2::transfer_from::TransferFromError> for FlyError {
@@ -86,6 +88,10 @@ pub enum ConfigurationError {
 pub enum EcdsaError {
     #[error("invalid public key")]
     InvalidPublicKey,
+    #[error("invalid signature")]
+    InvalidSignature,
+    #[error("failed to compute recovery id")]
+    RecoveryIdError,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

@@ -9,7 +9,7 @@ use serde::Serialize;
 
 #[derive(Debug, Default, Clone, PartialOrd, Ord, Eq, PartialEq, Serialize, Deserialize, Hash)]
 #[serde(transparent)]
-pub struct H160(pub ethereum_types::H160);
+pub struct H160(pub ethers_core::types::H160);
 
 impl CandidType for H160 {
     fn _ty() -> candid::types::Type {
@@ -24,8 +24,8 @@ impl CandidType for H160 {
     }
 }
 
-impl From<ethereum_types::H160> for H160 {
-    fn from(h160: ethereum_types::H160) -> Self {
+impl From<ethers_core::types::H160> for H160 {
+    fn from(h160: ethers_core::types::H160) -> Self {
         Self(h160)
     }
 }
@@ -41,11 +41,11 @@ fn from_hex_str<const SIZE: usize>(mut s: &str) -> Result<[u8; SIZE], hex::FromH
 
 impl H160 {
     pub fn from_slice(slice: &[u8]) -> Self {
-        Self(ethereum_types::H160::from_slice(slice))
+        Self(ethers_core::types::H160::from_slice(slice))
     }
 
     pub fn from_hex_str(s: &str) -> Result<Self, hex::FromHexError> {
-        Ok(Self(ethereum_types::H160::from(from_hex_str::<20>(s)?)))
+        Ok(Self(ethers_core::types::H160::from(from_hex_str::<20>(s)?)))
     }
 
     pub fn to_hex_str(&self) -> String {
@@ -53,7 +53,7 @@ impl H160 {
     }
 
     pub const fn zero() -> Self {
-        Self(ethereum_types::H160::zero())
+        Self(ethers_core::types::H160::zero())
     }
 
     /// Returns true if the address is zero.
@@ -73,7 +73,7 @@ impl Storable for H160 {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Self(ethereum_types::H160::from_slice(bytes.as_ref()))
+        Self(ethers_core::types::H160::from_slice(bytes.as_ref()))
     }
 }
 
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_serde_h160() {
-        let h160 = H160::from(ethereum_types::H160::random());
+        let h160 = H160::from(ethers_core::types::H160::random());
 
         let encoded = serde_json::json!(&h160);
         let decoded = serde_json::from_value(encoded).unwrap();
@@ -163,7 +163,7 @@ mod tests {
 
     #[test]
     fn test_h160_fmt_lower_hex() {
-        let value: H160 = ethereum_types::H160::random().into();
+        let value: H160 = ethers_core::types::H160::random().into();
         let lower_hex = value.to_hex_str();
         assert!(lower_hex.starts_with("0x"));
         assert_eq!(value, H160::from_hex_str(&lower_hex).unwrap());
@@ -171,10 +171,10 @@ mod tests {
 
     #[test]
     fn test_h160_transparent_serde_serialization() {
-        let value: H160 = ethereum_types::H160::random().into();
+        let value: H160 = ethers_core::types::H160::random().into();
 
         let encoded_value = serde_json::json!(&value);
-        let decoded_primitive: ethereum_types::H160 =
+        let decoded_primitive: ethers_core::types::H160 =
             serde_json::from_value(encoded_value).unwrap();
         let encoded_primitive = serde_json::json!(&decoded_primitive);
         let decoded_value: H160 = serde_json::from_value(encoded_primitive).unwrap();

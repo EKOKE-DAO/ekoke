@@ -5,6 +5,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
+use did::fly::EthNetwork;
 use did::{StorableAccount, StorablePrincipal, H160};
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
@@ -12,8 +13,8 @@ use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
     CKBTC_CANISTER_MEMORY_ID, CKETH_LEDGER_CANISTER_MEMORY_ID, CKETH_MINTER_CANISTER_MEMORY_ID,
-    ERC20_BRIDGE_ADDRESS_MEMORY_ID, ICP_LEDGER_CANISTER_MEMORY_ID, MEMORY_MANAGER,
-    MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
+    ERC20_BRIDGE_ADDRESS_MEMORY_ID, ETH_NETWORK_MEMORY_ID, ICP_LEDGER_CANISTER_MEMORY_ID,
+    MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
 };
 
 thread_local! {
@@ -69,6 +70,12 @@ thread_local! {
     static ERC20_BRIDGE_ADDRESS: RefCell<StableCell<H160, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(ERC20_BRIDGE_ADDRESS_MEMORY_ID)),
         H160::zero()).unwrap()
+    );
+
+    /// Eth network
+    static ETH_NETWORK: RefCell<StableCell<EthNetwork, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(ETH_NETWORK_MEMORY_ID)),
+        EthNetwork::Ethereum).unwrap()
     );
 }
 
@@ -177,6 +184,26 @@ impl Configuration {
     pub fn get_erc20_bridge_address() -> H160 {
         ERC20_BRIDGE_ADDRESS.with(|erc20| erc20.borrow().get().clone())
     }
+
+    /// Get eth network
+    pub fn get_eth_network() -> EthNetwork {
+        ETH_NETWORK.with(|eth_network| *eth_network.borrow().get())
+    }
+
+    /// Get eth chain id
+    pub fn get_eth_chain_id() -> u64 {
+        match Self::get_eth_network() {
+            EthNetwork::Goerli => 5,
+            EthNetwork::Ethereum => 1,
+        }
+    }
+
+    /// Set eth network
+    pub fn set_eth_network(network: EthNetwork) {
+        ETH_NETWORK.with_borrow_mut(|cell| {
+            cell.set(network).unwrap();
+        });
+    }
 }
 
 #[cfg(test)]
@@ -253,5 +280,13 @@ mod test {
         let address = H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663").unwrap();
         Configuration::set_erc20_bridge_address(address.clone());
         assert_eq!(Configuration::get_erc20_bridge_address(), address);
+    }
+
+    #[test]
+    fn test_should_set_eth_network() {
+        let network = EthNetwork::Goerli;
+        Configuration::set_eth_network(network);
+        assert_eq!(Configuration::get_eth_network(), network);
+        assert_eq!(Configuration::get_eth_chain_id(), 5);
     }
 }

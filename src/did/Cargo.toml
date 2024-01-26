@@ -10,7 +10,7 @@ repository = { workspace = true }
 [dependencies]
 candid = { workspace = true }
 dip721 = { path = "../dip721" }
-ethereum-types = { workspace = true }
+ethers-core = { workspace = true }
 hex = { workspace = true }
 ic-cdk = { workspace = true }
 ic-stable-structures = { workspace = true }

@@ -55,6 +55,8 @@ impl FlyCanister {
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
         Configuration::set_cketh_ledger_canister(data.cketh_ledger_canister);
         Configuration::set_cketh_minter_canister(data.cketh_minter_canister);
+        // Set eth networrk
+        Configuration::set_eth_network(data.erc20_network);
         // set ERC20 bridge address
         Configuration::set_erc20_bridge_address(data.erc20_bridge_address);
         // Set initial swap fee
@@ -516,6 +518,7 @@ mod test {
 
     use std::str::FromStr as _;
 
+    use did::fly::EthNetwork;
     use did::H160;
     use icrc::icrc1::transfer::TransferArg;
     use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
@@ -579,6 +582,7 @@ mod test {
             H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap()
         );
         assert_eq!(Erc20Bridge::get_swap_fee(), ERC20_SWAP_FEE);
+        assert_eq!(Configuration::get_eth_network(), EthNetwork::Goerli);
     }
 
     #[tokio::test]
@@ -1240,6 +1244,7 @@ mod test {
             cketh_ledger_canister: caller(),
             erc20_bridge_address: H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap(),
             erc20_swap_fee: ERC20_SWAP_FEE,
+            erc20_network: EthNetwork::Goerli,
         };
         FlyCanister::init(data);
     }

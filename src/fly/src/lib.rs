@@ -3,6 +3,7 @@
 //! The fly canister serves a ICRC-2 token called $FLY, which is the reward token for Deferred transactions.
 //! It is a deflationary token which ...
 
+mod abi;
 mod app;
 mod constants;
 mod inspect;
@@ -13,6 +14,7 @@ use did::fly::{
     FlyInitData, FlyResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoFly, Role, Transaction,
 };
 use did::{H160, ID};
+use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -220,6 +222,13 @@ pub fn icrc2_transfer_from(
 #[candid_method(query)]
 pub fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowance::Allowance {
     FlyCanister::icrc2_allowance(args)
+}
+
+// http transform
+#[query]
+#[candid_method(query)]
+fn http_transform_send_tx(raw: TransformArgs) -> HttpResponse {
+    raw.response
 }
 
 #[allow(dead_code)]

@@ -1,24 +1,57 @@
+mod eth_rpc;
 mod eth_wallet;
 mod swap_fee;
 mod swap_pool;
 
-use did::fly::{FlyError, FlyResult, PicoFly};
+use did::fly::{BalanceError, FlyError, FlyResult, PicoFly};
 use did::H160;
 use icrc::icrc1::account::Account;
 
+use self::eth_rpc::EthRpcClient;
 use self::eth_wallet::EthWallet;
 use self::swap_fee::SwapFee;
 use self::swap_pool::SwapPool;
-use crate::app::{Balance, Configuration};
-use crate::utils;
+use super::balance::Balance;
+use super::configuration::Configuration;
 
 /// ERC20 Bridge
 pub struct Erc20Bridge;
 
 impl Erc20Bridge {
     /// Swaps the ICRC FLY token to the ERC20 FLY token.
-    pub async fn swap_icrc_to_erc20(recipient: H160, amount: PicoFly) -> FlyResult<()> {
-        todo!();
+    ///
+    /// This function won't check:
+    ///
+    /// - ckETH allowance
+    ///
+    /// This function will just:
+    ///
+    /// - call swap on the ERC20 contract
+    /// - transfer the amount from the caller to the swap pool
+    pub async fn swap_icrc_to_erc20(
+        caller: Account,
+        recipient: H160,
+        amount: PicoFly,
+    ) -> FlyResult<String> {
+        // check caller balance
+        if Balance::balance_of(caller)? < amount {
+            return Err(FlyError::Balance(BalanceError::InsufficientBalance));
+        }
+
+        let rpc_client = EthRpcClient::new(Configuration::get_eth_network());
+        // make transaction
+        let transaction = rpc_client
+            .fly_transcribe_swap_tx(EthWallet::address().await?, recipient, amount.clone())
+            .await?;
+        // sign transaction
+        let signed_tx = EthWallet::sign_transaction(transaction).await?;
+        // send transaction
+        let hash = rpc_client.send_tx(signed_tx).await?;
+
+        // deposit to swap pool
+        SwapPool::deposit(caller, amount).await?;
+
+        Ok(hash)
     }
 
     /// Swaps the ERC20 FLY token to the ICRC FLY token.
