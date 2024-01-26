@@ -55,6 +55,11 @@ impl H160 {
     pub const fn zero() -> Self {
         Self(ethereum_types::H160::zero())
     }
+
+    /// Returns true if the address is zero.
+    pub fn is_zero(&self) -> bool {
+        self.0.is_zero()
+    }
 }
 
 impl Storable for H160 {
