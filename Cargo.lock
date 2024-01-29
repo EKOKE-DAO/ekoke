@@ -431,6 +431,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
+name = "ekoke"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "candid",
+ "did",
+ "ic-cdk 0.11.3",
+ "ic-cdk-macros 0.8.1",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "icrc",
+ "num-bigint",
+ "num-traits",
+ "pretty_assertions",
+ "rand",
+ "serde",
+ "thiserror",
+ "time",
+ "tokio",
+ "xrc",
+]
+
+[[package]]
 name = "ena"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -469,29 +492,6 @@ name = "fixedbitset"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
-
-[[package]]
-name = "fly"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "candid",
- "did",
- "ic-cdk 0.11.3",
- "ic-cdk-macros 0.8.1",
- "ic-cdk-timers",
- "ic-stable-structures",
- "icrc",
- "num-bigint",
- "num-traits",
- "pretty_assertions",
- "rand",
- "serde",
- "thiserror",
- "time",
- "tokio",
- "xrc",
-]
 
 [[package]]
 name = "fnv"

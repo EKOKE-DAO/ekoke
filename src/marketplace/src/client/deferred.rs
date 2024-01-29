@@ -47,7 +47,7 @@ impl DeferredClient {
                     transferred_by: None,
                     approved_at: None,
                     approved_by: None,
-                    picofly_reward: 4000_u64.into(),
+                    picoekoke_reward: 4000_u64.into(),
                     burned_at: None,
                     burned_by: None,
                     minted_at: 0,

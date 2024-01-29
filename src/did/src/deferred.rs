@@ -35,7 +35,7 @@ mod test {
                 )
                 .unwrap(),
             ),
-            picofly_reward: 4_000_u64.into(),
+            picoekoke_reward: 4_000_u64.into(),
             transferred_at: None,
             transferred_by: None,
             approved_at: None,
@@ -55,7 +55,7 @@ mod test {
         assert_eq!(token.contract_id, decoded_token.contract_id);
         assert_eq!(token.owner, decoded_token.owner);
         assert_eq!(token.value, decoded_token.value);
-        assert_eq!(token.picofly_reward, decoded_token.picofly_reward);
+        assert_eq!(token.picoekoke_reward, decoded_token.picoekoke_reward);
     }
 
     #[test]

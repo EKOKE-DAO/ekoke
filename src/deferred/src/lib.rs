@@ -2,7 +2,7 @@
 //!
 //! Deferred is a canister serving a DIP721 NFT contract that allows to create
 //! a financial tool to sell any kind of entity (e.g. a house, a car, a boat, etc.) or to get
-//! financing from third parties buying the NFTs and getting rewards in $FLY tokens
+//! financing from third parties buying the NFTs and getting rewards in $EKOKE tokens
 
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
@@ -96,8 +96,8 @@ pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> Deferr
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_fly_canister(canister_id: Principal) {
-    Deferred::admin_set_fly_canister(canister_id)
+pub fn admin_set_ekoke_canister(canister_id: Principal) {
+    Deferred::admin_set_ekoke_canister(canister_id)
 }
 
 #[update]

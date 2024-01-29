@@ -5,6 +5,6 @@
 mod common;
 
 pub mod deferred;
-pub mod fly;
+pub mod ekoke;
 pub mod marketplace;
 pub use common::{StorableAccount, StorableNat, StorablePrincipal, ID};

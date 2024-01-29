@@ -215,8 +215,8 @@ impl ContractStorage {
                 GenericValue::TextContent(contract.currency),
             ),
             (
-                "token:picofly_reward".to_string(),
-                GenericValue::NatContent(token.picofly_reward),
+                "token:picoekoke_reward".to_string(),
+                GenericValue::NatContent(token.picoekoke_reward),
             ),
             (
                 "contract:buyers".to_string(),

@@ -3,7 +3,7 @@ use dip721::TokenIdentifier;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
-use crate::fly::PicoFly;
+use crate::ekoke::PicoEkoke;
 use crate::ID;
 
 /// A Non fungible token related to an installment of a contract
@@ -17,8 +17,8 @@ pub struct Token {
     pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
-    /// $picoFly (pico-fly) reward for buying a Token
-    pub picofly_reward: PicoFly,
+    /// $picoEkoke (pico-ekoke) reward for buying a Token
+    pub picoekoke_reward: PicoEkoke,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
     /// Whether the token is burned

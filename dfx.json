@@ -5,9 +5,9 @@
       "package": "deferred",
       "type": "rust"
     },
-    "fly": {
-      "candid": "src/fly/fly.did",
-      "package": "fly",
+    "ekoke": {
+      "candid": "src/ekoke/ekoke.did",
+      "package": "ekoke",
       "type": "rust"
     },
     "marketplace": {

@@ -36,8 +36,8 @@ type ContractRegistration = record {
 };
 type ContractType = variant { Sell; Financing };
 type DeferredError = variant {
-  Fly : FlyError;
   Nft : NftError;
+  Ekoke : EkokeError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
@@ -45,11 +45,11 @@ type DeferredError = variant {
   CanisterCall : record { RejectionCode; text };
 };
 type DeferredInitData = record {
-  fly_canister : principal;
+  ekoke_canister : principal;
   custodians : vec principal;
   marketplace_canister : principal;
 };
-type FlyError = variant {
+type EkokeError = variant {
   Configuration : ConfigurationError;
   Icrc1Transfer : TransferError;
   Pool : PoolError;
@@ -132,8 +132,8 @@ type Token = record {
   id : nat;
   transferred_at : opt nat64;
   transferred_by : opt principal;
+  picoekoke_reward : nat;
   value : nat64;
-  picofly_reward : nat;
   owner : opt principal;
   operator : opt principal;
   approved_at : opt nat64;
@@ -231,7 +231,7 @@ type Vec = vec record {
 service : (DeferredInitData) -> {
   admin_get_unsigned_contracts : () -> (vec nat) query;
   admin_remove_role : (principal, Role) -> (Result);
-  admin_set_fly_canister : (principal) -> ();
+  admin_set_ekoke_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   admin_sign_contract : (nat) -> (Result);

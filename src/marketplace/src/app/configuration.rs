@@ -12,17 +12,17 @@ use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
-    DEFERRED_CANISTER_MEMORY_ID, FLY_CANISTER_MEMORY_ID, FLY_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID,
+    DEFERRED_CANISTER_MEMORY_ID, EKOKE_CANISTER_MEMORY_ID, EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID,
     ICP_LEDGER_CANISTER_MEMORY_ID, INTEREST_FOR_BUYER_MEMORY_ID, MEMORY_MANAGER,
     XRC_CANISTER_MEMORY_ID,
 };
-use crate::client::FlyClient;
+use crate::client::EkokeClient;
 use crate::constants::DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER;
 
 thread_local! {
-    /// Fly canister
-    static FLY_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_MEMORY_ID)),
+    /// Ekoke canister
+    static EKOKE_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
     );
 
@@ -38,9 +38,9 @@ thread_local! {
         DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER).unwrap()
     );
 
-    /// Fly liquidity pool account
-    static FLY_LIQUIDITY_POOL_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(FLY_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID)),
+    /// Ekoke liquidity pool account
+    static EKOKE_LIQUIDITY_POOL_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID)),
             Account {
                 owner: Principal::anonymous(),
                 subaccount: None,
@@ -65,9 +65,9 @@ pub struct Configuration;
 
 impl Configuration {
     /// Set minting account
-    pub fn set_fly_canister(fly_canister: Principal) {
-        FLY_CANISTER.with_borrow_mut(|cell| {
-            cell.set(fly_canister.into()).unwrap();
+    pub fn set_ekoke_canister(ekoke_canister: Principal) {
+        EKOKE_CANISTER.with_borrow_mut(|cell| {
+            cell.set(ekoke_canister.into()).unwrap();
         });
     }
 
@@ -86,8 +86,8 @@ impl Configuration {
     }
 
     /// Get minting account address
-    pub fn get_fly_canister() -> Principal {
-        FLY_CANISTER.with(|ma| ma.borrow().get().0)
+    pub fn get_ekoke_canister() -> Principal {
+        EKOKE_CANISTER.with(|ma| ma.borrow().get().0)
     }
 
     /// Get swap account address
@@ -100,24 +100,24 @@ impl Configuration {
         INTEREST_RATE_FOR_BUYER.with(|ir| *ir.borrow().get())
     }
 
-    /// Get fly liquidity pool account
-    pub async fn get_fly_liquidity_pool_account() -> MarketplaceResult<Account> {
-        let account = FLY_LIQUIDITY_POOL_ACCOUNT.with(|sa| sa.borrow().get().0);
+    /// Get ekoke liquidity pool account
+    pub async fn get_ekoke_liquidity_pool_account() -> MarketplaceResult<Account> {
+        let account = EKOKE_LIQUIDITY_POOL_ACCOUNT.with(|sa| sa.borrow().get().0);
         if account.owner == Principal::anonymous() {
-            Self::update_fly_liquidity_pool_account().await
+            Self::update_ekoke_liquidity_pool_account().await
         } else {
             Ok(account)
         }
     }
 
-    /// Update fly liquidity pool account
-    pub async fn update_fly_liquidity_pool_account() -> MarketplaceResult<Account> {
-        // call fly
-        let liquidity_pool_account = FlyClient::from(Configuration::get_fly_canister())
+    /// Update ekoke liquidity pool account
+    pub async fn update_ekoke_liquidity_pool_account() -> MarketplaceResult<Account> {
+        // call ekoke
+        let liquidity_pool_account = EkokeClient::from(Configuration::get_ekoke_canister())
             .liquidity_pool_accounts()
             .await?
             .icp;
-        FLY_LIQUIDITY_POOL_ACCOUNT.with_borrow_mut(|cell| {
+        EKOKE_LIQUIDITY_POOL_ACCOUNT.with_borrow_mut(|cell| {
             cell.set(liquidity_pool_account.into()).unwrap();
         });
         Ok(liquidity_pool_account)
@@ -167,10 +167,10 @@ mod test {
     }
 
     #[test]
-    fn test_should_set_fly_canister() {
+    fn test_should_set_ekoke_canister() {
         let canister = id();
-        Configuration::set_fly_canister(canister);
-        assert_eq!(Configuration::get_fly_canister(), canister);
+        Configuration::set_ekoke_canister(canister);
+        assert_eq!(Configuration::get_ekoke_canister(), canister);
     }
 
     #[test]
@@ -185,9 +185,9 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_should_get_fly_liquidity_pool_account() {
+    async fn test_should_get_ekoke_liquidity_pool_account() {
         assert_eq!(
-            Configuration::get_fly_liquidity_pool_account()
+            Configuration::get_ekoke_liquidity_pool_account()
                 .await
                 .unwrap(),
             Account::from(Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap())

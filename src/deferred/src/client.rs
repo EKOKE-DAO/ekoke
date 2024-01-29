@@ -1,3 +1,3 @@
-mod fly_client;
+mod ekoke_client;
 
-pub use fly_client::{fly_client, FlyClient};
+pub use ekoke_client::{ekoke_client, EkokeClient};

@@ -19,15 +19,15 @@ type ConfigurationError_1 = variant {
   AnonymousCustodial;
 };
 type DeferredError = variant {
-  Fly : FlyError;
   Nft : NftError;
+  Ekoke : EkokeError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
   StorageError;
   CanisterCall : record { RejectionCode; text };
 };
-type FlyError = variant {
+type EkokeError = variant {
   Configuration : ConfigurationError;
   Icrc1Transfer : TransferError;
   Pool : PoolError;
@@ -45,7 +45,7 @@ type MarketplaceError = variant {
   Icrc1Transfer : TransferError;
   DeferredCanister : DeferredError;
   TokenNotFound;
-  FlyCanister : FlyError;
+  EkokeCanister : EkokeError;
   XrcError;
   StorageError;
   CanisterCall : record { RejectionCode; text };
@@ -53,9 +53,9 @@ type MarketplaceError = variant {
   Icrc2Transfer : TransferFromError;
 };
 type MarketplaceInitData = record {
+  ekoke_canister : principal;
   deferred_canister : principal;
   icp_ledger_canister : principal;
-  fly_canister : principal;
   xrc_canister : principal;
   admins : vec principal;
 };
@@ -128,7 +128,7 @@ service : (MarketplaceInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_set_admins : (vec principal) -> (Result);
   admin_set_deferred_canister : (principal) -> ();
-  admin_set_fly_canister : (principal) -> (Result);
+  admin_set_ekoke_canister : (principal) -> (Result);
   admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_interest_rate_for_buyer : (float64) -> ();
   admin_set_xrc_canister : (principal) -> ();

@@ -1,4 +1,4 @@
-//! Types associated to the "Fly" canister
+//! Types associated to the "Ekoke" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use dip721::NftError;
@@ -9,7 +9,7 @@ use icrc::{icrc1, icrc2};
 use thiserror::Error;
 
 use crate::deferred::DeferredError;
-use crate::fly::FlyError;
+use crate::ekoke::EkokeError;
 
 pub type MarketplaceResult<T> = Result<T, MarketplaceError>;
 
@@ -19,8 +19,8 @@ pub enum MarketplaceError {
     Configuration(ConfigurationError),
     #[error("storage error")]
     StorageError,
-    #[error("fly canister error {0}")]
-    FlyCanister(#[from] FlyError),
+    #[error("ekoke canister error {0}")]
+    EkokeCanister(#[from] EkokeError),
     #[error("deferred canister error {0}")]
     DeferredCanister(#[from] DeferredError),
     #[error("dip721 error {0}")]
@@ -83,8 +83,8 @@ pub struct MarketplaceInitData {
     pub admins: Vec<Principal>,
     /// Deferred canister
     pub deferred_canister: Principal,
-    /// Fly canister
-    pub fly_canister: Principal,
+    /// Ekoke canister
+    pub ekoke_canister: Principal,
     /// ICP ledger canister
     pub icp_ledger_canister: Principal,
     /// XRC canister

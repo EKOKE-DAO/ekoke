@@ -1,0 +1,39 @@
+[package]
+name = "ekoke"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[[bin]]
+name = "ekoke-did"
+path = "src/lib.rs"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = []
+did = []
+
+[dependencies]
+bytes = { workspace = true }
+candid = { workspace = true }
+did = { path = "../did" }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-cdk-timers = { workspace = true }
+ic-stable-structures = { workspace = true }
+icrc = { path = "../icrc" }
+num-bigint = { workspace = true }
+num-traits = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+xrc = { path = "../xrc" }
+
+[dev-dependencies]
+pretty_assertions = "1"
+rand = "0.8.5"
+tokio = { version = "1", features = ["full"] }
