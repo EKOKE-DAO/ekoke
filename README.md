@@ -33,7 +33,7 @@ The project aims to facilitate the sale of a property between two or more partie
 Deferred consists of three main canisters:
 
 - **Deferred**: This NFT canister is used to define the sell of a real estate between two parts (the buyer and the seller).
-- **FLY Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Deferred method".
+- **EKOKE Token**: A fungible token ERC20-like, deflationary, used as an incentive to promote the buying of the NFTs and the adoption of the "Deferred method".
 - **Marketplace**: A D-APP which permits to trade Deferred NFTs.
 
 ### Sell flow
@@ -45,8 +45,8 @@ The sales process consists of the following steps:
 3. On the "IPC" blockchain, "n" Deferred tokens are minted, each with a value of X/n. The NFTs are transferred to A.
 4. To acquire the property, B must buy all the NFTs from A at the agreed-upon price.
 5. A can sell their NFTs to either B or third parties at the established price to generate liquidity for the property sale.
-6. Whenever an NFT is sold, the buyer, as long as they purchase it from A, receives "Y" Fly.
-7. The Deferred tokens, even after being transferred to a third-party owner, are always available for sale, but there will be no further receipt of Fly for each subsequent sale.
+6. Whenever an NFT is sold, the buyer, as long as they purchase it from A, receives "Y" Ekoke.
+7. The Deferred tokens, even after being transferred to a third-party owner, are always available for sale, but there will be no further receipt of Ekoke for each subsequent sale.
 8. Once all Deferred tokens are in possession of B, the property officially becomes B's ownership.
 
 ## Project structure
@@ -54,7 +54,7 @@ The sales process consists of the following steps:
 The project is composed by the following components:
 
 - **deferred**: A DIP721 ICP canister which represents the Deferred NFTs.
-- **Fly**: A ICRC-2 token ICP canister which represents the fungible token $FLY.
+- **Ekoke**: A ICRC-2 token ICP canister which represents the fungible token $EKOKE.
 - **Marketplace**: A canister which manages the Deferred tokens sell.
 - **RegisterUI**: A website for the real estate agency to register sell-contracts.
 - **MarketplaceUI**: A website for the marketplace canister, where the users can buy and sell theirs Deferreds.

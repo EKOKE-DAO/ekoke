@@ -1,8 +1,8 @@
 export const idlFactory = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
+    'ekoke_canister' : IDL.Principal,
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
-    'fly_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
@@ -28,6 +28,18 @@ export const idlFactory = ({ IDL }) => {
     'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
     'TooOld' : IDL.Null,
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const NftError = IDL.Variant({
+    'UnauthorizedOperator' : IDL.Null,
+    'SelfTransfer' : IDL.Null,
+    'TokenNotFound' : IDL.Null,
+    'UnauthorizedOwner' : IDL.Null,
+    'TxNotFound' : IDL.Null,
+    'SelfApprove' : IDL.Null,
+    'OperatorNotFound' : IDL.Null,
+    'ExistedNFT' : IDL.Null,
+    'OwnerNotFound' : IDL.Null,
+    'Other' : IDL.Text,
   });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
@@ -69,31 +81,24 @@ export const idlFactory = ({ IDL }) => {
     'TooOld' : IDL.Null,
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
-  const EcdsaError = IDL.Variant({ 'InvalidPublicKey' : IDL.Null });
-  const FlyError = IDL.Variant({
+  const EcdsaError = IDL.Variant({
+    'RecoveryIdError' : IDL.Null,
+    'InvalidSignature' : IDL.Null,
+    'InvalidPublicKey' : IDL.Null,
+  });
+  const EkokeError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
+    'EthRpcError' : IDL.Tuple(IDL.Int32, IDL.Text),
     'XrcError' : IDL.Null,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
     'Icrc2Transfer' : TransferFromError,
     'Ecdsa' : EcdsaError,
-  });
-  const NftError = IDL.Variant({
-    'UnauthorizedOperator' : IDL.Null,
-    'SelfTransfer' : IDL.Null,
-    'TokenNotFound' : IDL.Null,
-    'UnauthorizedOwner' : IDL.Null,
-    'TxNotFound' : IDL.Null,
-    'SelfApprove' : IDL.Null,
-    'OperatorNotFound' : IDL.Null,
-    'ExistedNFT' : IDL.Null,
-    'OwnerNotFound' : IDL.Null,
-    'Other' : IDL.Text,
   });
   const ConfigurationError_1 = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
@@ -119,8 +124,8 @@ export const idlFactory = ({ IDL }) => {
     'BadContractProperty' : IDL.Null,
   });
   const DeferredError = IDL.Variant({
-    'Fly' : FlyError,
     'Nft' : NftError,
+    'Ekoke' : EkokeError,
     'Configuration' : ConfigurationError_1,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
@@ -133,7 +138,7 @@ export const idlFactory = ({ IDL }) => {
     'Icrc1Transfer' : TransferError,
     'DeferredCanister' : DeferredError,
     'TokenNotFound' : IDL.Null,
-    'FlyCanister' : FlyError,
+    'EkokeCanister' : EkokeError,
     'XrcError' : IDL.Null,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
@@ -146,7 +151,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [Result], []),
     'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_fly_canister' : IDL.Func([IDL.Principal], [Result], []),
+    'admin_set_ekoke_canister' : IDL.Func([IDL.Principal], [Result], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_interest_rate_for_buyer' : IDL.Func([IDL.Float64], [], []),
     'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
@@ -156,9 +161,9 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
+    'ekoke_canister' : IDL.Principal,
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
-    'fly_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });

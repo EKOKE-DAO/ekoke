@@ -4,7 +4,7 @@ use did::ID;
 
 use super::configuration::Configuration;
 use super::storage::ContractStorage;
-use crate::client::{fly_client, FlyClient};
+use crate::client::{ekoke_client, EkokeClient};
 use crate::utils::caller;
 
 pub struct Minter;
@@ -17,7 +17,7 @@ impl Minter {
         contract_value: u64,
     ) -> DeferredResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
-        let picofly_reward = fly_client(Configuration::get_fly_canister())
+        let picoekoke_reward = ekoke_client(Configuration::get_ekoke_canister())
             .get_contract_reward(contract_id.clone(), installments)
             .await?;
 
@@ -42,7 +42,7 @@ impl Minter {
                 owner: Some(*seller),
                 transferred_at: None,
                 transferred_by: None,
-                picofly_reward: picofly_reward.clone(),
+                picoekoke_reward: picoekoke_reward.clone(),
                 value: token_value,
             });
             tokens_ids.push(token_id.into());

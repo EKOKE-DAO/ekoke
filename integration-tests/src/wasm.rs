@@ -18,7 +18,7 @@ pub struct Icrc2InitArgs {
 
 pub enum Canister {
     Deferred,
-    Fly,
+    Ekoke,
     Icrc2,
     Marketplace,
     Xrc,
@@ -28,7 +28,7 @@ impl Canister {
     pub fn as_path(&self) -> &'static Path {
         match self {
             Canister::Deferred => Path::new("deferred/deferred.wasm"),
-            Canister::Fly => Path::new("fly/fly.wasm"),
+            Canister::Ekoke => Path::new("ekoke/ekoke.wasm"),
             Canister::Marketplace => Path::new("marketplace/marketplace.wasm"),
             Canister::Xrc => Path::new("test/xrc.wasm"),
             Canister::Icrc2 => Path::new("test/icrc2-template-canister.wasm"),

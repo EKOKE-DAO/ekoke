@@ -17,19 +17,22 @@ export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
-export type DeferredError = { 'Fly' : FlyError } |
-  { 'Nft' : NftError } |
+export type DeferredError = { 'Nft' : NftError } |
+  { 'Ekoke' : EkokeError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
-export type EcdsaError = { 'InvalidPublicKey' : null };
-export type FlyError = { 'Configuration' : ConfigurationError } |
+export type EcdsaError = { 'RecoveryIdError' : null } |
+  { 'InvalidSignature' : null } |
+  { 'InvalidPublicKey' : null };
+export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
+  { 'EthRpcError' : [number, string] } |
   { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
@@ -41,16 +44,16 @@ export type MarketplaceError = { 'Buy' : BuyError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'DeferredCanister' : DeferredError } |
   { 'TokenNotFound' : null } |
-  { 'FlyCanister' : FlyError } |
+  { 'EkokeCanister' : EkokeError } |
   { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
   { 'Dip721' : NftError } |
   { 'Icrc2Transfer' : TransferFromError };
 export interface MarketplaceInitData {
+  'ekoke_canister' : Principal,
   'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
-  'fly_canister' : Principal,
   'xrc_canister' : Principal,
   'admins' : Array<Principal>,
 }
@@ -120,7 +123,7 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,
   'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_fly_canister' : ActorMethod<[Principal], Result>,
+  'admin_set_ekoke_canister' : ActorMethod<[Principal], Result>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_interest_rate_for_buyer' : ActorMethod<[number], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,

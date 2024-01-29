@@ -1,5 +1,5 @@
 mod deferred;
-mod fly;
+mod ekoke;
 
 pub use deferred::DeferredClient;
-pub use fly::FlyClient;
+pub use ekoke::EkokeClient;

@@ -12,7 +12,7 @@ use std::vec;
 
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
-use did::fly::{EthNetwork, FlyInitData, PicoFly};
+use did::ekoke::{EkokeInitData, EthNetwork, PicoEkoke};
 use did::marketplace::MarketplaceInitData;
 use did::H160;
 use pocket_ic::{PocketIc, WasmResult};
@@ -27,7 +27,7 @@ const DEFAULT_CYCLES: u128 = 2_000_000_000_000;
 pub struct TestEnv {
     pub pic: PocketIc,
     pub deferred_id: Principal,
-    pub fly_id: Principal,
+    pub ekoke_id: Principal,
     pub icp_ledger_id: Principal,
     pub marketplace_id: Principal,
     pub xrc_id: Principal,
@@ -92,7 +92,7 @@ impl TestEnv {
         let cketh_minter_id = pic.create_canister();
         let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
-        let fly_id = pic.create_canister();
+        let ekoke_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
 
         // install deferred canister
@@ -100,10 +100,11 @@ impl TestEnv {
         Self::install_icrc2(&pic, ckbtc_id, "ckBTC", "ckBTC", 8);
         Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
         // TODO: install ckETH minter
-        Self::install_deferred(&pic, deferred_id, fly_id, marketplace_id);
-        Self::install_fly(
+        Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
+        Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
+        Self::install_ekoke(
             &pic,
-            fly_id,
+            ekoke_id,
             deferred_id,
             marketplace_id,
             xrc_id,
@@ -116,7 +117,7 @@ impl TestEnv {
             &pic,
             marketplace_id,
             deferred_id,
-            fly_id,
+            ekoke_id,
             xrc_id,
             icp_ledger_id,
         );
@@ -126,7 +127,7 @@ impl TestEnv {
             pic,
             deferred_id,
             icp_ledger_id,
-            fly_id,
+            ekoke_id,
             marketplace_id,
             xrc_id,
         }
@@ -156,7 +157,7 @@ impl TestEnv {
     fn install_deferred(
         pic: &PocketIc,
         deferred_id: Principal,
-        fly_id: Principal,
+        ekoke_id: Principal,
         marketplace_id: Principal,
     ) {
         pic.add_cycles(deferred_id, DEFAULT_CYCLES);
@@ -164,7 +165,7 @@ impl TestEnv {
 
         let init_arg = DeferredInitData {
             custodians: vec![actor::admin()],
-            fly_canister: fly_id,
+            ekoke_canister: ekoke_id,
             marketplace_canister: marketplace_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();
@@ -173,9 +174,9 @@ impl TestEnv {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn install_fly(
+    fn install_ekoke(
         pic: &PocketIc,
-        fly_id: Principal,
+        ekoke_id: Principal,
         deferred_id: Principal,
         marketplace_id: Principal,
         xrc_canister: Principal,
@@ -184,16 +185,16 @@ impl TestEnv {
         cketh_ledger_canister: Principal,
         cketh_minter_canister: Principal,
     ) {
-        pic.add_cycles(fly_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Fly);
+        pic.add_cycles(ekoke_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::Ekoke);
 
-        let init_arg = FlyInitData {
+        let init_arg = EkokeInitData {
             admins: vec![actor::admin()],
             total_supply: 8880101010000000000_u64.into(),
             minting_account: actor::minting_account(),
             initial_balances: vec![
-                (actor::alice_account(), fly_to_picofly(50_000)),
-                (actor::bob_account(), fly_to_picofly(50_000)),
+                (actor::alice_account(), ekoke_to_picoekoke(50_000)),
+                (actor::bob_account(), ekoke_to_picoekoke(50_000)),
             ],
             deferred_canister: deferred_id,
             marketplace_canister: marketplace_id,
@@ -210,14 +211,14 @@ impl TestEnv {
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
-        pic.install_canister(fly_id, wasm_bytes, init_arg, None);
+        pic.install_canister(ekoke_id, wasm_bytes, init_arg, None);
     }
 
     fn install_marketplace(
         pic: &PocketIc,
         marketplace_id: Principal,
         deferred_id: Principal,
-        fly_id: Principal,
+        ekoke_id: Principal,
         xrc_canister: Principal,
         icp_ledger_canister: Principal,
     ) {
@@ -227,7 +228,7 @@ impl TestEnv {
         let init_arg = MarketplaceInitData {
             admins: vec![actor::admin()],
             deferred_canister: deferred_id,
-            fly_canister: fly_id,
+            ekoke_canister: ekoke_id,
             xrc_canister,
             icp_ledger_canister,
         };
@@ -257,7 +258,7 @@ impl TestEnv {
     }
 }
 
-pub fn fly_to_picofly(amount: u64) -> PicoFly {
+pub fn ekoke_to_picoekoke(amount: u64) -> PicoEkoke {
     let amount = Nat::from(amount);
     let multiplier = Nat::from(1_000_000_000_000_u64);
     amount * multiplier

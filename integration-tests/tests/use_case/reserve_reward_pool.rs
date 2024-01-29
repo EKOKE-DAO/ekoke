@@ -3,14 +3,14 @@ use did::deferred::{ContractRegistration, ContractType, Seller};
 use dip721::GenericValue;
 use icrc::icrc1::account::Account;
 use integration_tests::actor::alice;
-use integration_tests::client::{DeferredClient, FlyClient};
-use integration_tests::{fly_to_picofly, TestEnv};
+use integration_tests::client::{DeferredClient, EkokeClient};
+use integration_tests::{ekoke_to_picoekoke, TestEnv};
 
 #[test]
-fn test_should_reserve_a_reward_pool_on_fly() {
+fn test_should_reserve_a_reward_pool_on_ekoke() {
     let env = TestEnv::init();
     let deferred_client = DeferredClient::from(&env);
-    let fly_client = FlyClient::from(&env);
+    let ekoke_client = EkokeClient::from(&env);
 
     // register contract
     let installments = 400_000 / 100;
@@ -37,14 +37,14 @@ fn test_should_reserve_a_reward_pool_on_fly() {
     assert_eq!(contract_id, 0);
 
     // reserve pool
-    assert!(fly_client
+    assert!(ekoke_client
         .reserve_pool(
             Account {
                 owner: alice(),
                 subaccount: None,
             },
             contract_id.clone(),
-            fly_to_picofly(installments) // 1 fly for each NFT
+            ekoke_to_picoekoke(installments) // 1 ekoke for each NFT
         )
         .is_ok());
 
@@ -54,12 +54,15 @@ fn test_should_reserve_a_reward_pool_on_fly() {
 
     // verify reward
     let token = deferred_client.token_metadata(Nat::from(0)).unwrap();
-    let picofly_reward = token
+    let picoekoke_reward = token
         .properties
         .iter()
-        .find(|(k, _)| k == "token:picofly_reward")
+        .find(|(k, _)| k == "token:picoekoke_reward")
         .unwrap()
         .1
         .clone();
-    assert_eq!(picofly_reward, GenericValue::NatContent(fly_to_picofly(1)));
+    assert_eq!(
+        picoekoke_reward,
+        GenericValue::NatContent(ekoke_to_picoekoke(1))
+    );
 }

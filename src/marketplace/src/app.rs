@@ -17,7 +17,7 @@ pub use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::roles::RolesManager;
 use crate::app::exchange_rate::ExchangeRate;
-use crate::client::{DeferredClient, FlyClient};
+use crate::client::{DeferredClient, EkokeClient};
 use crate::utils::{caller, cycles, id, time};
 
 struct TokenInfoWithPrice {
@@ -34,7 +34,7 @@ pub struct Marketplace;
 impl Marketplace {
     pub fn init(data: MarketplaceInitData) {
         Configuration::set_deferred_canister(data.deferred_canister);
-        Configuration::set_fly_canister(data.fly_canister);
+        Configuration::set_ekoke_canister(data.ekoke_canister);
         Configuration::set_xrc_canister(data.xrc_canister);
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
         RolesManager::set_admins(data.admins).unwrap();
@@ -62,13 +62,13 @@ impl Marketplace {
         Configuration::set_deferred_canister(canister)
     }
 
-    pub async fn admin_set_fly_canister(canister: Principal) -> MarketplaceResult<()> {
+    pub async fn admin_set_ekoke_canister(canister: Principal) -> MarketplaceResult<()> {
         if !Inspect::inspect_is_admin(caller()) {
             ic_cdk::trap("unauthorized");
         }
-        Configuration::set_fly_canister(canister);
+        Configuration::set_ekoke_canister(canister);
         // update liquidity pool canister
-        Configuration::update_fly_liquidity_pool_account().await?;
+        Configuration::update_ekoke_liquidity_pool_account().await?;
 
         Ok(())
     }
@@ -112,12 +112,12 @@ impl Marketplace {
     /// 0. marketplace checks whether the token owner is not the caller
     /// 1. marketplace verifies that the caller has given Marketplace enough ICP allowance to buy the NFT `icrc2_allowance`
     /// 2. marketplace checks whether the caller is the contract buyer
-    ///     2.1 If so, it gets the liquidity pool address for fly token (liquity_pool_address)
+    ///     2.1 If so, it gets the liquidity pool address for ekoke token (liquity_pool_address)
     ///     2.2 It transfers the `interest_rate` value to the liquidity pool (icrc2_transfer_from)
     /// 3. marketplace calls `icrc2_transfer_from` on icp canister and transfers the ICP price to the previous owner
     /// 4. marketplace calls `transfer_from` on deferred and transfers the NFT to the caller
     /// 5. marketplace checks whether the NFT has been bought for the first time
-    ///     5.1 if so, is calls `send_reward` on the fly canister passing the caller as the recipient
+    ///     5.1 if so, is calls `send_reward` on the ekoke canister passing the caller as the recipient
     /// 6. marketplace checks whether the caller is the contract buyer
     ///     6.1 if so it calls `burn` on deferred passing the token id
     pub async fn buy_token(
@@ -126,7 +126,7 @@ impl Marketplace {
     ) -> MarketplaceResult<()> {
         let caller_account = Self::caller_account(subaccount);
         let deferred_client = DeferredClient::from(Configuration::get_deferred_canister());
-        let fly_client = FlyClient::from(Configuration::get_fly_canister());
+        let ekoke_client = EkokeClient::from(Configuration::get_ekoke_canister());
         // get token info
         let info = Self::get_token_info_with_price(&token_id).await?;
         // 0. checks whether already owns the token
@@ -155,7 +155,7 @@ impl Marketplace {
             return Err(MarketplaceError::Buy(BuyError::IcpAllowanceNotEnough));
         }
 
-        // 2. pay interest to fly liquidity pool
+        // 2. pay interest to ekoke liquidity pool
         if info.is_caller_contract_buyer {
             Self::top_up_liquidity_pool(caller_account, Nat::from(info.interest)).await?;
         }
@@ -175,11 +175,11 @@ impl Marketplace {
 
         // 5. marketplace checks whether the NFT has been buought for the first time
         if info.is_first_sell {
-            // call `send_reward` on the fly canister passing the caller as the recipient
-            fly_client
+            // call `send_reward` on the ekoke canister passing the caller as the recipient
+            ekoke_client
                 .send_reward(
                     &info.token_info.contract.id,
-                    info.token_info.token.picofly_reward,
+                    info.token_info.token.picoekoke_reward,
                     caller_account,
                 )
                 .await?;
@@ -262,10 +262,10 @@ impl Marketplace {
             .map_err(MarketplaceError::Icrc2Transfer)
     }
 
-    /// Top up Fly canister liquidity pool with the provided amount from the caller account
+    /// Top up Ekoke canister liquidity pool with the provided amount from the caller account
     async fn top_up_liquidity_pool(caller_account: Account, amount: Nat) -> MarketplaceResult<()> {
         // get liquidity pool account
-        let liquidity_pool_account = Configuration::get_fly_liquidity_pool_account().await?;
+        let liquidity_pool_account = Configuration::get_ekoke_liquidity_pool_account().await?;
         // transfer interest rate to liquidity from caller
         Self::spend_caller_icp(caller_account, liquidity_pool_account, amount).await?;
 
@@ -293,7 +293,7 @@ mod test {
 
     use std::str::FromStr as _;
 
-    use super::test_utils::{deferred_canister, fly_canister};
+    use super::test_utils::{deferred_canister, ekoke_canister};
     use super::*;
     use crate::utils::caller;
 
@@ -301,7 +301,7 @@ mod test {
     fn test_should_init_canister() {
         init_canister();
         assert_eq!(Configuration::get_deferred_canister(), deferred_canister());
-        assert_eq!(Configuration::get_fly_canister(), fly_canister());
+        assert_eq!(Configuration::get_ekoke_canister(), ekoke_canister());
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
 
         // check canisters
@@ -310,15 +310,15 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_should_change_fly_canister() {
+    async fn test_should_change_ekoke_canister() {
         init_canister();
-        let new_fly_canister = Principal::anonymous();
-        Marketplace::admin_set_fly_canister(new_fly_canister)
+        let new_ekoke_canister = Principal::anonymous();
+        Marketplace::admin_set_ekoke_canister(new_ekoke_canister)
             .await
             .unwrap();
-        assert_eq!(Configuration::get_fly_canister(), new_fly_canister);
+        assert_eq!(Configuration::get_ekoke_canister(), new_ekoke_canister);
         assert_eq!(
-            Configuration::get_fly_liquidity_pool_account()
+            Configuration::get_ekoke_liquidity_pool_account()
                 .await
                 .unwrap(),
             Account::from(Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap())
@@ -495,7 +495,7 @@ mod test {
     fn init_canister() {
         let data = MarketplaceInitData {
             deferred_canister: deferred_canister(),
-            fly_canister: fly_canister(),
+            ekoke_canister: ekoke_canister(),
             icp_ledger_canister: caller(),
             admins: vec![caller()],
             xrc_canister: caller(),

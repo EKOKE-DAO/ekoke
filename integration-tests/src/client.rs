@@ -1,7 +1,7 @@
 mod deferred;
-mod fly;
+mod ekoke;
 mod marketplace;
 
 pub use deferred::DeferredClient;
-pub use fly::FlyClient;
+pub use ekoke::EkokeClient;
 pub use marketplace::MarketplaceClient;

@@ -3,15 +3,15 @@ use dip721::{NftError, TokenIdentifier};
 use ic_cdk::api::call::RejectionCode;
 use thiserror::Error;
 
-use crate::fly::FlyError;
+use crate::ekoke::EkokeError;
 use crate::ID;
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum DeferredError {
     #[error("unauthorized caller")]
     Unauthorized,
-    #[error("fly error: {0}")]
-    Fly(#[from] FlyError),
+    #[error("ekoke error: {0}")]
+    Ekoke(#[from] EkokeError),
     #[error("token error: {0}")]
     Token(TokenError),
     #[error("configuration error: {0}")]

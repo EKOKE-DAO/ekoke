@@ -37,24 +37,27 @@ export interface ContractRegistration {
 }
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
-export type DeferredError = { 'Fly' : FlyError } |
-  { 'Nft' : NftError } |
+export type DeferredError = { 'Nft' : NftError } |
+  { 'Ekoke' : EkokeError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
-  'fly_canister' : Principal,
+  'ekoke_canister' : Principal,
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
 }
-export type EcdsaError = { 'InvalidPublicKey' : null };
-export type FlyError = { 'Configuration' : ConfigurationError } |
+export type EcdsaError = { 'RecoveryIdError' : null } |
+  { 'InvalidSignature' : null } |
+  { 'InvalidPublicKey' : null };
+export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
+  { 'EthRpcError' : [number, string] } |
   { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
@@ -140,8 +143,8 @@ export interface Token {
   'id' : bigint,
   'transferred_at' : [] | [bigint],
   'transferred_by' : [] | [Principal],
+  'picoekoke_reward' : bigint,
   'value' : bigint,
-  'picofly_reward' : bigint,
   'owner' : [] | [Principal],
   'operator' : [] | [Principal],
   'approved_at' : [] | [bigint],
@@ -237,7 +240,7 @@ export type Vec = Array<
 export interface _SERVICE {
   'admin_get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
-  'admin_set_fly_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_ekoke_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'admin_sign_contract' : ActorMethod<[bigint], Result>,
