@@ -520,6 +520,7 @@ interface ContractAddress {
   [ChainId.Mainnet]: string;
   [ChainId.Rinkeby]: string;
   [ChainId.Ropsten]: string;
+  [ChainId.Sepolia]: string;
   [ChainId.Hardhat]: string;
 }
 
@@ -529,5 +530,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
+  [ChainId.Sepolia]: '0xc08e14F47382BCc1dA6c3Ff366018cAb1c77091F',
   [ChainId.Hardhat]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
 };

@@ -10,6 +10,7 @@ const {
   PROD_PRIVATE_KEY,
   LOCAL_PRIVATE_KEY,
   ETHERSCAN_API_KEY,
+  SEPOLIA_API_URL,
 } = process.env;
 
 const config: HardhatUserConfig = {
@@ -29,6 +30,10 @@ const config: HardhatUserConfig = {
       url: GOERLI_API_URL,
       accounts: [`0x${DEV_PRIVATE_KEY}`],
     },
+    sepolia: {
+      url: SEPOLIA_API_URL,
+      accounts: [`0x${DEV_PRIVATE_KEY}`],
+    },
     localhost: {
       url: "http://127.0.0.1:8545/",
       accounts: [`0x${LOCAL_PRIVATE_KEY}`],
@@ -36,6 +41,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     currency: "USD",
+    enabled: true,
     gasPriceApi:
       "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice",
   },

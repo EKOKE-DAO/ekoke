@@ -8,6 +8,7 @@
     "verify": "hardhat verify --network goerli",
     "deploy:localhost": "hardhat run --network localhost scripts/deploy.ts",
     "deploy:goerli": "hardhat run --network goerli scripts/deploy.ts",
+    "deploy:sepolia": "hardhat run --network sepolia scripts/deploy.ts",
     "deploy:ethereum": "hardhat run --network ethereum scripts/deploy.ts"
   },
   "devDependencies": {

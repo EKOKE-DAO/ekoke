@@ -44,10 +44,20 @@ const MintTestnetTokens = () => {
       });
   };
 
+  React.useEffect(() => {
+    if (account && recipientAddress === '') {
+      setRecipientAddress(account);
+    }
+  }, [account]);
+
   const btnDisabled =
     !isAmountNumber(amount) || recipientAddress.length !== 42 || pendingTx;
 
-  if (chainId !== ChainId.Goerli && chainId !== ChainId.Hardhat) {
+  if (
+    chainId !== ChainId.Goerli &&
+    chainId !== ChainId.Hardhat &&
+    chainId !== ChainId.Sepolia
+  ) {
     return null;
   }
 

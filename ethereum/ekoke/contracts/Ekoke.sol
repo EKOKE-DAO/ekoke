@@ -12,6 +12,7 @@ contract Ekoke is ERC20, Ownable {
     uint8 private _decimals;
 
     uint256 private constant GOERLI_CHAIN_ID = 5;
+    uint256 private constant SEPOLIA_CHAIN_ID = 11155111;
     uint256 private constant HARDHAT_CHAIN_ID = 31337;
 
     event EkokeSwapped(
@@ -48,6 +49,7 @@ contract Ekoke is ERC20, Ownable {
     modifier onlyTestnet() {
         require(
             block.chainid == GOERLI_CHAIN_ID ||
+                block.chainid == SEPOLIA_CHAIN_ID ||
                 block.chainid == HARDHAT_CHAIN_ID,
             "Ekoke: this function can only be called on testnets"
         );
