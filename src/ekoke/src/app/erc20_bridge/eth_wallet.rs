@@ -169,7 +169,11 @@ impl EthWallet {
     }
 
     /// Computes the recovery id from the public key, hash and signature
-    fn compute_eth_recovery_id(public_key: &[u8], hash: H256, signature: &[u8]) -> EkokeResult<u64> {
+    fn compute_eth_recovery_id(
+        public_key: &[u8],
+        hash: H256,
+        signature: &[u8],
+    ) -> EkokeResult<u64> {
         let verifying_key = k256::ecdsa::VerifyingKey::from_sec1_bytes(public_key)
             .map_err(|_| EkokeError::Ecdsa(EcdsaError::InvalidPublicKey))?;
         let signature = k256::ecdsa::Signature::from_slice(signature)
@@ -182,7 +186,7 @@ impl EthWallet {
         .map(|recid| RecoveryId::new(recid.is_y_odd(), recid.is_x_reduced()))
         .map_err(|_| EkokeError::Ecdsa(EcdsaError::RecoveryIdError))?;
 
-        let chain_id = Configuration::get_eth_chain_id();
+        let chain_id = Configuration::get_eth_network().chain_id();
 
         let v = (recovery_id.to_byte() as u64) + (chain_id * 2) + 35;
 

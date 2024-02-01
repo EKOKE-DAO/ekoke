@@ -69,6 +69,12 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
     EkokeCanister::liquidity_pool_accounts()
 }
 
+#[query]
+#[candid_method(query)]
+pub fn erc20_swap_fee() -> u64 {
+    EkokeCanister::erc20_swap_fee()
+}
+
 #[update]
 #[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
@@ -137,8 +143,14 @@ pub fn admin_set_erc20_bridge_address(address: H160) {
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_erc20_swap_fee(fee: u64) {
-    EkokeCanister::admin_set_erc20_swap_fee(fee)
+pub fn admin_set_erc20_gas_price(gas_price: u64) {
+    EkokeCanister::admin_set_erc20_gas_price(gas_price)
+}
+
+#[query]
+#[candid_method(query)]
+pub async fn admin_eth_wallet_address() -> H160 {
+    EkokeCanister::admin_eth_wallet_address().await
 }
 
 #[query]

@@ -37,7 +37,7 @@ pub struct EkokeInitData {
     /// The Ethereum address of the ERC20 bridge
     pub erc20_bridge_address: H160,
     /// Initial ERC20 swap fee
-    pub erc20_swap_fee: u64,
+    pub erc20_gas_price: u64,
     /// The Ethereum network
     pub erc20_network: EthNetwork,
     /// Total supply of $picoekoke tokens

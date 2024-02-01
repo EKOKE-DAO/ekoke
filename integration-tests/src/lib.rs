@@ -206,8 +206,8 @@ impl TestEnv {
             cketh_minter_canister,
             erc20_bridge_address: H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663")
                 .unwrap(),
-            erc20_swap_fee: 178_180_000_000_000,
-            erc20_network: EthNetwork::Goerli,
+            erc20_gas_price: 39_000_000_000_u64.into(), // 39 gwei
+            erc20_network: EthNetwork::Sepolia,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 

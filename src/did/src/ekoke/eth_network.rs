@@ -9,6 +9,18 @@ pub enum EthNetwork {
     Ethereum,
     /// Goerli testnet
     Goerli,
+    /// Sepolia testnet
+    Sepolia,
+}
+
+impl EthNetwork {
+    pub fn chain_id(&self) -> u64 {
+        match self {
+            EthNetwork::Ethereum => 1,
+            EthNetwork::Goerli => 5,
+            EthNetwork::Sepolia => 11155111,
+        }
+    }
 }
 
 impl Storable for EthNetwork {

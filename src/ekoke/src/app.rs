@@ -16,6 +16,8 @@ mod spend_allowance;
 #[cfg(test)]
 mod test_utils;
 
+use std::time::Duration;
+
 use candid::{Nat, Principal};
 use did::ekoke::{
     AllowanceError, BalanceError, EkokeError, EkokeInitData, EkokeResult, LiquidityPoolAccounts,
@@ -60,7 +62,7 @@ impl EkokeCanister {
         // set ERC20 bridge address
         Configuration::set_erc20_bridge_address(data.erc20_bridge_address);
         // Set initial swap fee
-        Erc20Bridge::set_swap_fee(data.erc20_swap_fee).unwrap();
+        Erc20Bridge::set_gas_price(data.erc20_gas_price).unwrap();
         // init liquidity pool
         LiquidityPool::init();
         // set roles
@@ -90,6 +92,15 @@ impl EkokeCanister {
         }
 
         #[cfg(target_family = "wasm")]
+        async fn fetch_gas_price_timer() {
+            let _ = Erc20Bridge::fetch_gas_price().await;
+        }
+
+        #[cfg(target_family = "wasm")]
+        let fetch_gas_price_timer_interval =
+            crate::constants::THREE_HOURS + Duration::from_secs(60);
+
+        #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(
             crate::constants::SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL,
             SpendAllowance::remove_expired_allowance,
@@ -97,6 +108,10 @@ impl EkokeCanister {
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(crate::constants::LIQUIDITY_POOL_SWAP_INTERVAL, || {
             ic_cdk::spawn(swap_icp_to_btc_timer());
+        });
+        #[cfg(target_family = "wasm")]
+        ic_cdk_timers::set_timer_interval(fetch_gas_price_timer_interval, || {
+            ic_cdk::spawn(fetch_gas_price_timer());
         });
     }
 
@@ -165,6 +180,13 @@ impl EkokeCanister {
 
         Reward::get_contract_reward(contract_id, installments).await
     }
+
+    /// Get the current swap fee
+    pub fn erc20_swap_fee() -> u64 {
+        Erc20Bridge::get_swap_fee()
+    }
+
+    // # admin methods
 
     /// Set role to the provided principal
     pub fn admin_set_role(principal: Principal, role: Role) {
@@ -255,14 +277,15 @@ impl EkokeCanister {
         Configuration::set_erc20_bridge_address(address);
     }
 
-    /// Set ERC20 swap fee
-    pub fn admin_set_erc20_swap_fee(fee: u64) {
+    /// Set ERC20 gas price
+    pub fn admin_set_erc20_gas_price(gas_price: u64) {
         if !Inspect::inspect_is_admin(utils::caller()) {
             ic_cdk::trap("Unauthorized");
         }
-        Erc20Bridge::set_swap_fee(fee).unwrap()
+        Erc20Bridge::set_gas_price(gas_price).unwrap()
     }
 
+    /// Get Ethereum on-chain address for the ekoke canister
     pub async fn admin_eth_wallet_address() -> H160 {
         if !Inspect::inspect_is_admin(utils::caller()) {
             ic_cdk::trap("Unauthorized");
@@ -533,11 +556,12 @@ mod test {
     use super::test_utils::{alice_account, bob_account, caller_account, ekoke_to_picoekoke};
     use super::*;
     use crate::app::test_utils::bob;
-    use crate::constants::ICRC1_TX_TIME_SKID;
+    use crate::constants::{ICRC1_TX_TIME_SKID, TRANSCRIBE_SWAP_TX_GAS};
     use crate::utils::caller;
 
     const ERC20_BRIDGE_ADDRESS: &str = "0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663";
-    const ERC20_SWAP_FEE: u64 = 231_634_000_000_000;
+    const ERC20_GAS_PRICE: u64 = 39_000_000_000;
+    const ERC20_SWAP_FEE: u64 = ERC20_GAS_PRICE * TRANSCRIBE_SWAP_TX_GAS;
 
     #[tokio::test]
     async fn test_should_init_canister() {
@@ -867,10 +891,26 @@ mod test {
     }
 
     #[test]
-    fn test_should_set_erc20_swap_fee() {
+    fn test_should_get_erc20_swap_fee() {
         init_canister();
-        EkokeCanister::admin_set_erc20_swap_fee(10);
-        assert_eq!(Erc20Bridge::get_swap_fee(), 10);
+        assert_eq!(EkokeCanister::erc20_swap_fee(), ERC20_SWAP_FEE);
+    }
+
+    #[test]
+    fn test_should_set_erc20_gas_price() {
+        init_canister();
+        EkokeCanister::admin_set_erc20_gas_price(10);
+        assert_eq!(Erc20Bridge::get_swap_fee(), 10 * TRANSCRIBE_SWAP_TX_GAS);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_canister_eth_address() {
+        init_canister();
+        let eth_address = EkokeCanister::admin_eth_wallet_address().await;
+        assert_eq!(
+            eth_address,
+            H160::from_hex_str("0xc31db061ddd32ad002a1465fde0c92e2cca9c83d").unwrap()
+        );
     }
 
     #[tokio::test]
@@ -1252,7 +1292,7 @@ mod test {
             cketh_minter_canister: caller(),
             cketh_ledger_canister: caller(),
             erc20_bridge_address: H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap(),
-            erc20_swap_fee: ERC20_SWAP_FEE,
+            erc20_gas_price: ERC20_GAS_PRICE,
             erc20_network: EthNetwork::Goerli,
         };
         EkokeCanister::init(data);

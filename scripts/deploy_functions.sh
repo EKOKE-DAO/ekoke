@@ -52,7 +52,7 @@ deploy_ekoke() {
     cketh_minter_canister = principal \"qcg3w-tyaaa-aaaaa-aaaea-cai\";
     cketh_ledger_canister = principal \"qcg3w-tyaaa-aaaaa-aaaea-cai\";
     erc20_bridge_address = \"$ERC20_BRIDGE_ADDRESS\";
-    erc20_swap_fee = $ERC20_SWAP_FEE;
+    erc20_gas_price = $ERC20_SWAP_FEE;
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke

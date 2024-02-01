@@ -10,6 +10,7 @@ use num_traits::cast::ToPrimitive;
 use self::response::EthRpcResponse;
 use super::swap_fee::SwapFee;
 use crate::app::configuration::Configuration;
+use crate::constants::TRANSCRIBE_SWAP_TX_GAS;
 
 #[cfg(target_family = "wasm")]
 const GOERLI_PUBLICNODE_URL: &str = "https://ethereum-goerli.publicnode.com";
@@ -29,8 +30,6 @@ const HTTP_RESPONSE_SIZE_LIMIT: u64 = 2048;
 const BASE_SUBNET_SIZE: u128 = 13;
 #[cfg(target_family = "wasm")]
 const SUBNET_SIZE: u128 = 34;
-
-const SWAP_TX_GAS: u64 = 108210;
 
 /// Ethereum RPC client
 pub struct EthRpcClient {
@@ -181,17 +180,17 @@ impl EthRpcClient {
         })
         .encode();
 
-        let gas_price = SwapFee::get_swap_fee() / SWAP_TX_GAS;
+        let gas_price = SwapFee::get_gas_price();
 
         Ok(TransactionRequest {
             from: Some(from.0),
             to: Some(ekoke_erc20.0.into()),
             value: None,
-            gas: Some(SWAP_TX_GAS.into()),
+            gas: Some(TRANSCRIBE_SWAP_TX_GAS.into()),
             gas_price: Some(gas_price.into()),
             data: Some(Bytes::from(payload)),
             nonce: Some(nonce.into()),
-            chain_id: Some(Configuration::get_eth_chain_id().into()),
+            chain_id: Some(Configuration::get_eth_network().chain_id().into()),
         })
     }
 

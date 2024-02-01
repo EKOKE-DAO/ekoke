@@ -190,14 +190,6 @@ impl Configuration {
         ETH_NETWORK.with(|eth_network| *eth_network.borrow().get())
     }
 
-    /// Get eth chain id
-    pub fn get_eth_chain_id() -> u64 {
-        match Self::get_eth_network() {
-            EthNetwork::Goerli => 5,
-            EthNetwork::Ethereum => 1,
-        }
-    }
-
     /// Set eth network
     pub fn set_eth_network(network: EthNetwork) {
         ETH_NETWORK.with_borrow_mut(|cell| {
@@ -287,6 +279,5 @@ mod test {
         let network = EthNetwork::Goerli;
         Configuration::set_eth_network(network);
         assert_eq!(Configuration::get_eth_network(), network);
-        assert_eq!(Configuration::get_eth_chain_id(), 5);
     }
 }

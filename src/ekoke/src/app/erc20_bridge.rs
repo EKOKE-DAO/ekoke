@@ -1,5 +1,6 @@
 mod eth_rpc;
 mod eth_wallet;
+mod gas_station;
 mod swap_fee;
 mod swap_pool;
 
@@ -9,6 +10,7 @@ use icrc::icrc1::account::Account;
 
 use self::eth_rpc::EthRpcClient;
 use self::eth_wallet::EthWallet;
+use self::gas_station::GasStation;
 use self::swap_fee::SwapFee;
 use self::swap_pool::SwapPool;
 use super::balance::Balance;
@@ -67,13 +69,25 @@ impl Erc20Bridge {
         SwapFee::get_swap_fee()
     }
 
-    /// Sets the swap fee.
-    pub fn set_swap_fee(swap_fee: u64) -> EkokeResult<()> {
-        SwapFee::set_swap_fee(swap_fee)
+    /// Sets the gas price.
+    pub fn set_gas_price(gas_price: u64) -> EkokeResult<()> {
+        SwapFee::set_gas_price(gas_price)
     }
 
     /// Returns the address of the ETH wallet
     pub async fn get_wallet_address() -> EkokeResult<H160> {
         EthWallet::address().await
+    }
+
+    /// Fetches the current gas price from etherscan
+    pub async fn fetch_gas_price() -> EkokeResult<()> {
+        if !SwapFee::should_update_gas_price() {
+            return Ok(());
+        }
+        let gas_price = GasStation::fetch_gas_price().await?;
+        // update price
+        Self::set_gas_price(gas_price)?;
+
+        Ok(())
     }
 }
