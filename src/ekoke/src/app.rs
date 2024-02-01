@@ -16,8 +16,6 @@ mod spend_allowance;
 #[cfg(test)]
 mod test_utils;
 
-use std::time::Duration;
-
 use candid::{Nat, Principal};
 use did::ekoke::{
     AllowanceError, BalanceError, EkokeError, EkokeInitData, EkokeResult, LiquidityPoolAccounts,
@@ -98,7 +96,7 @@ impl EkokeCanister {
 
         #[cfg(target_family = "wasm")]
         let fetch_gas_price_timer_interval =
-            crate::constants::THREE_HOURS + Duration::from_secs(60);
+            crate::constants::THREE_HOURS + std::time::Duration::from_secs(60);
 
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(
