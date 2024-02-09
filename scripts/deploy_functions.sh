@@ -35,6 +35,7 @@ deploy_ekoke() {
   MINTING_ACCOUNT="${10}"
   ERC20_BRIDGE_ADDRESS="${11}"
   ERC20_SWAP_FEE="${12}"
+  ERC20_NETWORK="${13}"
 
   echo "deploying ekoke canister $EKOKE_PRINCIPAL"
 
@@ -49,10 +50,11 @@ deploy_ekoke() {
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
-    cketh_minter_canister = principal \"qcg3w-tyaaa-aaaaa-aaaea-cai\";
-    cketh_ledger_canister = principal \"qcg3w-tyaaa-aaaaa-aaaea-cai\";
+    cketh_minter_canister = principal \"sv3dd-oaaaa-aaaar-qacoa-cai\";
+    cketh_ledger_canister = principal \"ss2fx-dyaaa-aaaar-qacoq-cai\";
     erc20_bridge_address = \"$ERC20_BRIDGE_ADDRESS\";
     erc20_gas_price = $ERC20_SWAP_FEE;
+    erc20_network = variant { $ERC20_NETWORK };
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke
