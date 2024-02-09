@@ -26,6 +26,7 @@ use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
 use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1};
 use icrc::icrc2::{self, Icrc2};
+use icrc::IcrcLedgerClient;
 
 use self::balance::Balance;
 use self::configuration::Configuration;
@@ -98,19 +99,23 @@ impl EkokeCanister {
         let fetch_gas_price_timer_interval =
             crate::constants::THREE_HOURS + std::time::Duration::from_secs(60);
 
+        // Expired spend allowance timers
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(
             crate::constants::SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL,
             SpendAllowance::remove_expired_allowance,
         );
+        // Liquidity pool ICP -> BTC swap timer
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(crate::constants::LIQUIDITY_POOL_SWAP_INTERVAL, || {
             ic_cdk::spawn(swap_icp_to_btc_timer());
         });
+        // Timer to fetch current gas price
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(fetch_gas_price_timer_interval, || {
             ic_cdk::spawn(fetch_gas_price_timer());
         });
+        // TODO: convert ckETH to ETH
     }
 
     /// Get transaction by id
@@ -182,6 +187,53 @@ impl EkokeCanister {
     /// Get the current swap fee
     pub fn erc20_swap_fee() -> u64 {
         Erc20Bridge::get_swap_fee()
+    }
+
+    /// Swap ICRC to ERC20
+    pub async fn erc20_swap(
+        recipient: H160,
+        amount: PicoEkoke,
+        from_subaccount: Option<[u8; 32]>,
+    ) -> EkokeResult<String> {
+        let caller = Account {
+            owner: utils::caller(),
+            subaccount: from_subaccount,
+        };
+        let canister_account = utils::account();
+        // get current swap fee
+        let swap_fee = Erc20Bridge::get_swap_fee();
+        // check if caller has given enough ckEth allowance to the canister
+        let cketh_client = IcrcLedgerClient::new(Configuration::get_cketh_ledger_canister());
+        let cketh_allowance = cketh_client
+            .icrc2_allowance(canister_account, caller)
+            .await
+            .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))?;
+        if cketh_allowance.allowance < swap_fee {
+            return Err(EkokeError::Allowance(AllowanceError::InsufficientFunds));
+        }
+        if cketh_allowance
+            .expires_at
+            .map(|expiration| expiration < utils::time())
+            .unwrap_or_default()
+        {
+            return Err(EkokeError::Allowance(AllowanceError::AllowanceExpired));
+        }
+
+        // swap
+        let txid = Erc20Bridge::swap_icrc_to_erc20(caller, recipient, amount).await?;
+
+        // transfer ckEth to the canister account
+        cketh_client
+            .icrc2_transfer_from(
+                canister_account.subaccount,
+                caller,
+                canister_account,
+                swap_fee.into(),
+            )
+            .await
+            .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))??;
+
+        Ok(txid)
     }
 
     // # admin methods
@@ -1268,6 +1320,30 @@ mod test {
                 allowance: Nat::from(ekoke_to_picoekoke(0)),
                 expires_at: None,
             }
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_swap_icrc_to_erc20() {
+        init_canister();
+
+        // set lower gas fee
+        EkokeCanister::admin_set_erc20_gas_price(1);
+        let amount = ekoke_to_picoekoke(10_000);
+        let recipient = H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663").unwrap();
+        // swap
+        assert!(EkokeCanister::erc20_swap(recipient, amount.clone(), None)
+            .await
+            .is_ok());
+        // check swap pool balance
+        assert_eq!(
+            Balance::balance_of(Configuration::get_erc20_swap_pool_account()).unwrap(),
+            amount
+        );
+        // check caller balance
+        assert_eq!(
+            EkokeCanister::icrc1_balance_of(caller_account()),
+            ekoke_to_picoekoke(100_000) - amount
         );
     }
 

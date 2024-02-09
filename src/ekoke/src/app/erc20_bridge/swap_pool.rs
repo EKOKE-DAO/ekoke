@@ -1,34 +1,12 @@
-use std::cell::RefCell;
-
 use candid::Principal;
-use did::ekoke::{EkokeError, EkokeResult, PicoEkoke};
-use did::StorableAccount;
-use ic_stable_structures::memory_manager::VirtualMemory;
-use ic_stable_structures::{DefaultMemoryImpl, StableCell};
+use did::ekoke::{EkokeResult, PicoEkoke};
 use icrc::icrc1::account::Account;
 
-use crate::app::memory::{ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID, MEMORY_MANAGER};
 use crate::app::{Balance, Configuration};
 use crate::utils;
 
 /// Swap Pool contains the tokens exchanged from ERC20 to FLY
 pub struct SwapPool;
-
-thread_local! {
-
-    /// ERC20 swap pool account
-    static SWAP_POOL_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(
-            StableCell::new(
-                MEMORY_MANAGER.with(|mm| mm.get(ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID)),
-                Account {
-                    owner: Principal::anonymous(),
-                    subaccount: None,
-                }.into(),
-            ).unwrap()
-        );
-
-}
 
 impl SwapPool {
     /// Deposit $picoEkoke tokens to the swap pool from the provided account.
@@ -47,10 +25,10 @@ impl SwapPool {
     ///
     /// If not initialized, it will be initialized.
     async fn erc20_swap_pool_account() -> EkokeResult<Account> {
-        let swap_pool_account = SWAP_POOL_ACCOUNT.with_borrow(|spa| *spa.get());
+        let swap_pool_account = Configuration::get_erc20_swap_pool_account();
         // if swap pool account is initialized, return it
-        if !swap_pool_account.is_anonymous() {
-            return Ok(swap_pool_account.0);
+        if swap_pool_account.owner != Principal::anonymous() {
+            return Ok(swap_pool_account);
         }
 
         // otherwise initialize it
@@ -69,9 +47,7 @@ impl SwapPool {
             }
 
             // set the new account
-            SWAP_POOL_ACCOUNT
-                .with_borrow_mut(|spa| spa.set(new_account.clone().into()))
-                .map_err(|_| EkokeError::StorageError)?;
+            Configuration::set_erc20_swap_pool_account(new_account.clone().into());
 
             return Ok(new_account);
         }
@@ -82,7 +58,7 @@ impl SwapPool {
 mod test {
 
     use candid::Nat;
-    use pretty_assertions::assert_eq;
+    use pretty_assertions::{assert_eq, assert_ne};
 
     use super::*;
     use crate::app::test_utils;
@@ -93,27 +69,27 @@ mod test {
         Balance::init_balances(Nat::from(100), vec![(alice.clone(), 100_u64.into())]);
 
         // check if swap pool account is anonymous
-        let swap_pool_account = SWAP_POOL_ACCOUNT.with_borrow(|spa| *spa.get());
-        assert!(swap_pool_account.is_anonymous());
+        let swap_pool_account = Configuration::get_erc20_swap_pool_account();
+        assert_eq!(swap_pool_account.owner, Principal::anonymous());
 
         assert!(SwapPool::deposit(alice, Nat::from(20)).await.is_ok());
 
         // check if swap pool account has been initialized
-        let swap_pool_account = SWAP_POOL_ACCOUNT.with_borrow(|spa| *spa.get());
-        assert!(!swap_pool_account.is_anonymous());
-        assert_eq!(swap_pool_account.0.owner, utils::id());
-        assert!(swap_pool_account.0.subaccount.is_some());
+        let swap_pool_account = Configuration::get_erc20_swap_pool_account();
+        assert_ne!(swap_pool_account.owner, Principal::anonymous());
+        assert_eq!(swap_pool_account.owner, utils::id());
+        assert!(swap_pool_account.subaccount.is_some());
 
         // check if alice has 80 picoEkoke
         assert_eq!(Balance::balance_of(alice).unwrap(), 80_u64);
 
         // check if swap pool has 20 picoEkoke
-        assert_eq!(Balance::balance_of(swap_pool_account.0).unwrap(), 20_u64);
+        assert_eq!(Balance::balance_of(swap_pool_account).unwrap(), 20_u64);
 
         // withdraw
         assert!(SwapPool::withdraw(alice, Nat::from(10)).await.is_ok());
         assert_eq!(Balance::balance_of(alice).unwrap(), 90_u64);
-        assert_eq!(Balance::balance_of(swap_pool_account.0).unwrap(), 10_u64);
+        assert_eq!(Balance::balance_of(swap_pool_account).unwrap(), 10_u64);
     }
 
     #[tokio::test]

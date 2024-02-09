@@ -13,8 +13,9 @@ use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
     CKBTC_CANISTER_MEMORY_ID, CKETH_LEDGER_CANISTER_MEMORY_ID, CKETH_MINTER_CANISTER_MEMORY_ID,
-    ERC20_BRIDGE_ADDRESS_MEMORY_ID, ETH_NETWORK_MEMORY_ID, ICP_LEDGER_CANISTER_MEMORY_ID,
-    MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
+    ERC20_BRIDGE_ADDRESS_MEMORY_ID, ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID, ETH_NETWORK_MEMORY_ID,
+    ICP_LEDGER_CANISTER_MEMORY_ID, MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID,
+    SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
 };
 
 thread_local! {
@@ -77,6 +78,18 @@ thread_local! {
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(ETH_NETWORK_MEMORY_ID)),
         EthNetwork::Ethereum).unwrap()
     );
+
+    /// ERC20 swap pool account
+    static ERC20_SWAP_POOL_ACCOUNT: RefCell<StableCell<StorableAccount, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(
+            StableCell::new(
+                MEMORY_MANAGER.with(|mm| mm.get(ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID)),
+                Account {
+                    owner: Principal::anonymous(),
+                    subaccount: None,
+                }.into(),
+            ).unwrap()
+        );
 }
 
 /// canister configuration
@@ -194,6 +207,18 @@ impl Configuration {
     pub fn set_eth_network(network: EthNetwork) {
         ETH_NETWORK.with_borrow_mut(|cell| {
             cell.set(network).unwrap();
+        });
+    }
+
+    /// Get swap pool account
+    pub fn get_erc20_swap_pool_account() -> Account {
+        ERC20_SWAP_POOL_ACCOUNT.with(|spa| spa.borrow().get().0)
+    }
+
+    /// Set swap pool account
+    pub fn set_erc20_swap_pool_account(account: Account) {
+        ERC20_SWAP_POOL_ACCOUNT.with_borrow_mut(|cell| {
+            cell.set(account.into()).unwrap();
         });
     }
 }

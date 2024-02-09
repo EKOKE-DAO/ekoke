@@ -77,6 +77,16 @@ pub fn erc20_swap_fee() -> u64 {
 
 #[update]
 #[candid_method(update)]
+pub async fn erc20_swap(
+    recipient: H160,
+    amount: PicoEkoke,
+    from_subaccount: Option<[u8; 32]>,
+) -> EkokeResult<String> {
+    EkokeCanister::erc20_swap(recipient, amount, from_subaccount).await
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
     EkokeCanister::admin_set_role(principal, role)
 }

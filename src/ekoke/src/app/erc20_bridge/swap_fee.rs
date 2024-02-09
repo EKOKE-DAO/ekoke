@@ -58,6 +58,8 @@ impl SwapFee {
 
     /// Returns whether the swap fee should be updated.
     /// The gas price should be updated every three hours.
+    /// used only on wasm32
+    #[allow(dead_code)]
     pub fn should_update_gas_price() -> bool {
         LAST_GAS_PRICE_UPDATE
             .with(|lsfu| time() - *lsfu.borrow().get() > THREE_HOURS.as_nanos() as u64)
