@@ -21,6 +21,7 @@ target/
 
 # dfx temp files
 !.dfx/local/canisters/test
+!.dfx/local/canisters/test/test/*
 .dfx/
 
 integration-tests/pocket-ic
