@@ -91,11 +91,6 @@ impl EkokeCanister {
         }
 
         #[cfg(target_family = "wasm")]
-        async fn fetch_gas_price_timer() {
-            let _ = Erc20Bridge::fetch_gas_price().await;
-        }
-
-        #[cfg(target_family = "wasm")]
         async fn convert_cketh_to_eth_timer() {
             let _ = Erc20Bridge::withdraw_cketh_to_eth().await;
         }
@@ -104,10 +99,6 @@ impl EkokeCanister {
         async fn fetch_ekoke_swapped_events() {
             let _ = Erc20Bridge::swap_erc20_to_icrc().await;
         }
-
-        #[cfg(target_family = "wasm")]
-        let fetch_gas_price_timer_interval =
-            crate::constants::THREE_HOURS + std::time::Duration::from_secs(60);
 
         // Expired spend allowance timers
         #[cfg(target_family = "wasm")]
@@ -119,11 +110,6 @@ impl EkokeCanister {
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(crate::constants::LIQUIDITY_POOL_SWAP_INTERVAL, || {
             ic_cdk::spawn(swap_icp_to_btc_timer());
-        });
-        // Timer to fetch current gas price
-        #[cfg(target_family = "wasm")]
-        ic_cdk_timers::set_timer_interval(fetch_gas_price_timer_interval, || {
-            ic_cdk::spawn(fetch_gas_price_timer());
         });
         // convert ckETH to ETH
         #[cfg(target_family = "wasm")]
@@ -206,9 +192,13 @@ impl EkokeCanister {
         Reward::get_contract_reward(contract_id, installments).await
     }
 
-    /// Get the current swap fee
-    pub fn erc20_swap_fee() -> u64 {
-        Erc20Bridge::get_swap_fee()
+    /// Get the current swap fee.
+    ///
+    /// If the gas price is older than 3 hours, it refreshes its value
+    pub async fn erc20_swap_fee() -> EkokeResult<u64> {
+        Erc20Bridge::fetch_gas_price().await?;
+
+        Ok(Erc20Bridge::get_swap_fee())
     }
 
     /// Swap ICRC to ERC20
@@ -962,10 +952,13 @@ mod test {
         assert_eq!(Configuration::get_erc20_bridge_address(), address);
     }
 
-    #[test]
-    fn test_should_get_erc20_swap_fee() {
+    #[tokio::test]
+    async fn test_should_get_erc20_swap_fee() {
         init_canister();
-        assert_eq!(EkokeCanister::erc20_swap_fee(), ERC20_SWAP_FEE);
+        assert_eq!(
+            EkokeCanister::erc20_swap_fee().await.unwrap(),
+            ERC20_SWAP_FEE
+        );
     }
 
     #[test]

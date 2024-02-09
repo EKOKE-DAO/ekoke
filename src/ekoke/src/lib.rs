@@ -69,10 +69,10 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
     EkokeCanister::liquidity_pool_accounts()
 }
 
-#[query]
-#[candid_method(query)]
-pub fn erc20_swap_fee() -> u64 {
-    EkokeCanister::erc20_swap_fee()
+#[update]
+#[candid_method(update)]
+pub async fn erc20_swap_fee() -> EkokeResult<u64> {
+    EkokeCanister::erc20_swap_fee().await
 }
 
 #[update]
