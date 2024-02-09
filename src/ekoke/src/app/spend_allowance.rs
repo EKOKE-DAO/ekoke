@@ -53,7 +53,7 @@ impl SpendAllowance {
         let mut spend = Spend::from(approve);
 
         // if the allowance exists, then update current allowance
-        match Self::with_allowance_mut(&allowance_key, |existing_spend| {
+        let incr_allowance_closure = |existing_spend: &mut Spend| {
             // check expected allowance
             if spend
                 .expected_allowance
@@ -70,7 +70,8 @@ impl SpendAllowance {
             *existing_spend = spend.clone();
 
             Ok(new_amount)
-        }) {
+        };
+        match Self::with_allowance_mut(&allowance_key, incr_allowance_closure) {
             Ok(new_amount) => return Ok(new_amount),
             Err(EkokeError::Allowance(AllowanceError::AllowanceNotFound)) => {}
             Err(err) => return Err(err),
