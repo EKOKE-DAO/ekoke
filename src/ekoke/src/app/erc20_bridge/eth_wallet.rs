@@ -11,7 +11,9 @@ use sha2::Digest;
 use sha3::Keccak256;
 
 use crate::app::configuration::Configuration;
-use crate::app::memory::{ETH_ADDRESS_MEMORY_ID, ETH_PUBKEY_MEMORY_ID, MEMORY_MANAGER};
+use crate::app::memory::{
+    ETH_PUBKEY_MEMORY_ID, FLY_CANISTER_ETH_ADDRESS_MEMORY_ID, MEMORY_MANAGER,
+};
 
 thread_local! {
 
@@ -19,7 +21,7 @@ thread_local! {
     static WALLET_ADDRESS: RefCell<StableCell<H160, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(
             StableCell::new(
-                MEMORY_MANAGER.with(|mm| mm.get(ETH_ADDRESS_MEMORY_ID)),
+                MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_ETH_ADDRESS_MEMORY_ID)),
                 H160::zero(),
             ).unwrap()
         );
@@ -105,7 +107,7 @@ impl EthWallet {
 
             let public_key = Self::get_public_key().await?;
 
-            let v = Self::compute_recovery_id(&public_key, sighash, &signature)?;
+            let v = Self::compute_eth_recovery_id(&public_key, sighash, &signature)?;
             let signature = Signature { r, s, v };
 
             Ok(tx.rlp_signed(&signature))
@@ -169,6 +171,7 @@ impl EthWallet {
     }
 
     /// Computes the recovery id from the public key, hash and signature
+    #[allow(dead_code)]
     fn compute_eth_recovery_id(
         public_key: &[u8],
         hash: H256,

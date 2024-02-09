@@ -22,6 +22,7 @@ pub const MIN_REWARD: u64 = ICRC1_FEE * 2;
 pub const THREE_HOURS: Duration = Duration::from_secs(60 * 60 * 3);
 
 /// Ethereum address public key name
+#[cfg(target_family = "wasm")]
 pub const ETH_PUBKEY_NAME: &str = "eth-pubkey";
 
 /// Minimum amount of ckEth which can be withdrawn from the Ethereum bridge (wei)
@@ -38,3 +39,13 @@ pub const LIQUIDITY_POOL_SWAP_INTERVAL: Duration = Duration::from_secs(60 * 60 *
 
 #[cfg(target_family = "wasm")]
 pub const CKETH_WITHDRAWAL_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24); // 1 day
+
+/// ERC20 Swapped event fetch interval
+#[cfg(target_family = "wasm")]
+pub const ERC20_SWAPPED_EVENT_FETCH_INTERVAL: Duration = Duration::from_secs(60 * 60); // 1 hour
+
+/// ERC20 EkokeSwapped topic to search in logs
+/// Keccak3("EkokeSwapped(address,bytes32,uint256)")
+#[cfg(target_family = "wasm")]
+pub const ERC20_EKOKE_SWAPPED_TOPIC: &str =
+    "0x73237ca1bbcb09a423f8b6dd74772a03e1ceeaefd48bad90b61d01644355eb28";

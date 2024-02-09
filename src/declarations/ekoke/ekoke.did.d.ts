@@ -45,6 +45,7 @@ export type EcdsaError = { 'RecoveryIdError' : null } |
   { 'InvalidSignature' : null } |
   { 'InvalidPublicKey' : null };
 export type EkokeError = { 'Configuration' : ConfigurationError } |
+  { 'Icrc2Approve' : ApproveError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |

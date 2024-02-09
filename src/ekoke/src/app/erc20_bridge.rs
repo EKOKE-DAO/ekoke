@@ -5,8 +5,12 @@ mod gas_station;
 mod swap_fee;
 mod swap_pool;
 
+use std::cell::RefCell;
+
 use did::ekoke::{BalanceError, EkokeError, EkokeResult, PicoEkoke};
 use did::H160;
+use ic_stable_structures::memory_manager::VirtualMemory;
+use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
 use self::eth_rpc::EthRpcClient;
@@ -16,6 +20,18 @@ use self::swap_fee::SwapFee;
 use self::swap_pool::SwapPool;
 use super::balance::Balance;
 use super::configuration::Configuration;
+use crate::app::memory::{ERC20_LOGS_START_BLOCK_MEMORY_ID, MEMORY_MANAGER};
+
+thread_local! {
+    /// ERC20 logs start block
+    static ERC20_LOGS_START_BLOCK: RefCell<StableCell<u64, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(
+            StableCell::new(
+                MEMORY_MANAGER.with(|mm| mm.get(ERC20_LOGS_START_BLOCK_MEMORY_ID)),
+                0,
+            ).unwrap()
+        );
+}
 
 /// ERC20 Bridge
 pub struct Erc20Bridge;
@@ -57,12 +73,35 @@ impl Erc20Bridge {
         Ok(hash)
     }
 
+    /// Get the Ekoke Swap event and then
+    ///
     /// Swaps the ERC20 FLY token to the ICRC FLY token.
     ///
     /// This method is easier than the conversion from ICRC FLY to ERC20 FLY and it basically
     /// just transfer the amount from the swap pool to the recipient.
-    pub async fn swap_erc20_to_icrc(recipient: Account, amount: PicoEkoke) -> EkokeResult<()> {
-        SwapPool::withdraw(recipient, amount).await
+    #[allow(dead_code)]
+    pub async fn swap_erc20_to_icrc() -> EkokeResult<()> {
+        let rpc_client = EthRpcClient::new(Configuration::get_eth_network());
+        // get ekoke swapped events
+        let from_block = ERC20_LOGS_START_BLOCK.with(|cell| *cell.borrow().get());
+        let (last_block, events) = rpc_client.get_ekoke_swapped_events(from_block).await?;
+
+        // update last block
+        ERC20_LOGS_START_BLOCK
+            .with(|cell| cell.borrow_mut().set(last_block + 1))
+            .unwrap();
+
+        // withdraw to recipient
+        for event in events {
+            match (event.principal(), event.amount()) {
+                (Ok(principal), Ok(amount)) => {
+                    SwapPool::withdraw(Account::from(principal), amount.into()).await?;
+                }
+                _ => continue,
+            }
+        }
+
+        Ok(())
     }
 
     /// Returns the swap fee.
@@ -81,6 +120,9 @@ impl Erc20Bridge {
     }
 
     /// Fetches the current gas price from etherscan
+    ///
+    /// Used only in wasm32
+    #[allow(dead_code)]
     pub async fn fetch_gas_price() -> EkokeResult<()> {
         if !SwapFee::should_update_gas_price() {
             return Ok(());

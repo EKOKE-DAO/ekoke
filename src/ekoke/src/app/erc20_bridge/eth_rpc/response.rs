@@ -9,6 +9,7 @@ pub struct EthRpcResponse {
 }
 
 impl EthRpcResponse {
+    #[allow(dead_code)]
     pub fn into_result(self) -> Result<String, Error> {
         match self.error {
             Some(error) => Err(error),

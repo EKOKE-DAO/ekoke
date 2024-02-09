@@ -29,6 +29,20 @@ export const idlFactory = ({ IDL }) => {
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
   });
+  const ApproveError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'AllowanceChanged' : IDL.Record({ 'current_allowance' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const TransferError = IDL.Variant({
     'GenericError' : IDL.Record({
       'message' : IDL.Text,
@@ -89,6 +103,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const EkokeError = IDL.Variant({
     'Configuration' : ConfigurationError,
+    'Icrc2Approve' : ApproveError,
     'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
@@ -161,20 +176,6 @@ export const idlFactory = ({ IDL }) => {
     'expected_allowance' : IDL.Opt(IDL.Nat),
     'expires_at' : IDL.Opt(IDL.Nat64),
     'spender' : Account,
-  });
-  const ApproveError = IDL.Variant({
-    'GenericError' : IDL.Record({
-      'message' : IDL.Text,
-      'error_code' : IDL.Nat,
-    }),
-    'TemporarilyUnavailable' : IDL.Null,
-    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
-    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
-    'AllowanceChanged' : IDL.Record({ 'current_allowance' : IDL.Nat }),
-    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
-    'TooOld' : IDL.Null,
-    'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
-    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
   const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : ApproveError });
   const TransferFromArgs = IDL.Record({

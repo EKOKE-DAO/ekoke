@@ -47,7 +47,7 @@ impl SwapPool {
             }
 
             // set the new account
-            Configuration::set_erc20_swap_pool_account(new_account.clone().into());
+            Configuration::set_erc20_swap_pool_account(new_account);
 
             return Ok(new_account);
         }

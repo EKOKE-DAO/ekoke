@@ -101,6 +101,11 @@ impl EkokeCanister {
         }
 
         #[cfg(target_family = "wasm")]
+        async fn fetch_ekoke_swapped_events() {
+            let _ = Erc20Bridge::swap_erc20_to_icrc().await;
+        }
+
+        #[cfg(target_family = "wasm")]
         let fetch_gas_price_timer_interval =
             crate::constants::THREE_HOURS + std::time::Duration::from_secs(60);
 
@@ -125,6 +130,14 @@ impl EkokeCanister {
         ic_cdk_timers::set_timer_interval(crate::constants::CKETH_WITHDRAWAL_INTERVAL, || {
             ic_cdk::spawn(convert_cketh_to_eth_timer());
         });
+        // Fetch ERC20 -> ICRC swap events
+        #[cfg(target_family = "wasm")]
+        ic_cdk_timers::set_timer_interval(
+            crate::constants::ERC20_SWAPPED_EVENT_FETCH_INTERVAL,
+            || {
+                ic_cdk::spawn(fetch_ekoke_swapped_events());
+            },
+        );
     }
 
     /// Get transaction by id

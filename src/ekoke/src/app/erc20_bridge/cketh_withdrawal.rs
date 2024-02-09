@@ -1,12 +1,12 @@
 use candid::{CandidType, Nat, Principal};
-use did::{
-    ekoke::{EkokeError, EkokeResult},
-    H160,
-};
-use icrc::{icrc1::account::Account, IcrcLedgerClient};
+use did::ekoke::{EkokeError, EkokeResult};
+use did::H160;
+use icrc::icrc1::account::Account;
+use icrc::IcrcLedgerClient;
 use serde::Deserialize;
 
-use crate::{app::configuration::Configuration, constants::ETH_MIN_WITHDRAWAL_AMOUNT};
+use crate::app::configuration::Configuration;
+use crate::constants::ETH_MIN_WITHDRAWAL_AMOUNT;
 
 pub struct CkEthWithdrawal;
 

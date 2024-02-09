@@ -35,8 +35,8 @@ pub const FLY_CANISTER_ETH_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(50);
 pub const ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(51);
 pub const ERC20_GAS_PRICE_MEMORY_ID: MemoryId = MemoryId::new(52);
 pub const ERC20_LAST_GAS_PRICE_UPDATE_MEMORY_ID: MemoryId = MemoryId::new(53);
-pub const ETH_PUBKEY_MEMORY_ID: MemoryId = MemoryId::new(54);
-pub const ETH_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(55);
+pub const ERC20_LOGS_START_BLOCK_MEMORY_ID: MemoryId = MemoryId::new(54);
+pub const ETH_PUBKEY_MEMORY_ID: MemoryId = MemoryId::new(55);
 pub const ETH_NETWORK_MEMORY_ID: MemoryId = MemoryId::new(56);
 
 thread_local! {

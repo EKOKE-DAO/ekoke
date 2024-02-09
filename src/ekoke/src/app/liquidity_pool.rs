@@ -79,8 +79,8 @@ impl LiquidityPool {
     /// Get liquidity pool accounts
     pub fn accounts() -> LiquidityPoolAccounts {
         LiquidityPoolAccounts {
-            icp: ICP_ACCOUNT.with_borrow(|account| account.get().clone()).0,
-            ckbtc: CKBTC_ACCOUNT.with_borrow(|account| account.get().clone()).0,
+            icp: ICP_ACCOUNT.with_borrow(|account| *account.get()).0,
+            ckbtc: CKBTC_ACCOUNT.with_borrow(|account| *account.get()).0,
         }
     }
 

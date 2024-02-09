@@ -39,6 +39,7 @@ type EcdsaError = variant {
 };
 type EkokeError = variant {
   Configuration : ConfigurationError;
+  Icrc2Approve : ApproveError;
   Icrc1Transfer : TransferError;
   Pool : PoolError;
   Allowance : AllowanceError;

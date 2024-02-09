@@ -171,7 +171,7 @@ impl Balance {
                 Some(balance) => balance,
                 None => {
                     // If balance is not set, create it with 0 balance
-                    balances.insert(storable_account.clone(), AccountBalance::from(Nat::from(0)));
+                    balances.insert(storable_account, AccountBalance::from(Nat::from(0)));
                     balances.get(&storable_account).unwrap()
                 }
             };

@@ -41,6 +41,20 @@ export const idlFactory = ({ IDL }) => {
     'OwnerNotFound' : IDL.Null,
     'Other' : IDL.Text,
   });
+  const ApproveError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'AllowanceChanged' : IDL.Record({ 'current_allowance' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
@@ -88,6 +102,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const EkokeError = IDL.Variant({
     'Configuration' : ConfigurationError,
+    'Icrc2Approve' : ApproveError,
     'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
