@@ -255,11 +255,11 @@ mod test {
                     .into(),
             ),
             value: None,
-            nonce: Some(0.into()),
-            gas: Some(21000.into()),
-            gas_price: Some(1_000_000_000u64.into()),
+            nonce: Some(0_u64.into()),
+            gas: Some(21000_u64.into()),
+            gas_price: Some(1_000_000_000_u64.into()),
             data: None,
-            chain_id: Some(1.into()),
+            chain_id: Some(1_u64.into()),
         };
 
         let signature = wallet.sign_transaction(&tx.clone().into()).await.unwrap();

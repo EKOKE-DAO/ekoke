@@ -57,7 +57,7 @@ mod test {
             memo: None,
             created_at: crate::utils::time(),
         };
-        assert_eq!(Register::insert_tx(tx).unwrap(), Nat::from(0));
+        assert_eq!(Register::insert_tx(tx).unwrap(), Nat::from(0_u64));
         assert!(Register::get_tx(0).is_ok());
 
         let tx = Transaction {
@@ -70,7 +70,7 @@ mod test {
             )),
             created_at: crate::utils::time(),
         };
-        assert_eq!(Register::insert_tx(tx).unwrap(), Nat::from(1));
+        assert_eq!(Register::insert_tx(tx).unwrap(), Nat::from(1_u64));
         assert!(Register::get_tx(1).is_ok());
 
         assert!(Register::get_tx(2).is_err());

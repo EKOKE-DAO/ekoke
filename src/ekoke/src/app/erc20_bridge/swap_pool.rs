@@ -66,13 +66,13 @@ mod test {
     #[tokio::test]
     async fn test_should_deposit_and_withdraw_from_swap_pool() {
         let alice = test_utils::alice_account();
-        Balance::init_balances(Nat::from(100), vec![(alice.clone(), 100_u64.into())]);
+        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100__u64.into())]);
 
         // check if swap pool account is anonymous
         let swap_pool_account = Configuration::get_erc20_swap_pool_account();
         assert_eq!(swap_pool_account.owner, Principal::anonymous());
 
-        assert!(SwapPool::deposit(alice, Nat::from(20)).await.is_ok());
+        assert!(SwapPool::deposit(alice, Nat::from(20_u64)).await.is_ok());
 
         // check if swap pool account has been initialized
         let swap_pool_account = Configuration::get_erc20_swap_pool_account();
@@ -87,7 +87,7 @@ mod test {
         assert_eq!(Balance::balance_of(swap_pool_account).unwrap(), 20_u64);
 
         // withdraw
-        assert!(SwapPool::withdraw(alice, Nat::from(10)).await.is_ok());
+        assert!(SwapPool::withdraw(alice, Nat::from(10_u64)).await.is_ok());
         assert_eq!(Balance::balance_of(alice).unwrap(), 90_u64);
         assert_eq!(Balance::balance_of(swap_pool_account).unwrap(), 10_u64);
     }
@@ -95,14 +95,14 @@ mod test {
     #[tokio::test]
     async fn should_not_allow_withdraw_or_deposit_with_insufficient_balance() {
         let alice = test_utils::alice_account();
-        Balance::init_balances(Nat::from(100), vec![(alice.clone(), 100_u64.into())]);
+        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100__u64.into())]);
 
-        assert!(SwapPool::deposit(alice.clone(), Nat::from(200))
+        assert!(SwapPool::deposit(alice.clone(), Nat::from(200_u64))
             .await
             .is_err());
 
-        assert!(SwapPool::deposit(alice, Nat::from(20)).await.is_ok());
+        assert!(SwapPool::deposit(alice, Nat::from(20_u64)).await.is_ok());
 
-        assert!(SwapPool::withdraw(alice, Nat::from(30)).await.is_err());
+        assert!(SwapPool::withdraw(alice, Nat::from(30_u64)).await.is_err());
     }
 }

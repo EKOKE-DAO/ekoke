@@ -140,7 +140,9 @@ impl SpendAllowance {
         SPEND_ALLOWANCE.with_borrow_mut(|allowances| {
             let mut expired_allowances = vec![];
             for (key, spend) in allowances.iter() {
-                if spend.expires_at.map(|exp| exp < now).unwrap_or_default() || spend.amount == 0 {
+                if spend.expires_at.map(|exp| exp < now).unwrap_or_default()
+                    || spend.amount == 0_u64
+                {
                     expired_allowances.push(key.clone());
                 }
             }
@@ -195,7 +197,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -219,7 +221,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(exp_1),
             fee: None,
@@ -237,7 +239,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 150.into(),
+            amount: 150_u64.into(),
             expected_allowance: None,
             expires_at: Some(exp_2),
             fee: None,
@@ -258,7 +260,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: crate::app::test_utils::caller_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -274,7 +276,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(crate::utils::time() - 1),
             fee: None,
@@ -290,7 +292,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -303,8 +305,8 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
-            expected_allowance: Some(50.into()),
+            amount: 100_u64.into(),
+            expected_allowance: Some(50_u64.into()),
             expires_at: None,
             fee: None,
             memo: None,
@@ -316,8 +318,8 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
-            expected_allowance: Some(100.into()),
+            amount: 100_u64.into(),
+            expected_allowance: Some(100_u64.into()),
             expires_at: None,
             fee: None,
             memo: None,
@@ -332,8 +334,8 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
-            expected_allowance: Some(50.into()),
+            amount: 100_u64.into(),
+            expected_allowance: Some(50_u64.into()),
             expires_at: None,
             fee: None,
             memo: None,
@@ -348,7 +350,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: bob_account().subaccount,
             spender: caller_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -366,7 +368,7 @@ mod test {
         assert!(SpendAllowance::spend_allowance(
             caller(),
             bob_account(),
-            25.into(),
+            25_u64.into(),
             caller_account().subaccount
         )
         .is_ok());
@@ -381,7 +383,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: bob_account().subaccount,
             spender: caller_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(crate::utils::time() + 100_000),
             fee: None,
@@ -401,7 +403,7 @@ mod test {
         assert!(SpendAllowance::spend_allowance(
             caller(),
             bob_account(),
-            25.into(),
+            25_u64.into(),
             caller_account().subaccount
         )
         .is_err());
@@ -412,7 +414,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: bob_account().subaccount,
             spender: caller_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -430,7 +432,7 @@ mod test {
         assert!(SpendAllowance::spend_allowance(
             caller(),
             bob_account(),
-            125.into(),
+            125_u64.into(),
             caller_account().subaccount
         )
         .is_err());
@@ -441,7 +443,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -453,7 +455,7 @@ mod test {
 
         assert_eq!(
             SpendAllowance::get_allowance(caller_account(), alice_account()),
-            (100.into(), None)
+            (100_u64.into(), None)
         );
 
         let exp = crate::utils::time() * 2;
@@ -461,7 +463,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(exp),
             fee: None,
@@ -473,13 +475,13 @@ mod test {
 
         assert_eq!(
             SpendAllowance::get_allowance(caller_account(), bob_account()),
-            (100.into(), Some(exp))
+            (100_u64.into(), Some(exp))
         );
 
         // unexisting account
         assert_eq!(
             SpendAllowance::get_allowance(alice_account(), bob_account()),
-            (0.into(), None)
+            (0_u64.into(), None)
         );
     }
 
@@ -488,7 +490,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(crate::utils::time() * 2),
             fee: None,
@@ -501,7 +503,7 @@ mod test {
         let allowance = ApproveArgs {
             from_subaccount: None,
             spender: bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             expected_allowance: None,
             expires_at: Some(crate::utils::time() + 100_000),
             fee: None,
@@ -517,7 +519,7 @@ mod test {
                 owner: Principal::management_canister(),
                 subaccount: None,
             },
-            amount: 0.into(),
+            amount: 0_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,

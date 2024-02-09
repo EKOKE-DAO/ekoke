@@ -448,7 +448,7 @@ impl Icrc1 for EkokeCanister {
                 }
             }
             _ => icrc1_transfer::TransferError::GenericError {
-                error_code: Nat::from(3),
+                error_code: Nat::from(3_u64),
                 message: err.to_string(),
             },
         })?;
@@ -463,7 +463,7 @@ impl Icrc1 for EkokeCanister {
             created_at,
         };
         Register::insert_tx(tx).map_err(|_| icrc1_transfer::TransferError::GenericError {
-            error_code: Nat::from(4),
+            error_code: Nat::from(4_u64),
             message: "failed to register transaction".to_string(),
         })
     }
@@ -506,7 +506,7 @@ impl Icrc2 for EkokeCanister {
                 Err(icrc2::approve::ApproveError::TooOld)
             }
             Err(err) => Err(icrc2::approve::ApproveError::GenericError {
-                error_code: 0.into(),
+                error_code: 0_u64.into(),
                 message: err.to_string(),
             }),
         }
@@ -566,7 +566,7 @@ impl Icrc2 for EkokeCanister {
                 Err(icrc2::transfer_from::TransferFromError::TooOld)
             }
             Err(e) => Err(icrc2::transfer_from::TransferFromError::GenericError {
-                error_code: 0.into(),
+                error_code: 0_u64.into(),
                 message: e.to_string(),
             }),
         }?;
@@ -598,7 +598,7 @@ impl Icrc2 for EkokeCanister {
             created_at: tx_time,
         };
         Register::insert_tx(tx).map_err(|_| icrc2::transfer_from::TransferFromError::GenericError {
-            error_code: Nat::from(4),
+            error_code: Nat::from(4_u64),
             message: "failed to register transaction".to_string(),
         })
     }
@@ -711,8 +711,8 @@ mod test {
     #[tokio::test]
     async fn test_should_reserve_pool() {
         init_canister();
-        let contract_id = 1.into();
-        let picoekoke_amount: Nat = 1000_u64.into();
+        let contract_id = 1_u64.into();
+        let picoekoke_amount: Nat = 1000__u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -728,8 +728,8 @@ mod test {
     #[should_panic]
     async fn test_should_not_allow_reserve_pool() {
         init_canister();
-        let contract_id = 1.into();
-        let picoekoke_amount = 1000_u64.into();
+        let contract_id = 1_u64.into();
+        let picoekoke_amount = 1000__u64.into();
 
         assert!(EkokeCanister::reserve_pool(
             test_utils::bob_account(),
@@ -743,9 +743,9 @@ mod test {
     #[tokio::test]
     async fn test_should_send_reward() {
         init_canister();
-        let contract_id: ID = 1.into();
+        let contract_id: ID = 1_u64.into();
 
-        let picoekoke_amount: Nat = 1000_u64.into();
+        let picoekoke_amount: Nat = 1000__u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -758,22 +758,22 @@ mod test {
 
         // send reward to bob
         assert!(
-            EkokeCanister::send_reward(contract_id, 500_u64.into(), bob_account())
+            EkokeCanister::send_reward(contract_id, 500__u64.into(), bob_account())
                 .await
                 .is_ok()
         );
         assert_eq!(
             Balance::balance_of(bob_account()).unwrap(),
-            ekoke_to_picoekoke(50_000) + 500
+            ekoke_to_picoekoke(50_000) + 500_u64
         );
     }
 
     #[tokio::test]
     async fn test_should_not_send_reward() {
         init_canister();
-        let contract_id: ID = 1.into();
+        let contract_id: ID = 1_u64.into();
 
-        let picoekoke_amount: Nat = 1000_u64.into();
+        let picoekoke_amount: Nat = 1000__u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -786,12 +786,12 @@ mod test {
 
         // send reward to bob
         assert!(
-            EkokeCanister::send_reward(contract_id, 5000_u64.into(), bob_account())
+            EkokeCanister::send_reward(contract_id, 5000__u64.into(), bob_account())
                 .await
                 .is_err()
         );
         assert!(
-            EkokeCanister::send_reward(2.into(), 500_u64.into(), bob_account())
+            EkokeCanister::send_reward(2_u64.into(), 500__u64.into(), bob_account())
                 .await
                 .is_err()
         );
@@ -1005,7 +1005,7 @@ mod test {
                 owner: utils::id(),
                 subaccount: Some(utils::random_subaccount().await),
             }),
-            Nat::from(0)
+            Nat::from(0_u64)
         );
     }
 

@@ -39,7 +39,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
         .update_contract_buyers(alice(), contract_id, vec![bob()])
         .is_ok());
     // get contract buyers
-    let token = deferred_client.token_metadata(0.into()).unwrap();
+    let token = deferred_client.token_metadata(0_u64.into()).unwrap();
     let buyers = token
         .properties
         .iter()

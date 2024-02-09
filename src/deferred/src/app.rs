@@ -550,16 +550,19 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
 
-        let token_info = Deferred::get_token(&2.into()).unwrap();
-        assert_eq!(token_info.token.id, Nat::from(2));
-        assert_eq!(token_info.contract.id, Nat::from(1));
+        let token_info = Deferred::get_token(&2__u64.into()).unwrap();
+        assert_eq!(token_info.token.id, Nat::from(2_u64));
+        assert_eq!(token_info.contract.id, Nat::from(1_u64));
     }
 
     #[test]
     fn test_should_get_contract() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Deferred::get_contract(&1.into()).unwrap().id, Nat::from(1));
+        assert_eq!(
+            Deferred::get_contract(&1__u64.into()).unwrap().id,
+            Nat::from(1_u64)
+        );
     }
 
     #[test]
@@ -569,7 +572,7 @@ mod test {
         store_mock_contract(&[3, 4], 2);
         assert_eq!(
             Deferred::get_signed_contracts(),
-            vec![Nat::from(1), Nat::from(2)]
+            vec![Nat::from(1_u64), Nat::from(2_u64)]
         );
     }
 
@@ -590,11 +593,14 @@ mod test {
         };
 
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
-        assert_eq!(Deferred::total_supply(), Nat::from(0));
-        assert_eq!(Deferred::admin_get_unsigned_contracts(), vec![Nat::from(0)]);
-        assert!(Deferred::admin_sign_contract(0.into()).await.is_ok());
-        assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0)]);
-        assert_eq!(Deferred::total_supply(), Nat::from(10));
+        assert_eq!(Deferred::total_supply(), Nat::from(0_u64));
+        assert_eq!(
+            Deferred::admin_get_unsigned_contracts(),
+            vec![Nat::from(0_u64)]
+        );
+        assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());
+        assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0_u64)]);
+        assert_eq!(Deferred::total_supply(), Nat::from(10_u64));
     }
 
     #[tokio::test]
@@ -613,13 +619,15 @@ mod test {
             value: 100,
         };
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
-        assert!(Deferred::admin_sign_contract(0.into()).await.is_ok());
+        assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());
 
         // increment value
-        assert!(Deferred::seller_increment_contract_value(0.into(), 50, 10)
-            .await
-            .is_ok());
-        assert_eq!(Deferred::total_supply(), Nat::from(20));
+        assert!(
+            Deferred::seller_increment_contract_value(0_u64.into(), 50, 10)
+                .await
+                .is_ok()
+        );
+        assert_eq!(Deferred::total_supply(), Nat::from(20_u64));
     }
 
     #[test]
@@ -634,12 +642,12 @@ mod test {
             |_| {},
         );
         assert!(Deferred::update_contract_buyers(
-            1.into(),
+            1_u64.into(),
             vec![Principal::management_canister(), caller()]
         )
         .is_ok());
         assert_eq!(
-            Deferred::get_contract(&1.into()).unwrap().buyers,
+            Deferred::get_contract(&1__u64.into()).unwrap().buyers,
             vec![Principal::management_canister(), caller()]
         );
     }
@@ -679,9 +687,9 @@ mod test {
         init_canister();
         let stats = Deferred::stats();
         assert_eq!(stats.cycles, crate::utils::cycles());
-        assert_eq!(stats.total_supply, 0);
-        assert_eq!(stats.total_transactions, 0);
-        assert_eq!(stats.total_unique_holders, 0);
+        assert_eq!(stats.total_supply, 0_u64);
+        assert_eq!(stats.total_transactions, 0_u64);
+        assert_eq!(stats.total_unique_holders, 0_u64);
     }
 
     #[test]
@@ -726,26 +734,26 @@ mod test {
     fn test_should_get_unique_holders() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Deferred::total_unique_holders(), Nat::from(1));
+        assert_eq!(Deferred::total_unique_holders(), Nat::from(1_u64));
     }
 
     #[test]
     fn test_should_get_token_metadata() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        let metadata = Deferred::token_metadata(1.into()).unwrap();
+        let metadata = Deferred::token_metadata(1_u64.into()).unwrap();
         assert_eq!(metadata.owner, Some(caller()));
-        assert_eq!(metadata.token_identifier, Nat::from(1));
+        assert_eq!(metadata.token_identifier, Nat::from(1_u64));
 
         // unexisting token
-        assert!(Deferred::token_metadata(5.into()).is_err());
+        assert!(Deferred::token_metadata(5_u64.into()).is_err());
     }
 
     #[test]
     fn test_should_get_balance_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(2));
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(2_u64));
         assert!(Deferred::balance_of(Principal::management_canister()).is_err());
     }
 
@@ -753,8 +761,8 @@ mod test {
     fn test_should_get_owner_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Deferred::owner_of(1.into()).unwrap(), Some(caller()));
-        assert!(Deferred::owner_of(5.into()).is_err());
+        assert_eq!(Deferred::owner_of(1_u64.into()).unwrap(), Some(caller()));
+        assert!(Deferred::owner_of(5_u64.into()).is_err());
     }
 
     #[test]
@@ -763,7 +771,7 @@ mod test {
         store_mock_contract(&[1, 2], 1);
         assert_eq!(
             Deferred::owner_token_identifiers(caller()).unwrap(),
-            vec![Nat::from(1), Nat::from(2)]
+            vec![Nat::from(1_u64), Nat::from(2_u64)]
         );
         assert!(Deferred::owner_token_identifiers(Principal::management_canister()).is_err());
     }
@@ -775,9 +783,9 @@ mod test {
         let metadata = Deferred::owner_token_metadata(caller()).unwrap();
         assert_eq!(metadata.len(), 2);
         assert_eq!(metadata[0].owner, Some(caller()));
-        assert_eq!(metadata[0].token_identifier, Nat::from(1));
+        assert_eq!(metadata[0].token_identifier, Nat::from(1_u64));
         assert_eq!(metadata[1].owner, Some(caller()));
-        assert_eq!(metadata[1].token_identifier, Nat::from(2));
+        assert_eq!(metadata[1].token_identifier, Nat::from(2_u64));
 
         // unexisting owner
         assert!(Deferred::owner_token_metadata(Principal::management_canister()).is_err());
@@ -787,7 +795,7 @@ mod test {
     fn test_should_get_operator_of() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert_eq!(Deferred::operator_of(1.into()).unwrap(), None);
+        assert_eq!(Deferred::operator_of(1_u64.into()).unwrap(), None);
         store_mock_contract_with(
             &[3],
             2,
@@ -796,11 +804,11 @@ mod test {
         );
 
         assert_eq!(
-            Deferred::operator_of(3.into()).unwrap(),
+            Deferred::operator_of(3_u64.into()).unwrap(),
             Some(Principal::management_canister())
         );
 
-        assert!(Deferred::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5_u64.into()).is_err());
     }
 
     #[test]
@@ -826,9 +834,9 @@ mod test {
         );
         assert_eq!(
             Deferred::operator_token_identifiers(Principal::management_canister()).unwrap(),
-            vec![Nat::from(3), Nat::from(4)]
+            vec![Nat::from(3_u64), Nat::from(4_u64)]
         );
-        assert!(Deferred::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5_u64.into()).is_err());
     }
 
     #[test]
@@ -855,11 +863,11 @@ mod test {
         let metadata = Deferred::operator_token_metadata(Principal::management_canister()).unwrap();
         assert_eq!(metadata.len(), 2);
         assert_eq!(metadata[0].owner, Some(caller()));
-        assert_eq!(metadata[0].token_identifier, Nat::from(3));
+        assert_eq!(metadata[0].token_identifier, Nat::from(3_u64));
         assert_eq!(metadata[1].owner, Some(caller()));
-        assert_eq!(metadata[1].token_identifier, Nat::from(4));
+        assert_eq!(metadata[1].token_identifier, Nat::from(4_u64));
 
-        assert!(Deferred::operator_of(5.into()).is_err());
+        assert!(Deferred::operator_of(5_u64.into()).is_err());
     }
 
     #[test]
@@ -879,7 +887,7 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         store_mock_contract(&[3, 4], 2);
-        assert_eq!(Deferred::total_supply(), Nat::from(4));
+        assert_eq!(Deferred::total_supply(), Nat::from(4_u64));
     }
 
     #[tokio::test]
@@ -887,22 +895,22 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         // self transfer
-        assert!(Deferred::transfer(caller(), 1.into()).await.is_err());
+        assert!(Deferred::transfer(caller(), 1_u64.into()).await.is_err());
 
         // transfer
         assert!(
-            Deferred::transfer(Principal::management_canister(), 1.into())
+            Deferred::transfer(Principal::management_canister(), 1_u64.into())
                 .await
                 .is_ok()
         );
-        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1));
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1_u64));
         assert_eq!(
             Deferred::balance_of(Principal::management_canister()).unwrap(),
-            Nat::from(1)
+            Nat::from(1_u64)
         );
         // transfer unexisting
         assert!(
-            Deferred::transfer(Principal::management_canister(), 5.into())
+            Deferred::transfer(Principal::management_canister(), 5_u64.into())
                 .await
                 .is_err()
         );
@@ -912,24 +920,24 @@ mod test {
     fn test_should_burn() {
         init_canister();
         store_mock_contract(&[1, 2], 1);
-        assert!(Deferred::burn(1.into()).is_ok());
-        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1));
+        assert!(Deferred::burn(1_u64.into()).is_ok());
+        assert_eq!(Deferred::balance_of(caller()).unwrap(), Nat::from(1_u64));
 
-        assert!(Deferred::burn(5.into()).is_err());
+        assert!(Deferred::burn(5_u64.into()).is_err());
     }
 
     #[test]
     fn test_should_get_tx() {
-        assert!(Deferred::transaction(Nat::from(1)).is_err());
+        assert!(Deferred::transaction(Nat::from(1_u64)).is_err());
         let id = TxHistory::register_token_mint(&mock_token(1, 1));
         assert!(Deferred::transaction(id).is_ok());
     }
 
     #[test]
     fn test_should_get_total_transactions() {
-        assert_eq!(Deferred::total_transactions(), Nat::from(0));
+        assert_eq!(Deferred::total_transactions(), Nat::from(0_u64));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
-        assert_eq!(Deferred::total_transactions(), Nat::from(1));
+        assert_eq!(Deferred::total_transactions(), Nat::from(1_u64));
     }
 
     fn init_canister() {

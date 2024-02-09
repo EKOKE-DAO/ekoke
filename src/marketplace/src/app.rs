@@ -366,7 +366,7 @@ mod test {
     #[tokio::test]
     async fn test_should_get_icp_price_with_interest() {
         init_canister();
-        let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(2))
+        let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(2_u64))
             .await
             .unwrap();
         assert_eq!(icp_price, 1353013530); // with interest
@@ -375,7 +375,7 @@ mod test {
     #[tokio::test]
     async fn test_should_get_icp_price_without_interest() {
         init_canister();
-        let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1))
+        let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1_u64))
             .await
             .unwrap();
         assert_eq!(icp_price, 1230012300);
@@ -384,10 +384,10 @@ mod test {
     #[tokio::test]
     async fn test_should_get_token_info_with_price() {
         init_canister();
-        let token_info = Marketplace::get_token_info_with_price(&TokenIdentifier::from(1))
+        let token_info = Marketplace::get_token_info_with_price(&TokenIdentifier::from(1_u64))
             .await
             .unwrap();
-        assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(1));
+        assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(1_u64));
         assert_eq!(1230012300, token_info.icp_price_without_interest);
         assert_eq!(
             token_info.icp_price_with_interest,
@@ -396,10 +396,10 @@ mod test {
         assert_eq!(token_info.interest, 0);
         assert_eq!(token_info.is_first_sell, true);
 
-        let token_info = Marketplace::get_token_info_with_price(&TokenIdentifier::from(2))
+        let token_info = Marketplace::get_token_info_with_price(&TokenIdentifier::from(2_u64))
             .await
             .unwrap();
-        assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(2));
+        assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(2_u64));
         assert_eq!(1230012300, token_info.icp_price_without_interest);
         assert_eq!(token_info.icp_price_with_interest, 1353013530);
         assert_eq!(
@@ -418,7 +418,7 @@ mod test {
         assert_eq!(
             allowance,
             icrc2::allowance::Allowance {
-                allowance: 5000000000_u64.into(),
+                allowance: 5000000000__u64.into(),
                 expires_at: None,
             }
         );
@@ -428,7 +428,7 @@ mod test {
     async fn test_should_not_allow_to_buy_token_already_owned() {
         init_canister();
         assert!(matches!(
-            Marketplace::buy_token(TokenIdentifier::from(2), None)
+            Marketplace::buy_token(TokenIdentifier::from(2_u64), None)
                 .await
                 .unwrap_err(),
             MarketplaceError::Buy(BuyError::CallerAlreadyOwnsToken)
@@ -439,7 +439,7 @@ mod test {
     async fn test_should_not_allow_to_buy_token_without_owner() {
         init_canister();
         assert!(matches!(
-            Marketplace::buy_token(TokenIdentifier::from(3), None)
+            Marketplace::buy_token(TokenIdentifier::from(3_u64), None)
                 .await
                 .unwrap_err(),
             MarketplaceError::Buy(BuyError::TokenHasNoOwner)
@@ -450,7 +450,7 @@ mod test {
     async fn test_should_not_allow_to_buy_if_allowance_is_not_enough() {
         init_canister();
         assert!(matches!(
-            Marketplace::buy_token(TokenIdentifier::from(1), Some([1; 32]))
+            Marketplace::buy_token(TokenIdentifier::from(1_u64), Some([1; 32]))
                 .await
                 .unwrap_err(),
             MarketplaceError::Buy(BuyError::IcpAllowanceNotEnough)
@@ -461,7 +461,7 @@ mod test {
     async fn test_should_not_allow_to_buy_if_allowance_is_expired() {
         init_canister();
         assert!(matches!(
-            Marketplace::buy_token(TokenIdentifier::from(1), Some([2; 32]))
+            Marketplace::buy_token(TokenIdentifier::from(1_u64), Some([2; 32]))
                 .await
                 .unwrap_err(),
             MarketplaceError::Buy(BuyError::IcpAllowanceExpired)
@@ -471,7 +471,7 @@ mod test {
     #[tokio::test]
     async fn test_should_buy_token_if_not_buyer() {
         init_canister();
-        assert!(Marketplace::buy_token(TokenIdentifier::from(1), None)
+        assert!(Marketplace::buy_token(TokenIdentifier::from(1_u64), None)
             .await
             .is_ok());
     }
@@ -479,7 +479,7 @@ mod test {
     #[tokio::test]
     async fn test_should_buy_token_if_buyer() {
         init_canister();
-        assert!(Marketplace::buy_token(TokenIdentifier::from(4), None)
+        assert!(Marketplace::buy_token(TokenIdentifier::from(4_u64), None)
             .await
             .is_ok());
     }

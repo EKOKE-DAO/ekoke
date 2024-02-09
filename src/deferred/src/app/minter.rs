@@ -94,7 +94,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_mint_token_with_single_seller() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let sellers = vec![Seller {
             principal: caller(),
             quota: 100,
@@ -107,9 +107,9 @@ mod test {
         let (tokens, tokens_ids) = result.unwrap();
         assert_eq!(tokens.len(), installments as usize);
         assert_eq!(tokens_ids.len(), installments as usize);
-        assert_eq!(tokens[0].id, 0);
-        assert_eq!(tokens[1].id, 1);
-        assert_eq!(tokens[2].id, 2);
+        assert_eq!(tokens[0].id, 0_u64);
+        assert_eq!(tokens[1].id, 1_u64);
+        assert_eq!(tokens[2].id, 2_u64);
         assert_eq!(tokens[0].value, 40);
         assert_eq!(tokens[1].value, 40);
         assert_eq!(tokens[2].value, 40);
@@ -117,7 +117,7 @@ mod test {
 
     #[tokio::test]
     async fn test_should_mint_tokens_with_multiple_owners_and_same_quota() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let sellers = vec![
             Seller {
                 principal: caller(),
@@ -140,8 +140,8 @@ mod test {
             .filter(|token| token.owner.unwrap() == caller())
             .collect::<Vec<&Token>>();
         assert_eq!(caller_tokens.len(), installments as usize / 2);
-        assert_eq!(caller_tokens[0].id, 0);
-        assert_eq!(caller_tokens[1].id, 1);
+        assert_eq!(caller_tokens[0].id, 0_u64);
+        assert_eq!(caller_tokens[1].id, 1_u64);
 
         let management_tokens = tokens
             .iter()
@@ -149,13 +149,13 @@ mod test {
             .collect::<Vec<&Token>>();
         assert_eq!(caller_tokens.len(), installments as usize / 2);
 
-        assert_eq!(management_tokens[0].id, 5);
-        assert_eq!(management_tokens[1].id, 6);
+        assert_eq!(management_tokens[0].id, 5_u64);
+        assert_eq!(management_tokens[1].id, 6_u64);
     }
 
     #[tokio::test]
     async fn test_should_mint_tokens_with_different_quotas() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let sellers = vec![
             Seller {
                 principal: caller(),
@@ -182,8 +182,8 @@ mod test {
             .filter(|token| token.owner.unwrap() == caller())
             .collect::<Vec<&Token>>();
         assert_eq!(caller_tokens.len(), 5);
-        assert_eq!(caller_tokens[0].id, 0);
-        assert_eq!(caller_tokens[1].id, 1);
+        assert_eq!(caller_tokens[0].id, 0_u64);
+        assert_eq!(caller_tokens[1].id, 1_u64);
 
         let management_tokens = tokens
             .iter()
@@ -191,8 +191,8 @@ mod test {
             .collect::<Vec<&Token>>();
 
         assert_eq!(management_tokens.len(), 3);
-        assert_eq!(management_tokens[0].id, 5);
-        assert_eq!(management_tokens[1].id, 6);
+        assert_eq!(management_tokens[0].id, 5_u64);
+        assert_eq!(management_tokens[1].id, 6_u64);
 
         let anonymous_tokens = tokens
             .iter()
@@ -200,14 +200,14 @@ mod test {
             .collect::<Vec<&Token>>();
 
         assert_eq!(anonymous_tokens.len(), 2);
-        assert_eq!(anonymous_tokens[0].id, 8);
-        assert_eq!(anonymous_tokens[1].id, 9);
+        assert_eq!(anonymous_tokens[0].id, 8_u64);
+        assert_eq!(anonymous_tokens[1].id, 9_u64);
     }
 
     #[tokio::test]
     async fn test_should_mint_tokens_with_leftovers() {
         // theorically this should not happen, but we need to handle this case
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let sellers = vec![
             Seller {
                 principal: caller(),
@@ -235,9 +235,9 @@ mod test {
             .filter(|token| token.owner.unwrap() == caller())
             .collect::<Vec<&Token>>();
         assert_eq!(caller_tokens.len(), 3);
-        assert_eq!(caller_tokens[0].id, 0);
-        assert_eq!(caller_tokens[1].id, 1);
-        assert_eq!(caller_tokens[2].id, 2);
+        assert_eq!(caller_tokens[0].id, 0_u64);
+        assert_eq!(caller_tokens[1].id, 1_u64);
+        assert_eq!(caller_tokens[2].id, 2_u64);
 
         let management_tokens = tokens
             .iter()
@@ -245,8 +245,8 @@ mod test {
             .collect::<Vec<&Token>>();
         assert_eq!(management_tokens.len(), 3);
 
-        assert_eq!(management_tokens[0].id, 3);
-        assert_eq!(management_tokens[1].id, 4);
+        assert_eq!(management_tokens[0].id, 3_u64);
+        assert_eq!(management_tokens[1].id, 4_u64);
 
         let anonymous_tokens = tokens
             .iter()
@@ -254,8 +254,8 @@ mod test {
             .collect::<Vec<&Token>>();
         assert_eq!(anonymous_tokens.len(), 4);
 
-        assert_eq!(anonymous_tokens[0].id, 6);
-        assert_eq!(anonymous_tokens[1].id, 7);
-        assert_eq!(anonymous_tokens[3].id, 9);
+        assert_eq!(anonymous_tokens[0].id, 6_u64);
+        assert_eq!(anonymous_tokens[1].id, 7_u64);
+        assert_eq!(anonymous_tokens[3].id, 9_u64);
     }
 }

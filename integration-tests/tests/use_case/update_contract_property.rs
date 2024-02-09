@@ -55,7 +55,7 @@ fn test_should_update_contract_property() {
         )
         .is_ok());
 
-    let token_metadata = deferred_client.token_metadata(0.into()).unwrap();
+    let token_metadata = deferred_client.token_metadata(0_u64.into()).unwrap();
     let value = token_metadata
         .properties
         .iter()

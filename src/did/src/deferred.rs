@@ -27,8 +27,8 @@ mod test {
     #[test]
     fn test_should_encode_token() {
         let token = Token {
-            id: TokenIdentifier::from(1),
-            contract_id: ID::from(1),
+            id: TokenIdentifier::from(1_u64),
+            contract_id: ID::from(1_u64),
             owner: Some(
                 Principal::from_text(
                     "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
@@ -61,7 +61,7 @@ mod test {
     #[test]
     fn test_should_encode_contract() {
         let contract = Contract {
-            id: ID::from(1),
+            id: ID::from(1_u64),
             r#type: ContractType::Sell,
             sellers: vec![
                 Seller {
@@ -85,7 +85,7 @@ mod test {
             ],
             installments: 2,
             is_signed: true,
-            tokens: vec![TokenIdentifier::from(1), TokenIdentifier::from(2)],
+            tokens: vec![TokenIdentifier::from(1_u64), TokenIdentifier::from(2_u64)],
             initial_value: 250_000,
             value: 250_000,
             currency: "EUR".to_string(),

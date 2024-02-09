@@ -119,7 +119,7 @@ fn test_should_inspect_update_contract_property_unexisting_contract() {
             alice(),
             "update_contract_property",
             Encode!(
-                &Nat::from(0),
+                &Nat::from(0_u64),
                 &"contract:address",
                 &GenericValue::TextContent("Via roma 123".to_string())
             )
@@ -256,7 +256,7 @@ fn test_should_inspect_update_contract_buyers_unexisting_contract() {
             env.deferred_id,
             alice(),
             "update_contract_buyers",
-            Encode!(&Nat::from(0), &vec![bob()]).unwrap(),
+            Encode!(&Nat::from(0_u64), &vec![bob()]).unwrap(),
         )
         .is_err());
 }
@@ -448,7 +448,7 @@ fn test_should_inspect_burn() {
     assert!(client.admin_sign_contract(contract_id.clone()).is_ok());
 
     // transfer token to buyer
-    let token_id = Nat::from(1);
+    let token_id = Nat::from(1_u64);
     assert!(client
         .transfer_from(alice(), alice(), bob(), token_id.clone())
         .is_ok());

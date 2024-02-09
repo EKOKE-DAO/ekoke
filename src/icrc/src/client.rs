@@ -33,7 +33,7 @@ impl IcrcLedgerClient {
     pub async fn icrc1_balance_of(&self, account: Account) -> CallResult<Nat> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            Ok(1_216_794_022.into())
+            Ok(1_216_794_022_u64.into())
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -90,7 +90,7 @@ impl IcrcLedgerClient {
                 expires_at: Some(0),
             }),
             Some(_) => Ok(Allowance {
-                allowance: 5_000_000.into(),
+                allowance: 5_000_000_u64.into(),
                 expires_at: None,
             }),
         }

@@ -144,8 +144,8 @@ impl TestEnv {
             minting_account: actor::minting_account(),
             total_supply: Nat::from(21_268_400_889_u64),
             accounts: vec![
-                (actor::alice_account(), Nat::from(1_000_000_000)),
-                (actor::bob_account(), Nat::from(1_000_000_000)),
+                (actor::alice_account(), Nat::from(1_000_000_000_u64)),
+                (actor::bob_account(), Nat::from(1_000_000_000_u64)),
             ],
         })
         .unwrap();

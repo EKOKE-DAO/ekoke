@@ -65,7 +65,7 @@ impl Inspect {
         if let Some(memo) = &args.memo {
             if memo.0.len() < 32 || memo.0.len() > 64 {
                 return Err(TransferError::GenericError {
-                    error_code: Nat::from(1),
+                    error_code: Nat::from(1_u64),
                     message: "Invalid memo length. I must have a length between 32 and 64 bytes"
                         .to_string(),
                 });
@@ -82,7 +82,7 @@ impl Inspect {
     ) -> Result<(), ApproveError> {
         if args.spender.owner == caller {
             return Err(ApproveError::GenericError {
-                error_code: 0_u64.into(),
+                error_code: 0__u64.into(),
                 message: "Spender and owner cannot be equal".to_string(),
             });
         }
@@ -159,7 +159,7 @@ impl Inspect {
         if let Some(memo) = &args.memo {
             if memo.0.len() < 32 || memo.0.len() > 64 {
                 return Err(TransferFromError::GenericError {
-                    error_code: Nat::from(0),
+                    error_code: Nat::from(0_u64),
                     message: "Invalid memo length. I must have a length between 32 and 64 bytes"
                         .to_string(),
                 });
@@ -233,7 +233,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: Some((ICRC1_FEE - 1).into()),
             memo: None,
             created_at_time: None,
@@ -244,7 +244,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: Some(ICRC1_FEE.into()),
             memo: None,
             created_at_time: None,
@@ -255,7 +255,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: None,
             created_at_time: None,
@@ -266,7 +266,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 31])),
             created_at_time: None,
@@ -277,7 +277,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 65])),
             created_at_time: None,
@@ -288,7 +288,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 32])),
             created_at_time: None,
@@ -299,7 +299,7 @@ mod test {
         let args = TransferArg {
             from_subaccount: None,
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 64])),
             created_at_time: None,
@@ -313,7 +313,7 @@ mod test {
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         let args = ApproveArgs {
             spender: test_utils::alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             expires_at: None,
             created_at_time: None,
@@ -326,7 +326,7 @@ mod test {
 
         let args = ApproveArgs {
             spender: test_utils::alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: Some((ICRC1_FEE - 1).into()),
             expires_at: None,
             created_at_time: None,
@@ -339,7 +339,7 @@ mod test {
 
         let args = ApproveArgs {
             spender: test_utils::alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             expires_at: None,
             created_at_time: Some(0),
@@ -352,7 +352,7 @@ mod test {
 
         let args = ApproveArgs {
             spender: test_utils::alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             expires_at: Some(0),
             created_at_time: None,
@@ -365,7 +365,7 @@ mod test {
 
         let args = ApproveArgs {
             spender: test_utils::alice_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             expires_at: None,
             created_at_time: Some(crate::utils::time() * 2),
@@ -383,7 +383,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: Some((ICRC1_FEE - 1).into()),
             memo: None,
             created_at_time: None,
@@ -395,7 +395,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: Some(ICRC1_FEE.into()),
             memo: None,
             created_at_time: None,
@@ -407,7 +407,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: None,
             created_at_time: None,
@@ -419,7 +419,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 31])),
             created_at_time: None,
@@ -431,7 +431,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 65])),
             created_at_time: None,
@@ -443,7 +443,7 @@ mod test {
             spender_subaccount: None,
             from: test_utils::alice_account(),
             to: test_utils::bob_account(),
-            amount: 100.into(),
+            amount: 100_u64.into(),
             fee: None,
             memo: Some(Memo::from(vec![0; 32])),
             created_at_time: None,
@@ -454,12 +454,12 @@ mod test {
 
     #[tokio::test]
     async fn test_should_inspect_pool_exists() {
-        let contract_id = ID::from(0);
+        let contract_id = ID::from(0_u64);
         assert!(!Inspect::inspect_pool_exists(&contract_id));
 
-        Balance::init_balances(50_000.into(), vec![(alice_account(), 100.into())]);
+        Balance::init_balances(50_000_u64.into(), vec![(alice_account(), 100_u64.into())]);
         assert!(
-            Pool::reserve(&contract_id, test_utils::alice_account(), 100.into())
+            Pool::reserve(&contract_id, test_utils::alice_account(), 100_u64.into())
                 .await
                 .is_ok()
         );
