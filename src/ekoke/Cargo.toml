@@ -25,6 +25,7 @@ ethers-contract = { workspace = true }
 ethers-core = { workspace = true }
 ethers-signers = { workspace = true }
 ethnum = { workspace = true }
+getrandom = { workspace = true, features = ["custom"] }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-cdk-timers = { workspace = true }

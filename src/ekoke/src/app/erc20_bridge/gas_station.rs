@@ -5,8 +5,6 @@ const ETHERSCAN_API_URL: &str = "https://api.etherscan.io/api?module=proxy&actio
 #[cfg(target_family = "wasm")]
 const HEADER_SIZE_LIMIT: u64 = 2 * 1024;
 #[cfg(target_family = "wasm")]
-const HTTP_MAX_SIZE: u64 = 2_000_000;
-#[cfg(target_family = "wasm")]
 const HTTP_RESPONSE_SIZE_LIMIT: u64 = 2048;
 #[cfg(target_family = "wasm")]
 const BASE_SUBNET_SIZE: u128 = 13;
@@ -17,6 +15,7 @@ pub struct GasStation;
 
 impl GasStation {
     /// Returns the gas price in wei.
+    #[cfg(not(target_family = "wasm"))]
     pub async fn fetch_gas_price() -> EkokeResult<u64> {
         Ok(32_000_000_000_u64)
     }
@@ -84,7 +83,7 @@ impl GasStation {
 
         // convert result (hex repr) to u64
         u64::from_str_radix(ethrpc_response.result.trim_start_matches("0x"), 16)
-            .map_err(|e| did::ekoke::EkokeError::EthRpcError(0, ethrpc_response.result))
+            .map_err(|_| did::ekoke::EkokeError::EthRpcError(0, ethrpc_response.result))
     }
 
     #[cfg(target_family = "wasm")]

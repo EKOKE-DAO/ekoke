@@ -101,7 +101,6 @@ impl TestEnv {
         Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
         // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
-        Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
         Self::install_ekoke(
             &pic,
             ekoke_id,
@@ -247,7 +246,6 @@ impl TestEnv {
 
     fn load_wasm(canister: Canister) -> Vec<u8> {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("../.dfx/local/canisters");
         path.push(canister.as_path());
 
         let mut file = std::fs::File::open(path).unwrap();

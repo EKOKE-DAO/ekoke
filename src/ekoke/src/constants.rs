@@ -32,7 +32,8 @@ pub const ETH_MIN_WITHDRAWAL_AMOUNT: u64 = 30_000_000_000_000_000;
 pub const TRANSCRIBE_SWAP_TX_GAS: u64 = 71306;
 
 #[cfg(target_family = "wasm")]
-pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration = ONE_WEEK;
+pub const SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL: Duration =
+    Duration::from_secs(60 * 60 * 24 * 7); // 7 days;
 
 #[cfg(target_family = "wasm")]
 pub const LIQUIDITY_POOL_SWAP_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24); // 1 day

@@ -350,3 +350,15 @@ fn main() {
     candid::export_service!();
     std::print!("{}", __export_service());
 }
+
+/// GetRandom fixup to allow getrandom compilation.
+/// A getrandom implementation that always fails
+///
+/// This is a workaround for the fact that the `getrandom` crate does not compile
+/// for the `wasm32-unknown-ic` target. This is a dummy implementation that always
+/// fails with `Error::UNSUPPORTED`.
+pub fn getrandom_always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
+    Err(getrandom::Error::UNSUPPORTED)
+}
+
+getrandom::register_custom_getrandom!(getrandom_always_fail);

@@ -30,6 +30,7 @@ ethers-contract = { version = "2", default-features = false, features = [
 ethers-core = "2"
 ethers-signers = "2"
 ethnum = "1"
+getrandom = { version = "0.2", features = ["custom"] }
 hex = "0.4"
 ic-cdk = "0.11"
 ic-cdk-macros = "0.8"

@@ -83,14 +83,14 @@ impl EthWallet {
     pub async fn sign_transaction(tx: TransactionRequest) -> EkokeResult<Bytes> {
         #[cfg(target_family = "wasm")]
         {
-            use ethers_signer::Signature;
+            use ethers_core::types::Signature;
             use ic_cdk::api::management_canister::ecdsa::{
                 self, EcdsaCurve, EcdsaKeyId, SignWithEcdsaArgument,
             };
 
             let sighash = tx.sighash();
             use crate::constants::ETH_PUBKEY_NAME;
-            let (SignWithEcdsaResponse { signature },) =
+            let (ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse { signature },) =
                 ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
                     message_hash: sighash.0.to_vec(),
                     derivation_path: vec![vec![]],
