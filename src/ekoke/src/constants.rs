@@ -50,3 +50,5 @@ pub const ERC20_SWAPPED_EVENT_FETCH_INTERVAL: Duration = Duration::from_secs(60 
 #[cfg(target_family = "wasm")]
 pub const ERC20_EKOKE_SWAPPED_TOPIC: &str =
     "0x73237ca1bbcb09a423f8b6dd74772a03e1ceeaefd48bad90b61d01644355eb28";
+
+pub const ERC20_SWAP_FEE_INTEREST: f64 = 1.1; // 10%

@@ -21,6 +21,7 @@ use self::swap_pool::SwapPool;
 use super::balance::Balance;
 use super::configuration::Configuration;
 use crate::app::memory::{ERC20_LOGS_START_BLOCK_MEMORY_ID, MEMORY_MANAGER};
+use crate::constants::ERC20_SWAP_FEE_INTEREST;
 
 thread_local! {
     /// ERC20 logs start block
@@ -127,7 +128,9 @@ impl Erc20Bridge {
         if !SwapFee::should_update_gas_price() {
             return Ok(());
         }
-        let gas_price = GasStation::fetch_gas_price().await?;
+        // fetch gas price and add 10%
+        let gas_price =
+            (GasStation::fetch_gas_price().await? as f64 * ERC20_SWAP_FEE_INTEREST) as u64;
         // update price
         Self::set_gas_price(gas_price)?;
 
