@@ -24,6 +24,8 @@ pub enum EkokeError {
     StorageError,
     #[error("inter-canister call error: ({0:?}): {1}")]
     CanisterCall(RejectionCode, String),
+    #[error("icrc2 approve error {0:?}")]
+    Icrc2Approve(icrc2::approve::ApproveError),
     #[error("icrc2 transfer error {0:?}")]
     Icrc2Transfer(icrc2::transfer_from::TransferFromError),
     #[error("icrc1 transfer error {0:?}")]

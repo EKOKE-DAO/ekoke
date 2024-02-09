@@ -2,6 +2,7 @@ use candid::{Nat, Principal};
 use ic_cdk::api::call::CallResult;
 use icrc_ledger_types::icrc1::transfer::TransferError;
 use icrc_ledger_types::icrc2::allowance::Allowance;
+use icrc_ledger_types::icrc2::approve::ApproveError;
 use icrc_ledger_types::icrc2::transfer_from::TransferFromError;
 
 use crate::icrc1::account::Account;
@@ -129,6 +130,37 @@ impl IcrcLedgerClient {
             };
             let result: (Result<Nat, TransferFromError>,) =
                 ic_cdk::call(self.principal, "icrc2_transfer_from", (args,)).await?;
+
+            Ok(result.0)
+        }
+    }
+
+    /// Approve tokens transfer
+    #[allow(unused_variables)]
+    pub async fn icrc2_approve(
+        &self,
+        spender: Account,
+        amount: Nat,
+        from_subaccount: Option<[u8; 32]>,
+    ) -> CallResult<Result<Nat, ApproveError>> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Ok(Ok(amount))
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let args = icrc_ledger_types::icrc2::approve::ApproveArgs {
+                spender,
+                amount,
+                from_subaccount,
+                expected_allowance: None,
+                expires_at: None,
+                fee: None,
+                memo: None,
+                created_at_time: None,
+            };
+            let result: (Result<Nat, ApproveError>,) =
+                ic_cdk::call(self.principal, "icrc2_approve", (args,)).await?;
 
             Ok(result.0)
         }

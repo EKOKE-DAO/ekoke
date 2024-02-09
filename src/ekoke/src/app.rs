@@ -96,6 +96,11 @@ impl EkokeCanister {
         }
 
         #[cfg(target_family = "wasm")]
+        async fn convert_cketh_to_eth_timer() {
+            let _ = Erc20Bridge::withdraw_cketh_to_eth().await;
+        }
+
+        #[cfg(target_family = "wasm")]
         let fetch_gas_price_timer_interval =
             crate::constants::THREE_HOURS + std::time::Duration::from_secs(60);
 
@@ -115,7 +120,11 @@ impl EkokeCanister {
         ic_cdk_timers::set_timer_interval(fetch_gas_price_timer_interval, || {
             ic_cdk::spawn(fetch_gas_price_timer());
         });
-        // TODO: convert ckETH to ETH
+        // convert ckETH to ETH
+        #[cfg(target_family = "wasm")]
+        ic_cdk_timers::set_timer_interval(crate::constants::CKETH_WITHDRAWAL_INTERVAL, || {
+            ic_cdk::spawn(convert_cketh_to_eth_timer());
+        });
     }
 
     /// Get transaction by id

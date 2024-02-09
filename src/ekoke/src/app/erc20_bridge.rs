@@ -1,3 +1,4 @@
+mod cketh_withdrawal;
 mod eth_rpc;
 mod eth_wallet;
 mod gas_station;
@@ -89,5 +90,11 @@ impl Erc20Bridge {
         Self::set_gas_price(gas_price)?;
 
         Ok(())
+    }
+
+    /// Withdraws current ckETH balance converting it to ETH and sending them to the ETH canister wallet.
+    #[allow(dead_code)]
+    pub async fn withdraw_cketh_to_eth() -> EkokeResult<()> {
+        cketh_withdrawal::CkEthWithdrawal::withdraw_cketh().await
     }
 }
