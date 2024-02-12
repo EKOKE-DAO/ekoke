@@ -231,7 +231,7 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(Inspect::inspect_is_owner_or_operator(caller, &1.into()).is_ok());
+        assert!(Inspect::inspect_is_owner_or_operator(caller, &1_u64.into()).is_ok());
 
         // with operator
         test_utils::store_mock_contract_with(
@@ -242,8 +242,8 @@ mod test {
                 token.operator = Some(caller);
             },
         );
-        assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_is_owner_or_operator(caller, &2.into()).is_ok());
+        assert!(ContractStorage::transfer(&2_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_is_owner_or_operator(caller, &2_u64.into()).is_ok());
 
         // no operator, no owner
         test_utils::store_mock_contract_with(
@@ -254,8 +254,8 @@ mod test {
                 token.operator = Some(Principal::management_canister());
             },
         );
-        assert!(ContractStorage::transfer(&3.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_is_owner_or_operator(caller, &3.into()).is_err());
+        assert!(ContractStorage::transfer(&3_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_is_owner_or_operator(caller, &3_u64.into()).is_err());
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(Inspect::inspect_transfer_from(caller, &1.into()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &1_u64.into()).is_ok());
 
         // with operator
         test_utils::store_mock_contract_with(
@@ -281,8 +281,8 @@ mod test {
                 token.operator = Some(caller);
             },
         );
-        assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_transfer_from(caller, &2.into()).is_ok());
+        assert!(ContractStorage::transfer(&2_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &2_u64.into()).is_ok());
 
         // no operator, no owner
         test_utils::store_mock_contract_with(
@@ -293,8 +293,8 @@ mod test {
                 token.operator = Some(Principal::management_canister());
             },
         );
-        assert!(ContractStorage::transfer(&3.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_transfer_from(caller, &3.into()).is_err());
+        assert!(ContractStorage::transfer(&3_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &3_u64.into()).is_err());
 
         test_utils::store_mock_contract_with(
             &[4],
@@ -305,8 +305,8 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(ContractStorage::burn_token(&4.into()).is_ok());
-        assert!(Inspect::inspect_transfer_from(caller, &4.into()).is_err());
+        assert!(ContractStorage::burn_token(&4_u64.into()).is_ok());
+        assert!(Inspect::inspect_transfer_from(caller, &4_u64.into()).is_err());
     }
 
     #[test]
@@ -324,7 +324,7 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(Inspect::inspect_burn(caller, &1.into()).is_ok());
+        assert!(Inspect::inspect_burn(caller, &1_u64.into()).is_ok());
         // caller is operator and token is owned by buyer
         test_utils::store_mock_contract_with(
             &[2],
@@ -336,8 +336,8 @@ mod test {
                 token.operator = Some(caller);
             },
         );
-        assert!(ContractStorage::transfer(&2.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_burn(caller, &2.into()).is_ok());
+        assert!(ContractStorage::transfer(&2_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_burn(caller, &2_u64.into()).is_ok());
         // caller is owner and token is owned by buyer
         test_utils::store_mock_contract_with(
             &[3],
@@ -354,8 +354,8 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(ContractStorage::transfer(&2.into(), caller).is_ok());
-        assert!(Inspect::inspect_burn(caller, &1.into()).is_ok());
+        assert!(ContractStorage::transfer(&2_u64.into(), caller).is_ok());
+        assert!(Inspect::inspect_burn(caller, &1_u64.into()).is_ok());
         // caller is operator and token is owned by buyer
         test_utils::store_mock_contract_with(
             &[4],
@@ -372,8 +372,8 @@ mod test {
                 token.operator = Some(caller);
             },
         );
-        assert!(ContractStorage::transfer(&4.into(), caller).is_ok());
-        assert!(Inspect::inspect_burn(caller, &4.into()).is_ok());
+        assert!(ContractStorage::transfer(&4_u64.into(), caller).is_ok());
+        assert!(Inspect::inspect_burn(caller, &4_u64.into()).is_ok());
         // caller is not owner nor operator
         test_utils::store_mock_contract_with(
             &[5],
@@ -385,8 +385,8 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(ContractStorage::transfer(&5.into(), Principal::management_canister()).is_ok());
-        assert!(Inspect::inspect_burn(caller, &5.into()).is_err());
+        assert!(ContractStorage::transfer(&5_u64.into(), Principal::management_canister()).is_ok());
+        assert!(Inspect::inspect_burn(caller, &5_u64.into()).is_err());
         // caller is owner, but owner is a third party
         test_utils::store_mock_contract_with(
             &[6],
@@ -403,8 +403,8 @@ mod test {
                 token.operator = None;
             },
         );
-        assert!(ContractStorage::transfer(&6.into(), caller).is_ok());
-        assert!(Inspect::inspect_burn(caller, &6.into()).is_err());
+        assert!(ContractStorage::transfer(&6_u64.into(), caller).is_ok());
+        assert!(Inspect::inspect_burn(caller, &6_u64.into()).is_err());
     }
 
     #[test]
@@ -537,10 +537,12 @@ mod test {
                 token.owner = Some(caller);
             },
         );
-        assert!(Inspect::inspect_is_seller(caller, 1.into()).is_ok());
-        assert!(Inspect::inspect_is_seller(Principal::management_canister(), 1.into()).is_err());
+        assert!(Inspect::inspect_is_seller(caller, 1_u64.into()).is_ok());
+        assert!(
+            Inspect::inspect_is_seller(Principal::management_canister(), 1_u64.into()).is_err()
+        );
         // unexisting contract
-        assert!(Inspect::inspect_is_seller(caller, 2.into()).is_err());
+        assert!(Inspect::inspect_is_seller(caller, 2_u64.into()).is_err());
     }
 
     #[test]
@@ -549,18 +551,18 @@ mod test {
         let contract = test_utils::with_mock_contract(0, 1, |_| {});
         assert!(ContractStorage::insert_contract(contract).is_ok());
         let tokens = vec![test_utils::mock_token(0, 0)];
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0.into()).is_err());
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0_u64.into()).is_err());
         // sign contract
-        assert!(ContractStorage::sign_contract_and_mint_tokens(&0.into(), tokens).is_ok());
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0.into()).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&0_u64.into(), tokens).is_ok());
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0_u64.into()).is_ok());
         // not seller
         assert!(Inspect::inspect_seller_increment_contract_value(
             Principal::management_canister(),
-            1.into()
+            1_u64.into()
         )
         .is_err());
         // unexisting contract
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 2.into()).is_err());
+        assert!(Inspect::inspect_seller_increment_contract_value(caller, 2_u64.into()).is_err());
     }
 
     #[test]
@@ -574,27 +576,33 @@ mod test {
                 token.owner = Some(caller);
             },
         );
+        assert!(Inspect::inspect_update_contract_property(
+            caller,
+            &1_u64.into(),
+            "contract:address"
+        )
+        .is_ok());
         assert!(
-            Inspect::inspect_update_contract_property(caller, &1.into(), "contract:address")
-                .is_ok()
+            Inspect::inspect_update_contract_property(caller, &1_u64.into(), "foobar").is_err()
         );
-        assert!(Inspect::inspect_update_contract_property(caller, &1.into(), "foobar").is_err());
         assert!(Inspect::inspect_update_contract_property(
             Principal::management_canister(),
-            &1.into(),
+            &1_u64.into(),
             "contract:address"
         )
         .is_err());
         // unexisting contract
-        assert!(
-            Inspect::inspect_update_contract_property(caller, &2.into(), "contract:address")
-                .is_err()
-        );
+        assert!(Inspect::inspect_update_contract_property(
+            caller,
+            &2_u64.into(),
+            "contract:address"
+        )
+        .is_err());
         // admin
         assert!(RolesManager::set_custodians(vec![Principal::management_canister()]).is_ok());
         assert!(Inspect::inspect_update_contract_property(
             Principal::management_canister(),
-            &1.into(),
+            &1_u64.into(),
             "contract:address"
         )
         .is_ok());

@@ -47,8 +47,8 @@ impl Storable for AllowanceKey {
 
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
         let codec = Codec {
-            from: self.balance_owner.clone().0,
-            spender: self.spender.clone().0,
+            from: self.balance_owner.0,
+            spender: self.spender.0,
         };
         Encode!(&codec).unwrap().into()
     }

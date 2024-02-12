@@ -40,5 +40,5 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
         .is_ok());
 
     // verify new value and supply
-    assert_eq!(deferred_client.total_supply(), 5_000);
+    assert_eq!(deferred_client.total_supply(), 5_000_u64);
 }

@@ -21,7 +21,6 @@ fn test_should_inspect_is_admin() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_admin_not_admin() {
     let env = TestEnv::init();
     // not an admin
@@ -53,7 +52,6 @@ fn test_should_inspect_is_custodian() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_is_custodian_not_custodian() {
     let env = TestEnv::init();
     let client = DeferredClient::new(&env);
@@ -109,7 +107,6 @@ fn test_should_inspect_update_contract_property() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_update_contract_property_unexisting_contract() {
     let env = TestEnv::init();
 
@@ -119,7 +116,7 @@ fn test_should_inspect_update_contract_property_unexisting_contract() {
             alice(),
             "update_contract_property",
             Encode!(
-                &Nat::from(0),
+                &Nat::from(0_u64),
                 &"contract:address",
                 &GenericValue::TextContent("Via roma 123".to_string())
             )
@@ -129,7 +126,6 @@ fn test_should_inspect_update_contract_property_unexisting_contract() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_update_contract_property_is_not_authorized() {
     let env = TestEnv::init();
     let client = DeferredClient::new(&env);
@@ -168,7 +164,6 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_update_contract_property_bad_key() {
     let env = TestEnv::init();
     let client = DeferredClient::new(&env);
@@ -246,7 +241,6 @@ fn test_should_inspect_update_contract_buyers() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_update_contract_buyers_unexisting_contract() {
     let env = TestEnv::init();
 
@@ -256,13 +250,12 @@ fn test_should_inspect_update_contract_buyers_unexisting_contract() {
             env.deferred_id,
             alice(),
             "update_contract_buyers",
-            Encode!(&Nat::from(0), &vec![bob()]).unwrap(),
+            Encode!(&Nat::from(0_u64), &vec![bob()]).unwrap(),
         )
         .is_err());
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_update_contract_buyers_not_seller() {
     let env = TestEnv::init();
     let client = DeferredClient::new(&env);
@@ -328,7 +321,6 @@ fn test_should_inspect_register_contract() {
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_register_contract_unauthorized() {
     let env = TestEnv::init();
 
@@ -348,20 +340,17 @@ fn test_should_inspect_register_contract_unauthorized() {
         )],
     };
 
-    let result: DeferredResult<ID> = env
-        .update(
-            env.deferred_id,
-            alice(),
-            "register_contract",
-            Encode!(&registration_data).unwrap(),
-        )
-        .unwrap();
+    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+        env.deferred_id,
+        alice(),
+        "register_contract",
+        Encode!(&registration_data).unwrap(),
+    );
 
     assert!(result.is_err());
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_register_contract_no_sellers() {
     let env = TestEnv::init();
 
@@ -378,20 +367,17 @@ fn test_should_inspect_register_contract_no_sellers() {
         )],
     };
 
-    let result: DeferredResult<ID> = env
-        .update(
-            env.deferred_id,
-            admin(),
-            "register_contract",
-            Encode!(&registration_data).unwrap(),
-        )
-        .unwrap();
+    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+        env.deferred_id,
+        admin(),
+        "register_contract",
+        Encode!(&registration_data).unwrap(),
+    );
 
     assert!(result.is_err());
 }
 
 #[test]
-#[should_panic]
 fn test_should_inspect_register_contract_installments_not_multiple() {
     let env = TestEnv::init();
 
@@ -411,14 +397,12 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
         )],
     };
 
-    let result: DeferredResult<ID> = env
-        .update(
-            env.deferred_id,
-            admin(),
-            "register_contract",
-            Encode!(&registration_data).unwrap(),
-        )
-        .unwrap();
+    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+        env.deferred_id,
+        admin(),
+        "register_contract",
+        Encode!(&registration_data).unwrap(),
+    );
 
     assert!(result.is_err());
 }
@@ -448,7 +432,7 @@ fn test_should_inspect_burn() {
     assert!(client.admin_sign_contract(contract_id.clone()).is_ok());
 
     // transfer token to buyer
-    let token_id = Nat::from(1);
+    let token_id = Nat::from(1_u64);
     assert!(client
         .transfer_from(alice(), alice(), bob(), token_id.clone())
         .is_ok());

@@ -200,11 +200,11 @@ mod test {
 
     #[tokio::test]
     async fn test_should_get_reward_if_pool_exists() {
-        let contract_id = 1.into();
+        let contract_id = 1_u64.into();
         let installments = 5;
-        let pool_balance: PicoEkoke = 100.into();
+        let pool_balance: PicoEkoke = 100_u64.into();
         // set pool balance
-        Balance::init_balances(500.into(), vec![(bob_account(), 200.into())]);
+        Balance::init_balances(500_u64.into(), vec![(bob_account(), 200_u64.into())]);
         assert!(
             Pool::reserve(&contract_id, bob_account(), pool_balance.clone())
                 .await
@@ -221,7 +221,9 @@ mod test {
     async fn test_should_get_reward_if_pool_doesnt_exist() {
         Balance::init_balances(ekoke_to_picoekoke(8_700_000).into(), vec![]);
         assert_eq!(
-            Reward::get_contract_reward(1.into(), 4_000).await.unwrap(),
+            Reward::get_contract_reward(1_u64.into(), 4_000)
+                .await
+                .unwrap(),
             36_540_000_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
@@ -229,7 +231,9 @@ mod test {
 
         // next reward should be less
         assert_eq!(
-            Reward::get_contract_reward(2.into(), 4_000).await.unwrap(),
+            Reward::get_contract_reward(2_u64.into(), 4_000)
+                .await
+                .unwrap(),
             35_926_128_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);

@@ -144,9 +144,9 @@ mod test {
             )
             .await
             .unwrap(),
-            7_000
+            7_000_u64
         );
-        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000_u64);
     }
 
     #[tokio::test]
@@ -161,7 +161,7 @@ mod test {
             )
             .await
             .unwrap(),
-            7_000
+            7_000_u64
         );
         assert_eq!(
             Pool::reserve(
@@ -171,9 +171,9 @@ mod test {
             )
             .await
             .unwrap(),
-            10_000
+            10_000_u64
         );
-        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000_u64);
     }
 
     #[tokio::test]
@@ -207,10 +207,10 @@ mod test {
             Pool::withdraw_tokens(&1_u64.into(), to, 3_000_u64.into())
                 .await
                 .unwrap(),
-            4_000
+            4_000_u64
         );
-        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000);
-        assert_eq!(Balance::balance_of(to).unwrap(), 3_000);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000_u64);
+        assert_eq!(Balance::balance_of(to).unwrap(), 3_000_u64);
     }
 
     #[tokio::test]

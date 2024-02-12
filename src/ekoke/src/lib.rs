@@ -3,6 +3,7 @@
 //! The ekoke canister serves a ICRC-2 token called $EKOKE, which is the reward token for Deferred transactions.
 //! It is a deflationary token which ...
 
+mod abi;
 mod app;
 mod constants;
 mod inspect;
@@ -13,7 +14,8 @@ use did::ekoke::{
     EkokeInitData, EkokeResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoEkoke, Role,
     Transaction,
 };
-use did::ID;
+use did::{H160, ID};
+use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -69,6 +71,22 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
 
 #[update]
 #[candid_method(update)]
+pub async fn erc20_swap_fee() -> EkokeResult<u64> {
+    EkokeCanister::erc20_swap_fee().await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn erc20_swap(
+    recipient: H160,
+    amount: PicoEkoke,
+    from_subaccount: Option<[u8; 32]>,
+) -> EkokeResult<String> {
+    EkokeCanister::erc20_swap(recipient, amount, from_subaccount).await
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
     EkokeCanister::admin_set_role(principal, role)
 }
@@ -113,6 +131,36 @@ pub fn admin_set_ckbtc_canister(canister_id: Principal) {
 #[candid_method(update)]
 pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
     EkokeCanister::admin_set_icp_ledger_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
+    EkokeCanister::admin_set_cketh_ledger_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_cketh_minter_canister(canister_id: Principal) {
+    EkokeCanister::admin_set_cketh_minter_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_erc20_bridge_address(address: H160) {
+    EkokeCanister::admin_set_erc20_bridge_address(address)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_erc20_gas_price(gas_price: u64) {
+    EkokeCanister::admin_set_erc20_gas_price(gas_price)
+}
+
+#[query]
+#[candid_method(query)]
+pub async fn admin_eth_wallet_address() -> H160 {
+    EkokeCanister::admin_eth_wallet_address().await
 }
 
 #[query]
@@ -199,6 +247,13 @@ pub fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowanc
     EkokeCanister::icrc2_allowance(args)
 }
 
+// http transform
+#[query]
+#[candid_method(query)]
+fn http_transform_send_tx(raw: TransformArgs) -> HttpResponse {
+    raw.response
+}
+
 #[allow(dead_code)]
 fn main() {
     // The line below generates did types and service definition from the
@@ -207,3 +262,15 @@ fn main() {
     candid::export_service!();
     std::print!("{}", __export_service());
 }
+
+/// GetRandom fixup to allow getrandom compilation.
+/// A getrandom implementation that always fails
+///
+/// This is a workaround for the fact that the `getrandom` crate does not compile
+/// for the `wasm32-unknown-ic` target. This is a dummy implementation that always
+/// fails with `Error::UNSUPPORTED`.
+pub fn getrandom_always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
+    Err(getrandom::Error::UNSUPPORTED)
+}
+
+getrandom::register_custom_getrandom!(getrandom_always_fail);

@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use icrc::icrc1::account::Subaccount;
+use icrc::icrc1::account::{Account, Subaccount};
 use time::{Date, OffsetDateTime};
 
 /// Returns current time in nanoseconds
@@ -35,6 +35,11 @@ pub fn id() -> Principal {
     {
         ic_cdk::api::id()
     }
+}
+
+/// Returns canister account
+pub fn account() -> Account {
+    Account::from(id())
 }
 
 pub fn cycles() -> Nat {

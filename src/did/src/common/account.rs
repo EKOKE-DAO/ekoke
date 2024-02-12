@@ -1,10 +1,16 @@
-use candid::{Decode, Encode};
+use candid::{Decode, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use icrc::icrc1::account::Account;
 
-#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 pub struct StorableAccount(pub Account);
+
+impl StorableAccount {
+    pub fn is_anonymous(&self) -> bool {
+        self.0.owner == Principal::anonymous()
+    }
+}
 
 impl From<Account> for StorableAccount {
     fn from(value: Account) -> Self {

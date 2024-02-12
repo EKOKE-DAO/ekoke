@@ -6,13 +6,17 @@ export const idlFactory = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
+    'cketh_ledger_canister' : IDL.Principal,
     'minting_account' : Account,
     'ckbtc_canister' : IDL.Principal,
+    'erc20_bridge_address' : IDL.Text,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'erc20_swap_fee' : IDL.Nat64,
     'swap_account' : Account,
     'xrc_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
+    'cketh_minter_canister' : IDL.Principal,
     'total_supply' : IDL.Nat,
   });
   const ConfigurationError = IDL.Variant({
@@ -72,6 +76,7 @@ export const idlFactory = ({ IDL }) => {
     'TooOld' : IDL.Null,
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
+  const EcdsaError = IDL.Variant({ 'InvalidPublicKey' : IDL.Null });
   const FlyError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Icrc1Transfer' : TransferError,
@@ -83,6 +88,7 @@ export const idlFactory = ({ IDL }) => {
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
     'Icrc2Transfer' : TransferFromError,
+    'Ecdsa' : EcdsaError,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : FlyError });
   const Role = IDL.Variant({
@@ -176,6 +182,10 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_ckbtc_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_cketh_ledger_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_cketh_minter_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_erc20_bridge_address' : IDL.Func([IDL.Text], [], []),
+    'admin_set_erc20_swap_fee' : IDL.Func([IDL.Nat64], [], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
     'admin_set_swap_account' : IDL.Func([Account], [], []),
@@ -220,13 +230,17 @@ export const init = ({ IDL }) => {
   const FlyInitData = IDL.Record({
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
+    'cketh_ledger_canister' : IDL.Principal,
     'minting_account' : Account,
     'ckbtc_canister' : IDL.Principal,
+    'erc20_bridge_address' : IDL.Text,
     'initial_balances' : IDL.Vec(IDL.Tuple(Account, IDL.Nat)),
+    'erc20_swap_fee' : IDL.Nat64,
     'swap_account' : Account,
     'xrc_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
+    'cketh_minter_canister' : IDL.Principal,
     'total_supply' : IDL.Nat,
   });
   return [FlyInitData];

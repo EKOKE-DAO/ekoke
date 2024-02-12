@@ -445,7 +445,7 @@ mod test {
     #[test]
     fn test_should_get_next_contract_id() {
         let next_contract_id = ContractStorage::next_contract_id();
-        assert_eq!(next_contract_id, Nat::from(0));
+        assert_eq!(next_contract_id, Nat::from(0_u64));
     }
 
     #[test]
@@ -454,9 +454,9 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let next_token_id = ContractStorage::total_supply();
-        assert_eq!(next_token_id, Nat::from(0));
+        assert_eq!(next_token_id, Nat::from(0_u64));
         let token_1 = with_mock_token(1, 1, |token| {
             token.operator = Some(caller());
             token.owner = Some(caller());
@@ -491,9 +491,9 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let next_token_id = ContractStorage::total_supply();
-        assert_eq!(next_token_id, Nat::from(0));
+        assert_eq!(next_token_id, Nat::from(0_u64));
         let token_1 = with_mock_token(1, 1, |token| {
             token.operator = Some(caller());
             token.owner = Some(caller());
@@ -565,7 +565,7 @@ mod test {
 
     #[test]
     fn test_should_not_allow_duped_token() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(1, 1);
         let contract = mock_contract(1, 2);
@@ -586,10 +586,11 @@ mod test {
         let contract = mock_contract(1, 2);
 
         assert!(ContractStorage::insert_contract(contract).is_ok());
-        assert!(
-            ContractStorage::sign_contract_and_mint_tokens(&1.into(), vec![token_1, token_2])
-                .is_err()
-        );
+        assert!(ContractStorage::sign_contract_and_mint_tokens(
+            &1_u64.into(),
+            vec![token_1, token_2]
+        )
+        .is_err());
     }
 
     #[test]
@@ -598,7 +599,7 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
         let token_2 = with_mock_token(2, 1, |token| {
             token.owner = Some(Principal::anonymous());
@@ -618,7 +619,7 @@ mod test {
 
     #[test]
     fn test_should_not_allow_mismatching_tokens() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(2, 1);
         let token_3 = mock_token(3, 1);
@@ -637,7 +638,7 @@ mod test {
     #[test]
     fn test_should_burn_token() {
         let owner = Principal::management_canister();
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = with_mock_token(1, 1, |token| {
             token.owner = Some(owner);
             token.value = 1_000;
@@ -693,7 +694,7 @@ mod test {
 
     #[test]
     fn test_should_transfer_token() {
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = with_mock_token(1, 1, |token| {
             token.owner = Some(Principal::management_canister());
         });
@@ -734,7 +735,7 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(2, 1);
         let contract = with_mock_contract(1, 2, |contract| {
@@ -756,7 +757,7 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
         let token_2 = mock_token(2, 1);
         let contract = Contract {
@@ -794,9 +795,9 @@ mod test {
         let seller =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let next_token_id = ContractStorage::total_supply();
-        assert_eq!(next_token_id, Nat::from(0));
+        assert_eq!(next_token_id, Nat::from(0_u64));
         let token_1 = mock_token(next_token_id, 1);
         let contract = with_mock_contract(1, 1, |contract| {
             contract.sellers = vec![Seller {
@@ -827,9 +828,9 @@ mod test {
             principal: caller(),
             quota: 100,
         }];
-        let contract_id = ID::from(1);
+        let contract_id = ID::from(1_u64);
         let next_token_id = ContractStorage::total_supply();
-        assert_eq!(next_token_id, Nat::from(0));
+        assert_eq!(next_token_id, Nat::from(0_u64));
         let token_1 = mock_token(next_token_id, 1);
         let contract = with_mock_contract(1, 1, |contract| {
             contract.sellers = seller;
@@ -861,7 +862,7 @@ mod test {
             quota: 100,
         }];
         let next_token_id = ContractStorage::total_supply();
-        assert_eq!(next_token_id, Nat::from(0));
+        assert_eq!(next_token_id, Nat::from(0_u64));
         let contract = with_mock_contract(1, 2, |contract| {
             contract.sellers = seller;
         });
@@ -878,7 +879,7 @@ mod test {
         let token = mock_token(1, 1);
         let contract_1 = mock_contract(1, 1);
         assert!(ContractStorage::insert_contract(contract_1).is_ok());
-        assert!(ContractStorage::sign_contract_and_mint_tokens(&1.into(), vec![token]).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1_u64.into(), vec![token]).is_ok());
 
         let contract_2 = mock_contract(2, 1);
         assert!(ContractStorage::insert_contract(contract_2).is_ok());
@@ -901,9 +902,9 @@ mod test {
             ));
         });
         assert!(ContractStorage::insert_contract(contract).is_ok());
-        assert!(ContractStorage::sign_contract_and_mint_tokens(&1.into(), vec![token]).is_ok());
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1_u64.into(), vec![token]).is_ok());
 
-        let metadata = ContractStorage::get_token_metadata(&1.into()).unwrap();
+        let metadata = ContractStorage::get_token_metadata(&1_u64.into()).unwrap();
         assert_eq!(metadata.token_identifier, 1_u64);
         assert_eq!(metadata.approved_at, None);
         assert_eq!(metadata.approved_by, None);
@@ -931,13 +932,13 @@ mod test {
         assert!(ContractStorage::insert_contract(contract).is_ok());
 
         assert!(ContractStorage::update_contract_property(
-            &1.into(),
+            &1_u64.into(),
             "contract:address".to_string(),
             dip721::GenericValue::TextContent("Milan".to_string())
         )
         .is_ok());
         assert_eq!(
-            ContractStorage::get_contract(&1.into())
+            ContractStorage::get_contract(&1_u64.into())
                 .unwrap()
                 .properties
                 .iter()
@@ -948,13 +949,13 @@ mod test {
         );
 
         assert!(ContractStorage::update_contract_property(
-            &1.into(),
+            &1_u64.into(),
             "contract:addressLong".to_string(),
             dip721::GenericValue::TextContent("Trieste".to_string())
         )
         .is_ok());
         assert_eq!(
-            ContractStorage::get_contract(&1.into())
+            ContractStorage::get_contract(&1_u64.into())
                 .unwrap()
                 .properties
                 .iter()

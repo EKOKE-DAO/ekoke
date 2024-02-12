@@ -41,6 +41,20 @@ export const idlFactory = ({ IDL }) => {
     'OwnerNotFound' : IDL.Null,
     'Other' : IDL.Text,
   });
+  const ApproveError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'AllowanceChanged' : IDL.Record({ 'current_allowance' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
@@ -81,17 +95,25 @@ export const idlFactory = ({ IDL }) => {
     'TooOld' : IDL.Null,
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
+  const EcdsaError = IDL.Variant({
+    'RecoveryIdError' : IDL.Null,
+    'InvalidSignature' : IDL.Null,
+    'InvalidPublicKey' : IDL.Null,
+  });
   const EkokeError = IDL.Variant({
     'Configuration' : ConfigurationError,
+    'Icrc2Approve' : ApproveError,
     'Icrc1Transfer' : TransferError,
     'Pool' : PoolError,
     'Allowance' : AllowanceError,
     'Register' : RegisterError,
+    'EthRpcError' : IDL.Tuple(IDL.Int32, IDL.Text),
     'XrcError' : IDL.Null,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Balance' : BalanceError,
     'Icrc2Transfer' : TransferFromError,
+    'Ecdsa' : EcdsaError,
   });
   const ConfigurationError_1 = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,

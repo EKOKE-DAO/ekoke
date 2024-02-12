@@ -34,7 +34,7 @@ impl DeferredClient {
             Ok(Some(TokenInfo {
                 token: Token {
                     id: token_id.clone(),
-                    contract_id: 1.into(),
+                    contract_id: 1_u64.into(),
                     owner: match token_id {
                         id if id == &candid::Nat::from(2_u64) => Some(caller()),
                         id if id == &candid::Nat::from(3_u64) => None,
@@ -57,7 +57,7 @@ impl DeferredClient {
                     minted_by: Principal::anonymous(),
                 },
                 contract: Contract {
-                    id: 1.into(),
+                    id: 1_u64.into(),
                     r#type: did::deferred::ContractType::Financing,
                     sellers: vec![Seller {
                         principal: caller(),

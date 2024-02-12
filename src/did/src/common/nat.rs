@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn test_nat_roundtrip() {
-        let value = Nat::from(8_888_888);
+        let value = Nat::from(8_888_888_u64);
         let storable = StorableNat::from(value.clone());
         let bytes = storable.to_bytes();
         let storable_actual = StorableNat::from_bytes(bytes);

@@ -74,7 +74,7 @@ impl Balance {
     pub fn total_supply() -> PicoEkoke {
         let minting_account = Configuration::get_minting_account();
         BALANCES.with_borrow(|balances| {
-            let mut supply = Nat::from(0);
+            let mut supply = Nat::from(0_u64);
             for (account, balance) in balances.iter() {
                 if minting_account != account.0 {
                     supply += balance.amount;
@@ -171,7 +171,7 @@ impl Balance {
                 Some(balance) => balance,
                 None => {
                     // If balance is not set, create it with 0 balance
-                    balances.insert(storable_account.clone(), AccountBalance::from(Nat::from(0)));
+                    balances.insert(storable_account, AccountBalance::from(Nat::from(0_u64)));
                     balances.get(&storable_account).unwrap()
                 }
             };

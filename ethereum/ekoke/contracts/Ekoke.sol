@@ -8,10 +8,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 // import "hardhat/console.sol";
 
 contract Ekoke is ERC20, Ownable {
-    address private fly_canister_address;
+    address private ekoke_canister_address;
     uint8 private _decimals;
 
     uint256 private constant GOERLI_CHAIN_ID = 5;
+    uint256 private constant SEPOLIA_CHAIN_ID = 11155111;
     uint256 private constant HARDHAT_CHAIN_ID = 31337;
 
     event EkokeSwapped(
@@ -24,23 +25,23 @@ contract Ekoke is ERC20, Ownable {
         address _initialOwner
     ) ERC20("Ekoke", "EKOKE") Ownable(_initialOwner) {
         _decimals = 12;
-        fly_canister_address = address(0);
+        ekoke_canister_address = address(0);
     }
 
     modifier onlyEkokeCanister() {
         require(
-            msg.sender == fly_canister_address &&
-                fly_canister_address != address(0),
-            "Ekoke: caller is not the fly canister"
+            msg.sender == ekoke_canister_address &&
+                ekoke_canister_address != address(0),
+            "Ekoke: caller is not the ekoke canister"
         );
         _;
     }
 
     modifier isOwnerOrEkokeCanister() {
         require(
-            (msg.sender == fly_canister_address &&
-                fly_canister_address != address(0)) || msg.sender == owner(),
-            "Ekoke: caller is not the fly canister nor the owner"
+            (msg.sender == ekoke_canister_address &&
+                ekoke_canister_address != address(0)) || msg.sender == owner(),
+            "Ekoke: caller is not the ekoke canister nor the owner"
         );
         _;
     }
@@ -48,6 +49,7 @@ contract Ekoke is ERC20, Ownable {
     modifier onlyTestnet() {
         require(
             block.chainid == GOERLI_CHAIN_ID ||
+                block.chainid == SEPOLIA_CHAIN_ID ||
                 block.chainid == HARDHAT_CHAIN_ID,
             "Ekoke: this function can only be called on testnets"
         );
@@ -71,29 +73,29 @@ contract Ekoke is ERC20, Ownable {
     }
 
     /**
-     * @dev Returns the address of the fly canister.
-     * @return The address of the fly canister.
+     * @dev Returns the address of the ekoke canister.
+     * @return The address of the ekoke canister.
      */
     function getEkokeCanisterAddress() public view returns (address) {
         require(
-            fly_canister_address != address(0),
-            "Ekoke: fly canister address not set"
+            ekoke_canister_address != address(0),
+            "Ekoke: ekoke canister address not set"
         );
-        return fly_canister_address;
+        return ekoke_canister_address;
     }
 
     /**
-     * @dev Sets the address of the fly canister. The address can only be set once.
-     * @param _fly_canister_address The new address of the fly canister.
+     * @dev Sets the address of the ekoke canister. The address can only be set once.
+     * @param _ekoke_canister_address The new address of the ekoke canister.
      */
     function setEkokeCanisterAddress(
-        address _fly_canister_address
+        address _ekoke_canister_address
     ) public onlyOwner {
         require(
-            fly_canister_address == address(0),
-            "Ekoke: fly canister address already set"
+            ekoke_canister_address == address(0),
+            "Ekoke: ekoke canister address already set"
         );
-        fly_canister_address = _fly_canister_address;
+        ekoke_canister_address = _ekoke_canister_address;
     }
 
     /**
@@ -102,10 +104,10 @@ contract Ekoke is ERC20, Ownable {
      * @param _amount The amount of tokens to swap.
      */
     function swap(bytes32 _recipient, uint256 _amount) public {
-        // check if the fly canister address is set
+        // check if the ekoke canister address is set
         require(
-            fly_canister_address != address(0),
-            "Ekoke: fly canister address not set"
+            ekoke_canister_address != address(0),
+            "Ekoke: ekoke canister address not set"
         );
         // check if the caller has enough tokens to swap
         require(
@@ -119,7 +121,7 @@ contract Ekoke is ERC20, Ownable {
     }
 
     /**
-     * @dev Mints the provided amount of tokens to the recipient (after a swap on the fly canister).
+     * @dev Mints the provided amount of tokens to the recipient (after a swap on the ekoke canister).
      * @param _recipient the address that will receive the ETH Ekoke tokens.
      * @param _amount the amount of tokens to mint.
      */

@@ -10,6 +10,8 @@ repository = { workspace = true }
 [dependencies]
 candid = { workspace = true }
 dip721 = { path = "../dip721" }
+ethers-core = { workspace = true }
+hex = { workspace = true }
 ic-cdk = { workspace = true }
 ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
@@ -20,3 +22,4 @@ xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"
+serde_json = "1"

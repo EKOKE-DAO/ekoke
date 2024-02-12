@@ -27,11 +27,13 @@ pub enum Canister {
 impl Canister {
     pub fn as_path(&self) -> &'static Path {
         match self {
-            Canister::Deferred => Path::new("deferred/deferred.wasm"),
-            Canister::Ekoke => Path::new("ekoke/ekoke.wasm"),
-            Canister::Marketplace => Path::new("marketplace/marketplace.wasm"),
-            Canister::Xrc => Path::new("test/xrc.wasm"),
-            Canister::Icrc2 => Path::new("test/icrc2-template-canister.wasm"),
+            Canister::Deferred => Path::new("../.dfx/local/canisters/deferred/deferred.wasm"),
+            Canister::Ekoke => Path::new("../.dfx/local/canisters/ekoke/ekoke.wasm"),
+            Canister::Marketplace => {
+                Path::new("../.dfx/local/canisters/marketplace/marketplace.wasm")
+            }
+            Canister::Xrc => Path::new("../assets/wasm/xrc.wasm"),
+            Canister::Icrc2 => Path::new("../assets/wasm/icrc2-template-canister.wasm"),
         }
     }
 }

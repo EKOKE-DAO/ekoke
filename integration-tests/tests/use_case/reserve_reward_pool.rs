@@ -34,7 +34,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
     let contract_id = deferred_client
         .register_contract(registration_data)
         .unwrap();
-    assert_eq!(contract_id, 0);
+    assert_eq!(contract_id, 0_u64);
 
     // reserve pool
     assert!(ekoke_client
@@ -53,7 +53,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
     assert!(res.is_ok());
 
     // verify reward
-    let token = deferred_client.token_metadata(Nat::from(0)).unwrap();
+    let token = deferred_client.token_metadata(Nat::from(0_u64)).unwrap();
     let picoekoke_reward = token
         .properties
         .iter()

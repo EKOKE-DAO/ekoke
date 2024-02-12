@@ -79,8 +79,8 @@ impl LiquidityPool {
     /// Get liquidity pool accounts
     pub fn accounts() -> LiquidityPoolAccounts {
         LiquidityPoolAccounts {
-            icp: ICP_ACCOUNT.with_borrow(|account| account.get().clone()).0,
-            ckbtc: CKBTC_ACCOUNT.with_borrow(|account| account.get().clone()).0,
+            icp: ICP_ACCOUNT.with_borrow(|account| *account.get()).0,
+            ckbtc: CKBTC_ACCOUNT.with_borrow(|account| *account.get()).0,
         }
     }
 
@@ -230,37 +230,37 @@ mod test {
     async fn test_should_get_balance() {
         LiquidityPool::init();
         let balance = LiquidityPool::balance().await.unwrap();
-        assert_eq!(balance.ckbtc, 1_216_794_022);
-        assert_eq!(balance.icp, 1_216_794_022);
+        assert_eq!(balance.ckbtc, 1_216_794_022_u64);
+        assert_eq!(balance.icp, 1_216_794_022_u64);
     }
 
     #[test]
     fn test_should_calculate_the_exchange_amounts_icp_lt_btc() {
         let icp_btc_rate = 0.00021543;
         let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
-        let allowance: Nat = 5_000_000.into();
-        let icp_balance: Nat = 716_774_022.into(); // about 65$
+        let allowance: Nat = 5_000_000_u64.into();
+        let icp_balance: Nat = 716_774_022_u64.into(); // about 65$
 
         // get amounts
         let amounts =
             LiquidityPool::get_exchange_amounts(icp_btc_rate, allowance, swap_balance, icp_balance);
 
-        assert_eq!(amounts.btc, 154_414);
-        assert_eq!(amounts.icp, 716_771_108);
+        assert_eq!(amounts.btc, 154_414_u64);
+        assert_eq!(amounts.icp, 716_771_108_u64);
     }
 
     #[test]
     fn test_should_calculate_the_exchange_amounts_icp_gt_btc() {
         let icp_btc_rate = 0.00021543;
         let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
-        let allowance: Nat = 50_000.into(); // about 40$
-        let icp_balance: Nat = 716_774_022.into(); // about 65$
+        let allowance: Nat = 50_000_u64.into(); // about 40$
+        let icp_balance: Nat = 716_774_022_u64.into(); // about 65$
 
         // get amounts
         let amounts =
             LiquidityPool::get_exchange_amounts(icp_btc_rate, allowance, swap_balance, icp_balance);
 
-        assert_eq!(amounts.btc, 50_000);
-        assert_eq!(amounts.icp, 232_093_951);
+        assert_eq!(amounts.btc, 50_000_u64);
+        assert_eq!(amounts.icp, 232_093_951_u64);
     }
 }

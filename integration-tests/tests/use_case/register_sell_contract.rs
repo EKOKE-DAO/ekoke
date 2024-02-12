@@ -36,7 +36,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     let contract_id = deferred_client
         .register_contract(registration_data)
         .unwrap();
-    assert_eq!(contract_id, 0);
+    assert_eq!(contract_id, 0_u64);
 
     // check unsigned contract and signed contracts
     let unsigned_contracts = deferred_client.admin_get_unsigned_contracts();
@@ -45,7 +45,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     assert!(signed_contract.is_empty());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(Nat::from(0));
+    let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
 
     // check unsigned contract and signed contracts
@@ -57,10 +57,10 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     // verify contract tokens
     // there should be 400_000 / 100 = 4000 tokens
     let total_supply = deferred_client.total_supply();
-    assert_eq!(total_supply, 4_000);
+    assert_eq!(total_supply, 4_000_u64);
 
     // first half for alice
-    let token = deferred_client.token_metadata(Nat::from(0)).unwrap();
+    let token = deferred_client.token_metadata(Nat::from(0_u64)).unwrap();
     assert_eq!(token.is_burned, false);
     assert_eq!(token.owner.unwrap(), alice());
     assert_eq!(token.operator, Some(env.marketplace_id));
@@ -73,6 +73,6 @@ fn test_as_seller_i_can_register_a_sell_contract() {
         .clone();
     assert_eq!(token_value, GenericValue::NatContent(100_u64.into()));
 
-    let token = deferred_client.token_metadata(Nat::from(2000)).unwrap();
+    let token = deferred_client.token_metadata(Nat::from(2000_u64)).unwrap();
     assert_eq!(token.owner.unwrap(), bob());
 }

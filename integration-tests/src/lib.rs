@@ -12,8 +12,9 @@ use std::vec;
 
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
-use did::ekoke::{EkokeInitData, PicoEkoke};
+use did::ekoke::{EkokeInitData, EthNetwork, PicoEkoke};
 use did::marketplace::MarketplaceInitData;
+use did::H160;
 use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
 
@@ -87,6 +88,8 @@ impl TestEnv {
         // create canisters
         let icp_ledger_id = pic.create_canister();
         let ckbtc_id = pic.create_canister();
+        let cketh_ledger_id = pic.create_canister();
+        let cketh_minter_id = pic.create_canister();
         let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
         let ekoke_id = pic.create_canister();
@@ -95,6 +98,8 @@ impl TestEnv {
         // install deferred canister
         Self::install_icrc2(&pic, icp_ledger_id, "ICP", "Internet Computer", 8);
         Self::install_icrc2(&pic, ckbtc_id, "ckBTC", "ckBTC", 8);
+        Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
+        // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
         Self::install_ekoke(
             &pic,
@@ -104,6 +109,8 @@ impl TestEnv {
             xrc_id,
             icp_ledger_id,
             ckbtc_id,
+            cketh_ledger_id,
+            cketh_minter_id,
         );
         Self::install_marketplace(
             &pic,
@@ -137,8 +144,8 @@ impl TestEnv {
             minting_account: actor::minting_account(),
             total_supply: Nat::from(21_268_400_889_u64),
             accounts: vec![
-                (actor::alice_account(), Nat::from(1_000_000_000)),
-                (actor::bob_account(), Nat::from(1_000_000_000)),
+                (actor::alice_account(), Nat::from(1_000_000_000_u64)),
+                (actor::bob_account(), Nat::from(1_000_000_000_u64)),
             ],
         })
         .unwrap();
@@ -165,6 +172,7 @@ impl TestEnv {
         pic.install_canister(deferred_id, wasm_bytes, init_arg, None);
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn install_ekoke(
         pic: &PocketIc,
         ekoke_id: Principal,
@@ -173,6 +181,8 @@ impl TestEnv {
         xrc_canister: Principal,
         icp_ledger_canister: Principal,
         ckbtc_canister: Principal,
+        cketh_ledger_canister: Principal,
+        cketh_minter_canister: Principal,
     ) {
         pic.add_cycles(ekoke_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Ekoke);
@@ -191,6 +201,12 @@ impl TestEnv {
             xrc_canister,
             icp_ledger_canister,
             ckbtc_canister,
+            cketh_ledger_canister,
+            cketh_minter_canister,
+            erc20_bridge_address: H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663")
+                .unwrap(),
+            erc20_gas_price: 39_000_000_000_u64, // 39 gwei
+            erc20_network: EthNetwork::Sepolia,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
@@ -230,7 +246,6 @@ impl TestEnv {
 
     fn load_wasm(canister: Canister) -> Vec<u8> {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("../.dfx/local/canisters");
         path.push(canister.as_path());
 
         let mut file = std::fs::File::open(path).unwrap();

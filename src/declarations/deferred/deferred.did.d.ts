@@ -7,6 +7,17 @@ export type AllowanceError = { 'AllowanceNotFound' : null } |
   { 'BadExpiration' : null } |
   { 'AllowanceExpired' : null } |
   { 'InsufficientFunds' : null };
+export type ApproveError = {
+    'GenericError' : { 'message' : string, 'error_code' : bigint }
+  } |
+  { 'TemporarilyUnavailable' : null } |
+  { 'Duplicate' : { 'duplicate_of' : bigint } } |
+  { 'BadFee' : { 'expected_fee' : bigint } } |
+  { 'AllowanceChanged' : { 'current_allowance' : bigint } } |
+  { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
+  { 'TooOld' : null } |
+  { 'Expired' : { 'ledger_time' : bigint } } |
+  { 'InsufficientFunds' : { 'balance' : bigint } };
 export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
@@ -49,16 +60,22 @@ export interface DeferredInitData {
   'custodians' : Array<Principal>,
   'marketplace_canister' : Principal,
 }
+export type EcdsaError = { 'RecoveryIdError' : null } |
+  { 'InvalidSignature' : null } |
+  { 'InvalidPublicKey' : null };
 export type EkokeError = { 'Configuration' : ConfigurationError } |
+  { 'Icrc2Approve' : ApproveError } |
   { 'Icrc1Transfer' : TransferError } |
   { 'Pool' : PoolError } |
   { 'Allowance' : AllowanceError } |
   { 'Register' : RegisterError } |
+  { 'EthRpcError' : [number, string] } |
   { 'XrcError' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] } |
   { 'Balance' : BalanceError } |
-  { 'Icrc2Transfer' : TransferFromError };
+  { 'Icrc2Transfer' : TransferFromError } |
+  { 'Ecdsa' : EcdsaError };
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |
