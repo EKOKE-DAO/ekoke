@@ -7,7 +7,6 @@ use std::time::Duration;
 use candid::{Nat, Principal};
 use did::ekoke::Role;
 use did::ID;
-use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::{TransferArg, TransferError};
 use icrc::icrc2::approve::{ApproveArgs, ApproveError};
 use icrc::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
@@ -35,12 +34,12 @@ impl Inspect {
         RolesManager::has_role(caller, Role::MarketplaceCanister)
     }
 
-    /// Returns whether caller is owner of the wallet
-    pub fn inspect_caller_owns_wallet(caller: Principal, account: Account) -> bool {
-        caller == account.owner
-    }
-
     /// inspect whether transfer update is valid
+    ///
+    /// Verifies if:
+    /// - the fee is greater than or equal to ICRC1_FEE
+    /// - the transaction is not too old
+    /// - the memo length is between 32 and 64 bytes
     pub fn inspect_transfer(args: &TransferArg) -> Result<(), TransferError> {
         let fee = args.fee.clone().unwrap_or(ICRC1_FEE.into());
         if fee < ICRC1_FEE {
@@ -76,6 +75,13 @@ impl Inspect {
     }
 
     /// inspect icrc2 approve arguments
+    ///
+    /// It verifies:
+    /// - the spender and owner are not the same
+    /// - the fee is greater than or equal to ICRC1_FEE
+    /// - the expiration is not in the past
+    /// - the memo length is between 32 and 64 bytes
+    /// - the created_at_time is not too old or in the future
     pub fn inspect_icrc2_approve(
         caller: Principal,
         args: &ApproveArgs,
@@ -122,10 +128,26 @@ impl Inspect {
                 return Err(ApproveError::TooOld);
             }
         }
+        // check memo length
+        if let Some(memo) = &args.memo {
+            if memo.0.len() < 32 || memo.0.len() > 64 {
+                return Err(ApproveError::GenericError {
+                    error_code: Nat::from(1_u64),
+                    message: "Invalid memo length. I must have a length between 32 and 64 bytes"
+                        .to_string(),
+                });
+            }
+        }
 
         Ok(())
     }
 
+    /// inspect icrc2 transfer from arguments
+    ///
+    /// It verifies:
+    /// - the fee is greater than or equal to ICRC1_FEE
+    /// - the created_at_time is not too old or in the future
+    /// - the memo length is between 32 and 64 bytes
     pub fn inspect_icrc2_transfer_from(args: &TransferFromArgs) -> Result<(), TransferFromError> {
         // check fee
         if args
@@ -206,26 +228,6 @@ mod test {
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         RolesManager::give_role(caller, Role::DeferredCanister);
         assert_eq!(Inspect::inspect_is_deferred_canister(caller), true);
-    }
-
-    #[test]
-    fn test_should_inspect_owns_wallet() {
-        assert!(Inspect::inspect_caller_owns_wallet(
-            Principal::from_text("aaaaa-aa").unwrap(),
-            Account {
-                owner: Principal::from_text("aaaaa-aa").unwrap(),
-                subaccount: Some([
-                    0x21, 0xa9, 0x95, 0x49, 0xe7, 0x92, 0x90, 0x7c, 0x5e, 0x27, 0x5e, 0x54, 0x51,
-                    0x06, 0x8d, 0x4d, 0xdf, 0x4d, 0x43, 0xee, 0x8d, 0xca, 0xb4, 0x87, 0x56, 0x23,
-                    0x1a, 0x8f, 0xb7, 0x71, 0x31, 0x23,
-                ])
-            }
-        ));
-
-        assert!(!Inspect::inspect_caller_owns_wallet(
-            Principal::from_text("aaaaa-aa").unwrap(),
-            test_utils::alice_account()
-        ));
     }
 
     #[test]
@@ -370,6 +372,19 @@ mod test {
             expires_at: None,
             created_at_time: Some(crate::utils::time() * 2),
             memo: None,
+            from_subaccount: None,
+            expected_allowance: None,
+        };
+
+        assert!(Inspect::inspect_icrc2_approve(caller, &args).is_err());
+
+        let args = ApproveArgs {
+            spender: test_utils::alice_account(),
+            amount: 100_u64.into(),
+            fee: None,
+            expires_at: None,
+            created_at_time: None,
+            memo: Some(vec![0x00].into()),
             from_subaccount: None,
             expected_allowance: None,
         };

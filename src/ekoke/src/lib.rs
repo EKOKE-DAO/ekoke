@@ -50,11 +50,11 @@ pub async fn send_reward(contract_id: ID, picoekoke: PicoEkoke, buyer: Account) 
 #[update]
 #[candid_method(update)]
 pub async fn reserve_pool(
-    from: Account,
     contract_id: ID,
     picoekoke_amount: PicoEkoke,
+    from_subaccount: Option<[u8; 32]>,
 ) -> EkokeResult<PicoEkoke> {
-    EkokeCanister::reserve_pool(from, contract_id, picoekoke_amount).await
+    EkokeCanister::reserve_pool(contract_id, picoekoke_amount, from_subaccount).await
 }
 
 #[query]

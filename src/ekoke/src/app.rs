@@ -136,15 +136,16 @@ impl EkokeCanister {
     /// The tokens are withdrawned from the from's wallet.
     /// Obviously `from` wallet must be owned by the caller.
     pub async fn reserve_pool(
-        from: Account,
         contract_id: ID,
         picoekoke_amount: PicoEkoke,
+        from_subaccount: Option<[u8; 32]>,
     ) -> EkokeResult<PicoEkoke> {
-        if !Inspect::inspect_caller_owns_wallet(utils::caller(), from) {
-            ic_cdk::trap("You don't own this account");
-        }
+        let from_account = Account {
+            owner: utils::caller(),
+            subaccount: from_subaccount,
+        };
 
-        Pool::reserve(&contract_id, from, picoekoke_amount).await
+        Pool::reserve(&contract_id, from_account, picoekoke_amount).await
     }
 
     /// Get liquidity pool balance from the different ledgers
@@ -705,9 +706,9 @@ mod test {
         let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
-            test_utils::caller_account(),
             contract_id,
             picoekoke_amount.clone(),
+            test_utils::caller_account().subaccount,
         )
         .await;
 
@@ -722,9 +723,9 @@ mod test {
         let picoekoke_amount = 1000_u64.into();
 
         assert!(EkokeCanister::reserve_pool(
-            test_utils::bob_account(),
             contract_id,
-            picoekoke_amount
+            picoekoke_amount,
+            test_utils::bob_account().subaccount,
         )
         .await
         .is_err());
@@ -738,9 +739,9 @@ mod test {
         let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
-            test_utils::caller_account(),
             contract_id.clone(),
             picoekoke_amount.clone(),
+            test_utils::caller_account().subaccount,
         )
         .await;
 
@@ -766,9 +767,9 @@ mod test {
         let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
-            test_utils::caller_account(),
             contract_id.clone(),
             picoekoke_amount.clone(),
+            test_utils::caller_account().subaccount,
         )
         .await;
 

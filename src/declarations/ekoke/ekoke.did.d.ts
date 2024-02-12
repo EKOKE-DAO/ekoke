@@ -105,15 +105,17 @@ export type Result_1 = { 'Ok' : string } |
   { 'Err' : EkokeError };
 export type Result_2 = { 'Ok' : bigint } |
   { 'Err' : EkokeError };
-export type Result_3 = { 'Ok' : Transaction } |
+export type Result_3 = { 'Ok' : bigint } |
   { 'Err' : EkokeError };
-export type Result_4 = { 'Ok' : bigint } |
-  { 'Err' : TransferError };
+export type Result_4 = { 'Ok' : Transaction } |
+  { 'Err' : EkokeError };
 export type Result_5 = { 'Ok' : bigint } |
-  { 'Err' : ApproveError };
+  { 'Err' : TransferError };
 export type Result_6 = { 'Ok' : bigint } |
+  { 'Err' : ApproveError };
+export type Result_7 = { 'Ok' : bigint } |
   { 'Err' : TransferFromError };
-export type Result_7 = { 'Ok' : LiquidityPoolBalance } |
+export type Result_8 = { 'Ok' : LiquidityPoolBalance } |
   { 'Err' : EkokeError };
 export type Role = { 'DeferredCanister' : null } |
   { 'MarketplaceCanister' : null } |
@@ -187,9 +189,9 @@ export interface _SERVICE {
     [string, bigint, [] | [Uint8Array | number[]]],
     Result_1
   >,
-  'erc20_swap_fee' : ActorMethod<[], bigint>,
-  'get_contract_reward' : ActorMethod<[bigint, bigint], Result_2>,
-  'get_transaction' : ActorMethod<[bigint], Result_3>,
+  'erc20_swap_fee' : ActorMethod<[], Result_2>,
+  'get_contract_reward' : ActorMethod<[bigint, bigint], Result_3>,
+  'get_transaction' : ActorMethod<[bigint], Result_4>,
   'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse>,
   'icrc1_balance_of' : ActorMethod<[Account], bigint>,
   'icrc1_decimals' : ActorMethod<[], number>,
@@ -199,12 +201,15 @@ export interface _SERVICE {
   'icrc1_supported_standards' : ActorMethod<[], Array<TokenExtension>>,
   'icrc1_symbol' : ActorMethod<[], string>,
   'icrc1_total_supply' : ActorMethod<[], bigint>,
-  'icrc1_transfer' : ActorMethod<[TransferArg], Result_4>,
+  'icrc1_transfer' : ActorMethod<[TransferArg], Result_5>,
   'icrc2_allowance' : ActorMethod<[AllowanceArgs], Allowance>,
-  'icrc2_approve' : ActorMethod<[ApproveArgs], Result_5>,
-  'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_6>,
+  'icrc2_approve' : ActorMethod<[ApproveArgs], Result_6>,
+  'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_7>,
   'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
-  'liquidity_pool_balance' : ActorMethod<[], Result_7>,
-  'reserve_pool' : ActorMethod<[Account, bigint, bigint], Result_2>,
+  'liquidity_pool_balance' : ActorMethod<[], Result_8>,
+  'reserve_pool' : ActorMethod<
+    [bigint, bigint, [] | [Uint8Array | number[]]],
+    Result_3
+  >,
   'send_reward' : ActorMethod<[bigint, bigint, Account], Result>,
 }

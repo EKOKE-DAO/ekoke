@@ -3,7 +3,6 @@ use did::ID;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
-use icrc::icrc1::account::Account;
 use icrc::icrc1::transfer::TransferArg;
 
 use crate::app::Inspect;
@@ -24,10 +23,6 @@ fn inspect_message_impl() {
 
     let check_result = match method.as_str() {
         method if method.starts_with("admin_") => Inspect::inspect_is_admin(caller()),
-        "reserve_pool" => {
-            let account = api::call::arg_data::<(Account, ID, PicoEkoke)>().0;
-            Inspect::inspect_caller_owns_wallet(caller(), account)
-        }
         "get_contract_reward" => Inspect::inspect_is_deferred_canister(caller()),
         "send_reward" => {
             let contract_id: candid::Nat = api::call::arg_data::<(ID, PicoEkoke)>().0;

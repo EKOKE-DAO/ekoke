@@ -26,16 +26,24 @@ impl<'a> EkokeClient<'a> {
         contract_id: ID,
         picoekoke_amount: PicoEkoke,
     ) -> EkokeResult<PicoEkoke> {
-        let result: EkokeResult<PicoEkoke> = self
-            .env
+        self.env
             .update(
                 self.env.ekoke_id,
                 from.owner,
                 "reserve_pool",
-                Encode!(&from, &contract_id, &picoekoke_amount).unwrap(),
+                Encode!(&contract_id, &picoekoke_amount, &from.subaccount).unwrap(),
             )
-            .unwrap();
+            .unwrap()
+    }
 
-        result
+    pub fn send_reward(&self, contract_id: ID, amount: PicoEkoke, to: Account) -> EkokeResult<()> {
+        self.env
+            .update(
+                self.env.ekoke_id,
+                self.env.marketplace_id,
+                "send_reward",
+                Encode!(&contract_id, &amount, &to).unwrap(),
+            )
+            .unwrap()
     }
 }
