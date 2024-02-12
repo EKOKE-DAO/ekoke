@@ -66,7 +66,7 @@ mod test {
     #[tokio::test]
     async fn test_should_deposit_and_withdraw_from_swap_pool() {
         let alice = test_utils::alice_account();
-        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100__u64.into())]);
+        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100_u64.into())]);
 
         // check if swap pool account is anonymous
         let swap_pool_account = Configuration::get_erc20_swap_pool_account();
@@ -95,7 +95,7 @@ mod test {
     #[tokio::test]
     async fn should_not_allow_withdraw_or_deposit_with_insufficient_balance() {
         let alice = test_utils::alice_account();
-        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100__u64.into())]);
+        Balance::init_balances(Nat::from(100_u64), vec![(alice.clone(), 100_u64.into())]);
 
         assert!(SwapPool::deposit(alice.clone(), Nat::from(200_u64))
             .await

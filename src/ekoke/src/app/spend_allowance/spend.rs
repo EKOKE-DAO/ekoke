@@ -149,7 +149,7 @@ mod test {
     #[test]
     fn test_should_encode_and_decode_with_options_none() {
         let spend = Spend {
-            amount: 100_000_000_000_000__u64.into(),
+            amount: 100_000_000_000_000_u64.into(),
             expected_allowance: None,
             expires_at: None,
             fee: None,
@@ -166,10 +166,10 @@ mod test {
     #[test]
     fn test_should_encode_and_decode_with_options_some() {
         let spend = Spend {
-            amount: 100_000_000_000_000__u64.into(),
-            expected_allowance: Some(100_000_000_000_000__u64.into()),
+            amount: 100_000_000_000_000_u64.into(),
+            expected_allowance: Some(100_000_000_000_000_u64.into()),
             expires_at: Some(crate::utils::time()),
-            fee: Some(100_000_000_000_000__u64.into()),
+            fee: Some(100_000_000_000_000_u64.into()),
             memo: Some(Memo::from(vec![1; 48])),
             created_at_time: crate::utils::time(),
         };

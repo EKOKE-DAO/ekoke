@@ -587,7 +587,7 @@ mod test {
 
         assert!(ContractStorage::insert_contract(contract).is_ok());
         assert!(ContractStorage::sign_contract_and_mint_tokens(
-            &1__u64.into(),
+            &1_u64.into(),
             vec![token_1, token_2]
         )
         .is_err());
@@ -879,9 +879,7 @@ mod test {
         let token = mock_token(1, 1);
         let contract_1 = mock_contract(1, 1);
         assert!(ContractStorage::insert_contract(contract_1).is_ok());
-        assert!(
-            ContractStorage::sign_contract_and_mint_tokens(&1__u64.into(), vec![token]).is_ok()
-        );
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1_u64.into(), vec![token]).is_ok());
 
         let contract_2 = mock_contract(2, 1);
         assert!(ContractStorage::insert_contract(contract_2).is_ok());
@@ -904,11 +902,9 @@ mod test {
             ));
         });
         assert!(ContractStorage::insert_contract(contract).is_ok());
-        assert!(
-            ContractStorage::sign_contract_and_mint_tokens(&1__u64.into(), vec![token]).is_ok()
-        );
+        assert!(ContractStorage::sign_contract_and_mint_tokens(&1_u64.into(), vec![token]).is_ok());
 
-        let metadata = ContractStorage::get_token_metadata(&1__u64.into()).unwrap();
+        let metadata = ContractStorage::get_token_metadata(&1_u64.into()).unwrap();
         assert_eq!(metadata.token_identifier, 1_u64);
         assert_eq!(metadata.approved_at, None);
         assert_eq!(metadata.approved_by, None);
@@ -936,13 +932,13 @@ mod test {
         assert!(ContractStorage::insert_contract(contract).is_ok());
 
         assert!(ContractStorage::update_contract_property(
-            &1__u64.into(),
+            &1_u64.into(),
             "contract:address".to_string(),
             dip721::GenericValue::TextContent("Milan".to_string())
         )
         .is_ok());
         assert_eq!(
-            ContractStorage::get_contract(&1__u64.into())
+            ContractStorage::get_contract(&1_u64.into())
                 .unwrap()
                 .properties
                 .iter()
@@ -953,13 +949,13 @@ mod test {
         );
 
         assert!(ContractStorage::update_contract_property(
-            &1__u64.into(),
+            &1_u64.into(),
             "contract:addressLong".to_string(),
             dip721::GenericValue::TextContent("Trieste".to_string())
         )
         .is_ok());
         assert_eq!(
-            ContractStorage::get_contract(&1__u64.into())
+            ContractStorage::get_contract(&1_u64.into())
                 .unwrap()
                 .properties
                 .iter()

@@ -65,6 +65,6 @@ impl EkokeClient for IcEkokeClient {
         _contract_id: ID,
         _installments: u64,
     ) -> DeferredResult<PicoEkoke> {
-        Ok(71_000__u64.into())
+        Ok(71_000_u64.into())
     }
 }

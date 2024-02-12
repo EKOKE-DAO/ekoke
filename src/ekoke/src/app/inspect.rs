@@ -82,7 +82,7 @@ impl Inspect {
     ) -> Result<(), ApproveError> {
         if args.spender.owner == caller {
             return Err(ApproveError::GenericError {
-                error_code: 0__u64.into(),
+                error_code: 0_u64.into(),
                 message: "Spender and owner cannot be equal".to_string(),
             });
         }

@@ -227,7 +227,7 @@ mod test {
             36_540_000_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
-        assert!(Pool::has_pool(&1__u64.into()));
+        assert!(Pool::has_pool(&1_u64.into()));
 
         // next reward should be less
         assert_eq!(
@@ -237,7 +237,7 @@ mod test {
             35_926_128_000_000_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
-        assert!(Pool::has_pool(&2__u64.into()));
+        assert!(Pool::has_pool(&2_u64.into()));
     }
 
     #[test]

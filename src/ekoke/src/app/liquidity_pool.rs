@@ -237,7 +237,7 @@ mod test {
     #[test]
     fn test_should_calculate_the_exchange_amounts_icp_lt_btc() {
         let icp_btc_rate = 0.00021543;
-        let swap_balance: Nat = 5_299_287__u64.into(); // about 2245$
+        let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
         let allowance: Nat = 5_000_000_u64.into();
         let icp_balance: Nat = 716_774_022_u64.into(); // about 65$
 
@@ -252,7 +252,7 @@ mod test {
     #[test]
     fn test_should_calculate_the_exchange_amounts_icp_gt_btc() {
         let icp_btc_rate = 0.00021543;
-        let swap_balance: Nat = 5_299_287__u64.into(); // about 2245$
+        let swap_balance: Nat = 5_299_287_u64.into(); // about 2245$
         let allowance: Nat = 50_000_u64.into(); // about 40$
         let icp_balance: Nat = 716_774_022_u64.into(); // about 65$
 

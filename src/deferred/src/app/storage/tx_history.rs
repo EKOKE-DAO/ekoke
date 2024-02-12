@@ -132,7 +132,7 @@ mod test {
     fn test_should_insert_transactions() {
         let token = mock_token(1, 1);
         TxHistory::register_token_mint(&token);
-        let tx = TxHistory::get_transaction_by_id(0__u64.into()).unwrap();
+        let tx = TxHistory::get_transaction_by_id(0_u64.into()).unwrap();
         assert_eq!(tx.operation, "mint");
         assert_eq!(tx.caller, crate::utils::caller());
         assert_eq!(tx.details.len(), 4);

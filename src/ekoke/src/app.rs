@@ -702,7 +702,7 @@ mod test {
     async fn test_should_reserve_pool() {
         init_canister();
         let contract_id = 1_u64.into();
-        let picoekoke_amount: Nat = 1000__u64.into();
+        let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -719,7 +719,7 @@ mod test {
     async fn test_should_not_allow_reserve_pool() {
         init_canister();
         let contract_id = 1_u64.into();
-        let picoekoke_amount = 1000__u64.into();
+        let picoekoke_amount = 1000_u64.into();
 
         assert!(EkokeCanister::reserve_pool(
             test_utils::bob_account(),
@@ -735,7 +735,7 @@ mod test {
         init_canister();
         let contract_id: ID = 1_u64.into();
 
-        let picoekoke_amount: Nat = 1000__u64.into();
+        let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -748,7 +748,7 @@ mod test {
 
         // send reward to bob
         assert!(
-            EkokeCanister::send_reward(contract_id, 500__u64.into(), bob_account())
+            EkokeCanister::send_reward(contract_id, 500_u64.into(), bob_account())
                 .await
                 .is_ok()
         );
@@ -763,7 +763,7 @@ mod test {
         init_canister();
         let contract_id: ID = 1_u64.into();
 
-        let picoekoke_amount: Nat = 1000__u64.into();
+        let picoekoke_amount: Nat = 1000_u64.into();
 
         let result = EkokeCanister::reserve_pool(
             test_utils::caller_account(),
@@ -776,12 +776,12 @@ mod test {
 
         // send reward to bob
         assert!(
-            EkokeCanister::send_reward(contract_id, 5000__u64.into(), bob_account())
+            EkokeCanister::send_reward(contract_id, 5000_u64.into(), bob_account())
                 .await
                 .is_err()
         );
         assert!(
-            EkokeCanister::send_reward(2_u64.into(), 500__u64.into(), bob_account())
+            EkokeCanister::send_reward(2_u64.into(), 500_u64.into(), bob_account())
                 .await
                 .is_err()
         );

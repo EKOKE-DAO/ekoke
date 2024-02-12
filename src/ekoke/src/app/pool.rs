@@ -138,15 +138,15 @@ mod test {
 
         assert_eq!(
             Pool::reserve(
-                &1__u64.into(),
+                &1_u64.into(),
                 Balance::canister_wallet_account(),
-                7_000__u64.into()
+                7_000_u64.into()
             )
             .await
             .unwrap(),
             7_000_u64
         );
-        assert_eq!(Pool::balance_of(&1__u64.into()).unwrap(), 7_000_u64);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 7_000_u64);
     }
 
     #[tokio::test]
@@ -155,9 +155,9 @@ mod test {
 
         assert_eq!(
             Pool::reserve(
-                &1__u64.into(),
+                &1_u64.into(),
                 Balance::canister_wallet_account(),
-                7_000__u64.into()
+                7_000_u64.into()
             )
             .await
             .unwrap(),
@@ -165,15 +165,15 @@ mod test {
         );
         assert_eq!(
             Pool::reserve(
-                &1__u64.into(),
+                &1_u64.into(),
                 Balance::canister_wallet_account(),
-                3_000__u64.into()
+                3_000_u64.into()
             )
             .await
             .unwrap(),
             10_000_u64
         );
-        assert_eq!(Pool::balance_of(&1__u64.into()).unwrap(), 10_000_u64);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 10_000_u64);
     }
 
     #[tokio::test]
@@ -181,14 +181,14 @@ mod test {
         Balance::init_balances(test_utils::ekoke_to_picoekoke(8_000_000), vec![]);
 
         assert!(Pool::reserve(
-            &1__u64.into(),
+            &1_u64.into(),
             Balance::canister_wallet_account(),
-            7_000__u64.into()
+            7_000_u64.into()
         )
         .await
         .is_ok());
-        assert!(Pool::has_pool(&1__u64.into()));
-        assert!(!Pool::has_pool(&2__u64.into()));
+        assert!(Pool::has_pool(&1_u64.into()));
+        assert!(!Pool::has_pool(&2_u64.into()));
     }
 
     #[tokio::test]
@@ -197,19 +197,19 @@ mod test {
         let to = test_utils::bob_account();
 
         assert!(Pool::reserve(
-            &1__u64.into(),
+            &1_u64.into(),
             Balance::canister_wallet_account(),
-            7_000__u64.into()
+            7_000_u64.into()
         )
         .await
         .is_ok());
         assert_eq!(
-            Pool::withdraw_tokens(&1__u64.into(), to, 3_000__u64.into())
+            Pool::withdraw_tokens(&1_u64.into(), to, 3_000_u64.into())
                 .await
                 .unwrap(),
             4_000_u64
         );
-        assert_eq!(Pool::balance_of(&1__u64.into()).unwrap(), 4_000_u64);
+        assert_eq!(Pool::balance_of(&1_u64.into()).unwrap(), 4_000_u64);
         assert_eq!(Balance::balance_of(to).unwrap(), 3_000_u64);
     }
 
@@ -219,13 +219,13 @@ mod test {
         let to = test_utils::bob_account();
 
         assert!(Pool::reserve(
-            &1__u64.into(),
+            &1_u64.into(),
             Balance::canister_wallet_account(),
-            7_000__u64.into()
+            7_000_u64.into()
         )
         .await
         .is_ok());
-        assert!(Pool::withdraw_tokens(&1__u64.into(), to, 8_000__u64.into())
+        assert!(Pool::withdraw_tokens(&1_u64.into(), to, 8_000_u64.into())
             .await
             .is_err());
         assert!(Balance::balance_of(to).is_err());

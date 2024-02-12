@@ -418,7 +418,7 @@ mod test {
         assert_eq!(
             allowance,
             icrc2::allowance::Allowance {
-                allowance: 5000000000__u64.into(),
+                allowance: 5000000000_u64.into(),
                 expires_at: None,
             }
         );

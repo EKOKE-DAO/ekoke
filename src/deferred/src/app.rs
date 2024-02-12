@@ -550,7 +550,7 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
 
-        let token_info = Deferred::get_token(&2__u64.into()).unwrap();
+        let token_info = Deferred::get_token(&2_u64.into()).unwrap();
         assert_eq!(token_info.token.id, Nat::from(2_u64));
         assert_eq!(token_info.contract.id, Nat::from(1_u64));
     }
@@ -560,7 +560,7 @@ mod test {
         init_canister();
         store_mock_contract(&[1, 2], 1);
         assert_eq!(
-            Deferred::get_contract(&1__u64.into()).unwrap().id,
+            Deferred::get_contract(&1_u64.into()).unwrap().id,
             Nat::from(1_u64)
         );
     }
@@ -647,7 +647,7 @@ mod test {
         )
         .is_ok());
         assert_eq!(
-            Deferred::get_contract(&1__u64.into()).unwrap().buyers,
+            Deferred::get_contract(&1_u64.into()).unwrap().buyers,
             vec![Principal::management_canister(), caller()]
         );
     }
