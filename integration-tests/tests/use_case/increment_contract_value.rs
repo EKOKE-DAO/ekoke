@@ -5,8 +5,9 @@ use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
 
 #[test]
+#[serial_test::serial]
 fn test_as_seller_i_can_set_the_contract_buyers() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
     let deferred_client = DeferredClient::from(&env);
 
     let registration_data = ContractRegistration {

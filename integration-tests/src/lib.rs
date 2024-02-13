@@ -15,17 +15,21 @@ use did::deferred::DeferredInitData;
 use did::ekoke::{EkokeInitData, EthNetwork, PicoEkoke};
 use did::marketplace::MarketplaceInitData;
 use did::H160;
+use pocket_ic::common::rest::SubnetConfigSet;
 use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
 
 use self::wasm::Canister;
 use crate::wasm::Icrc2InitArgs;
 
-const DEFAULT_CYCLES: u128 = 2_000_000_000_000;
+const DEFAULT_CYCLES: u128 = 2_000_000_000_000_000;
 
 /// Test environment
 pub struct TestEnv {
     pub pic: PocketIc,
+    pub cketh_ledger_id: Principal,
+    pub cketh_minter_id: Principal,
+    pub ckbtc_id: Principal,
     pub deferred_id: Principal,
     pub ekoke_id: Principal,
     pub icp_ledger_id: Principal,
@@ -82,8 +86,14 @@ impl TestEnv {
     }
 
     /// Install the canisters needed for the tests
-    pub fn init() -> TestEnv {
-        let pic = PocketIc::new();
+    pub fn init(xrc: bool) -> TestEnv {
+        let config = SubnetConfigSet {
+            nns: true,
+            sns: true,
+            application: 1,
+            ..Default::default()
+        };
+        let pic = PocketIc::from_config(config);
 
         // create canisters
         let icp_ledger_id = pic.create_canister();
@@ -120,10 +130,15 @@ impl TestEnv {
             xrc_id,
             icp_ledger_id,
         );
-        Self::install_xrc(&pic, xrc_id);
+        if xrc {
+            Self::install_xrc(&pic, xrc_id);
+        }
 
         TestEnv {
             pic,
+            cketh_ledger_id,
+            cketh_minter_id,
+            ckbtc_id,
             deferred_id,
             icp_ledger_id,
             ekoke_id,
@@ -253,6 +268,18 @@ impl TestEnv {
         file.read_to_end(&mut wasm_bytes).unwrap();
 
         wasm_bytes
+    }
+}
+
+impl Drop for TestEnv {
+    fn drop(&mut self) {
+        // NOTE: execute test one by one
+        for tempdir in std::fs::read_dir(std::path::Path::new("/tmp")).unwrap() {
+            let tempdir = tempdir.unwrap();
+            if tempdir.file_name().to_string_lossy().starts_with(".tmp") {
+                std::fs::remove_dir_all(tempdir.path()).unwrap();
+            }
+        }
     }
 }
 

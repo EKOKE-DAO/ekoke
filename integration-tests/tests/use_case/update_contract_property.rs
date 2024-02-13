@@ -5,8 +5,9 @@ use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
 
 #[test]
+#[serial_test::serial]
 fn test_should_update_contract_property() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
     let deferred_client = DeferredClient::from(&env);
 
     let registration_data = ContractRegistration {

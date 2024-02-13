@@ -9,8 +9,9 @@ use integration_tests::client::EkokeClient;
 use integration_tests::{ekoke_to_picoekoke, TestEnv};
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_is_admin() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     assert!(env
         .update::<()>(
@@ -23,8 +24,9 @@ fn test_should_inspect_is_admin() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_admin() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
     // not an admin
     assert!(env
         .update::<()>(
@@ -37,8 +39,9 @@ fn test_should_fail_inspect_admin() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_get_contract_reward() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
     // is deferred canister
     assert!(env
         .update::<EkokeResult<PicoEkoke>>(
@@ -51,8 +54,9 @@ fn test_should_inspect_get_contract_reward() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_get_contract_reward() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
     // is a random guy
     assert!(env
         .update::<EkokeResult<PicoEkoke>>(
@@ -65,8 +69,9 @@ fn test_should_fail_inspect_get_contract_reward() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_send_reward() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     let ekoke_client = EkokeClient::new(&env);
     // reserve pool
@@ -91,8 +96,9 @@ fn test_should_inspect_send_reward() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_send_reward() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     let ekoke_client = EkokeClient::new(&env);
     // reserve pool
@@ -117,8 +123,9 @@ fn test_should_fail_inspect_send_reward() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_icrc1_transfer() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     let transfer = TransferArg {
         from_subaccount: None,
@@ -141,8 +148,9 @@ fn test_should_inspect_icrc1_transfer() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_icrc1_transfer() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     // bad fee
     let transfer = TransferArg {
@@ -206,8 +214,9 @@ fn test_should_fail_inspect_icrc1_transfer() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_icrc2_approve() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     let args = ApproveArgs {
         spender: bob_account(),
@@ -232,8 +241,9 @@ fn test_should_inspect_icrc2_approve() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_icrc2_approve() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     // inspect spender is caller
     let args = ApproveArgs {
@@ -342,8 +352,9 @@ fn test_should_fail_inspect_icrc2_approve() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_inspect_icrc2_transfer_from() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     // approve admin to spend
     let approve_args = ApproveArgs {
@@ -387,8 +398,9 @@ fn test_should_inspect_icrc2_transfer_from() {
 }
 
 #[test]
+#[serial_test::serial]
 fn test_should_fail_inspect_icrc2_transfer_from() {
-    let env = TestEnv::init();
+    let env = TestEnv::init(false);
 
     // approve admin to spend
     let approve_args = ApproveArgs {

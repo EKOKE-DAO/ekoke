@@ -24,8 +24,7 @@ workspace = false
 
 [tasks.integration-tests]
 description = "Run integration tests"
-command = "cargo"
-args = ["test", "--test", "integration_tests"]
+script = "./scripts/integration-tests.sh"
 dependencies = ["did", "build"]
 workspace = false
 
