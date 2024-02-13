@@ -716,7 +716,6 @@ mod test {
     }
 
     #[tokio::test]
-    #[should_panic]
     async fn test_should_not_allow_reserve_pool() {
         init_canister();
         let contract_id = 1_u64.into();
