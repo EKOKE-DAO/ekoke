@@ -28,6 +28,19 @@ impl IcrcLedgerClient {
         self.principal
     }
 
+    pub async fn icrc1_fee(&self) -> CallResult<Nat> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Ok(10_000u64.into())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let result: (Nat,) = ic_cdk::call(self.principal, "icrc1_fee", ()).await?;
+
+            Ok(result.0)
+        }
+    }
+
     /// Get account balance
     #[allow(unused_variables)]
     pub async fn icrc1_balance_of(&self, account: Account) -> CallResult<Nat> {

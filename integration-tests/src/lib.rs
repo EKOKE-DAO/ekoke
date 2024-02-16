@@ -18,6 +18,7 @@ use did::H160;
 use pocket_ic::common::rest::SubnetConfigSet;
 use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
+use xrc::{Asset, AssetClass, ExchangeRate, ExchangeRateMetadata};
 
 use self::wasm::Canister;
 use crate::wasm::Icrc2InitArgs;
@@ -86,7 +87,7 @@ impl TestEnv {
     }
 
     /// Install the canisters needed for the tests
-    pub fn init(xrc: bool) -> TestEnv {
+    pub fn init() -> TestEnv {
         let config = SubnetConfigSet {
             nns: true,
             sns: true,
@@ -111,6 +112,7 @@ impl TestEnv {
         Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
         // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_id, marketplace_id);
+        Self::install_xrc(&pic, xrc_id);
         Self::install_ekoke(
             &pic,
             ekoke_id,
@@ -130,9 +132,6 @@ impl TestEnv {
             xrc_id,
             icp_ledger_id,
         );
-        if xrc {
-            Self::install_xrc(&pic, xrc_id);
-        }
 
         TestEnv {
             pic,
@@ -147,6 +146,61 @@ impl TestEnv {
         }
     }
 
+    fn install_xrc(pic: &PocketIc, xrc_id: Principal) {
+        pic.add_cycles(xrc_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::Xrc);
+        let eur = Asset {
+            symbol: "EUR".to_string(),
+            class: AssetClass::FiatCurrency,
+        };
+        let icp = Asset {
+            symbol: "ICP".to_string(),
+            class: AssetClass::Cryptocurrency,
+        };
+        let btc = Asset {
+            symbol: "BTC".to_string(),
+            class: AssetClass::Cryptocurrency,
+        };
+
+        let eur_icp = ExchangeRate {
+            base_asset: eur,
+            quote_asset: icp.clone(),
+            rate: 813000000,
+            timestamp: 0,
+            metadata: ExchangeRateMetadata {
+                decimals: 8,
+                base_asset_num_queried_sources: 0,
+                base_asset_num_received_rates: 0,
+                quote_asset_num_queried_sources: 0,
+                quote_asset_num_received_rates: 0,
+                standard_deviation: 0,
+                forex_timestamp: None,
+            },
+        };
+        let icp_btc = ExchangeRate {
+            base_asset: icp.clone(),
+            quote_asset: btc,
+            rate: 2162,
+            timestamp: 0,
+            metadata: ExchangeRateMetadata {
+                decimals: 8,
+                base_asset_num_queried_sources: 0,
+                base_asset_num_received_rates: 0,
+                quote_asset_num_queried_sources: 0,
+                quote_asset_num_received_rates: 0,
+                standard_deviation: 0,
+                forex_timestamp: None,
+            },
+        };
+
+        let init_arg = client::XrcxInitArgs {
+            rates: vec![eur_icp, icp_btc],
+        };
+        let init_arg = Encode!(&init_arg).unwrap();
+
+        pic.install_canister(xrc_id, wasm_bytes, init_arg, None);
+    }
+
     fn install_icrc2(pic: &PocketIc, id: Principal, symbol: &str, name: &str, decimals: u8) {
         pic.add_cycles(id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Icrc2);
@@ -157,10 +211,14 @@ impl TestEnv {
             fee: 10,
             logo: "https://ic0.app/img/logo.png".to_string(),
             minting_account: actor::minting_account(),
-            total_supply: Nat::from(21_268_400_889_u64),
+            total_supply: Nat::from(1_000_000_000_000_000_000_u64),
             accounts: vec![
-                (actor::alice_account(), Nat::from(1_000_000_000_u64)),
-                (actor::bob_account(), Nat::from(1_000_000_000_u64)),
+                (actor::alice_account(), Nat::from(1_000_000_000_000_000_u64)),
+                (actor::bob_account(), Nat::from(1_000_000_000_000_000_u64)),
+                (
+                    actor::charlie_account(),
+                    Nat::from(1_000_000_000_000_000_u64)
+                ),
             ],
         })
         .unwrap();
@@ -249,14 +307,6 @@ impl TestEnv {
         let init_arg = Encode!(&init_arg).unwrap();
 
         pic.install_canister(marketplace_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_xrc(pic: &PocketIc, xrc_id: Principal) {
-        pic.add_cycles(xrc_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Xrc);
-        let init_arg = Encode!(&()).unwrap();
-
-        pic.install_canister(xrc_id, wasm_bytes, init_arg, None);
     }
 
     fn load_wasm(canister: Canister) -> Vec<u8> {

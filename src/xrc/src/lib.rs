@@ -5,7 +5,8 @@
 use candid::Principal;
 use ic_cdk::api::call::RejectionCode;
 pub use ic_xrc_types::{
-    Asset, AssetClass, ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult,
+    Asset, AssetClass, ExchangeRate, ExchangeRateError, ExchangeRateMetadata,
+    GetExchangeRateRequest, GetExchangeRateResult,
 };
 
 /// 10Billions cycles

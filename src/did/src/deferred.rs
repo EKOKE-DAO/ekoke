@@ -9,7 +9,7 @@ pub type DeferredResult<T> = Result<T, DeferredError>;
 pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
 pub use self::contract::{
     Contract, ContractProperties, ContractRegistration, ContractType, GenericValue, Seller, Token,
-    TokenIdentifier, TokenInfo,
+    TokenIdentifier, TokenInfo, ID,
 };
 pub use self::error::{ConfigurationError, DeferredError, TokenError};
 

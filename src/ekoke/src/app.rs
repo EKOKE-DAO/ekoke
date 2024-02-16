@@ -508,9 +508,11 @@ impl Icrc2 for EkokeCanister {
     ) -> Result<Nat, icrc2::transfer_from::TransferFromError> {
         Inspect::inspect_icrc2_transfer_from(&args)?;
 
-        // check if owner has enough balance
+        // check if owner has enough balance + fee
         let owner_balance = Self::icrc1_balance_of(args.from);
-        if owner_balance < args.amount {
+        let fee = args.fee.clone().unwrap_or(ICRC1_FEE.into());
+        let total_amount = args.amount.clone() + fee.clone();
+        if owner_balance < total_amount {
             return Err(icrc2::transfer_from::TransferFromError::InsufficientFunds {
                 balance: owner_balance,
             });
@@ -521,17 +523,10 @@ impl Icrc2 for EkokeCanister {
             owner: caller(),
             subaccount: args.spender_subaccount,
         };
-        let spender_balance = Self::icrc1_balance_of(spender);
-        let fee = args.fee.clone().unwrap_or(ICRC1_FEE.into());
-        if spender_balance < fee {
-            return Err(icrc2::transfer_from::TransferFromError::InsufficientFunds {
-                balance: spender_balance,
-            });
-        }
 
         // check allowance
         let (allowance, expires_at) = SpendAllowance::get_allowance(args.from, spender);
-        if allowance < args.amount {
+        if allowance < total_amount {
             return Err(
                 icrc2::transfer_from::TransferFromError::InsufficientAllowance { allowance },
             );
@@ -546,7 +541,7 @@ impl Icrc2 for EkokeCanister {
         match SpendAllowance::spend_allowance(
             caller(),
             args.from,
-            args.amount.clone(),
+            total_amount.clone(),
             args.spender_subaccount,
         ) {
             Ok(()) => Ok(()),
@@ -562,11 +557,11 @@ impl Icrc2 for EkokeCanister {
             }),
         }?;
 
-        // pay fee
-        Balance::transfer_wno_fees(spender, Configuration::get_minting_account(), fee.clone())
+        // pay fee (the fee is paid by from account, not by spender account)
+        Balance::transfer_wno_fees(args.from, Configuration::get_minting_account(), fee.clone())
             .map_err(
                 |_| icrc2::transfer_from::TransferFromError::InsufficientFunds {
-                    balance: Self::icrc1_balance_of(spender),
+                    balance: Self::icrc1_balance_of(args.from),
                 },
             )?;
 
@@ -583,7 +578,7 @@ impl Icrc2 for EkokeCanister {
         let tx = Transaction {
             from: args.from,
             to: args.to,
-            amount: args.amount,
+            amount: total_amount,
             fee,
             memo: args.memo,
             created_at: tx_time,
@@ -1279,10 +1274,11 @@ mod test {
     #[tokio::test]
     async fn test_should_spend_approved_amount() {
         init_canister();
+        let fee = Nat::from(ICRC1_FEE);
         let approval_args = ApproveArgs {
             from_subaccount: bob_account().subaccount,
             spender: caller_account(),
-            amount: Nat::from(ekoke_to_picoekoke(10_000)),
+            amount: Nat::from(ekoke_to_picoekoke(10_000) + fee.clone()),
             fee: None,
             expires_at: None,
             expected_allowance: None,
@@ -1296,7 +1292,7 @@ mod test {
                 spender: caller_account(),
             }),
             Allowance {
-                allowance: Nat::from(ekoke_to_picoekoke(10_000)),
+                allowance: Nat::from(ekoke_to_picoekoke(10_000) + fee.clone()),
                 expires_at: None,
             }
         );
@@ -1315,7 +1311,7 @@ mod test {
         // verify balance
         assert_eq!(
             EkokeCanister::icrc1_balance_of(bob_account()),
-            Nat::from(ekoke_to_picoekoke(40_000))
+            Nat::from(ekoke_to_picoekoke(40_000) - fee)
         );
         assert_eq!(
             EkokeCanister::icrc1_balance_of(alice_account()),
@@ -1323,7 +1319,7 @@ mod test {
         );
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
-            Nat::from(ekoke_to_picoekoke(100_000) - ICRC1_FEE)
+            Nat::from(ekoke_to_picoekoke(100_000))
         );
         // verify allowance
         assert_eq!(

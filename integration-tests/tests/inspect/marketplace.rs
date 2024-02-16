@@ -5,7 +5,7 @@ use integration_tests::TestEnv;
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_is_admin() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     assert!(env
         .update::<()>(
@@ -20,7 +20,7 @@ fn test_should_inspect_is_admin() {
 #[test]
 #[serial_test::serial]
 fn test_should_fail_inspect_admin() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     // not an admin
     assert!(env
         .update::<()>(

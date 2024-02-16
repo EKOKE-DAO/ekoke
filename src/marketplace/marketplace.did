@@ -65,7 +65,7 @@ type MarketplaceError = variant {
   DeferredCanister : DeferredError;
   TokenNotFound;
   EkokeCanister : EkokeError;
-  XrcError;
+  XrcError : text;
   StorageError;
   CanisterCall : record { RejectionCode; text };
   Dip721 : NftError;

@@ -32,7 +32,7 @@ impl Canister {
             Canister::Marketplace => {
                 Path::new("../.dfx/local/canisters/marketplace/marketplace.wasm")
             }
-            Canister::Xrc => Path::new("../assets/wasm/xrc.wasm"),
+            Canister::Xrc => Path::new("../assets/wasm/xrc-dummy-canister.wasm"),
             Canister::Icrc2 => Path::new("../assets/wasm/icrc2-template-canister.wasm"),
         }
     }

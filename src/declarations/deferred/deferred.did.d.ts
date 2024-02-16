@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export type AllowanceError = { 'AllowanceNotFound' : null } |
   { 'BadSpender' : null } |
@@ -304,3 +305,5 @@ export interface _SERVICE {
     Result
   >,
 }
+export declare const idlFactory: IDL.InterfaceFactory;
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

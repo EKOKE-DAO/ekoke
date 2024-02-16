@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cargo test --test integration_tests
+cargo test --test integration_tests $@
 
 killall pocket-ic || true
 rm -rf /tmp/.tmp* || true

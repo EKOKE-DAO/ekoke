@@ -1,7 +1,7 @@
 use candid::{Encode, Nat, Principal};
-use did::deferred::{ContractRegistration, DeferredResult};
+use did::deferred::{Contract, ContractRegistration, DeferredResult, TokenInfo};
 use did::ID;
-use dip721::{GenericValue, NftError, TokenMetadata};
+use dip721::{GenericValue, NftError, TokenIdentifier, TokenMetadata};
 
 use crate::actor::{admin, alice};
 use crate::TestEnv;
@@ -114,6 +114,28 @@ impl<'a> DeferredClient<'a> {
             .unwrap();
 
         signed_contract
+    }
+
+    pub fn get_contract(&self, contract_id: &ID) -> Option<Contract> {
+        self.env
+            .query(
+                self.env.deferred_id,
+                admin(),
+                "get_contract",
+                Encode!(contract_id).unwrap(),
+            )
+            .unwrap()
+    }
+
+    pub fn get_token(&self, token_id: &TokenIdentifier) -> Option<TokenInfo> {
+        self.env
+            .query(
+                self.env.deferred_id,
+                admin(),
+                "get_token",
+                Encode!(token_id).unwrap(),
+            )
+            .unwrap()
     }
 
     pub fn total_supply(&self) -> Nat {

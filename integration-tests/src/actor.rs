@@ -31,6 +31,17 @@ pub fn bob_account() -> Account {
     }
 }
 
+pub fn charlie() -> Principal {
+    Principal::from_text("bkyz2-fmaaa-aaaaa-qaaaq-cai").unwrap()
+}
+
+pub fn charlie_account() -> Account {
+    Account {
+        owner: charlie(),
+        subaccount: None,
+    }
+}
+
 pub fn minting_account() -> Account {
     Account {
         owner: bob(),

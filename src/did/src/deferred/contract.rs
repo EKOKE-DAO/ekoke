@@ -3,7 +3,7 @@ pub use dip721::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
-use crate::ID;
+pub use crate::ID;
 
 mod info;
 mod token;

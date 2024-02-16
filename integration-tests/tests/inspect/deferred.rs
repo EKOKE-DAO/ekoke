@@ -9,7 +9,7 @@ use integration_tests::TestEnv;
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_is_admin() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     assert!(env
         .update::<()>(
@@ -24,7 +24,7 @@ fn test_should_inspect_is_admin() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_admin_not_admin() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     // not an admin
     assert!(env
         .update::<()>(
@@ -39,7 +39,7 @@ fn test_should_inspect_admin_not_admin() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_is_custodian() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     client.set_custodians(vec![alice(), bob()]);
@@ -57,7 +57,7 @@ fn test_should_inspect_is_custodian() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_is_custodian_not_custodian() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     client.set_custodians(vec![alice(), bob()]);
@@ -75,7 +75,7 @@ fn test_should_inspect_is_custodian_not_custodian() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_property() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {
@@ -114,7 +114,7 @@ fn test_should_inspect_update_contract_property() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_property_unexisting_contract() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     assert!(env
         .update::<DeferredResult<()>>(
@@ -134,7 +134,7 @@ fn test_should_inspect_update_contract_property_unexisting_contract() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_property_is_not_authorized() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {
@@ -173,7 +173,7 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_property_bad_key() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {
@@ -218,7 +218,7 @@ fn test_should_inspect_update_contract_property_bad_key() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_buyers() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {
@@ -252,7 +252,7 @@ fn test_should_inspect_update_contract_buyers() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_buyers_unexisting_contract() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     // call register
     assert!(env
@@ -268,7 +268,7 @@ fn test_should_inspect_update_contract_buyers_unexisting_contract() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_update_contract_buyers_not_seller() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {
@@ -302,7 +302,7 @@ fn test_should_inspect_update_contract_buyers_not_seller() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_register_contract() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     let registration_data = ContractRegistration {
         r#type: ContractType::Sell,
@@ -335,7 +335,7 @@ fn test_should_inspect_register_contract() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_register_contract_unauthorized() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     let registration_data = ContractRegistration {
         r#type: ContractType::Sell,
@@ -366,7 +366,7 @@ fn test_should_inspect_register_contract_unauthorized() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_register_contract_no_sellers() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     let registration_data = ContractRegistration {
         r#type: ContractType::Sell,
@@ -394,7 +394,7 @@ fn test_should_inspect_register_contract_no_sellers() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_register_contract_installments_not_multiple() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
 
     let registration_data = ContractRegistration {
         r#type: ContractType::Sell,
@@ -425,7 +425,7 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
 #[test]
 #[serial_test::serial]
 fn test_should_inspect_burn() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let client = DeferredClient::new(&env);
 
     let registration_data = ContractRegistration {

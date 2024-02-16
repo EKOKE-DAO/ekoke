@@ -12,6 +12,7 @@ use did::marketplace::{BuyError, MarketplaceError, MarketplaceInitData, Marketpl
 use dip721::TokenIdentifier;
 use icrc::icrc1::account::{Account, Subaccount};
 use icrc::{icrc2, IcrcLedgerClient};
+use num_traits::ToPrimitive as _;
 
 pub use self::configuration::Configuration;
 pub use self::inspect::Inspect;
@@ -198,6 +199,14 @@ impl Marketplace {
     async fn get_token_info_with_price(
         token_id: &TokenIdentifier,
     ) -> MarketplaceResult<TokenInfoWithPrice> {
+        // get icp fee
+        let icp_fee = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister())
+            .icrc1_fee()
+            .await
+            .map_err(|(code, msg)| MarketplaceError::CanisterCall(code, msg))?
+            .0
+            .to_u64()
+            .unwrap_or_default();
         let token_info = Self::get_token_info(token_id).await?;
         // check if caller is a contract buyer
         let is_caller_contract_buyer = token_info.contract.buyers.contains(&caller());
@@ -220,8 +229,8 @@ impl Marketplace {
         Ok(TokenInfoWithPrice {
             is_first_sell: token_info.token.transferred_at.is_none(),
             token_info,
-            icp_price_without_interest,
-            icp_price_with_interest,
+            icp_price_without_interest: icp_price_without_interest + icp_fee,
+            icp_price_with_interest: icp_price_with_interest + icp_fee,
             interest,
             is_caller_contract_buyer,
         })
@@ -369,7 +378,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(2_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1353013530); // with interest
+        assert_eq!(icp_price, 1353013530 + 10_000); // with interest
     }
 
     #[tokio::test]
@@ -378,7 +387,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1230012300);
+        assert_eq!(icp_price, 1230012300 + 10_000);
     }
 
     #[tokio::test]
@@ -388,7 +397,7 @@ mod test {
             .await
             .unwrap();
         assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(1_u64));
-        assert_eq!(1230012300, token_info.icp_price_without_interest);
+        assert_eq!(1230012300 + 10_000, token_info.icp_price_without_interest);
         assert_eq!(
             token_info.icp_price_with_interest,
             token_info.icp_price_without_interest
@@ -400,8 +409,8 @@ mod test {
             .await
             .unwrap();
         assert_eq!(token_info.token_info.token.id, TokenIdentifier::from(2_u64));
-        assert_eq!(1230012300, token_info.icp_price_without_interest);
-        assert_eq!(token_info.icp_price_with_interest, 1353013530);
+        assert_eq!(1230012300 + 10_000, token_info.icp_price_without_interest);
+        assert_eq!(token_info.icp_price_with_interest, 1353013530 + 10_000);
         assert_eq!(
             token_info.interest,
             token_info.icp_price_with_interest - token_info.icp_price_without_interest

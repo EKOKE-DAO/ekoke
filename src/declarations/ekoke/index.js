@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke = createActor(canisterId);
+export const ekoke = canisterId ? createActor(canisterId) : undefined;

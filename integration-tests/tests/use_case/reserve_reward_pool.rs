@@ -9,7 +9,7 @@ use integration_tests::{ekoke_to_picoekoke, TestEnv};
 #[test]
 #[serial_test::serial]
 fn test_should_reserve_a_reward_pool_on_ekoke() {
-    let env = TestEnv::init(false);
+    let env = TestEnv::init();
     let deferred_client = DeferredClient::from(&env);
     let ekoke_client = EkokeClient::from(&env);
 

@@ -31,8 +31,8 @@ pub enum MarketplaceError {
     Icrc2Transfer(icrc2::transfer_from::TransferFromError),
     #[error("icrc1 transfer error {0:?}")]
     Icrc1Transfer(icrc1::transfer::TransferError),
-    #[error("xrc error")]
-    XrcError,
+    #[error("xrc error: {0}")]
+    XrcError(String),
     #[error("token not found")]
     TokenNotFound,
     #[error("buy error: {0}")]
@@ -52,8 +52,8 @@ impl From<icrc1::transfer::TransferError> for MarketplaceError {
 }
 
 impl From<xrc::ExchangeRateError> for MarketplaceError {
-    fn from(_: xrc::ExchangeRateError) -> Self {
-        Self::XrcError
+    fn from(e: xrc::ExchangeRateError) -> Self {
+        Self::XrcError(format!("{e:?}"))
     }
 }
 

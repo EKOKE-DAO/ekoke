@@ -1554,6 +1554,8 @@ dependencies = [
  "ic-cdk-timers",
  "ic-stable-structures",
  "icrc",
+ "num-bigint",
+ "num-traits",
  "pretty_assertions",
  "rand",
  "serde",

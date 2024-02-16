@@ -46,7 +46,7 @@ impl Xrc {
                     rate: exchange_rate.rate,
                     decimals: exchange_rate.metadata.decimals,
                 }),
-                Ok(Err(_)) => Err(MarketplaceError::XrcError),
+                Ok(Err(e)) => Err(e.into()),
             }
         }
     }

@@ -154,7 +154,7 @@ export const idlFactory = ({ IDL }) => {
     'DeferredCanister' : DeferredError,
     'TokenNotFound' : IDL.Null,
     'EkokeCanister' : EkokeError,
-    'XrcError' : IDL.Null,
+    'XrcError' : IDL.Text,
     'StorageError' : IDL.Null,
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
     'Dip721' : NftError,
