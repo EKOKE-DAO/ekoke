@@ -5,9 +5,11 @@ use ic_stable_structures::Storable;
 
 pub use crate::ID;
 
+mod agency;
 mod info;
 mod token;
 
+pub use agency::{Agency, Continent};
 pub use info::TokenInfo;
 pub use token::Token;
 
@@ -36,6 +38,8 @@ pub struct Contract {
     pub currency: String,
     /// Data associated to the contract
     pub properties: ContractProperties,
+    /// Agency data
+    pub agency: Option<Agency>,
 }
 
 impl Contract {

@@ -8,8 +8,8 @@ pub type DeferredResult<T> = Result<T, DeferredError>;
 
 pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
 pub use self::contract::{
-    Contract, ContractProperties, ContractRegistration, ContractType, GenericValue, Seller, Token,
-    TokenIdentifier, TokenInfo, ID,
+    Agency, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
+    GenericValue, Seller, Token, TokenIdentifier, TokenInfo, ID,
 };
 pub use self::error::{ConfigurationError, DeferredError, TokenError};
 
@@ -93,6 +93,21 @@ mod test {
                 "Rome".to_string(),
                 GenericValue::TextContent("Rome".to_string()),
             )],
+            agency: Some(Agency {
+                name: "Agency".to_string(),
+                address: "Address".to_string(),
+                city: "City".to_string(),
+                region: "Region".to_string(),
+                zip_code: "Zip".to_string(),
+                country: "Country".to_string(),
+                continent: Continent::Europe,
+                email: "Email".to_string(),
+                website: "Website".to_string(),
+                mobile: "Mobile".to_string(),
+                vat: "VAT".to_string(),
+                agent: "Agent".to_string(),
+                logo: None,
+            }),
         };
         let data = Encode!(&contract).unwrap();
         let decoded_contract = Decode!(&data, Contract).unwrap();
@@ -107,6 +122,7 @@ mod test {
         assert_eq!(contract.currency, decoded_contract.currency);
         assert_eq!(contract.installments, decoded_contract.installments);
         assert_eq!(contract.is_signed, decoded_contract.is_signed);
+        assert_eq!(contract.agency, decoded_contract.agency);
     }
 
     #[test]

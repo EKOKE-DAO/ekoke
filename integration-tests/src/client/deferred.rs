@@ -1,5 +1,5 @@
 use candid::{Encode, Nat, Principal};
-use did::deferred::{Contract, ContractRegistration, DeferredResult, TokenInfo};
+use did::deferred::{Agency, Contract, ContractRegistration, DeferredResult, TokenInfo};
 use did::ID;
 use dip721::{GenericValue, NftError, TokenIdentifier, TokenMetadata};
 
@@ -21,12 +21,16 @@ impl<'a> DeferredClient<'a> {
         Self { env }
     }
 
-    pub fn register_contract(&self, data: ContractRegistration) -> DeferredResult<ID> {
+    pub fn register_contract(
+        &self,
+        caller: Principal,
+        data: ContractRegistration,
+    ) -> DeferredResult<ID> {
         let contract_id: DeferredResult<ID> = self
             .env
             .update(
                 self.env.deferred_id,
-                admin(),
+                caller,
                 "register_contract",
                 Encode!(&data).unwrap(),
             )
@@ -204,6 +208,29 @@ impl<'a> DeferredClient<'a> {
                 caller,
                 "transfer_from",
                 Encode!(&from, &to, &id).unwrap(),
+            )
+            .unwrap()
+    }
+
+    pub fn admin_register_agency(&self, wallet: Principal, agency: Agency) {
+        let _: () = self
+            .env
+            .update(
+                self.env.deferred_id,
+                admin(),
+                "admin_register_agency",
+                Encode!(&wallet, &agency).unwrap(),
+            )
+            .unwrap();
+    }
+
+    pub fn remove_agency(&self, wallet: Principal) -> DeferredResult<()> {
+        self.env
+            .update(
+                self.env.deferred_id,
+                wallet,
+                "remove_agency",
+                Encode!(&wallet).unwrap(),
             )
             .unwrap()
     }

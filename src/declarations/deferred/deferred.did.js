@@ -5,6 +5,30 @@ export const idlFactory = ({ IDL }) => {
     'custodians' : IDL.Vec(IDL.Principal),
     'marketplace_canister' : IDL.Principal,
   });
+  const Continent = IDL.Variant({
+    'Africa' : IDL.Null,
+    'Antarctica' : IDL.Null,
+    'Asia' : IDL.Null,
+    'Europe' : IDL.Null,
+    'SouthAmerica' : IDL.Null,
+    'Oceania' : IDL.Null,
+    'NorthAmerica' : IDL.Null,
+  });
+  const Agency = IDL.Record({
+    'vat' : IDL.Text,
+    'region' : IDL.Text,
+    'zip_code' : IDL.Text,
+    'country' : IDL.Text,
+    'agent' : IDL.Text,
+    'city' : IDL.Text,
+    'logo' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+    'continent' : Continent,
+    'email' : IDL.Text,
+    'website' : IDL.Text,
+    'address' : IDL.Text,
+    'mobile' : IDL.Text,
+  });
   const Role = IDL.Variant({ 'Custodian' : IDL.Null, 'Agent' : IDL.Null });
   const NftError = IDL.Variant({
     'UnauthorizedOperator' : IDL.Null,
@@ -199,6 +223,7 @@ export const idlFactory = ({ IDL }) => {
     'value' : IDL.Nat64,
     'type' : ContractType,
     'is_signed' : IDL.Bool,
+    'agency' : IDL.Opt(Agency),
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'sellers' : IDL.Vec(Seller),
     'tokens' : IDL.Vec(IDL.Nat),
@@ -294,6 +319,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Nat)],
         ['query'],
       ),
+    'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_ekoke_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
@@ -304,6 +330,7 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
     'custodians' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'get_agencies' : IDL.Func([], [IDL.Vec(Agency)], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
@@ -339,6 +366,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'owner_token_metadata' : IDL.Func([IDL.Principal], [Result_5], ['query']),
     'register_contract' : IDL.Func([ContractRegistration], [Result_6], []),
+    'remove_agency' : IDL.Func([IDL.Principal], [Result], []),
     'seller_increment_contract_value' : IDL.Func(
         [IDL.Nat, IDL.Nat64, IDL.Nat64],
         [Result],

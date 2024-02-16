@@ -1,22 +1,31 @@
 use std::cell::RefCell;
 
-use did::deferred::{Contract, DeferredError, DeferredResult, StorableTxEvent, Token, TokenError};
-use did::{StorableNat, ID};
+use did::deferred::{
+    Agency, Contract, DeferredError, DeferredResult, StorableTxEvent, Token, TokenError,
+};
+use did::{StorableNat, StorablePrincipal, ID};
 use dip721::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 
 use crate::app::memory::{
-    CONTRACTS_MEMORY_ID, MEMORY_MANAGER, TOKENS_MEMORY_ID, TRANSACTIONS_MEMORY_ID,
+    AGENCIES_MEMORY_ID, CONTRACTS_MEMORY_ID, MEMORY_MANAGER, TOKENS_MEMORY_ID,
+    TRANSACTIONS_MEMORY_ID,
 };
 
+mod agents;
 mod contracts;
 mod tx_history;
 
+pub use agents::Agents;
 pub use contracts::ContractStorage;
 pub use tx_history::TxHistory;
 
 thread_local! {
+    /// Agencies storage (1 wallet has 1 agency)
+    static AGENCIES: RefCell<BTreeMap<StorablePrincipal, Agency, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(AGENCIES_MEMORY_ID))));
+
     /// ContractStorage storage (1 contract has many tokens)
     static CONTRACTS: RefCell<BTreeMap<StorableNat, Contract, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));

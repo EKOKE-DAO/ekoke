@@ -1,5 +1,5 @@
 use candid::Principal;
-use did::deferred::{Contract, Seller, Token};
+use did::deferred::{Agency, Contract, Seller, Token};
 use did::ID;
 use dip721::TokenIdentifier;
 
@@ -45,6 +45,25 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
             "contract:city".to_string(),
             dip721::GenericValue::TextContent("Rome".to_string()),
         )],
+        agency: Some(mock_agency()),
+    }
+}
+
+pub fn mock_agency() -> Agency {
+    Agency {
+        name: "Dummy Real estate".to_string(),
+        address: "Via Delle Botteghe Scure".to_string(),
+        city: "Rome".to_string(),
+        region: "Lazio".to_string(),
+        zip_code: "00100".to_string(),
+        country: "Italy".to_string(),
+        continent: did::deferred::Continent::Europe,
+        email: "email".to_string(),
+        website: "website".to_string(),
+        mobile: "mobile".to_string(),
+        vat: "vat".to_string(),
+        agent: "agent".to_string(),
+        logo: None,
     }
 }
 
@@ -99,4 +118,8 @@ where
 
 pub fn alice() -> Principal {
     Principal::from_text("be2us-64aaa-aaaaa-qaabq-cai").unwrap()
+}
+
+pub fn bob() -> Principal {
+    Principal::from_text("bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe").unwrap()
 }

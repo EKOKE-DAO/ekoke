@@ -1,6 +1,6 @@
 use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller, ID};
 use icrc::icrc1::account::Account;
-use integration_tests::actor::{alice, alice_account, bob, charlie, charlie_account};
+use integration_tests::actor::{admin, alice, alice_account, bob, charlie, charlie_account};
 use integration_tests::client::{DeferredClient, IcrcLedgerClient, MarketplaceClient};
 use integration_tests::TestEnv;
 use pretty_assertions::{assert_eq, assert_ne};
@@ -130,7 +130,7 @@ fn setup_contract_marketplace(env: &TestEnv) -> ID {
     };
     // call register
     let contract_id = deferred_client
-        .register_contract(registration_data)
+        .register_contract(admin(), registration_data)
         .unwrap();
     assert_eq!(contract_id, 0_u64);
 

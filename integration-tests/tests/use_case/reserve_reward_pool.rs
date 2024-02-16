@@ -2,7 +2,7 @@ use candid::Nat;
 use did::deferred::{ContractRegistration, ContractType, Seller};
 use dip721::GenericValue;
 use icrc::icrc1::account::Account;
-use integration_tests::actor::alice;
+use integration_tests::actor::{admin, alice};
 use integration_tests::client::{DeferredClient, EkokeClient};
 use integration_tests::{ekoke_to_picoekoke, TestEnv};
 
@@ -33,7 +33,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
 
     // call register
     let contract_id = deferred_client
-        .register_contract(registration_data)
+        .register_contract(admin(), registration_data)
         .unwrap();
     assert_eq!(contract_id, 0_u64);
 

@@ -2,6 +2,21 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
+export interface Agency {
+  'vat' : string,
+  'region' : string,
+  'zip_code' : string,
+  'country' : string,
+  'agent' : string,
+  'city' : string,
+  'logo' : [] | [string],
+  'name' : string,
+  'continent' : Continent,
+  'email' : string,
+  'website' : string,
+  'address' : string,
+  'mobile' : string,
+}
 export type AllowanceError = { 'AllowanceNotFound' : null } |
   { 'BadSpender' : null } |
   { 'AllowanceChanged' : null } |
@@ -25,11 +40,19 @@ export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
+export type Continent = { 'Africa' : null } |
+  { 'Antarctica' : null } |
+  { 'Asia' : null } |
+  { 'Europe' : null } |
+  { 'SouthAmerica' : null } |
+  { 'Oceania' : null } |
+  { 'NorthAmerica' : null };
 export interface Contract {
   'id' : bigint,
   'value' : bigint,
   'type' : ContractType,
   'is_signed' : boolean,
+  'agency' : [] | [Agency],
   'properties' : Array<[string, GenericValue]>,
   'sellers' : Array<Seller>,
   'tokens' : Array<bigint>,
@@ -252,6 +275,7 @@ export type Vec = Array<
 >;
 export interface _SERVICE {
   'admin_get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
+  'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_ekoke_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
@@ -262,6 +286,7 @@ export interface _SERVICE {
   'burn' : ActorMethod<[bigint], Result_1>,
   'custodians' : ActorMethod<[], Array<Principal>>,
   'cycles' : ActorMethod<[], bigint>,
+  'get_agencies' : ActorMethod<[], Array<Agency>>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
@@ -280,6 +305,7 @@ export interface _SERVICE {
   'owner_token_identifiers' : ActorMethod<[Principal], Result_4>,
   'owner_token_metadata' : ActorMethod<[Principal], Result_5>,
   'register_contract' : ActorMethod<[ContractRegistration], Result_6>,
+  'remove_agency' : ActorMethod<[Principal], Result>,
   'seller_increment_contract_value' : ActorMethod<
     [bigint, bigint, bigint],
     Result

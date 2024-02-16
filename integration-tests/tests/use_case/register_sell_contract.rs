@@ -1,6 +1,6 @@
 use candid::Nat;
-use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller};
-use integration_tests::actor::{alice, bob};
+use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, Seller};
+use integration_tests::actor::{admin, alice, bob};
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
@@ -33,9 +33,27 @@ fn test_as_seller_i_can_register_a_sell_contract() {
         )],
     };
 
+    // register agency for admin
+    let agency = Agency {
+        name: "Admin's agency".to_string(),
+        address: "Via Delle Botteghe Scure".to_string(),
+        city: "Rome".to_string(),
+        region: "Lazio".to_string(),
+        zip_code: "00100".to_string(),
+        country: "Italy".to_string(),
+        continent: did::deferred::Continent::Europe,
+        email: "email".to_string(),
+        website: "website".to_string(),
+        mobile: "mobile".to_string(),
+        vat: "vat".to_string(),
+        agent: "agent".to_string(),
+        logo: None,
+    };
+    deferred_client.admin_register_agency(admin(), agency.clone());
+
     // call register
     let contract_id = deferred_client
-        .register_contract(registration_data)
+        .register_contract(admin(), registration_data)
         .unwrap();
     assert_eq!(contract_id, 0_u64);
 
@@ -48,6 +66,10 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     // sign contract
     let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
+
+    // get contract
+    let contract = deferred_client.get_contract(&contract_id).unwrap();
+    assert_eq!(contract.agency.unwrap(), agency);
 
     // check unsigned contract and signed contracts
     let unsigned_contracts = deferred_client.admin_get_unsigned_contracts();

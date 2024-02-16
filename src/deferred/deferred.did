@@ -1,3 +1,18 @@
+type Agency = record {
+  vat : text;
+  region : text;
+  zip_code : text;
+  country : text;
+  agent : text;
+  city : text;
+  logo : opt text;
+  name : text;
+  continent : Continent;
+  email : text;
+  website : text;
+  address : text;
+  mobile : text;
+};
 type AllowanceError = variant {
   AllowanceNotFound;
   BadSpender;
@@ -23,11 +38,21 @@ type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;
   AnonymousCustodial;
 };
+type Continent = variant {
+  Africa;
+  Antarctica;
+  Asia;
+  Europe;
+  SouthAmerica;
+  Oceania;
+  NorthAmerica;
+};
 type Contract = record {
   id : nat;
   value : nat64;
   "type" : ContractType;
   is_signed : bool;
+  agency : opt Agency;
   properties : vec record { text; GenericValue };
   sellers : vec Seller;
   tokens : vec nat;
@@ -249,6 +274,7 @@ type Vec = vec record {
 };
 service : (DeferredInitData) -> {
   admin_get_unsigned_contracts : () -> (vec nat) query;
+  admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_ekoke_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
@@ -259,6 +285,7 @@ service : (DeferredInitData) -> {
   burn : (nat) -> (Result_1);
   custodians : () -> (vec principal) query;
   cycles : () -> (nat) query;
+  get_agencies : () -> (vec Agency) query;
   get_contract : (nat) -> (opt Contract) query;
   get_signed_contracts : () -> (vec nat) query;
   get_token : (nat) -> (opt TokenInfo) query;
@@ -274,6 +301,7 @@ service : (DeferredInitData) -> {
   owner_token_identifiers : (principal) -> (Result_4) query;
   owner_token_metadata : (principal) -> (Result_5) query;
   register_contract : (ContractRegistration) -> (Result_6);
+  remove_agency : (principal) -> (Result);
   seller_increment_contract_value : (nat, nat64, nat64) -> (Result);
   set_approval_for_all : (principal, bool) -> (Result_1);
   set_custodians : (vec principal) -> ();

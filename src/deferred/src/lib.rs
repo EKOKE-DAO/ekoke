@@ -6,7 +6,7 @@
 
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
-    Contract, ContractRegistration, DeferredInitData, DeferredResult, Role, TokenInfo,
+    Agency, Contract, ContractRegistration, DeferredInitData, DeferredResult, Role, TokenInfo,
 };
 use did::ID;
 use dip721::{Dip721 as _, GenericValue, TokenIdentifier};
@@ -68,6 +68,18 @@ pub fn get_contract(id: ID) -> Option<Contract> {
 
 #[query]
 #[candid_method(query)]
+pub fn get_agencies() -> Vec<Agency> {
+    Deferred::get_agencies()
+}
+
+#[update]
+#[candid_method(update)]
+pub fn remove_agency(wallet: Principal) -> DeferredResult<()> {
+    Deferred::remove_agency(wallet)
+}
+
+#[query]
+#[candid_method(query)]
 pub fn get_signed_contracts() -> Vec<ID> {
     Deferred::get_signed_contracts()
 }
@@ -116,6 +128,12 @@ pub fn admin_set_role(principal: Principal, role: Role) {
 #[candid_method(update)]
 pub fn admin_remove_role(principal: Principal, role: Role) -> DeferredResult<()> {
     Deferred::admin_remove_role(principal, role)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_register_agency(wallet: Principal, agency: Agency) {
+    Deferred::admin_register_agency(wallet, agency)
 }
 
 // DIP721

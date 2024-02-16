@@ -775,6 +775,7 @@ mod test {
                 "contract:city".to_string(),
                 dip721::GenericValue::TextContent("Rome".to_string()),
             )],
+            agency: None,
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(),).is_ok());

@@ -15,7 +15,7 @@ use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::deferred::{
-    Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult, Role,
+    Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult, Role,
     TokenError, TokenInfo,
 };
 use did::ID;
@@ -27,7 +27,7 @@ use dip721::{
 pub use self::inspect::Inspect;
 use self::minter::Minter;
 use self::roles::RolesManager;
-use self::storage::{ContractStorage, TxHistory};
+use self::storage::{Agents, ContractStorage, TxHistory};
 use crate::utils::caller;
 
 #[derive(Default)]
@@ -67,6 +67,24 @@ impl Deferred {
     /// get contracts ids
     pub fn get_signed_contracts() -> Vec<ID> {
         ContractStorage::get_signed_contracts()
+    }
+
+    /// get agencies
+    pub fn get_agencies() -> Vec<Agency> {
+        Agents::get_agencies()
+    }
+
+    /// Remove agency by wallet.
+    ///
+    /// Only a custodian can call this method or the caller must be the owner of the agency
+    pub fn remove_agency(wallet: Principal) -> DeferredResult<()> {
+        if !Inspect::inspect_remove_agency(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        Agents::remove_agency(wallet);
+        // remove role
+        RolesManager::remove_role(wallet, Role::Agent)
     }
 
     /// get unsigned contracts
@@ -134,6 +152,7 @@ impl Deferred {
             sellers: data.sellers,
             tokens: vec![],
             value: data.value,
+            agency: Agents::get_agency_by_wallet(caller()),
         };
 
         // register contract
@@ -194,6 +213,19 @@ impl Deferred {
 
         if let Err(err) = Configuration::set_ekoke_canister(canister) {
             ic_cdk::trap(&err.to_string());
+        }
+    }
+
+    /// Insert agency into the storage
+    pub fn admin_register_agency(wallet: Principal, agency: Agency) {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        Agents::insert_agency(wallet, agency);
+        // give role to the agent
+        if !RolesManager::is_custodian(wallet) {
+            RolesManager::give_role(wallet, Role::Agent);
         }
     }
 
@@ -516,6 +548,7 @@ mod test {
     use did::deferred::Seller;
     use pretty_assertions::assert_eq;
 
+    use self::test_utils::{bob, mock_agency};
     use super::test_utils::store_mock_contract;
     use super::*;
     use crate::app::test_utils::{mock_token, store_mock_contract_with};
@@ -938,6 +971,19 @@ mod test {
         assert_eq!(Deferred::total_transactions(), Nat::from(0_u64));
         let _ = TxHistory::register_token_mint(&mock_token(1, 1));
         assert_eq!(Deferred::total_transactions(), Nat::from(1_u64));
+    }
+
+    #[test]
+    fn test_should_register_agency() {
+        init_canister();
+        let wallet = bob();
+        let agency = mock_agency();
+
+        Deferred::admin_register_agency(wallet, agency.clone());
+        // check if has role
+        assert!(RolesManager::is_agent(wallet));
+        // check if is in the storage
+        assert_eq!(Agents::get_agency_by_wallet(wallet), Some(agency));
     }
 
     fn init_canister() {

@@ -95,7 +95,9 @@ fn test_should_inspect_update_contract_property() {
     };
 
     // call register
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(env
         .update::<DeferredResult<()>>(
             env.deferred_id,
@@ -154,7 +156,9 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
     };
 
     // call register
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(env
         .update::<DeferredResult<()>>(
             env.deferred_id,
@@ -199,7 +203,9 @@ fn test_should_inspect_update_contract_property_bad_key() {
     };
 
     // call register
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(env
         .update::<DeferredResult<()>>(
             env.deferred_id,
@@ -238,7 +244,9 @@ fn test_should_inspect_update_contract_buyers() {
     };
 
     // call register
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(env
         .update::<DeferredResult<()>>(
             env.deferred_id,
@@ -288,7 +296,9 @@ fn test_should_inspect_update_contract_buyers_not_seller() {
     };
 
     // call register
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(env
         .update::<DeferredResult<()>>(
             env.deferred_id,
@@ -444,7 +454,9 @@ fn test_should_inspect_burn() {
         )],
     };
 
-    let contract_id = client.register_contract(registration_data).unwrap();
+    let contract_id = client
+        .register_contract(admin(), registration_data)
+        .unwrap();
     assert!(client.admin_sign_contract(contract_id.clone()).is_ok());
 
     // transfer token to buyer

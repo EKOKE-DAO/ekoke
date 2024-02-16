@@ -8,7 +8,7 @@ use did::ID;
 use dip721::NftError;
 
 use super::roles::RolesManager;
-use super::storage::ContractStorage;
+use super::storage::{Agents, ContractStorage};
 
 pub struct Inspect;
 
@@ -185,6 +185,11 @@ impl Inspect {
 
         Ok(contract)
     }
+
+    /// Inspect whether caller is custodian or owner of the agency
+    pub fn inspect_remove_agency(caller: Principal) -> bool {
+        RolesManager::is_custodian(caller) || Agents::get_agency_by_wallet(caller).is_some()
+    }
 }
 
 #[cfg(test)]
@@ -194,7 +199,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils::{self, alice};
+    use crate::app::test_utils::{self, alice, bob};
     use crate::utils::caller;
 
     #[test]
@@ -606,5 +611,19 @@ mod test {
             "contract:address"
         )
         .is_ok());
+    }
+
+    #[test]
+    fn test_should_inspect_whether_to_remove_agency() {
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+
+        // register agency
+        Agents::insert_agency(bob(), test_utils::mock_agency());
+        assert!(Inspect::inspect_remove_agency(caller));
+        assert!(Inspect::inspect_remove_agency(bob()));
+        assert!(!Inspect::inspect_remove_agency(
+            Principal::management_canister()
+        ));
     }
 }

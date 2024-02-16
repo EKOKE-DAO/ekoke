@@ -1,5 +1,5 @@
 use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller};
-use integration_tests::actor::alice;
+use integration_tests::actor::{admin, alice};
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
@@ -28,7 +28,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
 
     // call register
     let contract_id = deferred_client
-        .register_contract(registration_data)
+        .register_contract(admin(), registration_data)
         .unwrap();
 
     // sign contract
