@@ -1,11 +1,8 @@
 use candid::{Encode, Nat, Principal};
-use icrc::{
-    icrc1::account::Account,
-    icrc2::{
-        approve::{ApproveArgs, ApproveError},
-        transfer_from::{TransferFromArgs, TransferFromError},
-    },
-};
+use icrc::icrc1::account::Account;
+use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
+use icrc::icrc2::approve::{ApproveArgs, ApproveError};
+use icrc::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
 
 use crate::TestEnv;
 
@@ -26,6 +23,17 @@ impl<'a> IcrcLedgerClient<'a> {
                 account.owner,
                 "icrc1_balance_of",
                 Encode!(&account).unwrap(),
+            )
+            .unwrap()
+    }
+
+    pub fn icrc2_allowance(&self, account: Account, spender: Account) -> Allowance {
+        self.env
+            .query(
+                self.principal,
+                account.owner,
+                "icrc2_allowance",
+                Encode!(&AllowanceArgs { account, spender }).unwrap(),
             )
             .unwrap()
     }

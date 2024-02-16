@@ -1,9 +1,7 @@
 use candid::Nat;
-use integration_tests::{
-    actor::{alice, alice_account, bob_account, charlie, charlie_account},
-    client::IcrcLedgerClient,
-    TestEnv,
-};
+use integration_tests::actor::{alice, alice_account, bob_account, charlie, charlie_account};
+use integration_tests::client::IcrcLedgerClient;
+use integration_tests::TestEnv;
 use serial_test::serial;
 
 #[test]

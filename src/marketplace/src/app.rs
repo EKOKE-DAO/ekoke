@@ -21,11 +21,14 @@ use crate::app::exchange_rate::ExchangeRate;
 use crate::client::{DeferredClient, EkokeClient};
 use crate::utils::{caller, cycles, id, time};
 
+#[allow(dead_code)]
 struct TokenInfoWithPrice {
     token_info: TokenInfo,
     icp_price_without_interest: u64,
     icp_price_with_interest: u64,
     icp_fee: u64,
+    /// Allowance needed to set to the marketplace canister to buy the token
+    allowance: u64,
     interest: u64,
     is_caller_contract_buyer: bool,
     is_first_sell: bool,
@@ -101,12 +104,12 @@ impl Marketplace {
         Configuration::set_icp_ledger_canister(canister_id);
     }
 
-    /// Given a token id, returns the price of the token in ICP.
+    /// Given a token id, returns the price of the token in ICP plus the icp ledger fee, which must be approved to spend.
     pub async fn get_token_price_icp(token_id: TokenIdentifier) -> MarketplaceResult<u64> {
         // get token info
         let token_info = Self::get_token_info_with_price(&token_id).await?;
 
-        Ok(token_info.icp_price_with_interest)
+        Ok(token_info.allowance)
     }
 
     /// Buy token with the provided id. The buy process, given the IC price, consits of:
@@ -153,7 +156,7 @@ impl Marketplace {
         }
 
         // check if allowance is enough
-        if allowance.allowance < info.icp_price_with_interest + info.icp_fee {
+        if allowance.allowance < info.allowance {
             return Err(MarketplaceError::Buy(BuyError::IcpAllowanceNotEnough));
         }
 
@@ -227,12 +230,19 @@ impl Marketplace {
         };
         let interest = icp_price_with_interest - icp_price_without_interest;
 
+        let allowance = if is_caller_contract_buyer {
+            icp_price_with_interest + (icp_fee * 2)
+        } else {
+            icp_price_without_interest + icp_fee
+        };
+
         Ok(TokenInfoWithPrice {
             is_first_sell: token_info.token.transferred_at.is_none(),
             token_info,
             icp_price_without_interest,
             icp_price_with_interest,
             icp_fee,
+            allowance,
             interest,
             is_caller_contract_buyer,
         })
@@ -380,7 +390,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(2_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1353013530); // with interest
+        assert_eq!(icp_price, 1353013530 + (10_000 * 2)); // with interest
     }
 
     #[tokio::test]
@@ -389,7 +399,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1230012300);
+        assert_eq!(icp_price, 1230012300 + 10_000);
     }
 
     #[tokio::test]

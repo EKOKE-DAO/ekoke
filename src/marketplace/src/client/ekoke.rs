@@ -38,11 +38,11 @@ impl EkokeClient {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let result: (EkokeResult<LiquidityPoolAccounts>,) =
+            let result: (LiquidityPoolAccounts,) =
                 ic_cdk::api::call::call(self.ekoke_canister, "liquidity_pool_accounts", ())
                     .await
                     .map_err(|(code, err)| MarketplaceError::CanisterCall(code, err))?;
-            Ok(result.0?)
+            Ok(result.0)
         }
     }
 

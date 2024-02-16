@@ -1,6 +1,6 @@
 use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller, ID};
 use icrc::icrc1::account::Account;
-use integration_tests::actor::{alice, bob, charlie, charlie_account};
+use integration_tests::actor::{alice, alice_account, bob, charlie, charlie_account};
 use integration_tests::client::{DeferredClient, IcrcLedgerClient, MarketplaceClient};
 use integration_tests::TestEnv;
 use pretty_assertions::{assert_eq, assert_ne};
@@ -37,11 +37,11 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
             None
         )
         .is_ok());
+    let allowance =
+        icp_ledger_client.icrc2_allowance(alice_account(), Account::from(env.marketplace_id));
+    assert_eq!(icp_price, allowance.allowance);
+
     // buy token
-    let err = marketplace_client
-        .buy_token(charlie(), &token_to_buy, &charlie_account().subaccount)
-        .unwrap_err();
-    println!("{:?}", err);
     assert!(marketplace_client
         .buy_token(charlie(), &token_to_buy, &charlie_account().subaccount)
         .is_ok());
@@ -52,6 +52,60 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
 
     // verify charlie got the reward
     let final_balance = ekoke_ledger_client.icrc1_balance_of(charlie_account());
+    let balance_diff = final_balance - initial_balance;
+    assert_eq!(balance_diff, token.picoekoke_reward);
+}
+
+#[test]
+#[serial_test::serial]
+fn test_should_buy_marketplace_nft_as_contract_buyer() {
+    let env = TestEnv::init();
+    let contract_id = setup_contract_marketplace(&env);
+
+    let deferred_client = DeferredClient::from(&env);
+    let marketplace_client = MarketplaceClient::from(&env);
+    let ekoke_ledger_client = IcrcLedgerClient::new(env.ekoke_id, &env);
+    let icp_ledger_client = IcrcLedgerClient::new(env.icp_ledger_id, &env);
+
+    // get initial ekoke balance for charlie
+    let initial_balance = ekoke_ledger_client.icrc1_balance_of(alice_account());
+
+    // get contract by id
+    let contract = deferred_client.get_contract(&contract_id).unwrap();
+    let token_to_buy = contract.tokens[0].clone();
+    // get nft price
+    let icp_price = marketplace_client
+        .get_token_price_icp(alice(), &token_to_buy)
+        .unwrap();
+    assert_ne!(icp_price, 0);
+
+    // approve on icp ledger client a spend for token price to marketplace canister
+    assert!(icp_ledger_client
+        .icrc2_approve(
+            alice(),
+            Account::from(env.marketplace_id),
+            icp_price.into(),
+            alice_account().subaccount
+        )
+        .is_ok());
+
+    let allowance =
+        icp_ledger_client.icrc2_allowance(alice_account(), Account::from(env.marketplace_id));
+    assert_eq!(icp_price, allowance.allowance);
+
+    // buy token
+    assert!(marketplace_client
+        .buy_token(alice(), &token_to_buy, &alice_account().subaccount)
+        .is_ok());
+
+    // verify token owner is charlie
+    let token = deferred_client.get_token(&token_to_buy).unwrap().token;
+    assert!(token.owner.is_none());
+    // should be burned
+    assert!(token.is_burned);
+
+    // verify alice got the reward
+    let final_balance = ekoke_ledger_client.icrc1_balance_of(alice_account());
     let balance_diff = final_balance - initial_balance;
     assert_eq!(balance_diff, token.picoekoke_reward);
 }
