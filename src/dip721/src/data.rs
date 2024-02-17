@@ -1,4 +1,5 @@
 use candid::{CandidType, Deserialize, Int, Nat, Principal};
+use serde::Serialize;
 use thiserror::Error;
 
 /// Metadata for a DIP721 canister
@@ -24,7 +25,7 @@ pub struct Stats {
 pub type TokenIdentifier = Nat;
 
 /// Properties value representation for a token
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
+#[derive(CandidType, Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub enum GenericValue {
     BoolContent(bool),
     TextContent(String),

@@ -17,6 +17,8 @@ ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
 num-bigint = { workspace = true }
 serde = { workspace = true }
+serde_bytes = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 xrc = { path = "../xrc" }
 

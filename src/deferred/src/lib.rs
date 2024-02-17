@@ -8,13 +8,14 @@ use candid::{candid_method, Nat, Principal};
 use did::deferred::{
     Agency, Contract, ContractRegistration, DeferredInitData, DeferredResult, Role, TokenInfo,
 };
-use did::ID;
+use did::{HttpRequest, HttpResponse, ID};
 use dip721::{Dip721 as _, GenericValue, TokenIdentifier};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 
 mod app;
 mod client;
 mod constants;
+mod http;
 mod inspect;
 mod utils;
 
@@ -358,6 +359,13 @@ pub fn transaction(tx_id: Nat) -> Result<dip721::TxEvent, dip721::NftError> {
 #[candid_method(query)]
 pub fn total_transactions() -> Nat {
     Deferred::total_transactions()
+}
+
+// HTTP endpoint
+#[query]
+#[candid_method(query)]
+pub async fn http_request(req: HttpRequest) -> HttpResponse {
+    http::HttpApi::handle_http_request(req).await
 }
 
 #[allow(dead_code)]

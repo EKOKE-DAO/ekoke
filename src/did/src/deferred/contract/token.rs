@@ -2,12 +2,13 @@ use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use dip721::TokenIdentifier;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
+use serde::Serialize;
 
 use crate::ekoke::PicoEkoke;
 use crate::ID;
 
 /// A Non fungible token related to an installment of a contract
-#[derive(Clone, Debug, CandidType, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
 pub struct Token {
     /// Unique identifier of the token
     pub id: TokenIdentifier,

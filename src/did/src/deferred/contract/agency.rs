@@ -1,10 +1,10 @@
 use candid::{CandidType, Decode, Encode};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// A sell contract for a building
-#[derive(Clone, Debug, CandidType, Deserialize, PartialEq)]
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
 pub struct Agency {
     pub name: String,
     pub address: String,
@@ -21,7 +21,7 @@ pub struct Agency {
     pub logo: Option<String>,
 }
 
-#[derive(Clone, Debug, CandidType, Deserialize, Copy, PartialEq, Eq)]
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize, Copy, PartialEq, Eq)]
 pub enum Continent {
     Africa,
     Antarctica,

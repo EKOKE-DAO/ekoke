@@ -2,6 +2,7 @@ use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 pub use dip721::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
+use serde::Serialize;
 
 pub use crate::ID;
 
@@ -14,7 +15,7 @@ pub use info::TokenInfo;
 pub use token::Token;
 
 /// A sell contract for a building
-#[derive(Clone, Debug, CandidType, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
 pub struct Contract {
     /// Contract ID
     pub id: ID,
@@ -64,7 +65,7 @@ impl Storable for Contract {
 pub type ContractProperties = Vec<(String, GenericValue)>;
 
 /// A variant which defines the contract type
-#[derive(Clone, Debug, CandidType, Deserialize)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub enum ContractType {
     Financing,
     Sell,
@@ -73,7 +74,7 @@ pub enum ContractType {
 /// A variant which defines a contract seller.
 /// A contract may have more than one seller and the quota defines the percentage of the contract ownership.
 /// The sum of all quotas must be 100.
-#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, CandidType, Deserialize, Serialize)]
 pub struct Seller {
     pub principal: Principal,
     pub quota: u8,
