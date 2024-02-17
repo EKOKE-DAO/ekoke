@@ -134,15 +134,27 @@ export const idlFactory = ({ IDL }) => {
     'amount' : IDL.Nat,
   });
   const Result_4 = IDL.Variant({ 'Ok' : Transaction, 'Err' : EkokeError });
-  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpRequest = IDL.Record({
+    'url' : IDL.Text,
+    'method' : IDL.Text,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+  });
   const HttpResponse = IDL.Record({
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+    'upgrade' : IDL.Opt(IDL.Bool),
+    'status_code' : IDL.Nat16,
+  });
+  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpResponse_1 = IDL.Record({
     'status' : IDL.Nat,
     'body' : IDL.Vec(IDL.Nat8),
     'headers' : IDL.Vec(HttpHeader),
   });
   const TransformArgs = IDL.Record({
     'context' : IDL.Vec(IDL.Nat8),
-    'response' : HttpResponse,
+    'response' : HttpResponse_1,
   });
   const MetadataValue = IDL.Variant({
     'Int' : IDL.Int,
@@ -223,9 +235,10 @@ export const idlFactory = ({ IDL }) => {
     'erc20_swap_fee' : IDL.Func([], [Result_2], []),
     'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_3], []),
     'get_transaction' : IDL.Func([IDL.Nat64], [Result_4], ['query']),
+    'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'http_transform_send_tx' : IDL.Func(
         [TransformArgs],
-        [HttpResponse],
+        [HttpResponse_1],
         ['query'],
       ),
     'icrc1_balance_of' : IDL.Func([Account], [IDL.Nat], ['query']),

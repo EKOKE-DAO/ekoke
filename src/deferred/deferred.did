@@ -123,6 +123,18 @@ type GenericValue = variant {
   Principal : principal;
   TextContent : text;
 };
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : vec nat8;
+  headers : vec record { text; text };
+};
+type HttpResponse = record {
+  body : vec nat8;
+  headers : vec record { text; text };
+  upgrade : opt bool;
+  status_code : nat16;
+};
 type Metadata = record {
   logo : opt text;
   name : opt text;
@@ -289,6 +301,7 @@ service : (DeferredInitData) -> {
   get_contract : (nat) -> (opt Contract) query;
   get_signed_contracts : () -> (vec nat) query;
   get_token : (nat) -> (opt TokenInfo) query;
+  http_request : (HttpRequest) -> (HttpResponse) query;
   is_approved_for_all : (principal, principal) -> (Result_2);
   logo : () -> (opt text) query;
   metadata : () -> (Metadata) query;

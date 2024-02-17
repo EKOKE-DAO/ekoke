@@ -116,6 +116,18 @@ export type GenericValue = { 'Nat64Content' : bigint } |
   { 'NestedContent' : Vec } |
   { 'Principal' : Principal } |
   { 'TextContent' : string };
+export interface HttpRequest {
+  'url' : string,
+  'method' : string,
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+}
+export interface HttpResponse {
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+  'upgrade' : [] | [boolean],
+  'status_code' : number,
+}
 export interface Metadata {
   'logo' : [] | [string],
   'name' : [] | [string],
@@ -290,6 +302,7 @@ export interface _SERVICE {
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
+  'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
   'logo' : ActorMethod<[], [] | [string]>,
   'metadata' : ActorMethod<[], Metadata>,

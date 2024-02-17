@@ -79,7 +79,19 @@ export type EthNetwork = { 'Ethereum' : null } |
   { 'Goerli' : null } |
   { 'Sepolia' : null };
 export interface HttpHeader { 'value' : string, 'name' : string }
+export interface HttpRequest {
+  'url' : string,
+  'method' : string,
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+}
 export interface HttpResponse {
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+  'upgrade' : [] | [boolean],
+  'status_code' : number,
+}
+export interface HttpResponse_1 {
   'status' : bigint,
   'body' : Uint8Array | number[],
   'headers' : Array<HttpHeader>,
@@ -170,7 +182,7 @@ export type TransferFromError = {
   { 'InsufficientFunds' : { 'balance' : bigint } };
 export interface TransformArgs {
   'context' : Uint8Array | number[],
-  'response' : HttpResponse,
+  'response' : HttpResponse_1,
 }
 export interface _SERVICE {
   'admin_burn' : ActorMethod<[bigint], Result>,
@@ -193,7 +205,8 @@ export interface _SERVICE {
   'erc20_swap_fee' : ActorMethod<[], Result_2>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_3>,
   'get_transaction' : ActorMethod<[bigint], Result_4>,
-  'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse>,
+  'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse_1>,
   'icrc1_balance_of' : ActorMethod<[Account], bigint>,
   'icrc1_decimals' : ActorMethod<[], number>,
   'icrc1_fee' : ActorMethod<[], bigint>,

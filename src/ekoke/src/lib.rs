@@ -6,6 +6,7 @@
 mod abi;
 mod app;
 mod constants;
+mod http;
 mod inspect;
 mod utils;
 
@@ -252,6 +253,13 @@ pub fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowanc
 #[candid_method(query)]
 fn http_transform_send_tx(raw: TransformArgs) -> HttpResponse {
     raw.response
+}
+
+// HTTP endpoint
+#[query]
+#[candid_method(query)]
+pub async fn http_request(req: did::HttpRequest) -> did::HttpResponse {
+    http::HttpApi::handle_http_request(req).await
 }
 
 #[allow(dead_code)]

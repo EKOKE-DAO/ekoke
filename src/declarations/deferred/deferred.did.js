@@ -250,6 +250,18 @@ export const idlFactory = ({ IDL }) => {
     'minted_by' : IDL.Principal,
   });
   const TokenInfo = IDL.Record({ 'token' : Token, 'contract' : Contract });
+  const HttpRequest = IDL.Record({
+    'url' : IDL.Text,
+    'method' : IDL.Text,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+  });
+  const HttpResponse = IDL.Record({
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+    'upgrade' : IDL.Opt(IDL.Bool),
+    'status_code' : IDL.Nat16,
+  });
   const Result_2 = IDL.Variant({ 'Ok' : IDL.Bool, 'Err' : NftError });
   const Metadata = IDL.Record({
     'logo' : IDL.Opt(IDL.Text),
@@ -334,6 +346,7 @@ export const idlFactory = ({ IDL }) => {
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
+    'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'is_approved_for_all' : IDL.Func(
         [IDL.Principal, IDL.Principal],
         [Result_2],
