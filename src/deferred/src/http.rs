@@ -1,11 +1,10 @@
-mod get_agencies;
 mod get_contract;
 mod get_token;
 
 use did::{HttpRequest, HttpResponse};
 
-use self::get_contract::{GetContractRequest, GetContractResponse};
-use self::get_token::{GetTokenRequest, GetTokenResponse};
+use self::get_contract::GetContractRequest;
+use self::get_token::GetTokenRequest;
 use crate::app::Deferred;
 
 pub struct HttpApi;
@@ -38,9 +37,7 @@ impl HttpApi {
     }
 
     fn get_contracts() -> HttpResponse {
-        let response = get_contract::GetContractsResponse::from(Deferred::get_signed_contracts());
-
-        HttpResponse::ok(response)
+        HttpResponse::ok(Deferred::get_signed_contracts())
     }
 
     fn get_contract(req: HttpRequest) -> HttpResponse {
@@ -48,9 +45,9 @@ impl HttpApi {
             Ok(request) => request,
             Err(response) => return response,
         };
-        let response = GetContractResponse::from(Deferred::get_contract(&params.id));
-
-        HttpResponse::ok(response)
+        Deferred::get_contract(&params.id)
+            .map(HttpResponse::ok)
+            .unwrap_or_else(HttpResponse::not_found)
     }
 
     fn get_token(req: HttpRequest) -> HttpResponse {
@@ -58,14 +55,12 @@ impl HttpApi {
             Ok(request) => request,
             Err(response) => return response,
         };
-        let response = GetTokenResponse::from(Deferred::get_token(&params.id));
-
-        HttpResponse::ok(response)
+        Deferred::get_token(&params.id)
+            .map(HttpResponse::ok)
+            .unwrap_or_else(HttpResponse::not_found)
     }
 
     fn get_agencies() -> HttpResponse {
-        let response = get_agencies::GetAgenciesResponse::from(Deferred::get_agencies());
-
-        HttpResponse::ok(response)
+        HttpResponse::ok(Deferred::get_agencies())
     }
 }

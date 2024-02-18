@@ -7,7 +7,7 @@ use integration_tests::TestEnv;
 
 #[test]
 #[serial_test::serial]
-fn test_should_get_contracts() {
+fn test_http_should_get_contracts() {
     let env = TestEnv::init();
     let contract_id = init_contract(&env);
 
@@ -18,82 +18,53 @@ fn test_should_get_contracts() {
     assert_eq!(contracts[0], contract_id);
 
     // get contract by id
-
-    let contract: serde_json::Value = http_client.http_request(
+    let contract: Contract = http_client.http_request(
         "getContract",
         serde_json::json!({
             "id": contract_id,
         }),
     );
-    // get contract
-    let contract: Option<Contract> = serde_json::from_value(
-        contract
-            .as_object()
-            .unwrap()
-            .get("contract")
-            .unwrap()
-            .clone(),
-    )
-    .unwrap();
-    assert_eq!(contract.unwrap().id, contract_id);
+    assert_eq!(contract.id, contract_id);
 
     // get unexisting contract
-    let contract: serde_json::Value = http_client.http_request(
+    let response = http_client.raw_http_request_response(
         "getContract",
         serde_json::json!({
             "id": 5000_u64,
         }),
     );
-    // get contract
-    let contract: Option<Contract> = serde_json::from_value(
-        contract
-            .as_object()
-            .unwrap()
-            .get("contract")
-            .unwrap()
-            .clone(),
-    )
-    .unwrap();
-    assert!(contract.is_none());
+    assert_eq!(response.status_code, 404);
 }
 
 #[test]
 #[serial_test::serial]
-fn test_should_get_token() {
+fn test_http_should_get_token() {
     let env = TestEnv::init();
     let contract_id = init_contract(&env);
 
     let http_client = HttpClient::new(env.deferred_id, &env);
-    let token: serde_json::Value = http_client.http_request(
+    let token_info: TokenInfo = http_client.http_request(
         "getToken",
         serde_json::json!({
             "id": 1,
         }),
     );
-    let token_info: Option<TokenInfo> =
-        serde_json::from_value(token.as_object().unwrap().get("token").unwrap().clone()).unwrap();
-    assert!(token_info.is_some());
-
-    let token_info = token_info.unwrap();
     assert_eq!(token_info.token.id, 1u64);
     assert_eq!(token_info.token.contract_id, contract_id);
 
     // get unexisting token
-    let token: serde_json::Value = http_client.http_request(
+    let response = http_client.raw_http_request_response(
         "getToken",
         serde_json::json!({
             "id": 5000_u64,
         }),
     );
-
-    let token_info: Option<TokenInfo> =
-        serde_json::from_value(token.as_object().unwrap().get("token").unwrap().clone()).unwrap();
-    assert!(token_info.is_none());
+    assert_eq!(response.status_code, 404);
 }
 
 #[test]
 #[serial_test::serial]
-fn test_should_get_agencies() {
+fn test_http_should_get_agencies() {
     let env = TestEnv::init();
     let deferred_client = DeferredClient::from(&env);
 

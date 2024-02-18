@@ -5,6 +5,12 @@ use candid::CandidType;
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 
+const HTTP_OK: u16 = 200;
+const HTTP_UPGRADE: u16 = 204;
+const HTTP_BAD_REQUEST: u16 = 400;
+const HTTP_NOT_FOUND: u16 = 404;
+const HTTP_INTERNAL_ERROR: u16 = 500;
+
 /// A HTTP response.
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct HttpResponse {
@@ -41,7 +47,7 @@ impl HttpResponse {
         };
 
         Self {
-            status_code: 500,
+            status_code: HTTP_INTERNAL_ERROR,
             headers: HashMap::from([("content-type".into(), "application/json".into())]),
             body,
             upgrade: None,
@@ -56,9 +62,19 @@ impl HttpResponse {
         };
 
         Self {
-            status_code: 400,
+            status_code: HTTP_BAD_REQUEST,
             headers: HashMap::from([("content-type".into(), "application/json".into())]),
             body,
+            upgrade: None,
+        }
+    }
+
+    /// Returns a new `HttpResponse` intended to be used for not found
+    pub fn not_found() -> Self {
+        Self {
+            status_code: HTTP_NOT_FOUND,
+            headers: HashMap::from([("content-type".into(), "application/json".into())]),
+            body: ByteBuf::from("Not Found".as_bytes()),
             upgrade: None,
         }
     }
@@ -73,7 +89,7 @@ impl HttpResponse {
             Err(e) => return HttpResponse::internal_error(e.to_string()),
         };
         Self::new(
-            200,
+            HTTP_OK,
             HashMap::from([("content-type".into(), "application/json".into())]),
             ByteBuf::from(body.as_bytes()),
             None,
@@ -82,7 +98,12 @@ impl HttpResponse {
 
     /// Upgrade response to update call.
     pub fn upgrade_response() -> Self {
-        Self::new(204, HashMap::default(), ByteBuf::default(), Some(true))
+        Self::new(
+            HTTP_UPGRADE,
+            HashMap::default(),
+            ByteBuf::default(),
+            Some(true),
+        )
     }
 }
 

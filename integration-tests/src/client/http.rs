@@ -22,6 +22,16 @@ impl<'a> HttpClient<'a> {
     where
         S: serde::de::DeserializeOwned,
     {
+        let response = self.raw_http_request_response(method, params);
+
+        serde_json::from_slice(&response.body).unwrap()
+    }
+
+    pub fn raw_http_request_response(
+        &self,
+        method: &str,
+        params: serde_json::Value,
+    ) -> HttpResponse {
         let mut headers: HashMap<Cow<'static, str>, Cow<'static, str>> = Default::default();
         headers.insert(
             Cow::Borrowed("content-type"),
@@ -40,16 +50,13 @@ impl<'a> HttpClient<'a> {
             body: ByteBuf::from(body.to_string()),
         };
 
-        let response: HttpResponse = self
-            .env
+        self.env
             .query(
                 self.principal,
                 admin(),
                 "http_request",
                 Encode!(&request).unwrap(),
             )
-            .unwrap();
-
-        serde_json::from_slice(&response.body).unwrap()
+            .unwrap()
     }
 }
