@@ -52,7 +52,12 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-dependencies = ["deferred-did", "ekoke-did", "marketplace-did", "dfx-generate"]
+dependencies = [
+  "deferred-did",
+  "ekoke-ledger-did",
+  "marketplace-did",
+  "dfx-generate",
+]
 workspace = false
 
 [tasks.deferred-did]
@@ -60,9 +65,9 @@ description = "Generate did files for deferred"
 script = "cargo run --bin deferred-did  --features did > src/deferred/deferred.did"
 workspace = false
 
-[tasks.ekoke-did]
-description = "Generate did files for ekoke"
-script = "cargo run --bin ekoke-did  --features did > src/ekoke/ekoke.did"
+[tasks.ekoke-ledger-did]
+description = "Generate did files for ekoke-ledger"
+script = "cargo run --bin ekoke-ledger-did  --features did > src/ekoke_ledger/ekoke-ledger.did"
 workspace = false
 
 [tasks.marketplace-did]
@@ -78,5 +83,5 @@ workspace = false
 
 [tasks.dfx-setup]
 description = "setup dfx"
-script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create ekoke; dfx canister create marketplace"
+script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create ekoke-ledger; dfx canister create marketplace"
 workspace = false

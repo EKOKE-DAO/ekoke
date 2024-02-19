@@ -1,8 +1,8 @@
 export const idlFactory = ({ IDL }) => {
   const Vec = IDL.Rec();
   const DeferredInitData = IDL.Record({
-    'ekoke_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
+    'ekoke_ledger_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   const Continent = IDL.Variant({
@@ -333,7 +333,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
-    'admin_set_ekoke_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_ekoke_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
     'admin_sign_contract' : IDL.Func([IDL.Nat], [Result], []),
@@ -426,8 +426,8 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   const DeferredInitData = IDL.Record({
-    'ekoke_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
+    'ekoke_ledger_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   return [DeferredInitData];

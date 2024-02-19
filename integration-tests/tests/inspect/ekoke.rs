@@ -15,7 +15,7 @@ fn test_should_inspect_is_admin() {
 
     assert!(env
         .update::<()>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             admin(),
             "admin_set_xrc_canister",
             Encode!(&env.xrc_id).unwrap(),
@@ -30,7 +30,7 @@ fn test_should_fail_inspect_admin() {
     // not an admin
     assert!(env
         .update::<()>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             bob(),
             "admin_set_xrc_canister",
             Encode!(&env.xrc_id).unwrap(),
@@ -45,7 +45,7 @@ fn test_should_inspect_get_contract_reward() {
     // is deferred canister
     assert!(env
         .update::<EkokeResult<PicoEkoke>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             env.deferred_id,
             "get_contract_reward",
             Encode!(&Nat::from(1_u64), &10u64).unwrap(),
@@ -60,7 +60,7 @@ fn test_should_fail_inspect_get_contract_reward() {
     // is a random guy
     assert!(env
         .update::<EkokeResult<PicoEkoke>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "get_contract_reward",
             Encode!(&Nat::from(1_u64), &10u64).unwrap(),
@@ -87,7 +87,7 @@ fn test_should_inspect_send_reward() {
     // inspect send reward
     assert!(env
         .update::<EkokeResult<()>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             env.marketplace_id,
             "send_reward",
             Encode!(&contract_id, &ekoke_to_picoekoke(10), &bob_account()).unwrap(),
@@ -114,7 +114,7 @@ fn test_should_fail_inspect_send_reward() {
     // inspect send reward (fails because it's not a marketplace canister)
     assert!(env
         .update::<EkokeResult<()>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "send_reward",
             Encode!(&contract_id, &ekoke_to_picoekoke(100), &bob_account()).unwrap(),
@@ -139,7 +139,7 @@ fn test_should_inspect_icrc1_transfer() {
     // inspect icrc1_transfer
     assert!(env
         .update::<Result<Nat, TransferError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc1_transfer",
             Encode!(&transfer).unwrap()
@@ -165,7 +165,7 @@ fn test_should_fail_inspect_icrc1_transfer() {
     // inspect icrc1_transfer
     assert!(env
         .update::<Result<Nat, TransferError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc1_transfer",
             Encode!(&transfer).unwrap()
@@ -185,7 +185,7 @@ fn test_should_fail_inspect_icrc1_transfer() {
     // inspect icrc1_transfer
     assert!(env
         .update::<Result<Nat, TransferError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc1_transfer",
             Encode!(&transfer).unwrap()
@@ -205,7 +205,7 @@ fn test_should_fail_inspect_icrc1_transfer() {
     // inspect icrc1_transfer
     assert!(env
         .update::<Result<Nat, TransferError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc1_transfer",
             Encode!(&transfer).unwrap()
@@ -232,7 +232,7 @@ fn test_should_inspect_icrc2_approve() {
     // inspect icrc2_approve
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -259,7 +259,7 @@ fn test_should_fail_inspect_icrc2_approve() {
 
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             bob(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -280,7 +280,7 @@ fn test_should_fail_inspect_icrc2_approve() {
 
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -301,7 +301,7 @@ fn test_should_fail_inspect_icrc2_approve() {
 
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -322,7 +322,7 @@ fn test_should_fail_inspect_icrc2_approve() {
 
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -343,7 +343,7 @@ fn test_should_fail_inspect_icrc2_approve() {
 
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&args).unwrap()
@@ -369,7 +369,7 @@ fn test_should_inspect_icrc2_transfer_from() {
     };
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&approve_args).unwrap()
@@ -389,7 +389,7 @@ fn test_should_inspect_icrc2_transfer_from() {
 
     assert!(env
         .update::<Result<Nat, TransferFromError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             admin(),
             "icrc2_transfer_from",
             Encode!(&args).unwrap()
@@ -415,7 +415,7 @@ fn test_should_fail_inspect_icrc2_transfer_from() {
     };
     assert!(env
         .update::<Result<Nat, ApproveError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             alice(),
             "icrc2_approve",
             Encode!(&approve_args).unwrap()
@@ -435,7 +435,7 @@ fn test_should_fail_inspect_icrc2_transfer_from() {
 
     assert!(env
         .update::<Result<Nat, TransferFromError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             admin(),
             "icrc2_transfer_from",
             Encode!(&args).unwrap()
@@ -455,7 +455,7 @@ fn test_should_fail_inspect_icrc2_transfer_from() {
 
     assert!(env
         .update::<Result<Nat, TransferFromError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             admin(),
             "icrc2_transfer_from",
             Encode!(&args).unwrap()
@@ -475,7 +475,7 @@ fn test_should_fail_inspect_icrc2_transfer_from() {
 
     assert!(env
         .update::<Result<Nat, TransferFromError>>(
-            env.ekoke_id,
+            env.ekoke_ledger_id,
             admin(),
             "icrc2_transfer_from",
             Encode!(&args).unwrap()

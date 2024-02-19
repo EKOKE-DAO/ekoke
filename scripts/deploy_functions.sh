@@ -6,14 +6,14 @@ deploy_deferred() {\
   INSTALL_MODE="$1"
   NETWORK="$2"
   DEFERRED_PRINCIPAL="$3"
-  EKOKE_PRINCIPAL="$4"
+  EKOKE_LEDGER_PRINCIPAL="$4"
   MARKETPLACE_PRINCIPAL="$5"
   ADMIN_PRINCIPAL="$6"
 
   echo "deploying deferred canister $DEFERRED_PRINCIPAL"
 
   deferred_init_args="(record {
-    ekoke_canister = principal \"$EKOKE_PRINCIPAL\";
+    ekoke_ledger_canister = principal \"$EKOKE_LEDGER_PRINCIPAL\";
     marketplace_canister = principal \"$MARKETPLACE_PRINCIPAL\";
     custodians = vec { principal \"$ADMIN_PRINCIPAL\" };
   })"
@@ -25,7 +25,7 @@ deploy_deferred() {\
 deploy_ekoke() {
   INSTALL_MODE="$1"
   NETWORK="$2"
-  EKOKE_PRINCIPAL="$3"
+  EKOKE_LEDGER_PRINCIPAL="$3"
   ADMINS="$4"
   TOTAL_SUPPLY="$5"
   INITIAL_BALANCES="$6"
@@ -37,7 +37,7 @@ deploy_ekoke() {
   ERC20_SWAP_FEE="${12}"
   ERC20_NETWORK="${13}"
 
-  echo "deploying ekoke canister $EKOKE_PRINCIPAL"
+  echo "deploying ekoke canister $EKOKE_LEDGER_PRINCIPAL"
 
   ekoke_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
@@ -66,14 +66,14 @@ deploy_marketplace() {
   NETWORK="$2"
   MARKETPLACE_PRINCIPAL="$3"
   DEFERRED_PRINCIPAL="$4"
-  EKOKE_PRINCIPAL="$5"
+  EKOKE_LEDGER_PRINCIPAL="$5"
   ADMINS="$6"
 
   echo "deploying marketplace canister $MARKETPLACE_PRINCIPAL"
 
   marketplace_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
-    ekoke_canister = principal \"$EKOKE_PRINCIPAL\";
+    ekoke_ledger_canister = principal \"$EKOKE_LEDGER_PRINCIPAL\";
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";

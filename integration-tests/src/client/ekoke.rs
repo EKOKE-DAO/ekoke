@@ -28,7 +28,7 @@ impl<'a> EkokeClient<'a> {
     ) -> EkokeResult<PicoEkoke> {
         self.env
             .update(
-                self.env.ekoke_id,
+                self.env.ekoke_ledger_id,
                 from.owner,
                 "reserve_pool",
                 Encode!(&contract_id, &picoekoke_amount, &from.subaccount).unwrap(),
@@ -39,7 +39,7 @@ impl<'a> EkokeClient<'a> {
     pub fn send_reward(&self, contract_id: ID, amount: PicoEkoke, to: Account) -> EkokeResult<()> {
         self.env
             .update(
-                self.env.ekoke_id,
+                self.env.ekoke_ledger_id,
                 self.env.marketplace_id,
                 "send_reward",
                 Encode!(&contract_id, &amount, &to).unwrap(),

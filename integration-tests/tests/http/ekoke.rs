@@ -7,12 +7,12 @@ use integration_tests::TestEnv;
 fn test_should_get_liquidity_pool_accounts_and_balance() {
     let env = TestEnv::init();
 
-    let http_client = HttpClient::new(env.ekoke_id, &env);
+    let http_client = HttpClient::new(env.ekoke_ledger_id, &env);
     let liquidity_pool_accounts: LiquidityPoolAccounts =
         http_client.http_request("liquidityPoolAccounts", serde_json::json!({}));
 
-    assert_eq!(liquidity_pool_accounts.ckbtc.owner, env.ekoke_id);
-    assert_eq!(liquidity_pool_accounts.icp.owner, env.ekoke_id);
+    assert_eq!(liquidity_pool_accounts.ckbtc.owner, env.ekoke_ledger_id);
+    assert_eq!(liquidity_pool_accounts.icp.owner, env.ekoke_ledger_id);
 
     let liquidity_pool_balance: LiquidityPoolBalance =
         http_client.http_request("liquidityPoolBalance", serde_json::json!({}));

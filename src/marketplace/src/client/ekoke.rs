@@ -10,12 +10,14 @@ use icrc::icrc1::account::Account;
 
 #[allow(dead_code)]
 pub struct EkokeClient {
-    ekoke_canister: Principal,
+    ekoke_ledger_canister: Principal,
 }
 
 impl From<Principal> for EkokeClient {
-    fn from(ekoke_canister: Principal) -> Self {
-        Self { ekoke_canister }
+    fn from(ekoke_ledger_canister: Principal) -> Self {
+        Self {
+            ekoke_ledger_canister,
+        }
     }
 }
 
@@ -39,7 +41,7 @@ impl EkokeClient {
         #[cfg(target_arch = "wasm32")]
         {
             let result: (LiquidityPoolAccounts,) =
-                ic_cdk::api::call::call(self.ekoke_canister, "liquidity_pool_accounts", ())
+                ic_cdk::api::call::call(self.ekoke_ledger_canister, "liquidity_pool_accounts", ())
                     .await
                     .map_err(|(code, err)| MarketplaceError::CanisterCall(code, err))?;
             Ok(result.0)
@@ -60,7 +62,7 @@ impl EkokeClient {
         #[cfg(target_arch = "wasm32")]
         {
             let result: (EkokeResult<()>,) = ic_cdk::api::call::call(
-                self.ekoke_canister,
+                self.ekoke_ledger_canister,
                 "send_reward",
                 (contract_id, amount, account),
             )

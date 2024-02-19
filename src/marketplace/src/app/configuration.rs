@@ -12,17 +12,17 @@ use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
-    DEFERRED_CANISTER_MEMORY_ID, EKOKE_CANISTER_MEMORY_ID, EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID,
-    ICP_LEDGER_CANISTER_MEMORY_ID, INTEREST_FOR_BUYER_MEMORY_ID, MEMORY_MANAGER,
-    XRC_CANISTER_MEMORY_ID,
+    DEFERRED_CANISTER_MEMORY_ID, EKOKE_LEDGER_CANISTER_MEMORY_ID,
+    EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID, ICP_LEDGER_CANISTER_MEMORY_ID,
+    INTEREST_FOR_BUYER_MEMORY_ID, MEMORY_MANAGER, XRC_CANISTER_MEMORY_ID,
 };
 use crate::client::EkokeClient;
 use crate::constants::DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER;
 
 thread_local! {
     /// Ekoke canister
-    static EKOKE_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_CANISTER_MEMORY_ID)),
+    static EKOKE_LEDGER_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_LEDGER_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
     );
 
@@ -65,9 +65,9 @@ pub struct Configuration;
 
 impl Configuration {
     /// Set minting account
-    pub fn set_ekoke_canister(ekoke_canister: Principal) {
-        EKOKE_CANISTER.with_borrow_mut(|cell| {
-            cell.set(ekoke_canister.into()).unwrap();
+    pub fn set_ekoke_ledger_canister(ekoke_ledger_canister: Principal) {
+        EKOKE_LEDGER_CANISTER.with_borrow_mut(|cell| {
+            cell.set(ekoke_ledger_canister.into()).unwrap();
         });
     }
 
@@ -86,8 +86,8 @@ impl Configuration {
     }
 
     /// Get minting account address
-    pub fn get_ekoke_canister() -> Principal {
-        EKOKE_CANISTER.with(|ma| ma.borrow().get().0)
+    pub fn get_ekoke_ledger_canister() -> Principal {
+        EKOKE_LEDGER_CANISTER.with(|ma| ma.borrow().get().0)
     }
 
     /// Get swap account address
@@ -113,7 +113,7 @@ impl Configuration {
     /// Update ekoke liquidity pool account
     pub async fn update_ekoke_liquidity_pool_account() -> MarketplaceResult<Account> {
         // call ekoke
-        let liquidity_pool_account = EkokeClient::from(Configuration::get_ekoke_canister())
+        let liquidity_pool_account = EkokeClient::from(Configuration::get_ekoke_ledger_canister())
             .liquidity_pool_accounts()
             .await?
             .icp;
@@ -167,10 +167,10 @@ mod test {
     }
 
     #[test]
-    fn test_should_set_ekoke_canister() {
+    fn test_should_set_ekoke_ledger_canister() {
         let canister = id();
-        Configuration::set_ekoke_canister(canister);
-        assert_eq!(Configuration::get_ekoke_canister(), canister);
+        Configuration::set_ekoke_ledger_canister(canister);
+        assert_eq!(Configuration::get_ekoke_ledger_canister(), canister);
     }
 
     #[test]

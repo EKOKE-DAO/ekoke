@@ -80,8 +80,8 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
-  'ekoke_canister' : Principal,
   'custodians' : Array<Principal>,
+  'ekoke_ledger_canister' : Principal,
   'marketplace_canister' : Principal,
 }
 export type EcdsaError = { 'RecoveryIdError' : null } |
@@ -289,7 +289,7 @@ export interface _SERVICE {
   'admin_get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
-  'admin_set_ekoke_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'admin_sign_contract' : ActorMethod<[bigint], Result>,

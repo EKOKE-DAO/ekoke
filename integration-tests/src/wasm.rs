@@ -18,7 +18,7 @@ pub struct Icrc2InitArgs {
 
 pub enum Canister {
     Deferred,
-    Ekoke,
+    EkokeLedger,
     Icrc2,
     Marketplace,
     Xrc,
@@ -28,7 +28,9 @@ impl Canister {
     pub fn as_path(&self) -> &'static Path {
         match self {
             Canister::Deferred => Path::new("../.dfx/local/canisters/deferred/deferred.wasm"),
-            Canister::Ekoke => Path::new("../.dfx/local/canisters/ekoke/ekoke.wasm"),
+            Canister::EkokeLedger => {
+                Path::new("../.dfx/local/canisters/ekoke-ledger/ekoke-ledger.wasm")
+            }
             Canister::Marketplace => {
                 Path::new("../.dfx/local/canisters/marketplace/marketplace.wasm")
             }

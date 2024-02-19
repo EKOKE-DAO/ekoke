@@ -1,6 +1,6 @@
 use candid::Principal;
 
-pub fn ekoke_canister() -> Principal {
+pub fn ekoke_ledger_canister() -> Principal {
     Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap()
 }
 

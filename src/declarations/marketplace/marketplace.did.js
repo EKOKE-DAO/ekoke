@@ -1,9 +1,9 @@
 export const idlFactory = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
-    'ekoke_canister' : IDL.Principal,
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
+    'ekoke_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   const BuyError = IDL.Variant({
@@ -166,7 +166,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [Result], []),
     'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_ekoke_canister' : IDL.Func([IDL.Principal], [Result], []),
+    'admin_set_ekoke_ledger_canister' : IDL.Func([IDL.Principal], [Result], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_interest_rate_for_buyer' : IDL.Func([IDL.Float64], [], []),
     'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
@@ -176,10 +176,10 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   const MarketplaceInitData = IDL.Record({
-    'ekoke_canister' : IDL.Principal,
     'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
+    'ekoke_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   return [MarketplaceInitData];

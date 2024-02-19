@@ -5,9 +5,9 @@
       "package": "deferred",
       "type": "rust"
     },
-    "ekoke": {
-      "candid": "src/ekoke/ekoke.did",
-      "package": "ekoke",
+    "ekoke-ledger": {
+      "candid": "src/ekoke_ledger/ekoke-ledger.did",
+      "package": "ekoke_ledger",
       "type": "rust"
     },
     "marketplace": {
