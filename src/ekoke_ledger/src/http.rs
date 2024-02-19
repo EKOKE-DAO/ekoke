@@ -1,4 +1,6 @@
 use did::{HttpRequest, HttpResponse};
+use icrc::icrc1::Icrc1 as _;
+use num_traits::ToPrimitive;
 
 use crate::app::EkokeCanister;
 
@@ -25,6 +27,11 @@ impl HttpApi {
         match method.as_str() {
             "liquidityPoolBalance" => Self::liquidity_pool_balance().await,
             "liquidityPoolAccounts" => Self::liquidity_pool_accounts(),
+            "icrc1Name" => Self::icrc1_name(),
+            "icrc1Symbol" => Self::icrc1_symbol(),
+            "icrc1Decimals" => Self::icrc1_decimals(),
+            "icrc1TotalSupply" => Self::icrc1_total_supply(),
+            "icrc1Fee" => Self::icrc1_fee(),
             _ => HttpResponse::bad_request("unknown method".to_string()),
         }
     }
@@ -46,5 +53,45 @@ impl HttpApi {
         let params = EkokeCanister::liquidity_pool_accounts();
 
         HttpResponse::ok(params)
+    }
+
+    fn icrc1_name() -> HttpResponse {
+        let response = EkokeCanister::icrc1_name();
+
+        HttpResponse::ok(serde_json::json!({
+            "name": response
+        }))
+    }
+
+    fn icrc1_symbol() -> HttpResponse {
+        let response = EkokeCanister::icrc1_symbol();
+
+        HttpResponse::ok(serde_json::json!({
+            "symbol": response
+        }))
+    }
+
+    fn icrc1_decimals() -> HttpResponse {
+        let response = EkokeCanister::icrc1_decimals();
+
+        HttpResponse::ok(serde_json::json!({
+            "decimals": response
+        }))
+    }
+
+    fn icrc1_total_supply() -> HttpResponse {
+        let response = EkokeCanister::icrc1_total_supply();
+
+        HttpResponse::ok(serde_json::json!({
+            "totalSupply": response.0.to_u64().unwrap_or_default()
+        }))
+    }
+
+    fn icrc1_fee() -> HttpResponse {
+        let response = EkokeCanister::icrc1_fee();
+
+        HttpResponse::ok(serde_json::json!({
+            "fee": response.0.to_u64().unwrap_or_default()
+        }))
     }
 }
