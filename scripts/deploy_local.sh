@@ -4,7 +4,7 @@ cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
-EKOKE_LEDGER_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke.local')"
+EKOKE_LEDGER_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-ledger.local')"
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
 
 source ./deploy_functions.sh
