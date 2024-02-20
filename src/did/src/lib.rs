@@ -6,6 +6,7 @@ mod common;
 
 pub mod deferred;
 pub mod ekoke;
+pub mod ekoke_index;
 pub mod marketplace;
 pub use common::{
     HttpApiRequest, HttpRequest, HttpResponse, StorableAccount, StorableNat, StorablePrincipal,

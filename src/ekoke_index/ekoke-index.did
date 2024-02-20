@@ -1,0 +1,61 @@
+type Account = record { owner : principal; subaccount : opt vec nat8 };
+type Approve = record {
+  fee : opt nat;
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+  expected_allowance : opt nat;
+  expires_at : opt nat64;
+  spender : opt Account;
+};
+type Burn = record {
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+  spender : opt Account;
+};
+type EkokeIndexInitData = record { ledger_id : principal };
+type GetAccountTransactionArgs = record {
+  max_results : nat;
+  start : opt nat;
+  account : Account;
+};
+type GetTransactions = record {
+  transactions : vec TransactionWithId;
+  oldest_tx_id : opt nat;
+};
+type GetTransactionsErr = record { message : text };
+type ListSubaccountsArgs = record { owner : principal; start : opt vec nat8 };
+type Mint = record {
+  to : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type Result = variant { Ok : GetTransactions; Err : GetTransactionsErr };
+type Transaction = record {
+  burn : opt Burn;
+  kind : text;
+  mint : opt Mint;
+  approve : opt Approve;
+  timestamp : nat64;
+  transfer : opt Transfer;
+};
+type TransactionWithId = record { id : nat; transaction : Transaction };
+type Transfer = record {
+  to : Account;
+  fee : opt nat;
+  from : Account;
+  memo : opt vec nat8;
+  created_at_time : opt nat64;
+  amount : nat;
+  spender : opt Account;
+};
+service : (EkokeIndexInitData) -> {
+  commit : (Transaction) -> (nat);
+  get_account_transactions : (GetAccountTransactionArgs) -> (Result);
+  ledger_id : () -> (principal) query;
+  list_subaccounts : (ListSubaccountsArgs) -> (vec vec nat8) query;
+}

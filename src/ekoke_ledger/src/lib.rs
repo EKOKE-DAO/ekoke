@@ -1,4 +1,4 @@
-//! # Ekoke
+//! # Ekoke Ledger canister
 //!
 //! The ekoke canister serves a ICRC-2 token called $EKOKE, which is the reward token for Deferred transactions.
 //! It is a deflationary token which ...
@@ -13,7 +13,6 @@ mod utils;
 use candid::{candid_method, Nat, Principal};
 use did::ekoke::{
     EkokeInitData, EkokeResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoEkoke, Role,
-    Transaction,
 };
 use did::{H160, ID};
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
@@ -162,12 +161,6 @@ pub fn admin_set_erc20_gas_price(gas_price: u64) {
 #[candid_method(query)]
 pub async fn admin_eth_wallet_address() -> H160 {
     EkokeCanister::admin_eth_wallet_address().await
-}
-
-#[query]
-#[candid_method(query)]
-pub fn get_transaction(id: u64) -> EkokeResult<Transaction> {
-    EkokeCanister::get_transaction(id)
 }
 
 // icrc-1

@@ -111,21 +111,12 @@ type Result = variant { Ok; Err : EkokeError };
 type Result_1 = variant { Ok : text; Err : EkokeError };
 type Result_2 = variant { Ok : nat64; Err : EkokeError };
 type Result_3 = variant { Ok : nat; Err : EkokeError };
-type Result_4 = variant { Ok : Transaction; Err : EkokeError };
-type Result_5 = variant { Ok : nat; Err : TransferError };
-type Result_6 = variant { Ok : nat; Err : ApproveError };
-type Result_7 = variant { Ok : nat; Err : TransferFromError };
-type Result_8 = variant { Ok : LiquidityPoolBalance; Err : EkokeError };
+type Result_4 = variant { Ok : nat; Err : TransferError };
+type Result_5 = variant { Ok : nat; Err : ApproveError };
+type Result_6 = variant { Ok : nat; Err : TransferFromError };
+type Result_7 = variant { Ok : LiquidityPoolBalance; Err : EkokeError };
 type Role = variant { DeferredCanister; MarketplaceCanister; Admin };
 type TokenExtension = record { url : text; name : text };
-type Transaction = record {
-  to : Account;
-  fee : nat;
-  from : Account;
-  memo : opt vec nat8;
-  created_at : nat64;
-  amount : nat;
-};
 type TransferArg = record {
   to : Account;
   fee : opt nat;
@@ -182,7 +173,6 @@ service : (EkokeInitData) -> {
   erc20_swap : (text, nat, opt vec nat8) -> (Result_1);
   erc20_swap_fee : () -> (Result_2);
   get_contract_reward : (nat, nat64) -> (Result_3);
-  get_transaction : (nat64) -> (Result_4) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
   http_transform_send_tx : (TransformArgs) -> (HttpResponse_1) query;
   icrc1_balance_of : (Account) -> (nat) query;
@@ -193,12 +183,12 @@ service : (EkokeInitData) -> {
   icrc1_supported_standards : () -> (vec TokenExtension) query;
   icrc1_symbol : () -> (text) query;
   icrc1_total_supply : () -> (nat) query;
-  icrc1_transfer : (TransferArg) -> (Result_5);
+  icrc1_transfer : (TransferArg) -> (Result_4);
   icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
-  icrc2_approve : (ApproveArgs) -> (Result_6);
-  icrc2_transfer_from : (TransferFromArgs) -> (Result_7);
+  icrc2_approve : (ApproveArgs) -> (Result_5);
+  icrc2_transfer_from : (TransferFromArgs) -> (Result_6);
   liquidity_pool_accounts : () -> (LiquidityPoolAccounts) query;
-  liquidity_pool_balance : () -> (Result_8) query;
+  liquidity_pool_balance : () -> (Result_7) query;
   reserve_pool : (nat, nat, opt vec nat8) -> (Result_3);
   send_reward : (nat, nat, Account) -> (Result);
 }

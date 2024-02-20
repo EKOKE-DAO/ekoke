@@ -126,11 +126,6 @@ impl EkokeCanister {
         );
     }
 
-    /// Get transaction by id
-    pub fn get_transaction(id: u64) -> EkokeResult<Transaction> {
-        Register::get_tx(id)
-    }
-
     /// Reserve a pool for the provided contract ID with the provided amount of $picoEkoke tokens.
     ///
     /// The tokens are withdrawned from the from's wallet.
@@ -669,29 +664,6 @@ mod test {
         );
         assert_eq!(Erc20Bridge::get_swap_fee(), ERC20_SWAP_FEE);
         assert_eq!(Configuration::get_eth_network(), EthNetwork::Goerli);
-    }
-
-    #[tokio::test]
-    async fn test_should_get_transaction() {
-        init_canister();
-        let now = utils::time();
-        assert!(Register::insert_tx(Transaction {
-            from: caller_account(),
-            to: bob_account(),
-            amount: ekoke_to_picoekoke(10_000),
-            fee: Nat::from(ICRC1_FEE),
-            memo: None,
-            created_at: now,
-        })
-        .is_ok());
-
-        let tx = EkokeCanister::get_transaction(0).unwrap();
-        assert_eq!(tx.from, caller_account());
-        assert_eq!(tx.to, bob_account());
-        assert_eq!(tx.amount, ekoke_to_picoekoke(10_000));
-        assert_eq!(tx.fee, Nat::from(ICRC1_FEE));
-        assert_eq!(tx.memo, None);
-        assert_eq!(tx.created_at, now);
     }
 
     #[tokio::test]

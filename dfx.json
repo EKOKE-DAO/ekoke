@@ -5,6 +5,11 @@
       "package": "deferred",
       "type": "rust"
     },
+    "ekoke-index": {
+      "candid": "src/ekoke_index/ekoke-index.did",
+      "package": "ekoke_index",
+      "type": "rust"
+    },
     "ekoke-ledger": {
       "candid": "src/ekoke_ledger/ekoke-ledger.did",
       "package": "ekoke_ledger",
