@@ -22,7 +22,20 @@ deploy_deferred() {\
 
 }
 
-deploy_ekoke() {
+deploy_ekoke_index() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_INDEX_PRINCIPAL="$3"
+  EKOKE_LEDGER_PRINCIPAL="$4"
+
+  ekoke_ledger_init_args="(record {
+    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_ledger_init_args" ekoke-index
+}
+
+deploy_ekoke_ledger() {
   INSTALL_MODE="$1"
   NETWORK="$2"
   EKOKE_LEDGER_PRINCIPAL="$3"
@@ -57,7 +70,7 @@ deploy_ekoke() {
     erc20_network = variant { $ERC20_NETWORK };
   })"
 
-  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke-ledger
 
 }
 
