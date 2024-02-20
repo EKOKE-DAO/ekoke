@@ -656,6 +656,7 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "did",
+ "getrandom",
  "ic-cdk",
  "ic-cdk-macros",
  "ic-stable-structures",

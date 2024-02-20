@@ -512,7 +512,7 @@ impl Icrc2 for EkokeCanister {
 
         // register transaction
         let tx = Transaction {
-            kind: "transfer".to_string(),
+            kind: "approve".to_string(),
             mint: None,
             burn: None,
             transfer: None,

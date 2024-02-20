@@ -67,6 +67,7 @@ export interface EkokeInitData {
   'erc20_bridge_address' : string,
   'erc20_network' : EthNetwork,
   'initial_balances' : Array<[Account, bigint]>,
+  'index_canister' : Principal,
   'swap_account' : Account,
   'xrc_canister' : Principal,
   'marketplace_canister' : Principal,

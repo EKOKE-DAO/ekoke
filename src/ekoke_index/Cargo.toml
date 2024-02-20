@@ -20,6 +20,7 @@ did = []
 [dependencies]
 candid = { workspace = true }
 did = { path = "../did" }
+getrandom = { workspace = true, features = ["custom"] }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }

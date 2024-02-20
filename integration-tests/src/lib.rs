@@ -252,7 +252,7 @@ impl TestEnv {
     }
 
     fn install_ekoke_index(pic: &PocketIc, ekoke_index_id: Principal, ekoke_ledger_id: Principal) {
-        pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
+        pic.add_cycles(ekoke_index_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeIndex);
 
         let init_arg = EkokeIndexInitData {
