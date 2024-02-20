@@ -4,8 +4,7 @@ use ic_stable_structures::DefaultMemoryImpl;
 pub const BALANCES_MEMORY_ID: MemoryId = MemoryId::new(10);
 pub const POOL_MEMORY_ID: MemoryId = MemoryId::new(11);
 pub const CANISTER_WALLET_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(12);
-pub const REGISTER_MEMORY_ID: MemoryId = MemoryId::new(13);
-pub const SPEND_ALLOWANCE_MEMORY_ID: MemoryId = MemoryId::new(14);
+pub const SPEND_ALLOWANCE_MEMORY_ID: MemoryId = MemoryId::new(13);
 
 // Configuration
 pub const MINTING_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(20);
@@ -17,6 +16,7 @@ pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
 pub const CKETH_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
 pub const CKETH_MINTER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
 pub const ERC20_BRIDGE_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(28);
+pub const INDEX_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(29);
 
 // Rewards
 pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(30);

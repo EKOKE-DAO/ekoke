@@ -5,22 +5,24 @@
 mod balance;
 mod configuration;
 mod erc20_bridge;
+mod index_canister;
 mod inspect;
 mod liquidity_pool;
 mod memory;
 mod pool;
-mod register;
 mod reward;
 mod roles;
 mod spend_allowance;
 #[cfg(test)]
 mod test_utils;
 
+use async_trait::async_trait;
 use candid::{Nat, Principal};
 use did::ekoke::{
     AllowanceError, BalanceError, EkokeError, EkokeInitData, EkokeResult, LiquidityPoolAccounts,
-    LiquidityPoolBalance, PicoEkoke, PoolError, Role, Transaction,
+    LiquidityPoolBalance, PicoEkoke, PoolError, Role,
 };
+use did::ekoke_index::{Approve, Transaction, Transfer};
 use did::{H160, ID};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -31,15 +33,15 @@ use icrc::IcrcLedgerClient;
 use self::balance::Balance;
 use self::configuration::Configuration;
 use self::erc20_bridge::Erc20Bridge;
+use self::index_canister::IndexCanister;
 pub use self::inspect::Inspect;
 use self::liquidity_pool::LiquidityPool;
 use self::pool::Pool;
 use self::reward::Reward;
 use self::roles::RolesManager;
 use self::spend_allowance::SpendAllowance;
-use crate::app::register::Register;
 use crate::constants::{ICRC1_DECIMALS, ICRC1_FEE, ICRC1_LOGO, ICRC1_NAME, ICRC1_SYMBOL};
-use crate::utils::{self, caller};
+use crate::utils::{self, caller, time};
 
 pub struct EkokeCanister;
 
@@ -54,6 +56,7 @@ impl EkokeCanister {
         Configuration::set_xrc_canister(data.xrc_canister);
         Configuration::set_ckbtc_canister(data.ckbtc_canister);
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
+        Configuration::set_index_canister(data.index_canister);
         Configuration::set_cketh_ledger_canister(data.cketh_ledger_canister);
         Configuration::set_cketh_minter_canister(data.cketh_minter_canister);
         // Set eth networrk
@@ -352,6 +355,7 @@ impl EkokeCanister {
     }
 }
 
+#[async_trait]
 impl Icrc1 for EkokeCanister {
     fn icrc1_name() -> &'static str {
         ICRC1_NAME
@@ -400,20 +404,18 @@ impl Icrc1 for EkokeCanister {
         Balance::balance_of(account).unwrap_or_default()
     }
 
-    fn icrc1_transfer(
+    async fn icrc1_transfer(
         transfer_args: icrc1_transfer::TransferArg,
     ) -> Result<Nat, icrc1_transfer::TransferError> {
         // get fee and check if fee is at least ICRC1_FEE
         Inspect::inspect_transfer(&transfer_args)?;
-        let fee = transfer_args.fee.unwrap_or(ICRC1_FEE.into());
+        let fee = transfer_args.fee.clone().unwrap_or(ICRC1_FEE.into());
 
         // get from account
         let from_account = Account {
             owner: utils::caller(),
             subaccount: transfer_args.from_subaccount,
         };
-
-        let created_at = transfer_args.created_at_time.unwrap_or_else(utils::time);
 
         // check if it is a burn
         if transfer_args.to == Self::icrc1_minting_account() {
@@ -441,17 +443,27 @@ impl Icrc1 for EkokeCanister {
 
         // register transaction
         let tx = Transaction {
-            from: from_account,
-            to: transfer_args.to,
-            amount: transfer_args.amount,
-            fee,
-            memo: transfer_args.memo,
-            created_at,
+            kind: "transfer".to_string(),
+            mint: None,
+            burn: None,
+            transfer: Some(Transfer {
+                from: from_account,
+                to: transfer_args.to,
+                amount: transfer_args.amount,
+                fee: transfer_args.fee,
+                memo: transfer_args.memo,
+                created_at_time: transfer_args.created_at_time,
+                spender: None,
+            }),
+            approve: None,
+            timestamp: time(),
         };
-        Register::insert_tx(tx).map_err(|_| icrc1_transfer::TransferError::GenericError {
-            error_code: Nat::from(4_u64),
-            message: "failed to register transaction".to_string(),
-        })
+        IndexCanister::commit(tx)
+            .await
+            .map_err(|_| icrc1_transfer::TransferError::GenericError {
+                error_code: Nat::from(4_u64),
+                message: "failed to register transaction".to_string(),
+            })
     }
 
     fn icrc1_supported_standards() -> Vec<icrc1::TokenExtension> {
@@ -462,8 +474,9 @@ impl Icrc1 for EkokeCanister {
     }
 }
 
+#[async_trait]
 impl Icrc2 for EkokeCanister {
-    fn icrc2_approve(
+    async fn icrc2_approve(
         args: icrc2::approve::ApproveArgs,
     ) -> Result<Nat, icrc2::approve::ApproveError> {
         Inspect::inspect_icrc2_approve(caller(), &args)?;
@@ -483,7 +496,7 @@ impl Icrc2 for EkokeCanister {
             })?;
 
         // approve spend
-        match SpendAllowance::approve_spend(caller(), args) {
+        let amount = match SpendAllowance::approve_spend(caller(), args.clone()) {
             Ok(amount) => Ok(amount),
             Err(EkokeError::Allowance(AllowanceError::AllowanceChanged)) => {
                 Err(icrc2::approve::ApproveError::AllowanceChanged { current_allowance })
@@ -495,10 +508,35 @@ impl Icrc2 for EkokeCanister {
                 error_code: 0_u64.into(),
                 message: err.to_string(),
             }),
-        }
+        }?;
+
+        // register transaction
+        let tx = Transaction {
+            kind: "transfer".to_string(),
+            mint: None,
+            burn: None,
+            transfer: None,
+            approve: Some(Approve {
+                amount,
+                from: caller_account,
+                spender: Some(args.spender),
+                expected_allowance: args.expected_allowance,
+                expires_at: args.expires_at,
+                memo: args.memo,
+                created_at_time: args.created_at_time,
+                fee: args.fee,
+            }),
+            timestamp: time(),
+        };
+        IndexCanister::commit(tx)
+            .await
+            .map_err(|_| icrc2::approve::ApproveError::GenericError {
+                error_code: Nat::from(4_u64),
+                message: "failed to register transaction".to_string(),
+            })
     }
 
-    fn icrc2_transfer_from(
+    async fn icrc2_transfer_from(
         args: icrc2::transfer_from::TransferFromArgs,
     ) -> Result<Nat, icrc2::transfer_from::TransferFromError> {
         Inspect::inspect_icrc2_transfer_from(&args)?;
@@ -567,20 +605,31 @@ impl Icrc2 for EkokeCanister {
             }
         })?;
 
-        let tx_time = args.created_at_time.unwrap_or_else(utils::time);
-
         // register transaction
         let tx = Transaction {
-            from: args.from,
-            to: args.to,
-            amount: total_amount,
-            fee,
-            memo: args.memo,
-            created_at: tx_time,
+            kind: "transfer".to_string(),
+            mint: None,
+            burn: None,
+            transfer: Some(Transfer {
+                from: args.from,
+                to: args.to,
+                amount: total_amount,
+                fee: args.fee,
+                memo: args.memo,
+                spender: Some(Account {
+                    owner: caller(),
+                    subaccount: args.spender_subaccount,
+                }),
+                created_at_time: args.created_at_time,
+            }),
+            approve: None,
+            timestamp: time(),
         };
-        Register::insert_tx(tx).map_err(|_| icrc2::transfer_from::TransferFromError::GenericError {
-            error_code: Nat::from(4_u64),
-            message: "failed to register transaction".to_string(),
+        IndexCanister::commit(tx).await.map_err(|_| {
+            icrc2::transfer_from::TransferFromError::GenericError {
+                error_code: Nat::from(4_u64),
+                message: "failed to register transaction".to_string(),
+            }
         })
     }
 
@@ -624,6 +673,7 @@ mod test {
             Configuration::get_minting_account().owner,
             Principal::anonymous()
         );
+        assert_ne!(Configuration::get_index_canister(), Principal::anonymous());
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
         assert!(RolesManager::has_role(caller(), Role::DeferredCanister));
         // init balance
@@ -980,7 +1030,7 @@ mod test {
             created_at_time: Some(utils::time()),
             memo: None,
         };
-        assert!(EkokeCanister::icrc1_transfer(transfer_args).is_ok());
+        assert!(EkokeCanister::icrc1_transfer(transfer_args).await.is_ok());
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
             Nat::from(ekoke_to_picoekoke(90_000) - ICRC1_FEE)
@@ -1003,7 +1053,9 @@ mod test {
             memo: None,
         };
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::TooOld { .. }
         ));
     }
@@ -1020,7 +1072,9 @@ mod test {
             memo: None,
         };
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::TooOld { .. }
         ));
     }
@@ -1037,7 +1091,9 @@ mod test {
             memo: None,
         };
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::CreatedInFuture { .. }
         ));
     }
@@ -1055,7 +1111,9 @@ mod test {
         };
 
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::BadFee { .. }
         ));
     }
@@ -1071,7 +1129,7 @@ mod test {
             created_at_time: Some(utils::time()),
             memo: None,
         };
-        assert!(EkokeCanister::icrc1_transfer(transfer_args).is_ok());
+        assert!(EkokeCanister::icrc1_transfer(transfer_args).await.is_ok());
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
             Nat::from(ekoke_to_picoekoke(90_000) - ICRC1_FEE)
@@ -1089,7 +1147,7 @@ mod test {
             created_at_time: Some(utils::time()),
             memo: None,
         };
-        assert!(EkokeCanister::icrc1_transfer(transfer_args).is_ok());
+        assert!(EkokeCanister::icrc1_transfer(transfer_args).await.is_ok());
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
             Nat::from(ekoke_to_picoekoke(90_000) - (ICRC1_FEE * 2))
@@ -1109,7 +1167,9 @@ mod test {
         };
 
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::GenericError { .. }
         ));
 
@@ -1123,7 +1183,9 @@ mod test {
         };
 
         assert!(matches!(
-            EkokeCanister::icrc1_transfer(transfer_args).unwrap_err(),
+            EkokeCanister::icrc1_transfer(transfer_args)
+                .await
+                .unwrap_err(),
             icrc1_transfer::TransferError::GenericError { .. }
         ));
     }
@@ -1145,7 +1207,7 @@ mod test {
                     .into(),
             ),
         };
-        assert!(EkokeCanister::icrc1_transfer(transfer_args).is_ok());
+        assert!(EkokeCanister::icrc1_transfer(transfer_args).await.is_ok());
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
             Nat::from(ekoke_to_picoekoke(90_000) - ICRC1_FEE)
@@ -1167,7 +1229,7 @@ mod test {
             created_at_time: Some(utils::time()),
             memo: None,
         };
-        assert!(EkokeCanister::icrc1_transfer(transfer_args).is_ok());
+        assert!(EkokeCanister::icrc1_transfer(transfer_args).await.is_ok());
         assert_eq!(
             EkokeCanister::icrc1_balance_of(caller_account()),
             Nat::from(ekoke_to_picoekoke(90_000))
@@ -1207,7 +1269,7 @@ mod test {
             created_at_time: None,
         };
 
-        assert!(EkokeCanister::icrc2_approve(approval_args).is_ok());
+        assert!(EkokeCanister::icrc2_approve(approval_args).await.is_ok());
         // check allowance
         assert_eq!(
             EkokeCanister::icrc2_allowance(AllowanceArgs {
@@ -1240,7 +1302,7 @@ mod test {
             created_at_time: None,
         };
 
-        assert!(EkokeCanister::icrc2_approve(approval_args).is_err());
+        assert!(EkokeCanister::icrc2_approve(approval_args).await.is_err());
     }
 
     #[tokio::test]
@@ -1279,6 +1341,7 @@ mod test {
             memo: None,
             created_at_time: None,
         })
+        .await
         .is_ok());
         // verify balance
         assert_eq!(
@@ -1336,6 +1399,7 @@ mod test {
             total_supply: ekoke_to_picoekoke(8_888_888),
             deferred_canister: caller(),
             marketplace_canister: caller(),
+            index_canister: caller(),
             swap_account: bob_account(),
             minting_account: test_utils::minting_account(),
             initial_balances: vec![

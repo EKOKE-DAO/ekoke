@@ -18,6 +18,7 @@ default = []
 did = []
 
 [dependencies]
+async-trait = { workspace = true }
 bytes = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }

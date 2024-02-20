@@ -49,6 +49,7 @@ deploy_ekoke_ledger() {
   ERC20_BRIDGE_ADDRESS="${11}"
   ERC20_SWAP_FEE="${12}"
   ERC20_NETWORK="${13}"
+  EKOKE_INDEX_PRINCIPAL="${14}"
 
   echo "deploying ekoke canister $EKOKE_LEDGER_PRINCIPAL"
 
@@ -60,6 +61,7 @@ deploy_ekoke_ledger() {
     total_supply = $TOTAL_SUPPLY;
     initial_balances = $INITIAL_BALANCES;
     minting_account = $MINTING_ACCOUNT;
+    index_canister = principal \"$EKOKE_INDEX_PRINCIPAL\";
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";

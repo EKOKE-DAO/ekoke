@@ -209,8 +209,10 @@ pub fn icrc1_balance_of(account: Account) -> Nat {
 
 #[update]
 #[candid_method(update)]
-pub fn icrc1_transfer(transfer_args: TransferArg) -> Result<Nat, icrc1_transfer::TransferError> {
-    EkokeCanister::icrc1_transfer(transfer_args)
+pub async fn icrc1_transfer(
+    transfer_args: TransferArg,
+) -> Result<Nat, icrc1_transfer::TransferError> {
+    EkokeCanister::icrc1_transfer(transfer_args).await
 }
 
 #[query]
@@ -221,18 +223,18 @@ pub fn icrc1_supported_standards() -> Vec<icrc1::TokenExtension> {
 
 #[update]
 #[candid_method(update)]
-pub fn icrc2_approve(
+pub async fn icrc2_approve(
     args: icrc2::approve::ApproveArgs,
 ) -> Result<Nat, icrc2::approve::ApproveError> {
-    EkokeCanister::icrc2_approve(args)
+    EkokeCanister::icrc2_approve(args).await
 }
 
 #[update]
 #[candid_method(update)]
-pub fn icrc2_transfer_from(
+pub async fn icrc2_transfer_from(
     args: icrc2::transfer_from::TransferFromArgs,
 ) -> Result<Nat, icrc2::transfer_from::TransferFromError> {
-    EkokeCanister::icrc2_transfer_from(args)
+    EkokeCanister::icrc2_transfer_from(args).await
 }
 
 #[query]

@@ -127,6 +127,7 @@ impl TestEnv {
             ckbtc_id,
             cketh_ledger_id,
             cketh_minter_id,
+            ekoke_index_id,
         );
         Self::install_marketplace(
             &pic,
@@ -272,6 +273,7 @@ impl TestEnv {
         ckbtc_canister: Principal,
         cketh_ledger_canister: Principal,
         cketh_minter_canister: Principal,
+        ekoke_index_id: Principal,
     ) {
         pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeLedger);
@@ -285,6 +287,7 @@ impl TestEnv {
                 (actor::bob_account(), ekoke_to_picoekoke(50_000)),
             ],
             deferred_canister: deferred_id,
+            index_canister: ekoke_index_id,
             marketplace_canister: marketplace_id,
             swap_account: actor::swap_account(),
             xrc_canister,

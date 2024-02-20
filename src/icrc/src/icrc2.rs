@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use candid::Nat;
 use icrc_ledger_types::icrc2::allowance::{Allowance, AllowanceArgs};
 use icrc_ledger_types::icrc2::approve::{ApproveArgs, ApproveError};
@@ -6,6 +7,7 @@ pub use icrc_ledger_types::icrc2::*;
 
 /// ICRC-1 methods
 /// See: <https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-2/README.md>
+#[async_trait]
 pub trait Icrc2 {
     /// ## Description
     ///
@@ -34,7 +36,7 @@ pub trait Icrc2 {
     /// ## Postconditions
     ///
     /// - The spender's allowance for the { owner = caller; subaccount = from_subaccount } is equal to the given amount.
-    fn icrc2_approve(args: ApproveArgs) -> Result<Nat, ApproveError>;
+    async fn icrc2_approve(args: ApproveArgs) -> Result<Nat, ApproveError>;
 
     /// ## Description
     ///
@@ -57,7 +59,7 @@ pub trait Icrc2 {
     ///     allowance decreases by the transfer amount and the fees.
     /// - The ledger debited the specified amount of tokens and fees from the from account.
     /// - The ledger credited the specified amount to the to account.
-    fn icrc2_transfer_from(args: TransferFromArgs) -> Result<Nat, TransferFromError>;
+    async fn icrc2_transfer_from(args: TransferFromArgs) -> Result<Nat, TransferFromError>;
 
     /// Returns the token allowance that the spender account can transfer from the specified account,
     /// and the expiration time for that allowance, if any.

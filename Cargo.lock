@@ -673,6 +673,7 @@ dependencies = [
 name = "ekoke_ledger"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bytes",
  "candid",
  "did",

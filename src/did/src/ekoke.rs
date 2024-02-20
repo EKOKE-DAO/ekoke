@@ -4,7 +4,6 @@ mod error;
 mod eth_network;
 mod liquidity_pool;
 mod role;
-mod transaction;
 
 use candid::{CandidType, Deserialize, Nat, Principal};
 use icrc::icrc1::account::Account;
@@ -16,7 +15,6 @@ pub use self::error::{
 pub use self::eth_network::EthNetwork;
 pub use self::liquidity_pool::{LiquidityPoolAccounts, LiquidityPoolBalance};
 pub use self::role::{Role, Roles};
-pub use self::transaction::Transaction;
 use crate::H160;
 
 pub type EkokeResult<T> = Result<T, EkokeError>;
@@ -48,6 +46,8 @@ pub struct EkokeInitData {
     pub deferred_canister: Principal,
     /// ICP ledger canister
     pub icp_ledger_canister: Principal,
+    /// Index canister
+    pub index_canister: Principal,
     /// Marketplace canister
     pub marketplace_canister: Principal,
     /// Swap account

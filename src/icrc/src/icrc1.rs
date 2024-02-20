@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use candid::{CandidType, Nat};
 use icrc_ledger_types::icrc1::transfer::TransferError;
 pub use icrc_ledger_types::icrc1::*;
@@ -8,6 +9,7 @@ use super::icrc::generic_metadata_value::MetadataValue;
 
 /// ICRC-1 methods
 /// See: <https://github.com/dfinity/ICRC-1/blob/main/standards/ICRC-1/README.md>
+#[async_trait]
 pub trait Icrc1 {
     /// Returns the name of the token (e.g., MyToken).
     fn icrc1_name() -> &'static str;
@@ -59,7 +61,7 @@ pub trait Icrc1 {
     /// ## Transaction ID
     ///
     /// The result is either the transaction index of the transfer or an error.
-    fn icrc1_transfer(transfer_args: TransferArg) -> Result<Nat, TransferError>;
+    async fn icrc1_transfer(transfer_args: TransferArg) -> Result<Nat, TransferError>;
 
     /// Returns the list of standards this ledger implements.
     fn icrc1_supported_standards() -> Vec<TokenExtension>;

@@ -14,8 +14,8 @@ use icrc::icrc1::account::Account;
 use crate::app::memory::{
     CKBTC_CANISTER_MEMORY_ID, CKETH_LEDGER_CANISTER_MEMORY_ID, CKETH_MINTER_CANISTER_MEMORY_ID,
     ERC20_BRIDGE_ADDRESS_MEMORY_ID, ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID, ETH_NETWORK_MEMORY_ID,
-    ICP_LEDGER_CANISTER_MEMORY_ID, MEMORY_MANAGER, MINTING_ACCOUNT_MEMORY_ID,
-    SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
+    ICP_LEDGER_CANISTER_MEMORY_ID, INDEX_CANISTER_MEMORY_ID, MEMORY_MANAGER,
+    MINTING_ACCOUNT_MEMORY_ID, SWAP_ACCOUNT_MEMORY_ID, XRC_CANISTER_MEMORY_ID,
 };
 
 thread_local! {
@@ -52,6 +52,12 @@ thread_local! {
     /// ICP ledger canister
     static ICP_LEDGER_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(ICP_LEDGER_CANISTER_MEMORY_ID)),
+        Principal::anonymous().into()).unwrap()
+    );
+
+    /// ICP ledger canister
+    static INDEX_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(INDEX_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
     );
 
@@ -146,17 +152,30 @@ impl Configuration {
         CKBTC_CANISTER.with(|ckbtc| ckbtc.borrow().get().0)
     }
 
-    /// Set icp ledger canister address
+    /// Set icp ledger canister principal
     pub fn set_icp_ledger_canister(canister_id: Principal) {
         ICP_LEDGER_CANISTER.with_borrow_mut(|cell| {
             cell.set(canister_id.into()).unwrap();
         });
     }
 
-    /// Get icp ledger canister address
+    /// Get icp ledger canister principal
     #[allow(dead_code)]
     pub fn get_icp_ledger_canister() -> Principal {
         ICP_LEDGER_CANISTER.with(|icp| icp.borrow().get().0)
+    }
+
+    /// Set index canister principal
+    pub fn set_index_canister(canister_id: Principal) {
+        INDEX_CANISTER.with_borrow_mut(|cell| {
+            cell.set(canister_id.into()).unwrap();
+        });
+    }
+
+    /// Get index canister principal
+    #[allow(dead_code)]
+    pub fn get_index_canister() -> Principal {
+        INDEX_CANISTER.with(|icp| icp.borrow().get().0)
     }
 
     /// Set cketh ledger canister address
@@ -263,6 +282,15 @@ mod test {
                 .unwrap();
         Configuration::set_icp_ledger_canister(principal);
         assert_eq!(Configuration::get_icp_ledger_canister(), principal);
+    }
+
+    #[test]
+    fn test_should_set_index_canister() {
+        let principal =
+            Principal::from_str("bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe")
+                .unwrap();
+        Configuration::set_index_canister(principal);
+        assert_eq!(Configuration::get_index_canister(), principal);
     }
 
     #[test]
