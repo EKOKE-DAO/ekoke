@@ -31,7 +31,7 @@ jobs:
       - name: Install dfx
         run: |
           DFXVM_INIT_YES=1 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-          cp $HOME/.local/share/dfx/bin/* /usr/bin
+          sudo cp $HOME/.local/share/dfx/bin/* /usr/bin
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
