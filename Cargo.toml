@@ -4,6 +4,7 @@ members = [
   "src/did",
   "src/dip721",
   "src/deferred",
+  "src/ekoke_archive",
   "src/ekoke_index",
   "src/ekoke_ledger",
   "src/icrc",

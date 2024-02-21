@@ -4,6 +4,7 @@ cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
+EKOKE_ARCHIVE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-archive.local')"
 EKOKE_INDEX_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-index.local')"
 EKOKE_LEDGER_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-ledger.local')"
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
@@ -26,6 +27,7 @@ dfx start --background
 cd ../
 
 deploy_deferred "reinstall" "local" "$DEFERRED_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
+deploy_ekoke_archive "reinstall" "local" "$EKOKE_ARCHIVE_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL"
 deploy_ekoke_index "reinstall" "local" "$EKOKE_INDEX_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL"
 deploy_ekoke_ledger "reinstall" "local" "$EKOKE_LEDGER_PRINCIPAL" "$ADMIN_PRINCIPAL" "$INITIAL_SUPPLY" "$EKOKE_INITIAL_BALANCES" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$SWAP_ACCOUNT" "$EKOKE_MINTING_ACCOUNT" "$ERC20_BRIDGE_ADDRESS" "$ERC20_SWAP_FEE" "$ERC20_NETWORK" "$EKOKE_INDEX_PRINCIPAL"
 deploy_marketplace "reinstall" "local" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ADMIN_PRINCIPAL"

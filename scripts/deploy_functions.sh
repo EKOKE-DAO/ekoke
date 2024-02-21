@@ -22,17 +22,34 @@ deploy_deferred() {\
 
 }
 
+deploy_ekoke_archive() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_ARCHIVE_PRINCIPAL="$3"
+  EKOKE_LEDGER_PRINCIPAL="$4"
+
+  echo "deploying ekoke-archive canister $EKOKE_ARCHIVE_PRINCIPAL"
+
+  ekoke_archive_init_args="(record {
+    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_archive_init_args" ekoke-archive
+}
+
 deploy_ekoke_index() {
   INSTALL_MODE="$1"
   NETWORK="$2"
   EKOKE_INDEX_PRINCIPAL="$3"
   EKOKE_LEDGER_PRINCIPAL="$4"
 
-  ekoke_ledger_init_args="(record {
+  echo "deploying ekoke-index canister $EKOKE_INDEX_PRINCIPAL"
+
+  ekoke_index_init_args="(record {
     ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
   })"
 
-  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_ledger_init_args" ekoke-index
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_index_init_args" ekoke-index
 }
 
 deploy_ekoke_ledger() {
@@ -51,7 +68,7 @@ deploy_ekoke_ledger() {
   ERC20_NETWORK="${13}"
   EKOKE_INDEX_PRINCIPAL="${14}"
 
-  echo "deploying ekoke canister $EKOKE_LEDGER_PRINCIPAL"
+  echo "deploying ekoke-ledger canister $EKOKE_LEDGER_PRINCIPAL"
 
   ekoke_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";

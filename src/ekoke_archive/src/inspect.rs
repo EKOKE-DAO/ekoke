@@ -19,7 +19,7 @@ fn inspect_message_impl() {
     let method = api::call::method_name();
 
     let check_result = match method.as_str() {
-        "commit" => Inspect::inspect_is_ledger_canister(caller()),
+        "commit" | "append_blocks" => Inspect::inspect_is_ledger_canister(caller()),
         _ => true,
     };
 

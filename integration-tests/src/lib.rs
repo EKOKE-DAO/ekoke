@@ -13,6 +13,7 @@ use std::vec;
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
 use did::ekoke::{EkokeInitData, EthNetwork, PicoEkoke};
+use did::ekoke_archive::EkokeArchiveInitData;
 use did::ekoke_index::EkokeIndexInitData;
 use did::marketplace::MarketplaceInitData;
 use did::H160;
@@ -33,6 +34,7 @@ pub struct TestEnv {
     pub cketh_minter_id: Principal,
     pub ckbtc_id: Principal,
     pub deferred_id: Principal,
+    pub ekoke_archive_id: Principal,
     pub ekoke_index_id: Principal,
     pub ekoke_ledger_id: Principal,
     pub icp_ledger_id: Principal,
@@ -105,6 +107,7 @@ impl TestEnv {
         let cketh_minter_id = pic.create_canister();
         let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
+        let ekoke_archive_id = pic.create_canister();
         let ekoke_index_id = pic.create_canister();
         let ekoke_ledger_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
@@ -116,6 +119,7 @@ impl TestEnv {
         // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_ledger_id, marketplace_id);
         Self::install_xrc(&pic, xrc_id);
+        Self::install_ekoke_archive(&pic, ekoke_archive_id, ekoke_ledger_id);
         Self::install_ekoke_index(&pic, ekoke_index_id, ekoke_ledger_id);
         Self::install_ekoke_ledger(
             &pic,
@@ -145,6 +149,7 @@ impl TestEnv {
             ckbtc_id,
             deferred_id,
             icp_ledger_id,
+            ekoke_archive_id,
             ekoke_index_id,
             ekoke_ledger_id,
             marketplace_id,
@@ -249,6 +254,21 @@ impl TestEnv {
         let init_arg = Encode!(&init_arg).unwrap();
 
         pic.install_canister(deferred_id, wasm_bytes, init_arg, None);
+    }
+
+    fn install_ekoke_archive(
+        pic: &PocketIc,
+        ekoke_archive_id: Principal,
+        ekoke_ledger_id: Principal,
+    ) {
+        pic.add_cycles(ekoke_archive_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::EkokeArchive);
+
+        let init_arg = EkokeArchiveInitData {
+            ledger_id: ekoke_ledger_id,
+        };
+        let init_arg = Encode!(&init_arg).unwrap();
+        pic.install_canister(ekoke_archive_id, wasm_bytes, init_arg, None);
     }
 
     fn install_ekoke_index(pic: &PocketIc, ekoke_index_id: Principal, ekoke_ledger_id: Principal) {

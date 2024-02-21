@@ -651,6 +651,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
+name = "ekoke_archive"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "did",
+ "getrandom",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-stable-structures",
+ "icrc",
+ "num-bigint",
+ "num-traits",
+ "pretty_assertions",
+ "rand",
+ "serde",
+ "serde_bytes",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "ekoke_index"
 version = "0.1.0"
 dependencies = [
