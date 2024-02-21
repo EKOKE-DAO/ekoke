@@ -29,7 +29,9 @@ jobs:
           chmod +x pocket-ic && \
           mv pocket-ic ./integration-tests/pocket-ic
       - name: Install dfx
-        run: echo y | sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+        run: |
+          DFXVM_INIT_YES=1 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+          sudo cp $HOME/.local/share/dfx/bin/* /usr/bin
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
