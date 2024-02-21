@@ -9,6 +9,8 @@ pub type TxId = Nat;
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct EkokeIndexInitData {
+    /// ID of the archive canister
+    pub archive_id: Principal,
     /// ID of ekoke-ledger canister
     pub ledger_id: Principal,
 }

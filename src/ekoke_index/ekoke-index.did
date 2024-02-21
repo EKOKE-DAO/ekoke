@@ -16,7 +16,10 @@ type Burn = record {
   amount : nat;
   spender : opt Account;
 };
-type EkokeIndexInitData = record { ledger_id : principal };
+type EkokeIndexInitData = record {
+  ledger_id : principal;
+  archive_id : principal;
+};
 type GetAccountTransactionArgs = record {
   max_results : nat;
   start : opt nat;
@@ -54,7 +57,7 @@ type Transfer = record {
   spender : opt Account;
 };
 service : (EkokeIndexInitData) -> {
-  commit : (Transaction) -> (nat);
+  commit : (nat64, Transaction) -> (nat);
   get_account_transactions : (GetAccountTransactionArgs) -> (Result);
   ledger_id : () -> (principal) query;
   list_subaccounts : (ListSubaccountsArgs) -> (vec vec nat8) query;

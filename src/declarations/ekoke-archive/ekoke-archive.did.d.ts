@@ -16,6 +16,13 @@ export interface Approve {
   'expires_at' : [] | [bigint],
   'spender' : [] | [Account],
 }
+export type Box = { 'Int' : bigint } |
+  { 'Map' : Array<[string, Box]> } |
+  { 'Nat' : bigint } |
+  { 'Nat64' : bigint } |
+  { 'Blob' : Uint8Array | number[] } |
+  { 'Text' : string } |
+  { 'Array' : Vec };
 export interface Burn {
   'from' : Account,
   'memo' : [] | [Uint8Array | number[]],
@@ -23,32 +30,19 @@ export interface Burn {
   'amount' : bigint,
   'spender' : [] | [Account],
 }
-export interface EkokeIndexInitData {
+export interface EkokeArchiveInitData {
   'ledger_id' : Principal,
-  'archive_id' : Principal,
+  'index_id' : Principal,
 }
-export interface GetAccountTransactionArgs {
-  'max_results' : bigint,
-  'start' : [] | [bigint],
-  'account' : Account,
-}
-export interface GetTransactions {
-  'transactions' : Array<TransactionWithId>,
-  'oldest_tx_id' : [] | [bigint],
-}
-export interface GetTransactionsErr { 'message' : string }
-export interface ListSubaccountsArgs {
-  'owner' : Principal,
-  'start' : [] | [Uint8Array | number[]],
-}
+export interface GetBlocksArg { 'start' : bigint, 'length' : bigint }
+export interface GetBlocksRet { 'blocks' : Array<Value> }
+export interface GetTransactionsRet { 'transactions' : Array<Transaction> }
 export interface Mint {
   'to' : Account,
   'memo' : [] | [Uint8Array | number[]],
   'created_at_time' : [] | [bigint],
   'amount' : bigint,
 }
-export type Result = { 'Ok' : GetTransactions } |
-  { 'Err' : GetTransactionsErr };
 export interface Transaction {
   'burn' : [] | [Burn],
   'kind' : string,
@@ -56,10 +50,6 @@ export interface Transaction {
   'approve' : [] | [Approve],
   'timestamp' : bigint,
   'transfer' : [] | [Transfer],
-}
-export interface TransactionWithId {
-  'id' : bigint,
-  'transaction' : Transaction,
 }
 export interface Transfer {
   'to' : Account,
@@ -70,14 +60,29 @@ export interface Transfer {
   'amount' : bigint,
   'spender' : [] | [Account],
 }
+export type Value = { 'Int' : bigint } |
+  { 'Map' : Array<[string, Box]> } |
+  { 'Nat' : bigint } |
+  { 'Nat64' : bigint } |
+  { 'Blob' : Uint8Array | number[] } |
+  { 'Text' : string } |
+  { 'Array' : Vec };
+export type Vec = Array<
+  { 'Int' : bigint } |
+    { 'Map' : Array<[string, Box]> } |
+    { 'Nat' : bigint } |
+    { 'Nat64' : bigint } |
+    { 'Blob' : Uint8Array | number[] } |
+    { 'Text' : string } |
+    { 'Array' : Vec }
+>;
 export interface _SERVICE {
-  'commit' : ActorMethod<[bigint, Transaction], bigint>,
-  'get_account_transactions' : ActorMethod<[GetAccountTransactionArgs], Result>,
-  'ledger_id' : ActorMethod<[], Principal>,
-  'list_subaccounts' : ActorMethod<
-    [ListSubaccountsArgs],
-    Array<Uint8Array | number[]>
-  >,
+  'append_blocks' : ActorMethod<[Array<Uint8Array | number[]>], undefined>,
+  'commit' : ActorMethod<[Transaction], bigint>,
+  'get_blocks' : ActorMethod<[GetBlocksArg], GetBlocksRet>,
+  'get_transaction' : ActorMethod<[bigint], [] | [Transaction]>,
+  'get_transactions' : ActorMethod<[GetBlocksArg], GetTransactionsRet>,
+  'remaining_capacity' : ActorMethod<[], bigint>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

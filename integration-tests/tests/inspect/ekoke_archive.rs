@@ -9,7 +9,7 @@ fn test_should_inspect_is_ekoke_ledger() {
     let env = TestEnv::init();
 
     assert!(env
-        .update::<()>(
+        .update::<u64>(
             env.ekoke_archive_id,
             env.ekoke_ledger_id,
             "commit",
@@ -24,7 +24,7 @@ fn test_should_fail_inspect_is_ekoke_ledger() {
     let env = TestEnv::init();
     // not an admin
     assert!(env
-        .update::<()>(
+        .update::<u64>(
             env.ekoke_archive_id,
             bob(),
             "commit",

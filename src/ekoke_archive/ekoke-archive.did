@@ -25,7 +25,10 @@ type Burn = record {
   amount : nat;
   spender : opt Account;
 };
-type EkokeArchiveInitData = record { ledger_id : principal };
+type EkokeArchiveInitData = record {
+  ledger_id : principal;
+  index_id : principal;
+};
 type GetBlocksArg = record { start : nat; length : nat };
 type GetBlocksRet = record { blocks : vec Value };
 type GetTransactionsRet = record { transactions : vec Transaction };
@@ -72,7 +75,7 @@ type Vec = vec variant {
 };
 service : (EkokeArchiveInitData) -> {
   append_blocks : (vec vec nat8) -> ();
-  commit : (Transaction) -> ();
+  commit : (Transaction) -> (nat64);
   get_blocks : (GetBlocksArg) -> (GetBlocksRet) query;
   get_transaction : (nat64) -> (opt Transaction) query;
   get_transactions : (GetBlocksArg) -> (GetTransactionsRet) query;

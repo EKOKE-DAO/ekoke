@@ -2,10 +2,10 @@
 //!
 //! API implementation for deferred canister
 
+mod archive_canister;
 mod balance;
 mod configuration;
 mod erc20_bridge;
-mod index_canister;
 mod inspect;
 mod liquidity_pool;
 mod memory;
@@ -30,10 +30,10 @@ use icrc::icrc1::{self, transfer as icrc1_transfer, Icrc1};
 use icrc::icrc2::{self, Icrc2};
 use icrc::IcrcLedgerClient;
 
+use self::archive_canister::ArchiveCanister;
 use self::balance::Balance;
 use self::configuration::Configuration;
 use self::erc20_bridge::Erc20Bridge;
-use self::index_canister::IndexCanister;
 pub use self::inspect::Inspect;
 use self::liquidity_pool::LiquidityPool;
 use self::pool::Pool;
@@ -56,7 +56,7 @@ impl EkokeCanister {
         Configuration::set_xrc_canister(data.xrc_canister);
         Configuration::set_ckbtc_canister(data.ckbtc_canister);
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
-        Configuration::set_index_canister(data.index_canister);
+        Configuration::set_archive_canister(data.archive_canister);
         Configuration::set_cketh_ledger_canister(data.cketh_ledger_canister);
         Configuration::set_cketh_minter_canister(data.cketh_minter_canister);
         // Set eth networrk
@@ -458,12 +458,13 @@ impl Icrc1 for EkokeCanister {
             approve: None,
             timestamp: time(),
         };
-        IndexCanister::commit(tx)
+        ArchiveCanister::commit(tx)
             .await
             .map_err(|_| icrc1_transfer::TransferError::GenericError {
                 error_code: Nat::from(4_u64),
                 message: "failed to register transaction".to_string(),
             })
+            .map(Nat::from)
     }
 
     fn icrc1_supported_standards() -> Vec<icrc1::TokenExtension> {
@@ -528,12 +529,13 @@ impl Icrc2 for EkokeCanister {
             }),
             timestamp: time(),
         };
-        IndexCanister::commit(tx)
+        ArchiveCanister::commit(tx)
             .await
             .map_err(|_| icrc2::approve::ApproveError::GenericError {
                 error_code: Nat::from(4_u64),
                 message: "failed to register transaction".to_string(),
             })
+            .map(Nat::from)
     }
 
     async fn icrc2_transfer_from(
@@ -625,12 +627,13 @@ impl Icrc2 for EkokeCanister {
             approve: None,
             timestamp: time(),
         };
-        IndexCanister::commit(tx).await.map_err(|_| {
-            icrc2::transfer_from::TransferFromError::GenericError {
+        ArchiveCanister::commit(tx)
+            .await
+            .map_err(|_| icrc2::transfer_from::TransferFromError::GenericError {
                 error_code: Nat::from(4_u64),
                 message: "failed to register transaction".to_string(),
-            }
-        })
+            })
+            .map(Nat::from)
     }
 
     fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowance::Allowance {
@@ -673,7 +676,6 @@ mod test {
             Configuration::get_minting_account().owner,
             Principal::anonymous()
         );
-        assert_ne!(Configuration::get_index_canister(), Principal::anonymous());
         assert_eq!(RolesManager::get_admins(), vec![caller()]);
         assert!(RolesManager::has_role(caller(), Role::DeferredCanister));
         // init balance
@@ -708,6 +710,7 @@ mod test {
         assert_eq!(Configuration::get_icp_ledger_canister(), caller());
         assert_eq!(Configuration::get_cketh_ledger_canister(), caller());
         assert_eq!(Configuration::get_cketh_minter_canister(), caller());
+        assert_eq!(Configuration::get_archive_canister(), caller());
         assert_eq!(
             Configuration::get_erc20_bridge_address(),
             H160::from_hex_str(ERC20_BRIDGE_ADDRESS).unwrap()
@@ -1399,7 +1402,7 @@ mod test {
             total_supply: ekoke_to_picoekoke(8_888_888),
             deferred_canister: caller(),
             marketplace_canister: caller(),
-            index_canister: caller(),
+            archive_canister: caller(),
             swap_account: bob_account(),
             minting_account: test_utils::minting_account(),
             initial_balances: vec![

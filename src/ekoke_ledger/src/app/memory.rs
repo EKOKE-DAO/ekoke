@@ -16,15 +16,7 @@ pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
 pub const CKETH_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
 pub const CKETH_MINTER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
 pub const ERC20_BRIDGE_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(28);
-pub const INDEX_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(29);
-
-// Rewards
-pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(30);
-pub const NEXT_HALVING_MEMORY_ID: MemoryId = MemoryId::new(31);
-pub const AVIDITY_MEMORY_ID: MemoryId = MemoryId::new(32);
-pub const CPM_MEMORY_ID: MemoryId = MemoryId::new(33);
-pub const LAST_CPM_MEMORY_ID: MemoryId = MemoryId::new(34);
-pub const LAST_MONTH_MEMORY_ID: MemoryId = MemoryId::new(35);
+pub const ARCHIVE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(29);
 
 // Liquidity pool
 pub const LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(40);
@@ -38,6 +30,14 @@ pub const ERC20_LAST_GAS_PRICE_UPDATE_MEMORY_ID: MemoryId = MemoryId::new(53);
 pub const ERC20_LOGS_START_BLOCK_MEMORY_ID: MemoryId = MemoryId::new(54);
 pub const ETH_PUBKEY_MEMORY_ID: MemoryId = MemoryId::new(55);
 pub const ETH_NETWORK_MEMORY_ID: MemoryId = MemoryId::new(56);
+
+// Rewards
+pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(60);
+pub const NEXT_HALVING_MEMORY_ID: MemoryId = MemoryId::new(61);
+pub const AVIDITY_MEMORY_ID: MemoryId = MemoryId::new(62);
+pub const CPM_MEMORY_ID: MemoryId = MemoryId::new(63);
+pub const LAST_CPM_MEMORY_ID: MemoryId = MemoryId::new(64);
+pub const LAST_MONTH_MEMORY_ID: MemoryId = MemoryId::new(65);
 
 thread_local! {
     /// Memory manager

@@ -17,12 +17,14 @@ pub struct Archive;
 
 impl Archive {
     /// Insert a transaction in the index.
-    pub fn commit(tx: Transaction) {
+    pub fn commit(tx: Transaction) -> u64 {
         TRANSACTIONS.with_borrow_mut(|transactions| {
             let id = transactions.len();
 
             // insert transaction
             transactions.insert(id, tx);
+
+            id
         })
     }
 
@@ -93,7 +95,8 @@ mod test {
             timestamp: 0,
         };
 
-        Archive::commit(tx.clone());
+        let id = Archive::commit(tx.clone());
+        assert_eq!(id, 0);
 
         let transaction = Archive::get_transaction(0);
         assert_eq!(transaction, Some(tx));

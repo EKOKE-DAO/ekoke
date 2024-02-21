@@ -1,4 +1,4 @@
-use candid::Encode;
+use candid::{Encode, Nat};
 use did::ekoke_index::{Transaction, Transfer};
 use integration_tests::actor::{alice_account, bob, bob_account};
 use integration_tests::TestEnv;
@@ -9,11 +9,11 @@ fn test_should_inspect_is_ekoke_ledger() {
     let env = TestEnv::init();
 
     assert!(env
-        .update::<()>(
+        .update::<Nat>(
             env.ekoke_index_id,
-            env.ekoke_ledger_id,
+            env.ekoke_archive_id,
             "commit",
-            Encode!(&transaction()).unwrap(),
+            Encode!(&0u64, &transaction()).unwrap(),
         )
         .is_ok());
 }
@@ -24,11 +24,11 @@ fn test_should_fail_inspect_is_ekoke_ledger() {
     let env = TestEnv::init();
     // not an admin
     assert!(env
-        .update::<()>(
+        .update::<(Nat,)>(
             env.ekoke_index_id,
             bob(),
             "commit",
-            Encode!(&transaction()).unwrap(),
+            Encode!(&0u64, &transaction()).unwrap(),
         )
         .is_err());
 }

@@ -1,3 +1,4 @@
+mod archive_client;
 mod configuration;
 mod index;
 mod inspect;
@@ -21,10 +22,9 @@ pub struct EkokeIndexCanister;
 
 impl EkokeIndexCanister {
     pub fn init(args: EkokeIndexInitData) {
+        Configuration::set_archive_canister(args.archive_id);
         Configuration::set_ledger_canister(args.ledger_id);
     }
-
-    pub fn post_upgrade() {}
 
     /// Get ledger canister id
     pub fn ledger_id() -> Principal {
@@ -38,21 +38,19 @@ impl EkokeIndexCanister {
     }
 
     /// Get transactions for an account
-    pub fn get_account_transactions(args: GetAccountTransactionArgs) -> GetTransactionsResult {
-        Ok(Index::get_account_transactions(
-            args.account,
-            args.start,
-            args.max_results,
-        ))
+    pub async fn get_account_transactions(
+        args: GetAccountTransactionArgs,
+    ) -> GetTransactionsResult {
+        Index::get_account_transactions(args.account, args.start, args.max_results).await
     }
 
     /// Commit a transaction into the Index
-    pub fn commit(tx: Transaction) -> TxId {
-        if !Inspect::inspect_is_ledger_canister(caller()) {
+    pub fn commit(id: u64, tx: Transaction) -> TxId {
+        if !Inspect::inspect_is_archive_canister(caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
-        Index::commit(tx)
+        Index::commit(id, tx)
     }
 }
 
@@ -68,6 +66,7 @@ mod test {
     #[test]
     fn test_should_init_canister() {
         init_canister();
+        assert_eq!(Configuration::get_archive_canister(), caller());
         assert_eq!(Configuration::get_ledger_canister(), caller());
     }
 
@@ -102,12 +101,13 @@ mod test {
             approve: None,
             timestamp: 0,
         };
-        assert_eq!(EkokeIndexCanister::commit(tx.clone()), 0u64);
-        assert_eq!(EkokeIndexCanister::commit(tx.clone()), 1u64);
+        assert_eq!(EkokeIndexCanister::commit(0, tx.clone()), 0u64);
+        assert_eq!(EkokeIndexCanister::commit(1, tx.clone()), 1u64);
     }
 
     fn init_canister() {
         let init_data = EkokeIndexInitData {
+            archive_id: caller(),
             ledger_id: caller(),
         };
         EkokeIndexCanister::init(init_data);

@@ -7,6 +7,7 @@ pub const BLOCKS_DATA_MEMORY_ID: MemoryId = MemoryId::new(12);
 
 // Configuration
 pub const LEDGER_CANISTER_ID_MEMORY_ID: MemoryId = MemoryId::new(20);
+pub const INDEX_CANISTER_ID_MEMORY_ID: MemoryId = MemoryId::new(21);
 
 thread_local! {
     /// Memory manager

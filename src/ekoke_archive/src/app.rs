@@ -1,6 +1,7 @@
 mod archive;
 mod blocks;
 mod configuration;
+mod index_client;
 mod inspect;
 mod memory;
 #[cfg(test)]
@@ -16,6 +17,7 @@ use serde_bytes::ByteBuf;
 use self::archive::Archive;
 use self::blocks::Blocks;
 use self::configuration::Configuration;
+use self::index_client::IndexCanister;
 pub use self::inspect::Inspect;
 use crate::utils::caller;
 
@@ -23,6 +25,7 @@ pub struct EkokeArchiveCanister;
 
 impl EkokeArchiveCanister {
     pub fn init(args: EkokeArchiveInitData) {
+        Configuration::set_index_canister(args.index_id);
         Configuration::set_ledger_canister(args.ledger_id);
     }
 
@@ -59,12 +62,16 @@ impl EkokeArchiveCanister {
     }
 
     /// Commit a transaction into the Index
-    pub fn commit(tx: Transaction) {
+    pub async fn commit(tx: Transaction) -> u64 {
         if !Inspect::inspect_is_ledger_canister(caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
-        Archive::commit(tx)
+        let id = Archive::commit(tx.clone());
+        // forward transaction to index
+        IndexCanister::commit(id, tx).await;
+
+        id
     }
 }
 
@@ -82,10 +89,11 @@ mod test {
     fn test_should_init_canister() {
         init_canister();
         assert_eq!(Configuration::get_ledger_canister(), caller());
+        assert_eq!(Configuration::get_index_canister(), caller());
     }
 
-    #[test]
-    fn test_should_commit_tx() {
+    #[tokio::test]
+    async fn test_should_commit_tx() {
         init_canister();
         let tx = Transaction {
             kind: "transfer".to_string(),
@@ -109,12 +117,13 @@ mod test {
             approve: None,
             timestamp: 0,
         };
-        EkokeArchiveCanister::commit(tx.clone());
-        EkokeArchiveCanister::commit(tx.clone());
+        assert_eq!(EkokeArchiveCanister::commit(tx.clone()).await, 0);
+        assert_eq!(EkokeArchiveCanister::commit(tx.clone()).await, 1);
     }
 
     fn init_canister() {
         let init_data = EkokeArchiveInitData {
+            index_id: caller(),
             ledger_id: caller(),
         };
         EkokeArchiveCanister::init(init_data);

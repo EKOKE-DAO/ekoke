@@ -1,5 +1,8 @@
 export const idlFactory = ({ IDL }) => {
-  const EkokeIndexInitData = IDL.Record({ 'ledger_id' : IDL.Principal });
+  const EkokeIndexInitData = IDL.Record({
+    'ledger_id' : IDL.Principal,
+    'archive_id' : IDL.Principal,
+  });
   const Account = IDL.Record({
     'owner' : IDL.Principal,
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -67,7 +70,7 @@ export const idlFactory = ({ IDL }) => {
     'start' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   return IDL.Service({
-    'commit' : IDL.Func([Transaction], [IDL.Nat], []),
+    'commit' : IDL.Func([IDL.Nat64, Transaction], [IDL.Nat], []),
     'get_account_transactions' : IDL.Func(
         [GetAccountTransactionArgs],
         [Result],
@@ -82,6 +85,9 @@ export const idlFactory = ({ IDL }) => {
   });
 };
 export const init = ({ IDL }) => {
-  const EkokeIndexInitData = IDL.Record({ 'ledger_id' : IDL.Principal });
+  const EkokeIndexInitData = IDL.Record({
+    'ledger_id' : IDL.Principal,
+    'archive_id' : IDL.Principal,
+  });
   return [EkokeIndexInitData];
 };

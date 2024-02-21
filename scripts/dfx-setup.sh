@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dfx stop
-dfx start --background
+dfx start --background --clean
 dfx canister create deferred
 dfx canister create ekoke-archive
 dfx canister create ekoke-index

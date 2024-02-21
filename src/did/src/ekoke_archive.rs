@@ -4,6 +4,8 @@ pub use crate::ekoke_index::Transaction;
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct EkokeArchiveInitData {
+    /// ID of the canister that we need to forward transactions to
+    pub index_id: Principal,
     /// ID of ekoke-ledger canister
     pub ledger_id: Principal,
 }

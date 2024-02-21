@@ -32,4 +32,4 @@ Get the transactions for a given account
 
 ### commit
 
-This endpoint is called by the ekoke-ledger to commit a transaction into the index.
+This endpoint is called by the ekoke-archive to commit a transaction into the index.

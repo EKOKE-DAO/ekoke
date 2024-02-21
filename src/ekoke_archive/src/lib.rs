@@ -56,8 +56,8 @@ pub fn get_transactions(args: GetTransactionsArg) -> GetTransactionsRet {
 
 #[update]
 #[candid_method(update)]
-pub fn commit(tx: Transaction) {
-    EkokeArchiveCanister::commit(tx)
+pub async fn commit(tx: Transaction) -> u64 {
+    EkokeArchiveCanister::commit(tx).await
 }
 
 #[allow(dead_code)]

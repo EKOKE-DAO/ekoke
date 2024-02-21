@@ -119,8 +119,8 @@ impl TestEnv {
         // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_ledger_id, marketplace_id);
         Self::install_xrc(&pic, xrc_id);
-        Self::install_ekoke_archive(&pic, ekoke_archive_id, ekoke_ledger_id);
-        Self::install_ekoke_index(&pic, ekoke_index_id, ekoke_ledger_id);
+        Self::install_ekoke_archive(&pic, ekoke_archive_id, ekoke_ledger_id, ekoke_index_id);
+        Self::install_ekoke_index(&pic, ekoke_index_id, ekoke_ledger_id, ekoke_archive_id);
         Self::install_ekoke_ledger(
             &pic,
             ekoke_ledger_id,
@@ -131,7 +131,7 @@ impl TestEnv {
             ckbtc_id,
             cketh_ledger_id,
             cketh_minter_id,
-            ekoke_index_id,
+            ekoke_archive_id,
         );
         Self::install_marketplace(
             &pic,
@@ -260,22 +260,30 @@ impl TestEnv {
         pic: &PocketIc,
         ekoke_archive_id: Principal,
         ekoke_ledger_id: Principal,
+        ekoke_index_id: Principal,
     ) {
         pic.add_cycles(ekoke_archive_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeArchive);
 
         let init_arg = EkokeArchiveInitData {
+            index_id: ekoke_index_id,
             ledger_id: ekoke_ledger_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();
         pic.install_canister(ekoke_archive_id, wasm_bytes, init_arg, None);
     }
 
-    fn install_ekoke_index(pic: &PocketIc, ekoke_index_id: Principal, ekoke_ledger_id: Principal) {
+    fn install_ekoke_index(
+        pic: &PocketIc,
+        ekoke_index_id: Principal,
+        ekoke_ledger_id: Principal,
+        ekoke_archive_id: Principal,
+    ) {
         pic.add_cycles(ekoke_index_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeIndex);
 
         let init_arg = EkokeIndexInitData {
+            archive_id: ekoke_archive_id,
             ledger_id: ekoke_ledger_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();
@@ -293,7 +301,7 @@ impl TestEnv {
         ckbtc_canister: Principal,
         cketh_ledger_canister: Principal,
         cketh_minter_canister: Principal,
-        ekoke_index_id: Principal,
+        ekoke_archive_id: Principal,
     ) {
         pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeLedger);
@@ -307,11 +315,11 @@ impl TestEnv {
                 (actor::bob_account(), ekoke_to_picoekoke(50_000)),
             ],
             deferred_canister: deferred_id,
-            index_canister: ekoke_index_id,
             marketplace_canister: marketplace_id,
             swap_account: actor::swap_account(),
             xrc_canister,
             icp_ledger_canister,
+            archive_canister: ekoke_archive_id,
             ckbtc_canister,
             cketh_ledger_canister,
             cketh_minter_canister,

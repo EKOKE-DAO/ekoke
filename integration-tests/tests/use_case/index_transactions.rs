@@ -1,7 +1,7 @@
 use candid::Nat;
 use did::ekoke_index::GetAccountTransactionArgs;
 use integration_tests::actor::{alice, alice_account, bob_account, charlie, charlie_account};
-use integration_tests::client::{EkokeIndexClient, IcrcLedgerClient};
+use integration_tests::client::{EkokeArchiveClient, EkokeIndexClient, IcrcLedgerClient};
 use integration_tests::TestEnv;
 use serial_test::serial;
 
@@ -13,6 +13,7 @@ fn test_should_register_transactions_into_ekoke_index() {
 
     let ledger_client = IcrcLedgerClient::new(env.ekoke_ledger_id, &env);
     let index_client = EkokeIndexClient::new(&env);
+    let archive_client = EkokeArchiveClient::new(&env);
     let amount = Nat::from(1_000u64);
     let allowance = amount.clone() + EKOKE_FEE;
     let total_spent_by_alice = allowance.clone() + EKOKE_FEE; // Fee is paid for approval as well
@@ -43,6 +44,9 @@ fn test_should_register_transactions_into_ekoke_index() {
         transactions.transactions[0].transaction.spender().unwrap(),
         charlie_account()
     );
+
+    let transaction = archive_client.get_transaction(0);
+    assert!(transaction.is_some());
 
     // spend approved funds
     assert!(ledger_client
@@ -77,6 +81,9 @@ fn test_should_register_transactions_into_ekoke_index() {
         bob_account()
     );
 
+    let transaction = archive_client.get_transaction(1);
+    assert!(transaction.is_some());
+
     // verify balance
     assert_eq!(
         ledger_client.icrc1_balance_of(alice_account()),
@@ -86,4 +93,7 @@ fn test_should_register_transactions_into_ekoke_index() {
         ledger_client.icrc1_balance_of(bob_account()),
         bob_balance + amount
     );
+
+    let transaction = archive_client.get_transaction(2);
+    assert!(transaction.is_none());
 }

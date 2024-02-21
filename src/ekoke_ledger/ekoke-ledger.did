@@ -61,9 +61,9 @@ type EkokeInitData = record {
   erc20_bridge_address : text;
   erc20_network : EthNetwork;
   initial_balances : vec record { Account; nat };
-  index_canister : principal;
   swap_account : Account;
   xrc_canister : principal;
+  archive_canister : principal;
   marketplace_canister : principal;
   admins : vec principal;
   erc20_gas_price : nat64;

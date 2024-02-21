@@ -11,7 +11,7 @@ use did::ekoke_index::{
     EkokeIndexInitData, GetAccountTransactionArgs, GetTransactionsResult, ListSubaccountsArgs,
     Transaction, TxId,
 };
-use ic_cdk_macros::{init, post_upgrade, query, update};
+use ic_cdk_macros::{init, query, update};
 use icrc::icrc1::account::Subaccount;
 
 use self::app::EkokeIndexCanister;
@@ -19,11 +19,6 @@ use self::app::EkokeIndexCanister;
 #[init]
 pub fn init(data: EkokeIndexInitData) {
     EkokeIndexCanister::init(data);
-}
-
-#[post_upgrade]
-pub fn post_upgrade() {
-    EkokeIndexCanister::post_upgrade();
 }
 
 #[query]
@@ -40,14 +35,14 @@ pub fn list_subaccounts(args: ListSubaccountsArgs) -> Vec<Subaccount> {
 
 #[update]
 #[candid_method(update)]
-pub fn get_account_transactions(args: GetAccountTransactionArgs) -> GetTransactionsResult {
-    EkokeIndexCanister::get_account_transactions(args)
+pub async fn get_account_transactions(args: GetAccountTransactionArgs) -> GetTransactionsResult {
+    EkokeIndexCanister::get_account_transactions(args).await
 }
 
 #[update]
 #[candid_method(update)]
-pub fn commit(tx: Transaction) -> TxId {
-    EkokeIndexCanister::commit(tx)
+pub fn commit(id: u64, tx: Transaction) -> TxId {
+    EkokeIndexCanister::commit(id, tx)
 }
 
 #[allow(dead_code)]

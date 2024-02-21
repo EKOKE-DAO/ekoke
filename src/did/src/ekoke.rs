@@ -42,12 +42,12 @@ pub struct EkokeInitData {
     pub total_supply: PicoEkoke,
     /// Initial balances (wallet subaccount -> picoekoke)
     pub initial_balances: Vec<(Account, PicoEkoke)>,
+    /// The canister ID of the EKOKE archive canister
+    pub archive_canister: Principal,
     /// Deferred canister
     pub deferred_canister: Principal,
     /// ICP ledger canister
     pub icp_ledger_canister: Principal,
-    /// Index canister
-    pub index_canister: Principal,
     /// Marketplace canister
     pub marketplace_canister: Principal,
     /// Swap account
