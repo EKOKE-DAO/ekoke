@@ -10,3 +10,4 @@
 ## EKOKE DAO
 
 - [DAO](./dao.md)
+- [SNS](https://github.com/dfinity/ic/tree/master/rs/sns)
