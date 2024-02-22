@@ -7,21 +7,22 @@ mod swap_pool;
 
 use std::cell::RefCell;
 
-use did::ekoke::{BalanceError, EkokeError, EkokeResult, PicoEkoke};
+use did::ekoke::{AllowanceError, BalanceError, EkokeError, EkokeResult, PicoEkoke};
 use did::H160;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
+use icrc::IcrcLedgerClient;
 
 use self::eth_rpc::EthRpcClient;
 use self::eth_wallet::EthWallet;
 use self::gas_station::GasStation;
 use self::swap_fee::SwapFee;
 use self::swap_pool::SwapPool;
-use super::balance::Balance;
 use super::configuration::Configuration;
 use crate::app::memory::{ERC20_LOGS_START_BLOCK_MEMORY_ID, MEMORY_MANAGER};
 use crate::constants::ERC20_SWAP_FEE_INTEREST;
+use crate::utils::id;
 
 thread_local! {
     /// ERC20 logs start block
@@ -53,10 +54,8 @@ impl Erc20Bridge {
         recipient: H160,
         amount: PicoEkoke,
     ) -> EkokeResult<String> {
-        // check caller balance
-        if Balance::balance_of(caller)? < amount {
-            return Err(EkokeError::Balance(BalanceError::InsufficientBalance));
-        }
+        // check allowance
+        Self::check_balance_and_allowance(caller, amount.clone()).await?;
 
         let rpc_client = EthRpcClient::new(Configuration::get_eth_network());
         // make transaction
@@ -141,5 +140,42 @@ impl Erc20Bridge {
     #[allow(dead_code)]
     pub async fn withdraw_cketh_to_eth() -> EkokeResult<()> {
         cketh_withdrawal::CkEthWithdrawal::withdraw_cketh().await
+    }
+
+    async fn check_balance_and_allowance(caller: Account, amount: PicoEkoke) -> EkokeResult<()> {
+        let ledger_client = IcrcLedgerClient::new(Configuration::get_ledger_canister());
+        let caller_balance = ledger_client
+            .icrc1_balance_of(caller)
+            .await
+            .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))?;
+        // check allowance
+        let fee = ledger_client
+            .icrc1_fee()
+            .await
+            .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))?;
+        // check caller balance
+        if caller_balance < amount {
+            return Err(EkokeError::Balance(BalanceError::InsufficientBalance));
+        }
+        let total_amount = amount + fee;
+        let allowance = ledger_client
+            .icrc2_allowance(Self::swap_account(), caller)
+            .await
+            .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))?
+            .allowance;
+
+        if allowance < total_amount {
+            return Err(EkokeError::Allowance(AllowanceError::InsufficientFunds));
+        }
+
+        Ok(())
+    }
+
+    #[inline]
+    fn swap_account() -> Account {
+        Account {
+            owner: id(),
+            subaccount: None,
+        }
     }
 }

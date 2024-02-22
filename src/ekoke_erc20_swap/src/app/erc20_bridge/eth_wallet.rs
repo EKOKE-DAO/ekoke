@@ -12,7 +12,7 @@ use sha3::Keccak256;
 
 use crate::app::configuration::Configuration;
 use crate::app::memory::{
-    ETH_PUBKEY_MEMORY_ID, FLY_CANISTER_ETH_ADDRESS_MEMORY_ID, MEMORY_MANAGER,
+    EKOKE_CANISTER_ETH_ADDRESS_MEMORY_ID, ETH_PUBKEY_MEMORY_ID, MEMORY_MANAGER,
 };
 
 thread_local! {
@@ -21,7 +21,7 @@ thread_local! {
     static WALLET_ADDRESS: RefCell<StableCell<H160, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(
             StableCell::new(
-                MEMORY_MANAGER.with(|mm| mm.get(FLY_CANISTER_ETH_ADDRESS_MEMORY_ID)),
+                MEMORY_MANAGER.with(|mm| mm.get(EKOKE_CANISTER_ETH_ADDRESS_MEMORY_ID)),
                 H160::zero(),
             ).unwrap()
         );

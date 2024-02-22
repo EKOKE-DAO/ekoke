@@ -10,6 +10,11 @@
       "package": "ekoke_archive",
       "type": "rust"
     },
+    "ekoke-erc20-swap": {
+      "candid": "src/ekoke_erc20_swap/ekoke-erc20-swap.did",
+      "package": "ekoke_erc20_swap",
+      "type": "rust"
+    },
     "ekoke-index": {
       "candid": "src/ekoke_index/ekoke-index.did",
       "package": "ekoke_index",

@@ -3,7 +3,6 @@
 //! The ekoke canister serves a ICRC-2 token called $EKOKE, which is the reward token for Deferred transactions.
 //! It is a deflationary token which ...
 
-mod abi;
 mod app;
 mod constants;
 mod http;
@@ -14,8 +13,7 @@ use candid::{candid_method, Nat, Principal};
 use did::ekoke::{
     EkokeInitData, EkokeResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoEkoke, Role,
 };
-use did::{H160, ID};
-use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
+use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
 use icrc::icrc1::account::Account;
@@ -71,22 +69,6 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
 
 #[update]
 #[candid_method(update)]
-pub async fn erc20_swap_fee() -> EkokeResult<u64> {
-    EkokeCanister::erc20_swap_fee().await
-}
-
-#[update]
-#[candid_method(update)]
-pub async fn erc20_swap(
-    recipient: H160,
-    amount: PicoEkoke,
-    from_subaccount: Option<[u8; 32]>,
-) -> EkokeResult<String> {
-    EkokeCanister::erc20_swap(recipient, amount, from_subaccount).await
-}
-
-#[update]
-#[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
     EkokeCanister::admin_set_role(principal, role)
 }
@@ -131,36 +113,6 @@ pub fn admin_set_ckbtc_canister(canister_id: Principal) {
 #[candid_method(update)]
 pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
     EkokeCanister::admin_set_icp_ledger_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
-    EkokeCanister::admin_set_cketh_ledger_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_cketh_minter_canister(canister_id: Principal) {
-    EkokeCanister::admin_set_cketh_minter_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_erc20_bridge_address(address: H160) {
-    EkokeCanister::admin_set_erc20_bridge_address(address)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_erc20_gas_price(gas_price: u64) {
-    EkokeCanister::admin_set_erc20_gas_price(gas_price)
-}
-
-#[query]
-#[candid_method(query)]
-pub async fn admin_eth_wallet_address() -> H160 {
-    EkokeCanister::admin_eth_wallet_address().await
 }
 
 // icrc-1
@@ -241,13 +193,6 @@ pub async fn icrc2_transfer_from(
 #[candid_method(query)]
 pub fn icrc2_allowance(args: icrc2::allowance::AllowanceArgs) -> icrc2::allowance::Allowance {
     EkokeCanister::icrc2_allowance(args)
-}
-
-// http transform
-#[query]
-#[candid_method(query)]
-fn http_transform_send_tx(raw: TransformArgs) -> HttpResponse {
-    raw.response
 }
 
 // HTTP endpoint

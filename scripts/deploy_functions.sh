@@ -39,6 +39,31 @@ deploy_ekoke_archive() {
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_archive_init_args" ekoke-archive
 }
 
+deploy_ekoke_erc20_swap() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_ERC20_SWAP_PRINCIPAL="$3"
+  ADMINS="$4"
+  EKOKE_LEDGER_PRINCIPAL="$5"
+  ERC20_BRIDGE_ADDRESS="$6"
+  ERC20_SWAP_FEE="$7"
+  ERC20_NETWORK="$8"
+
+  echo "deploying ekoke-erc20-swap canister $EKOKE_ERC20_SWAP_PRINCIPAL"
+
+  ekoke_erc20_swap_init_args="(record {
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+    cketh_minter_canister = principal \"sv3dd-oaaaa-aaaar-qacoa-cai\";
+    cketh_ledger_canister = principal \"ss2fx-dyaaa-aaaar-qacoq-cai\";
+    erc20_bridge_address = \"$ERC20_BRIDGE_ADDRESS\";
+    erc20_gas_price = $ERC20_SWAP_FEE;
+    erc20_network = variant { $ERC20_NETWORK };
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_erc20_swap_init_args" ekoke-erc20-swap
+}
+
 deploy_ekoke_index() {
   INSTALL_MODE="$1"
   NETWORK="$2"
@@ -67,10 +92,7 @@ deploy_ekoke_ledger() {
   MARKETPLACE_PRINCIPAL="$8"
   SWAP_ACCOUNT="$9"
   MINTING_ACCOUNT="${10}"
-  ERC20_BRIDGE_ADDRESS="${11}"
-  ERC20_SWAP_FEE="${12}"
-  ERC20_NETWORK="${13}"
-  EKOKE_ARCHIVE_PRINCIPAL="${14}"
+  EKOKE_ARCHIVE_PRINCIPAL="${11}"
 
   echo "deploying ekoke-ledger canister $EKOKE_LEDGER_PRINCIPAL"
 
@@ -86,11 +108,6 @@ deploy_ekoke_ledger() {
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
-    cketh_minter_canister = principal \"sv3dd-oaaaa-aaaar-qacoa-cai\";
-    cketh_ledger_canister = principal \"ss2fx-dyaaa-aaaar-qacoq-cai\";
-    erc20_bridge_address = \"$ERC20_BRIDGE_ADDRESS\";
-    erc20_gas_price = $ERC20_SWAP_FEE;
-    erc20_network = variant { $ERC20_NETWORK };
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke-ledger

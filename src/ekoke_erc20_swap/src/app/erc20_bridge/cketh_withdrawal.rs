@@ -7,16 +7,17 @@ use serde::Deserialize;
 
 use crate::app::configuration::Configuration;
 use crate::constants::ETH_MIN_WITHDRAWAL_AMOUNT;
+use crate::utils::id;
 
 pub struct CkEthWithdrawal;
 
 impl CkEthWithdrawal {
     /// Withdraws current ckETH balance converting it to ETH and sending them to the ETH canister wallet.
     pub async fn withdraw_cketh() -> EkokeResult<()> {
-        let cketh_client = IcrcLedgerClient::new(Configuration::get_cketh_ledger_canister());
-        let erc20_swap_account = Configuration::get_erc20_swap_pool_account();
+        let cketh_ledger_client = IcrcLedgerClient::new(Configuration::get_cketh_ledger_canister());
+        let erc20_swap_account = Self::get_erc20_swap_pool_account();
         // get current ckETH balance
-        let cketh_balance = cketh_client
+        let cketh_balance = cketh_ledger_client
             .icrc1_balance_of(erc20_swap_account)
             .await
             .map_err(|(code, msg)| EkokeError::CanisterCall(code, msg))?;
@@ -26,7 +27,7 @@ impl CkEthWithdrawal {
         }
         // give allowance to the minter ledger of ckEth
         let minter_ledger = Configuration::get_cketh_minter_canister();
-        cketh_client
+        cketh_ledger_client
             .icrc2_approve(
                 Account::from(minter_ledger),
                 cketh_balance.clone(),
@@ -61,6 +62,11 @@ impl CkEthWithdrawal {
                 .unwrap();
 
         result.0
+    }
+
+    #[inline]
+    fn get_erc20_swap_pool_account() -> Account {
+        Account::from(id())
     }
 }
 

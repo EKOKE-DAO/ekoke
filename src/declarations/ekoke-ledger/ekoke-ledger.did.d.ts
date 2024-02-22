@@ -61,24 +61,16 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
 export interface EkokeInitData {
   'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
-  'cketh_ledger_canister' : Principal,
   'minting_account' : Account,
   'ckbtc_canister' : Principal,
-  'erc20_bridge_address' : string,
-  'erc20_network' : EthNetwork,
   'initial_balances' : Array<[Account, bigint]>,
   'swap_account' : Account,
   'xrc_canister' : Principal,
   'archive_canister' : Principal,
   'marketplace_canister' : Principal,
   'admins' : Array<Principal>,
-  'erc20_gas_price' : bigint,
-  'cketh_minter_canister' : Principal,
   'total_supply' : bigint,
 }
-export type EthNetwork = { 'Ethereum' : null } |
-  { 'Goerli' : null } |
-  { 'Sepolia' : null };
 export interface HttpHeader { 'value' : string, 'name' : string }
 export interface HttpRequest {
   'url' : string,
@@ -115,19 +107,15 @@ export type RejectionCode = { 'NoError' : null } |
   { 'CanisterReject' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : EkokeError };
-export type Result_1 = { 'Ok' : string } |
+export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : EkokeError };
 export type Result_2 = { 'Ok' : bigint } |
-  { 'Err' : EkokeError };
-export type Result_3 = { 'Ok' : bigint } |
-  { 'Err' : EkokeError };
-export type Result_4 = { 'Ok' : bigint } |
   { 'Err' : TransferError };
-export type Result_5 = { 'Ok' : bigint } |
+export type Result_3 = { 'Ok' : bigint } |
   { 'Err' : ApproveError };
-export type Result_6 = { 'Ok' : bigint } |
+export type Result_4 = { 'Ok' : bigint } |
   { 'Err' : TransferFromError };
-export type Result_7 = { 'Ok' : LiquidityPoolBalance } |
+export type Result_5 = { 'Ok' : LiquidityPoolBalance } |
   { 'Err' : EkokeError };
 export type Role = { 'DeferredCanister' : null } |
   { 'MarketplaceCanister' : null } |
@@ -178,23 +166,13 @@ export interface TransformArgs {
 export interface _SERVICE {
   'admin_burn' : ActorMethod<[bigint], Result>,
   'admin_cycles' : ActorMethod<[], bigint>,
-  'admin_eth_wallet_address' : ActorMethod<[], string>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_cketh_ledger_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_cketh_minter_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_erc20_bridge_address' : ActorMethod<[string], undefined>,
-  'admin_set_erc20_gas_price' : ActorMethod<[bigint], undefined>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'admin_set_swap_account' : ActorMethod<[Account], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
-  'erc20_swap' : ActorMethod<
-    [string, bigint, [] | [Uint8Array | number[]]],
-    Result_1
-  >,
-  'erc20_swap_fee' : ActorMethod<[], Result_2>,
-  'get_contract_reward' : ActorMethod<[bigint, bigint], Result_3>,
+  'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse_1>,
   'icrc1_balance_of' : ActorMethod<[Account], bigint>,
@@ -205,15 +183,15 @@ export interface _SERVICE {
   'icrc1_supported_standards' : ActorMethod<[], Array<TokenExtension>>,
   'icrc1_symbol' : ActorMethod<[], string>,
   'icrc1_total_supply' : ActorMethod<[], bigint>,
-  'icrc1_transfer' : ActorMethod<[TransferArg], Result_4>,
+  'icrc1_transfer' : ActorMethod<[TransferArg], Result_2>,
   'icrc2_allowance' : ActorMethod<[AllowanceArgs], Allowance>,
-  'icrc2_approve' : ActorMethod<[ApproveArgs], Result_5>,
-  'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_6>,
+  'icrc2_approve' : ActorMethod<[ApproveArgs], Result_3>,
+  'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_4>,
   'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
-  'liquidity_pool_balance' : ActorMethod<[], Result_7>,
+  'liquidity_pool_balance' : ActorMethod<[], Result_5>,
   'reserve_pool' : ActorMethod<
     [bigint, bigint, [] | [Uint8Array | number[]]],
-    Result_3
+    Result_1
   >,
   'send_reward' : ActorMethod<[bigint, bigint, Account], Result>,
 }

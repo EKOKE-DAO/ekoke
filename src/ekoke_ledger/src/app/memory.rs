@@ -13,23 +13,11 @@ pub const SWAP_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(22);
 pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(23);
 pub const CKBTC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(24);
 pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
-pub const CKETH_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
-pub const CKETH_MINTER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
-pub const ERC20_BRIDGE_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(28);
-pub const ARCHIVE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(29);
+pub const ARCHIVE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
 
 // Liquidity pool
 pub const LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(40);
 pub const LIQUIDITY_POOL_CKBTC_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(41);
-
-// ERC20 bridge
-pub const FLY_CANISTER_ETH_ADDRESS_MEMORY_ID: MemoryId = MemoryId::new(50);
-pub const ERC20_SWAP_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(51);
-pub const ERC20_GAS_PRICE_MEMORY_ID: MemoryId = MemoryId::new(52);
-pub const ERC20_LAST_GAS_PRICE_UPDATE_MEMORY_ID: MemoryId = MemoryId::new(53);
-pub const ERC20_LOGS_START_BLOCK_MEMORY_ID: MemoryId = MemoryId::new(54);
-pub const ETH_PUBKEY_MEMORY_ID: MemoryId = MemoryId::new(55);
-pub const ETH_NETWORK_MEMORY_ID: MemoryId = MemoryId::new(56);
 
 // Rewards
 pub const RMC_MEMORY_ID: MemoryId = MemoryId::new(60);

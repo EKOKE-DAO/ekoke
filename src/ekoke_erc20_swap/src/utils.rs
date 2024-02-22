@@ -1,6 +1,5 @@
 use candid::{Nat, Principal};
-use icrc::icrc1::account::Subaccount;
-use time::{Date, OffsetDateTime};
+use icrc::icrc1::account::Account;
 
 /// Returns current time in nanoseconds
 pub fn time() -> u64 {
@@ -17,14 +16,6 @@ pub fn time() -> u64 {
     }
 }
 
-/// Returns current date
-pub fn date() -> Date {
-    let time = time();
-
-    let date = OffsetDateTime::from_unix_timestamp_nanos(time as i128).unwrap();
-    date.date()
-}
-
 /// Returns canister id
 pub fn id() -> Principal {
     #[cfg(not(target_arch = "wasm32"))]
@@ -35,6 +26,11 @@ pub fn id() -> Principal {
     {
         ic_cdk::api::id()
     }
+}
+
+/// Returns canister account
+pub fn account() -> Account {
+    Account::from(id())
 }
 
 pub fn cycles() -> Nat {
@@ -57,24 +53,5 @@ pub fn caller() -> Principal {
     #[cfg(target_arch = "wasm32")]
     {
         ic_cdk::caller()
-    }
-}
-
-/// Generates a random subaccount
-pub async fn random_subaccount() -> Subaccount {
-    #[cfg(test)]
-    {
-        let random_bytes = rand::random::<[u8; 32]>();
-        Subaccount::from(random_bytes)
-    }
-    #[cfg(not(test))]
-    {
-        let random_bytes = ic_cdk::api::management_canister::main::raw_rand()
-            .await
-            .unwrap()
-            .0;
-
-        let random_bytes: [u8; 32] = random_bytes.try_into().unwrap();
-        Subaccount::from(random_bytes)
     }
 }

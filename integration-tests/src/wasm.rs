@@ -19,6 +19,7 @@ pub struct Icrc2InitArgs {
 pub enum Canister {
     Deferred,
     EkokeArchive,
+    EkokeErc20Swap,
     EkokeIndex,
     EkokeLedger,
     Icrc2,
@@ -32,6 +33,9 @@ impl Canister {
             Canister::Deferred => Path::new("../.dfx/local/canisters/deferred/deferred.wasm"),
             Canister::EkokeArchive => {
                 Path::new("../.dfx/local/canisters/ekoke-archive/ekoke-archive.wasm")
+            }
+            Canister::EkokeErc20Swap => {
+                Path::new("../.dfx/local/canisters/ekoke-erc20-swap/ekoke-erc20-swap.wasm")
             }
             Canister::EkokeIndex => {
                 Path::new("../.dfx/local/canisters/ekoke-index/ekoke-index.wasm")

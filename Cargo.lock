@@ -672,6 +672,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "ekoke_erc20_swap"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "candid",
+ "did",
+ "ethers-contract",
+ "ethers-core",
+ "ethers-signers",
+ "ethnum",
+ "getrandom",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "icrc",
+ "k256",
+ "num-bigint",
+ "num-traits",
+ "pretty_assertions",
+ "rand",
+ "secp256k1",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sha3",
+ "thiserror",
+ "time",
+ "tokio",
+ "xrc",
+]
+
+[[package]]
 name = "ekoke_index"
 version = "0.1.0"
 dependencies = [
@@ -699,10 +733,6 @@ dependencies = [
  "bytes",
  "candid",
  "did",
- "ethers-contract",
- "ethers-core",
- "ethers-signers",
- "ethnum",
  "getrandom",
  "ic-cdk",
  "ic-cdk-macros",
@@ -717,8 +747,6 @@ dependencies = [
  "secp256k1",
  "serde",
  "serde_json",
- "sha2",
- "sha3",
  "thiserror",
  "time",
  "tokio",

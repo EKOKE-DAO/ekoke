@@ -55,6 +55,7 @@ description = "Generate did files"
 dependencies = [
   "deferred-did",
   "ekoke-archive-did",
+  "ekoke-erc20-swap-did",
   "ekoke-index-did",
   "ekoke-ledger-did",
   "marketplace-did",
@@ -70,6 +71,11 @@ workspace = false
 [tasks.ekoke-archive-did]
 description = "Generate did files for ekoke-archive"
 script = "cargo run --bin ekoke-archive-did  --features did > src/ekoke_archive/ekoke-archive.did"
+workspace = false
+
+[tasks.ekoke-erc20-swap-did]
+description = "Generate did files for ekoke-erc20-swap"
+script = "cargo run --bin ekoke-erc20-swap-did  --features did > src/ekoke_erc20_swap/ekoke-erc20-swap.did"
 workspace = false
 
 [tasks.ekoke-index-did]

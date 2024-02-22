@@ -1,5 +1,5 @@
 [package]
-name = "ekoke_ledger"
+name = "ekoke_erc20_swap"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -7,7 +7,7 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [[bin]]
-name = "ekoke-ledger-did"
+name = "ekoke-erc20-swap-did"
 path = "src/lib.rs"
 
 [lib]
@@ -22,6 +22,10 @@ async-trait = { workspace = true }
 bytes = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }
+ethers-contract = { workspace = true }
+ethers-core = { workspace = true }
+ethers-signers = { workspace = true }
+ethnum = { workspace = true }
 getrandom = { workspace = true, features = ["custom"] }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
@@ -34,6 +38,8 @@ num-traits = { workspace = true }
 secp256k1 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
+sha3 = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true }
 xrc = { path = "../xrc" }

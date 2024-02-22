@@ -12,8 +12,9 @@ use std::vec;
 
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use did::deferred::DeferredInitData;
-use did::ekoke::{EkokeInitData, EthNetwork, PicoEkoke};
+use did::ekoke::{EkokeInitData, PicoEkoke};
 use did::ekoke_archive::EkokeArchiveInitData;
+use did::ekoke_erc20_swap::{EkokeErc20SwapInitData, EthNetwork};
 use did::ekoke_index::EkokeIndexInitData;
 use did::marketplace::MarketplaceInitData;
 use did::H160;
@@ -35,6 +36,7 @@ pub struct TestEnv {
     pub ckbtc_id: Principal,
     pub deferred_id: Principal,
     pub ekoke_archive_id: Principal,
+    pub ekoke_erc20_swap_id: Principal,
     pub ekoke_index_id: Principal,
     pub ekoke_ledger_id: Principal,
     pub icp_ledger_id: Principal,
@@ -108,6 +110,7 @@ impl TestEnv {
         let xrc_id = pic.create_canister();
         let deferred_id = pic.create_canister();
         let ekoke_archive_id = pic.create_canister();
+        let ekoke_erc20_swap_id = pic.create_canister();
         let ekoke_index_id = pic.create_canister();
         let ekoke_ledger_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
@@ -120,6 +123,13 @@ impl TestEnv {
         Self::install_deferred(&pic, deferred_id, ekoke_ledger_id, marketplace_id);
         Self::install_xrc(&pic, xrc_id);
         Self::install_ekoke_archive(&pic, ekoke_archive_id, ekoke_ledger_id, ekoke_index_id);
+        Self::install_ekoke_erc20_swap(
+            &pic,
+            ekoke_erc20_swap_id,
+            cketh_ledger_id,
+            cketh_minter_id,
+            ekoke_ledger_id,
+        );
         Self::install_ekoke_index(&pic, ekoke_index_id, ekoke_ledger_id, ekoke_archive_id);
         Self::install_ekoke_ledger(
             &pic,
@@ -129,8 +139,6 @@ impl TestEnv {
             xrc_id,
             icp_ledger_id,
             ckbtc_id,
-            cketh_ledger_id,
-            cketh_minter_id,
             ekoke_archive_id,
         );
         Self::install_marketplace(
@@ -150,6 +158,7 @@ impl TestEnv {
             deferred_id,
             icp_ledger_id,
             ekoke_archive_id,
+            ekoke_erc20_swap_id,
             ekoke_index_id,
             ekoke_ledger_id,
             marketplace_id,
@@ -290,6 +299,32 @@ impl TestEnv {
         pic.install_canister(ekoke_index_id, wasm_bytes, init_arg, None);
     }
 
+    fn install_ekoke_erc20_swap(
+        pic: &PocketIc,
+        ekoke_erc20_swap_id: Principal,
+        cketh_ledger_canister: Principal,
+        cketh_minter_canister: Principal,
+        ledger_id: Principal,
+    ) {
+        pic.add_cycles(ekoke_erc20_swap_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::EkokeErc20Swap);
+
+        let init_arg = EkokeErc20SwapInitData {
+            admins: vec![actor::admin()],
+            cketh_ledger_canister,
+            cketh_minter_canister,
+            ledger_id,
+            erc20_bridge_address: H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663")
+                .unwrap(),
+            erc20_gas_price: 39_000_000_000_u64, // 39 gwei
+            erc20_network: EthNetwork::Sepolia,
+        };
+
+        let init_arg = Encode!(&init_arg).unwrap();
+
+        pic.install_canister(ekoke_erc20_swap_id, wasm_bytes, init_arg, None);
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn install_ekoke_ledger(
         pic: &PocketIc,
@@ -299,8 +334,6 @@ impl TestEnv {
         xrc_canister: Principal,
         icp_ledger_canister: Principal,
         ckbtc_canister: Principal,
-        cketh_ledger_canister: Principal,
-        cketh_minter_canister: Principal,
         ekoke_archive_id: Principal,
     ) {
         pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
@@ -321,12 +354,6 @@ impl TestEnv {
             icp_ledger_canister,
             archive_canister: ekoke_archive_id,
             ckbtc_canister,
-            cketh_ledger_canister,
-            cketh_minter_canister,
-            erc20_bridge_address: H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663")
-                .unwrap(),
-            erc20_gas_price: 39_000_000_000_u64, // 39 gwei
-            erc20_network: EthNetwork::Sepolia,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 

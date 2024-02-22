@@ -1,7 +1,8 @@
 mod ekoke_swapped;
 mod response;
 
-use did::ekoke::{EkokeResult, EthNetwork, PicoEkoke};
+use did::ekoke::{EkokeResult, PicoEkoke};
+use did::ekoke_erc20_swap::EthNetwork;
 use did::H160;
 use ethers_core::abi::AbiEncode;
 use ethers_core::types::{Bytes, TransactionRequest};
