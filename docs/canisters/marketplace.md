@@ -92,6 +92,7 @@ get canister cycles
 16. the marketplace sends to the current owner of the NFT the ICP value with `icrc2_transfer_from` on the ICP ledger
 17. marketplace calls `transfer_from` on deferred to transfer the ownership of the NFT to the caller
 18. marketplace verifies whether the token had a previous owner
-    1. if now, marketplace calls `send_reward` on `ekoke-ledger` canister and sends the reward to the caller
+    1. if true, marketplace calls `send_reward` on `ekoke-ledger` canister and sends the reward to the caller
 19. marketplace verifies whether the caller is buyer of the contract
     1. if true, it calls `burn` on deferred canister and burns the NFT.
+    2. if true, it transfers the interest on the liquidity pool
