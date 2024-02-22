@@ -25,6 +25,11 @@
       "package": "ekoke_ledger",
       "type": "rust"
     },
+    "ekoke-liquidity-pool": {
+      "candid": "src/ekoke_liquidity_pool/ekoke-liquidity-pool.did",
+      "package": "ekoke_liquidity_pool",
+      "type": "rust"
+    },
     "marketplace": {
       "candid": "src/marketplace/marketplace.did",
       "package": "marketplace",

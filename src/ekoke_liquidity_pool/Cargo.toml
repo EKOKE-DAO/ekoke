@@ -1,5 +1,5 @@
 [package]
-name = "ekoke_ledger"
+name = "ekoke_liquidity_pool"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -7,7 +7,7 @@ license = { workspace = true }
 repository = { workspace = true }
 
 [[bin]]
-name = "ekoke-ledger-did"
+name = "ekoke-liquidity-pool-did"
 path = "src/lib.rs"
 
 [lib]
@@ -19,7 +19,6 @@ did = []
 
 [dependencies]
 async-trait = { workspace = true }
-bytes = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }
 getrandom = { workspace = true, features = ["custom"] }
@@ -28,12 +27,10 @@ ic-cdk-macros = { workspace = true }
 ic-cdk-timers = { workspace = true }
 ic-stable-structures = { workspace = true }
 icrc = { path = "../icrc" }
-num-bigint = { workspace = true }
-num-traits = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-time = { workspace = true }
+xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

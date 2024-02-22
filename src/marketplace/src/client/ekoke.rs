@@ -1,7 +1,7 @@
 use candid::Principal;
 #[cfg(target_arch = "wasm32")]
 use did::ekoke::EkokeResult;
-use did::ekoke::{LiquidityPoolAccounts, PicoEkoke};
+use did::ekoke::PicoEkoke;
 #[cfg(target_arch = "wasm32")]
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;
@@ -22,32 +22,6 @@ impl From<Principal> for EkokeClient {
 }
 
 impl EkokeClient {
-    /// Returns the liquidity pool accounts.
-    #[allow(unused_variables)]
-    pub async fn liquidity_pool_accounts(&self) -> MarketplaceResult<LiquidityPoolAccounts> {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            Ok(LiquidityPoolAccounts {
-                icp: Account {
-                    owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
-                    subaccount: None,
-                },
-                ckbtc: Account {
-                    owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
-                    subaccount: None,
-                },
-            })
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            let result: (LiquidityPoolAccounts,) =
-                ic_cdk::api::call::call(self.ekoke_ledger_canister, "liquidity_pool_accounts", ())
-                    .await
-                    .map_err(|(code, err)| MarketplaceError::CanisterCall(code, err))?;
-            Ok(result.0)
-        }
-    }
-
     #[allow(unused_variables)]
     pub async fn send_reward(
         &self,

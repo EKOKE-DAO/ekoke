@@ -8,9 +8,8 @@ mod xrc;
 use std::cell::RefCell;
 
 use candid::{Nat, Principal};
-use did::ekoke::{
-    BalanceError, EkokeError, EkokeResult, LiquidityPoolAccounts, LiquidityPoolBalance,
-};
+use did::ekoke::{BalanceError, EkokeError, EkokeResult};
+use did::ekoke_liquidity_pool::{LiquidityPoolAccounts, LiquidityPoolBalance};
 use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};

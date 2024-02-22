@@ -60,18 +60,13 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Ecdsa' : EcdsaError };
 export interface EkokeInitData {
   'deferred_canister' : Principal,
-  'icp_ledger_canister' : Principal,
   'minting_account' : Account,
-  'ckbtc_canister' : Principal,
   'initial_balances' : Array<[Account, bigint]>,
-  'swap_account' : Account,
-  'xrc_canister' : Principal,
   'archive_canister' : Principal,
   'marketplace_canister' : Principal,
   'admins' : Array<Principal>,
   'total_supply' : bigint,
 }
-export interface HttpHeader { 'value' : string, 'name' : string }
 export interface HttpRequest {
   'url' : string,
   'method' : string,
@@ -84,13 +79,6 @@ export interface HttpResponse {
   'upgrade' : [] | [boolean],
   'status_code' : number,
 }
-export interface HttpResponse_1 {
-  'status' : bigint,
-  'body' : Uint8Array | number[],
-  'headers' : Array<HttpHeader>,
-}
-export interface LiquidityPoolAccounts { 'icp' : Account, 'ckbtc' : Account }
-export interface LiquidityPoolBalance { 'icp' : bigint, 'ckbtc' : bigint }
 export type MetadataValue = { 'Int' : bigint } |
   { 'Nat' : bigint } |
   { 'Blob' : Uint8Array | number[] } |
@@ -115,8 +103,6 @@ export type Result_3 = { 'Ok' : bigint } |
   { 'Err' : ApproveError };
 export type Result_4 = { 'Ok' : bigint } |
   { 'Err' : TransferFromError };
-export type Result_5 = { 'Ok' : LiquidityPoolBalance } |
-  { 'Err' : EkokeError };
 export type Role = { 'DeferredCanister' : null } |
   { 'MarketplaceCanister' : null } |
   { 'Admin' : null };
@@ -159,22 +145,13 @@ export type TransferFromError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
-export interface TransformArgs {
-  'context' : Uint8Array | number[],
-  'response' : HttpResponse_1,
-}
 export interface _SERVICE {
   'admin_burn' : ActorMethod<[bigint], Result>,
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
-  'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
-  'admin_set_swap_account' : ActorMethod<[Account], undefined>,
-  'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
-  'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse_1>,
   'icrc1_balance_of' : ActorMethod<[Account], bigint>,
   'icrc1_decimals' : ActorMethod<[], number>,
   'icrc1_fee' : ActorMethod<[], bigint>,
@@ -187,8 +164,6 @@ export interface _SERVICE {
   'icrc2_allowance' : ActorMethod<[AllowanceArgs], Allowance>,
   'icrc2_approve' : ActorMethod<[ApproveArgs], Result_3>,
   'icrc2_transfer_from' : ActorMethod<[TransferFromArgs], Result_4>,
-  'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
-  'liquidity_pool_balance' : ActorMethod<[], Result_5>,
   'reserve_pool' : ActorMethod<
     [bigint, bigint, [] | [Uint8Array | number[]]],
     Result_1

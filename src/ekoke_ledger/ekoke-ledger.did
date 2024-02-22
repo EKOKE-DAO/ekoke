@@ -54,18 +54,13 @@ type EkokeError = variant {
 };
 type EkokeInitData = record {
   deferred_canister : principal;
-  icp_ledger_canister : principal;
   minting_account : Account;
-  ckbtc_canister : principal;
   initial_balances : vec record { Account; nat };
-  swap_account : Account;
-  xrc_canister : principal;
   archive_canister : principal;
   marketplace_canister : principal;
   admins : vec principal;
   total_supply : nat;
 };
-type HttpHeader = record { value : text; name : text };
 type HttpRequest = record {
   url : text;
   method : text;
@@ -78,13 +73,6 @@ type HttpResponse = record {
   upgrade : opt bool;
   status_code : nat16;
 };
-type HttpResponse_1 = record {
-  status : nat;
-  body : vec nat8;
-  headers : vec HttpHeader;
-};
-type LiquidityPoolAccounts = record { icp : Account; ckbtc : Account };
-type LiquidityPoolBalance = record { icp : nat; ckbtc : nat };
 type MetadataValue = variant {
   Int : int;
   Nat : nat;
@@ -107,7 +95,6 @@ type Result_1 = variant { Ok : nat; Err : EkokeError };
 type Result_2 = variant { Ok : nat; Err : TransferError };
 type Result_3 = variant { Ok : nat; Err : ApproveError };
 type Result_4 = variant { Ok : nat; Err : TransferFromError };
-type Result_5 = variant { Ok : LiquidityPoolBalance; Err : EkokeError };
 type Role = variant { DeferredCanister; MarketplaceCanister; Admin };
 type TokenExtension = record { url : text; name : text };
 type TransferArg = record {
@@ -148,19 +135,13 @@ type TransferFromError = variant {
   TooOld;
   InsufficientFunds : record { balance : nat };
 };
-type TransformArgs = record { context : vec nat8; response : HttpResponse_1 };
 service : (EkokeInitData) -> {
   admin_burn : (nat) -> (Result);
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
-  admin_set_ckbtc_canister : (principal) -> ();
-  admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
-  admin_set_swap_account : (Account) -> ();
-  admin_set_xrc_canister : (principal) -> ();
   get_contract_reward : (nat, nat64) -> (Result_1);
   http_request : (HttpRequest) -> (HttpResponse) query;
-  http_transform_send_tx : (TransformArgs) -> (HttpResponse_1) query;
   icrc1_balance_of : (Account) -> (nat) query;
   icrc1_decimals : () -> (nat8) query;
   icrc1_fee : () -> (nat) query;
@@ -173,8 +154,6 @@ service : (EkokeInitData) -> {
   icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
   icrc2_approve : (ApproveArgs) -> (Result_3);
   icrc2_transfer_from : (TransferFromArgs) -> (Result_4);
-  liquidity_pool_accounts : () -> (LiquidityPoolAccounts) query;
-  liquidity_pool_balance : () -> (Result_5) query;
   reserve_pool : (nat, nat, opt vec nat8) -> (Result_1);
   send_reward : (nat, nat, Account) -> (Result);
 }

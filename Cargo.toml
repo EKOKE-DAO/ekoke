@@ -8,6 +8,7 @@ members = [
   "src/ekoke_erc20_swap",
   "src/ekoke_index",
   "src/ekoke_ledger",
+  "src/ekoke_liquidity_pool",
   "src/icrc",
   "src/marketplace",
   "src/xrc",

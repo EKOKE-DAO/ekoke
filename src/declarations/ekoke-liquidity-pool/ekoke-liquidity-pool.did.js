@@ -1,27 +1,34 @@
 export const idlFactory = ({ IDL }) => {
-  const EthNetwork = IDL.Variant({
-    'Ethereum' : IDL.Null,
-    'Goerli' : IDL.Null,
-    'Sepolia' : IDL.Null,
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
-  const EkokeErc20SwapInitData = IDL.Record({
-    'cketh_ledger_canister' : IDL.Principal,
-    'erc20_bridge_address' : IDL.Text,
-    'erc20_network' : EthNetwork,
-    'ledger_id' : IDL.Principal,
+  const EkokeLiquidityPoolInitData = IDL.Record({
+    'icp_ledger_canister' : IDL.Principal,
+    'ckbtc_canister' : IDL.Principal,
+    'swap_account' : Account,
+    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'erc20_gas_price' : IDL.Nat64,
-    'cketh_minter_canister' : IDL.Principal,
   });
-  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
-  const HttpResponse = IDL.Record({
-    'status' : IDL.Nat,
+  const HttpRequest = IDL.Record({
+    'url' : IDL.Text,
+    'method' : IDL.Text,
     'body' : IDL.Vec(IDL.Nat8),
-    'headers' : IDL.Vec(HttpHeader),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
   });
-  const TransformArgs = IDL.Record({
-    'context' : IDL.Vec(IDL.Nat8),
-    'response' : HttpResponse,
+  const HttpResponse = IDL.Record({
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+    'upgrade' : IDL.Opt(IDL.Bool),
+    'status_code' : IDL.Nat16,
+  });
+  const LiquidityPoolAccounts = IDL.Record({
+    'icp' : Account,
+    'ckbtc' : Account,
+  });
+  const LiquidityPoolBalance = IDL.Record({
+    'icp' : IDL.Nat,
+    'ckbtc' : IDL.Nat,
   });
   const ConfigurationError = IDL.Variant({
     'AdminsCantBeEmpty' : IDL.Null,
@@ -114,43 +121,37 @@ export const idlFactory = ({ IDL }) => {
     'Icrc2Transfer' : TransferFromError,
     'Ecdsa' : EcdsaError,
   });
-  const Result = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : EkokeError });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : EkokeError });
+  const Result = IDL.Variant({
+    'Ok' : LiquidityPoolBalance,
+    'Err' : EkokeError,
+  });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
-    'admin_eth_wallet_address' : IDL.Func([], [IDL.Text], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
-    'admin_set_cketh_ledger_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_cketh_minter_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_erc20_bridge_address' : IDL.Func([IDL.Text], [], []),
-    'admin_set_erc20_gas_price' : IDL.Func([IDL.Nat64], [], []),
-    'http_transform_send_tx' : IDL.Func(
-        [TransformArgs],
-        [HttpResponse],
+    'admin_set_ckbtc_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_set_swap_account' : IDL.Func([Account], [], []),
+    'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
+    'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'liquidity_pool_accounts' : IDL.Func(
+        [],
+        [LiquidityPoolAccounts],
         ['query'],
       ),
-    'swap' : IDL.Func(
-        [IDL.Text, IDL.Nat, IDL.Opt(IDL.Vec(IDL.Nat8))],
-        [Result],
-        [],
-      ),
-    'swap_fee' : IDL.Func([], [Result_1], []),
+    'liquidity_pool_balance' : IDL.Func([], [Result], ['query']),
   });
 };
 export const init = ({ IDL }) => {
-  const EthNetwork = IDL.Variant({
-    'Ethereum' : IDL.Null,
-    'Goerli' : IDL.Null,
-    'Sepolia' : IDL.Null,
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
-  const EkokeErc20SwapInitData = IDL.Record({
-    'cketh_ledger_canister' : IDL.Principal,
-    'erc20_bridge_address' : IDL.Text,
-    'erc20_network' : EthNetwork,
-    'ledger_id' : IDL.Principal,
+  const EkokeLiquidityPoolInitData = IDL.Record({
+    'icp_ledger_canister' : IDL.Principal,
+    'ckbtc_canister' : IDL.Principal,
+    'swap_account' : Account,
+    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'erc20_gas_price' : IDL.Nat64,
-    'cketh_minter_canister' : IDL.Principal,
   });
-  return [EkokeErc20SwapInitData];
+  return [EkokeLiquidityPoolInitData];
 };

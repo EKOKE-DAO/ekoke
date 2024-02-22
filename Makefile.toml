@@ -58,6 +58,7 @@ dependencies = [
   "ekoke-erc20-swap-did",
   "ekoke-index-did",
   "ekoke-ledger-did",
+  "ekoke-liquidity-pool-did",
   "marketplace-did",
   "dfx-generate",
 ]
@@ -86,6 +87,11 @@ workspace = false
 [tasks.ekoke-ledger-did]
 description = "Generate did files for ekoke-ledger"
 script = "cargo run --bin ekoke-ledger-did  --features did > src/ekoke_ledger/ekoke-ledger.did"
+workspace = false
+
+[tasks.ekoke-liquidity-pool-did]
+description = "Generate did files for ekoke-liquidity-pool"
+script = "cargo run --bin ekoke-liquidity-pool-did  --features did > src/ekoke_liquidity_pool/ekoke-liquidity-pool.did"
 workspace = false
 
 [tasks.marketplace-did]

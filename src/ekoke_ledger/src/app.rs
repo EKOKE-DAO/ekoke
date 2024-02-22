@@ -6,7 +6,6 @@ mod archive_canister;
 mod balance;
 mod configuration;
 mod inspect;
-mod liquidity_pool;
 mod memory;
 mod pool;
 mod reward;
@@ -18,8 +17,8 @@ mod test_utils;
 use async_trait::async_trait;
 use candid::{Nat, Principal};
 use did::ekoke::{
-    AllowanceError, BalanceError, EkokeError, EkokeInitData, EkokeResult, LiquidityPoolAccounts,
-    LiquidityPoolBalance, PicoEkoke, PoolError, Role,
+    AllowanceError, BalanceError, EkokeError, EkokeInitData, EkokeResult, PicoEkoke, PoolError,
+    Role,
 };
 use did::ekoke_index::{Approve, Transaction, Transfer};
 use did::ID;
@@ -32,7 +31,6 @@ use self::archive_canister::ArchiveCanister;
 use self::balance::Balance;
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
-use self::liquidity_pool::LiquidityPool;
 use self::pool::Pool;
 use self::reward::Reward;
 use self::roles::RolesManager;
@@ -47,15 +45,8 @@ impl EkokeCanister {
     pub fn init(data: EkokeInitData) {
         // Set minting account
         Configuration::set_minting_account(data.minting_account);
-        // set swap account
-        Configuration::set_swap_account(data.swap_account);
         // set canisters
-        Configuration::set_xrc_canister(data.xrc_canister);
-        Configuration::set_ckbtc_canister(data.ckbtc_canister);
-        Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
         Configuration::set_archive_canister(data.archive_canister);
-        // init liquidity pool
-        LiquidityPool::init();
         // set roles
         if let Err(err) = RolesManager::set_admins(data.admins) {
             ic_cdk::trap(&format!("Error setting admins: {}", err));
@@ -76,23 +67,12 @@ impl EkokeCanister {
 
     /// Set application timers
     fn set_timers() {
-        #[cfg(target_family = "wasm")]
-        async fn swap_icp_to_btc_timer() {
-            let xrc_principal = Configuration::get_xrc_canister();
-            let _ = LiquidityPool::swap_icp_to_btc(xrc_principal).await;
-        }
-
         // Expired spend allowance timers
         #[cfg(target_family = "wasm")]
         ic_cdk_timers::set_timer_interval(
             crate::constants::SPEND_ALLOWANCE_EXPIRED_ALLOWANCE_TIMER_INTERVAL,
             SpendAllowance::remove_expired_allowance,
         );
-        // Liquidity pool ICP -> BTC swap timer
-        #[cfg(target_family = "wasm")]
-        ic_cdk_timers::set_timer_interval(crate::constants::LIQUIDITY_POOL_SWAP_INTERVAL, || {
-            ic_cdk::spawn(swap_icp_to_btc_timer());
-        });
     }
 
     /// Reserve a pool for the provided contract ID with the provided amount of $picoEkoke tokens.
@@ -110,16 +90,6 @@ impl EkokeCanister {
         };
 
         Pool::reserve(&contract_id, from_account, picoekoke_amount).await
-    }
-
-    /// Get liquidity pool balance from the different ledgers
-    pub async fn liquidity_pool_balance() -> EkokeResult<LiquidityPoolBalance> {
-        LiquidityPool::balance().await
-    }
-
-    /// Get liquidity pool accounts
-    pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
-        LiquidityPool::accounts()
     }
 
     /// Send reward to buyer reducing the balance from the pool associated to the contract, for the value of picoEkoke
@@ -190,38 +160,6 @@ impl EkokeCanister {
             ic_cdk::trap("Unauthorized");
         }
         Balance::burn(amount)
-    }
-
-    /// Set swap account
-    pub fn admin_set_swap_account(account: Account) {
-        if !Inspect::inspect_is_admin(utils::caller()) {
-            ic_cdk::trap("Unauthorized");
-        }
-        Configuration::set_swap_account(account);
-    }
-
-    /// Set xrc canister
-    pub fn admin_set_xrc_canister(canister_id: Principal) {
-        if !Inspect::inspect_is_admin(utils::caller()) {
-            ic_cdk::trap("Unauthorized");
-        }
-        Configuration::set_xrc_canister(canister_id);
-    }
-
-    /// Set ckbtc canister
-    pub fn admin_set_ckbtc_canister(canister_id: Principal) {
-        if !Inspect::inspect_is_admin(utils::caller()) {
-            ic_cdk::trap("Unauthorized");
-        }
-        Configuration::set_ckbtc_canister(canister_id);
-    }
-
-    /// Set icp ledger canister
-    pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
-        if !Inspect::inspect_is_admin(utils::caller()) {
-            ic_cdk::trap("Unauthorized");
-        }
-        Configuration::set_icp_ledger_canister(canister_id);
     }
 }
 
@@ -330,9 +268,9 @@ impl Icrc1 for EkokeCanister {
         };
         ArchiveCanister::commit(tx)
             .await
-            .map_err(|_| icrc1_transfer::TransferError::GenericError {
+            .map_err(|e| icrc1_transfer::TransferError::GenericError {
                 error_code: Nat::from(4_u64),
-                message: "failed to register transaction".to_string(),
+                message: format!("failed to commit transaction: {e}"),
             })
             .map(Nat::from)
     }
@@ -401,9 +339,9 @@ impl Icrc2 for EkokeCanister {
         };
         ArchiveCanister::commit(tx)
             .await
-            .map_err(|_| icrc2::approve::ApproveError::GenericError {
+            .map_err(|e| icrc2::approve::ApproveError::GenericError {
                 error_code: Nat::from(4_u64),
-                message: "failed to register transaction".to_string(),
+                message: format!("failed to commit transaction: {e}"),
             })
             .map(Nat::from)
     }
@@ -499,9 +437,9 @@ impl Icrc2 for EkokeCanister {
         };
         ArchiveCanister::commit(tx)
             .await
-            .map_err(|_| icrc2::transfer_from::TransferFromError::GenericError {
+            .map_err(|e| icrc2::transfer_from::TransferFromError::GenericError {
                 error_code: Nat::from(4_u64),
-                message: "failed to register transaction".to_string(),
+                message: format!("failed to commit transaction: {e}"),
             })
             .map(Nat::from)
     }
@@ -517,8 +455,6 @@ impl Icrc2 for EkokeCanister {
 
 #[cfg(test)]
 mod test {
-
-    use std::str::FromStr as _;
 
     use icrc::icrc1::transfer::TransferArg;
     use icrc::icrc2::allowance::{Allowance, AllowanceArgs};
@@ -561,17 +497,6 @@ mod test {
             ekoke_to_picoekoke(8_688_888)
         );
 
-        // liquidity pool
-        assert_eq!(LiquidityPool::accounts().ckbtc.owner, utils::id());
-        assert!(LiquidityPool::accounts().ckbtc.subaccount.is_none());
-
-        // swap account
-        assert_eq!(Configuration::get_swap_account(), bob_account());
-
-        // check canisters
-        assert_eq!(Configuration::get_xrc_canister(), caller());
-        assert_eq!(Configuration::get_ckbtc_canister(), caller());
-        assert_eq!(Configuration::get_icp_ledger_canister(), caller());
         assert_eq!(Configuration::get_archive_canister(), caller());
     }
 
@@ -778,30 +703,6 @@ mod test {
             EkokeCanister::icrc1_minting_account(),
             Configuration::get_minting_account()
         );
-    }
-
-    #[test]
-    fn test_should_set_xrc_canister() {
-        init_canister();
-        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
-        EkokeCanister::admin_set_xrc_canister(canister_id);
-        assert_eq!(Configuration::get_xrc_canister(), canister_id);
-    }
-
-    #[test]
-    fn test_should_set_ckbtc_canister() {
-        init_canister();
-        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
-        EkokeCanister::admin_set_ckbtc_canister(canister_id);
-        assert_eq!(Configuration::get_ckbtc_canister(), canister_id);
-    }
-
-    #[test]
-    fn test_should_set_icp_ledger_canister() {
-        init_canister();
-        let canister_id = Principal::from_str("aaaaa-aa").unwrap();
-        EkokeCanister::admin_set_icp_ledger_canister(canister_id);
-        assert_eq!(Configuration::get_icp_ledger_canister(), canister_id);
     }
 
     #[tokio::test]
@@ -1185,16 +1086,12 @@ mod test {
             deferred_canister: caller(),
             marketplace_canister: caller(),
             archive_canister: caller(),
-            swap_account: bob_account(),
             minting_account: test_utils::minting_account(),
             initial_balances: vec![
                 (alice_account(), ekoke_to_picoekoke(50_000)),
                 (bob_account(), ekoke_to_picoekoke(50_000)),
                 (caller_account(), ekoke_to_picoekoke(100_000)),
             ],
-            xrc_canister: caller(),
-            ckbtc_canister: caller(),
-            icp_ledger_canister: caller(),
         };
         EkokeCanister::init(data);
     }

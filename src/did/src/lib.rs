@@ -9,6 +9,7 @@ pub mod ekoke;
 pub mod ekoke_archive;
 pub mod ekoke_erc20_swap;
 pub mod ekoke_index;
+pub mod ekoke_liquidity_pool;
 pub mod marketplace;
 pub use common::{
     HttpApiRequest, HttpRequest, HttpResponse, StorableAccount, StorableNat, StorablePrincipal,

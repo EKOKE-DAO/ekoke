@@ -22,6 +22,7 @@ pub enum Canister {
     EkokeErc20Swap,
     EkokeIndex,
     EkokeLedger,
+    EkokeLiquidityPool,
     Icrc2,
     Marketplace,
     Xrc,
@@ -42,6 +43,9 @@ impl Canister {
             }
             Canister::EkokeLedger => {
                 Path::new("../.dfx/local/canisters/ekoke-ledger/ekoke-ledger.wasm")
+            }
+            Canister::EkokeLiquidityPool => {
+                Path::new("../.dfx/local/canisters/ekoke-liquidity-pool/ekoke-liquidity-pool.wasm")
             }
             Canister::Marketplace => {
                 Path::new("../.dfx/local/canisters/marketplace/marketplace.wasm")

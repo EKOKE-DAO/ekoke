@@ -2,6 +2,10 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
+export interface Account {
+  'owner' : Principal,
+  'subaccount' : [] | [Uint8Array | number[]],
+}
 export type AllowanceError = { 'AllowanceNotFound' : null } |
   { 'BadSpender' : null } |
   { 'AllowanceChanged' : null } |
@@ -26,15 +30,6 @@ export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
 export type EcdsaError = { 'RecoveryIdError' : null } |
   { 'InvalidSignature' : null } |
   { 'InvalidPublicKey' : null };
-export interface EkokeErc20SwapInitData {
-  'cketh_ledger_canister' : Principal,
-  'erc20_bridge_address' : string,
-  'erc20_network' : EthNetwork,
-  'ledger_id' : Principal,
-  'admins' : Array<Principal>,
-  'erc20_gas_price' : bigint,
-  'cketh_minter_canister' : Principal,
-}
 export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Icrc2Approve' : ApproveError } |
   { 'Icrc1Transfer' : TransferError } |
@@ -48,15 +43,27 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Balance' : BalanceError } |
   { 'Icrc2Transfer' : TransferFromError } |
   { 'Ecdsa' : EcdsaError };
-export type EthNetwork = { 'Ethereum' : null } |
-  { 'Goerli' : null } |
-  { 'Sepolia' : null };
-export interface HttpHeader { 'value' : string, 'name' : string }
-export interface HttpResponse {
-  'status' : bigint,
-  'body' : Uint8Array | number[],
-  'headers' : Array<HttpHeader>,
+export interface EkokeLiquidityPoolInitData {
+  'icp_ledger_canister' : Principal,
+  'ckbtc_canister' : Principal,
+  'swap_account' : Account,
+  'xrc_canister' : Principal,
+  'admins' : Array<Principal>,
 }
+export interface HttpRequest {
+  'url' : string,
+  'method' : string,
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+}
+export interface HttpResponse {
+  'body' : Uint8Array | number[],
+  'headers' : Array<[string, string]>,
+  'upgrade' : [] | [boolean],
+  'status_code' : number,
+}
+export interface LiquidityPoolAccounts { 'icp' : Account, 'ckbtc' : Account }
+export interface LiquidityPoolBalance { 'icp' : bigint, 'ckbtc' : bigint }
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
 export type RegisterError = { 'TransactionNotFound' : null };
@@ -67,9 +74,7 @@ export type RejectionCode = { 'NoError' : null } |
   { 'Unknown' : null } |
   { 'SysFatal' : null } |
   { 'CanisterReject' : null };
-export type Result = { 'Ok' : string } |
-  { 'Err' : EkokeError };
-export type Result_1 = { 'Ok' : bigint } |
+export type Result = { 'Ok' : LiquidityPoolBalance } |
   { 'Err' : EkokeError };
 export type TransferError = {
     'GenericError' : { 'message' : string, 'error_code' : bigint }
@@ -92,21 +97,16 @@ export type TransferFromError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
-export interface TransformArgs {
-  'context' : Uint8Array | number[],
-  'response' : HttpResponse,
-}
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
-  'admin_eth_wallet_address' : ActorMethod<[], string>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], undefined>,
-  'admin_set_cketh_ledger_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_cketh_minter_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_erc20_bridge_address' : ActorMethod<[string], undefined>,
-  'admin_set_erc20_gas_price' : ActorMethod<[bigint], undefined>,
-  'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse>,
-  'swap' : ActorMethod<[string, bigint, [] | [Uint8Array | number[]]], Result>,
-  'swap_fee' : ActorMethod<[], Result_1>,
+  'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_swap_account' : ActorMethod<[Account], undefined>,
+  'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
+  'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
+  'liquidity_pool_balance' : ActorMethod<[], Result>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

@@ -90,9 +90,8 @@ deploy_ekoke_ledger() {
   INITIAL_BALANCES="$6"
   DEFERRED_PRINCIPAL="$7"
   MARKETPLACE_PRINCIPAL="$8"
-  SWAP_ACCOUNT="$9"
-  MINTING_ACCOUNT="${10}"
-  EKOKE_ARCHIVE_PRINCIPAL="${11}"
+  MINTING_ACCOUNT="$9"
+  EKOKE_ARCHIVE_PRINCIPAL="${10}"
 
   echo "deploying ekoke-ledger canister $EKOKE_LEDGER_PRINCIPAL"
 
@@ -105,12 +104,32 @@ deploy_ekoke_ledger() {
     initial_balances = $INITIAL_BALANCES;
     minting_account = $MINTING_ACCOUNT;
     archive_canister = principal \"$EKOKE_ARCHIVE_PRINCIPAL\";
-    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke-ledger
+
+}
+
+deploy_ekoke_liquidity_pool() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$3"
+  ADMINS="$4"
+  SWAP_ACCOUNT="$5"
+
+  echo "deploying ekoke-liquidity-pool canister $EKOKE_LEDGER_PRINCIPAL"
+
+  ekoke_liquidity_pool_init_args="(record {
+    swap_account = $SWAP_ACCOUNT;
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
+    icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
+    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_liquidity_pool_init_args" ekoke-liquidity-pool
 
 }
 
@@ -121,12 +140,14 @@ deploy_marketplace() {
   DEFERRED_PRINCIPAL="$4"
   EKOKE_LEDGER_PRINCIPAL="$5"
   ADMINS="$6"
+  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$7"
 
   echo "deploying marketplace canister $MARKETPLACE_PRINCIPAL"
 
   marketplace_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
     ekoke_ledger_canister = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+    ekoke_liquidity_pool_canister = principal \"$EKOKE_LIQUIDITY_POOL_PRINCIPAL\";
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";

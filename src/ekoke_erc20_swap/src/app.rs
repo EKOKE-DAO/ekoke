@@ -175,10 +175,19 @@ impl EkokeErc20SwapCanister {
         }
         Erc20Bridge::get_wallet_address().await.unwrap()
     }
+
+    pub fn admin_set_admins(admins: Vec<Principal>) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        RolesManager::set_admins(admins).unwrap();
+    }
 }
 
 #[cfg(test)]
 mod test {
+
+    use std::str::FromStr as _;
 
     use did::ekoke_erc20_swap::EthNetwork;
 
@@ -219,6 +228,14 @@ mod test {
         assert!(EkokeErc20SwapCanister::swap(recipient, amount.into(), None)
             .await
             .is_ok());
+    }
+
+    #[test]
+    fn test_should_set_admins() {
+        init_canister();
+        let admins = vec![Principal::from_str("aaaaa-aa").unwrap()];
+        EkokeErc20SwapCanister::admin_set_admins(admins.clone());
+        assert_eq!(RolesManager::get_admins(), admins);
     }
 
     fn init_canister() {

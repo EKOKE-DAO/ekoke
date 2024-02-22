@@ -16,6 +16,7 @@ use did::ekoke::{EkokeInitData, PicoEkoke};
 use did::ekoke_archive::EkokeArchiveInitData;
 use did::ekoke_erc20_swap::{EkokeErc20SwapInitData, EthNetwork};
 use did::ekoke_index::EkokeIndexInitData;
+use did::ekoke_liquidity_pool::EkokeLiquidityPoolInitData;
 use did::marketplace::MarketplaceInitData;
 use did::H160;
 use pocket_ic::common::rest::SubnetConfigSet;
@@ -39,6 +40,7 @@ pub struct TestEnv {
     pub ekoke_erc20_swap_id: Principal,
     pub ekoke_index_id: Principal,
     pub ekoke_ledger_id: Principal,
+    pub ekoke_liquidity_pool_id: Principal,
     pub icp_ledger_id: Principal,
     pub marketplace_id: Principal,
     pub xrc_id: Principal,
@@ -113,6 +115,7 @@ impl TestEnv {
         let ekoke_erc20_swap_id = pic.create_canister();
         let ekoke_index_id = pic.create_canister();
         let ekoke_ledger_id = pic.create_canister();
+        let ekoke_liquidity_pool_id = pic.create_canister();
         let marketplace_id = pic.create_canister();
 
         // install deferred canister
@@ -136,16 +139,21 @@ impl TestEnv {
             ekoke_ledger_id,
             deferred_id,
             marketplace_id,
-            xrc_id,
+            ekoke_archive_id,
+        );
+        Self::install_ekoke_liquidity_pool(
+            &pic,
+            ekoke_liquidity_pool_id,
             icp_ledger_id,
             ckbtc_id,
-            ekoke_archive_id,
+            xrc_id,
         );
         Self::install_marketplace(
             &pic,
             marketplace_id,
             deferred_id,
             ekoke_ledger_id,
+            ekoke_liquidity_pool_id,
             xrc_id,
             icp_ledger_id,
         );
@@ -161,6 +169,7 @@ impl TestEnv {
             ekoke_erc20_swap_id,
             ekoke_index_id,
             ekoke_ledger_id,
+            ekoke_liquidity_pool_id,
             marketplace_id,
             xrc_id,
         }
@@ -325,15 +334,33 @@ impl TestEnv {
         pic.install_canister(ekoke_erc20_swap_id, wasm_bytes, init_arg, None);
     }
 
-    #[allow(clippy::too_many_arguments)]
+    fn install_ekoke_liquidity_pool(
+        pic: &PocketIc,
+        ekoke_liquidity_pool_id: Principal,
+        icp_ledger_canister: Principal,
+        ckbtc_canister: Principal,
+        xrc_canister: Principal,
+    ) {
+        pic.add_cycles(ekoke_liquidity_pool_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::EkokeLiquidityPool);
+
+        let init_arg = EkokeLiquidityPoolInitData {
+            admins: vec![actor::admin()],
+            swap_account: actor::swap_account(),
+            icp_ledger_canister,
+            ckbtc_canister,
+            xrc_canister,
+        };
+        let init_arg = Encode!(&init_arg).unwrap();
+
+        pic.install_canister(ekoke_liquidity_pool_id, wasm_bytes, init_arg, None);
+    }
+
     fn install_ekoke_ledger(
         pic: &PocketIc,
         ekoke_ledger_id: Principal,
         deferred_id: Principal,
         marketplace_id: Principal,
-        xrc_canister: Principal,
-        icp_ledger_canister: Principal,
-        ckbtc_canister: Principal,
         ekoke_archive_id: Principal,
     ) {
         pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
@@ -349,11 +376,7 @@ impl TestEnv {
             ],
             deferred_canister: deferred_id,
             marketplace_canister: marketplace_id,
-            swap_account: actor::swap_account(),
-            xrc_canister,
-            icp_ledger_canister,
             archive_canister: ekoke_archive_id,
-            ckbtc_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
@@ -365,6 +388,7 @@ impl TestEnv {
         marketplace_id: Principal,
         deferred_id: Principal,
         ekoke_ledger_id: Principal,
+        ekoke_liquidity_pool_id: Principal,
         xrc_canister: Principal,
         icp_ledger_canister: Principal,
     ) {
@@ -375,6 +399,7 @@ impl TestEnv {
             admins: vec![actor::admin()],
             deferred_canister: deferred_id,
             ekoke_ledger_canister: ekoke_ledger_id,
+            ekoke_liquidity_pool_canister: ekoke_liquidity_pool_id,
             xrc_canister,
             icp_ledger_canister,
         };

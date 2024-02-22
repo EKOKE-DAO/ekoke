@@ -10,9 +10,7 @@ mod inspect;
 mod utils;
 
 use candid::{candid_method, Nat, Principal};
-use did::ekoke::{
-    EkokeInitData, EkokeResult, LiquidityPoolAccounts, LiquidityPoolBalance, PicoEkoke, Role,
-};
+use did::ekoke::{EkokeInitData, EkokeResult, PicoEkoke, Role};
 use did::ID;
 use ic_cdk_macros::{init, post_upgrade, query, update};
 use icrc::icrc::generic_metadata_value::MetadataValue;
@@ -55,18 +53,6 @@ pub async fn reserve_pool(
     EkokeCanister::reserve_pool(contract_id, picoekoke_amount, from_subaccount).await
 }
 
-#[query]
-#[candid_method(query)]
-pub async fn liquidity_pool_balance() -> EkokeResult<LiquidityPoolBalance> {
-    EkokeCanister::liquidity_pool_balance().await
-}
-
-#[query]
-#[candid_method(query)]
-pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
-    EkokeCanister::liquidity_pool_accounts()
-}
-
 #[update]
 #[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
@@ -89,30 +75,6 @@ pub fn admin_cycles() -> Nat {
 #[candid_method(update)]
 pub fn admin_burn(amount: PicoEkoke) -> EkokeResult<()> {
     EkokeCanister::admin_burn(amount)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_swap_account(account: Account) {
-    EkokeCanister::admin_set_swap_account(account)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_xrc_canister(canister_id: Principal) {
-    EkokeCanister::admin_set_xrc_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_ckbtc_canister(canister_id: Principal) {
-    EkokeCanister::admin_set_ckbtc_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
-    EkokeCanister::admin_set_icp_ledger_canister(canister_id)
 }
 
 // icrc-1

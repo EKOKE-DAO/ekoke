@@ -25,8 +25,6 @@ impl HttpApi {
         };
 
         match method.as_str() {
-            "liquidityPoolBalance" => Self::liquidity_pool_balance().await,
-            "liquidityPoolAccounts" => Self::liquidity_pool_accounts(),
             "icrc1Name" => Self::icrc1_name(),
             "icrc1Symbol" => Self::icrc1_symbol(),
             "icrc1Decimals" => Self::icrc1_decimals(),
@@ -34,25 +32,6 @@ impl HttpApi {
             "icrc1Fee" => Self::icrc1_fee(),
             _ => HttpResponse::bad_request("unknown method".to_string()),
         }
-    }
-
-    async fn liquidity_pool_balance() -> HttpResponse {
-        let response = match EkokeCanister::liquidity_pool_balance().await {
-            Ok(response) => response,
-            Err(_) => {
-                return HttpResponse::internal_error(
-                    "failed to get liquidity pool balance".to_string(),
-                )
-            }
-        };
-
-        HttpResponse::ok(response)
-    }
-
-    fn liquidity_pool_accounts() -> HttpResponse {
-        let params = EkokeCanister::liquidity_pool_accounts();
-
-        HttpResponse::ok(params)
     }
 
     fn icrc1_name() -> HttpResponse {

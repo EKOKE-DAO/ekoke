@@ -80,6 +80,12 @@ pub fn admin_set_erc20_gas_price(gas_price: u64) {
     EkokeErc20SwapCanister::admin_set_erc20_gas_price(gas_price)
 }
 
+#[update]
+#[candid_method(update)]
+pub fn admin_set_admins(admins: Vec<Principal>) {
+    EkokeErc20SwapCanister::admin_set_admins(admins)
+}
+
 // http transform
 #[query]
 #[candid_method(query)]
