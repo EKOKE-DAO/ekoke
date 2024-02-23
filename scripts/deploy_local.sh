@@ -4,11 +4,11 @@ cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
-EKOKE_ARCHIVE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-archive.local')"
-EKOKE_ERC20_SWAP_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-erc20-swap.local')"
-EKOKE_INDEX_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-index.local')"
-EKOKE_LEDGER_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-ledger.local')"
-EKOKE_LIQUIDITY_POOL_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.ekoke-liquidity-pool.local')"
+EKOKE_ARCHIVE_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-archive".local')
+EKOKE_ERC20_SWAP_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-erc20-swap".local')
+EKOKE_INDEX_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-index".local')
+EKOKE_LEDGER_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-ledger".local')
+EKOKE_LIQUIDITY_POOL_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-liquidity-pool".local')
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
 
 source ./deploy_functions.sh
