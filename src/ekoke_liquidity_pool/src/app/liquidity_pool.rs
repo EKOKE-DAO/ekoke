@@ -229,8 +229,8 @@ mod test {
     async fn test_should_get_balance() {
         LiquidityPool::init();
         let balance = LiquidityPool::balance().await.unwrap();
-        assert_eq!(balance.ckbtc, 1_216_794_022_u64);
-        assert_eq!(balance.icp, 1_216_794_022_u64);
+        assert_eq!(balance.ckbtc, 888010101000000u64);
+        assert_eq!(balance.icp, 888010101000000u64);
     }
 
     #[test]

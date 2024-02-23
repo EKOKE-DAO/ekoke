@@ -46,7 +46,7 @@ impl IcrcLedgerClient {
     pub async fn icrc1_balance_of(&self, account: Account) -> CallResult<Nat> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            Ok(1_216_794_022_u64.into())
+            Ok(888_010_101_000_000_u64.into())
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -95,11 +95,15 @@ impl IcrcLedgerClient {
         #[cfg(not(target_arch = "wasm32"))]
         match account.subaccount {
             None => Ok(Allowance {
-                allowance: 5_000_000_000_u64.into(),
+                allowance: 888_010_101_000_000_u64.into(),
                 expires_at: None,
             }),
             Some(subaccount) if subaccount == [2; 32] => Ok(Allowance {
                 allowance: 5_000_000_000_u64.into(),
+                expires_at: Some(0),
+            }),
+            Some(subaccount) if subaccount == [3; 32] => Ok(Allowance {
+                allowance: 0u64.into(),
                 expires_at: Some(0),
             }),
             Some(_) => Ok(Allowance {

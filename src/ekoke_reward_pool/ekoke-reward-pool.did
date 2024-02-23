@@ -1,0 +1,91 @@
+type Account = record { owner : principal; subaccount : opt vec nat8 };
+type AllowanceError = variant {
+  AllowanceNotFound;
+  BadSpender;
+  AllowanceChanged;
+  BadExpiration;
+  AllowanceExpired;
+  InsufficientFunds;
+};
+type ApproveError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  AllowanceChanged : record { current_allowance : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  Expired : record { ledger_time : nat64 };
+  InsufficientFunds : record { balance : nat };
+};
+type BalanceError = variant { AccountNotFound; InsufficientBalance };
+type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
+type EcdsaError = variant {
+  RecoveryIdError;
+  InvalidSignature;
+  InvalidPublicKey;
+};
+type EkokeError = variant {
+  Configuration : ConfigurationError;
+  Icrc2Approve : ApproveError;
+  Icrc1Transfer : TransferError;
+  Pool : PoolError;
+  Allowance : AllowanceError;
+  Register : RegisterError;
+  EthRpcError : record { int32; text };
+  XrcError;
+  StorageError;
+  CanisterCall : record { RejectionCode; text };
+  Balance : BalanceError;
+  Icrc2Transfer : TransferFromError;
+  Ecdsa : EcdsaError;
+};
+type EkokeRewardPoolInitData = record {
+  deferred_canister : principal;
+  marketplace_canister : principal;
+  admins : vec principal;
+  ledger_canister : principal;
+};
+type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
+type RegisterError = variant { TransactionNotFound };
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
+type Result = variant { Ok; Err : EkokeError };
+type Result_1 = variant { Ok : nat; Err : EkokeError };
+type Role = variant { DeferredCanister; MarketplaceCanister; Admin };
+type TransferError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+type TransferFromError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  InsufficientAllowance : record { allowance : nat };
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+service : (EkokeRewardPoolInitData) -> {
+  admin_cycles : () -> (nat) query;
+  admin_remove_role : (principal, Role) -> (Result);
+  admin_set_role : (principal, Role) -> ();
+  get_contract_reward : (nat, nat64) -> (Result_1);
+  reserve_pool : (nat, nat, opt vec nat8) -> (Result_1);
+  send_reward : (nat, nat, Account) -> (Result);
+}

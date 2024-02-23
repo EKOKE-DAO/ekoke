@@ -81,7 +81,7 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
   'custodians' : Array<Principal>,
-  'ekoke_ledger_canister' : Principal,
+  'ekoke_send_reward_canister' : Principal,
   'marketplace_canister' : Principal,
 }
 export type EcdsaError = { 'RecoveryIdError' : null } |
@@ -191,13 +191,13 @@ export interface Token {
   'id' : bigint,
   'transferred_at' : [] | [bigint],
   'transferred_by' : [] | [Principal],
-  'picoekoke_reward' : bigint,
   'value' : bigint,
   'owner' : [] | [Principal],
   'operator' : [] | [Principal],
   'approved_at' : [] | [bigint],
   'approved_by' : [] | [Principal],
   'contract_id' : bigint,
+  'ekoke_reward' : bigint,
   'is_burned' : boolean,
   'burned_at' : [] | [bigint],
   'burned_by' : [] | [Principal],

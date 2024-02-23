@@ -38,7 +38,7 @@ impl Deferred {
     /// On init set custodians and canisters ids
     pub fn init(init_data: DeferredInitData) {
         RolesManager::set_custodians(init_data.custodians).expect("storage error");
-        Configuration::set_ekoke_ledger_canister(init_data.ekoke_ledger_canister)
+        Configuration::set_ekoke_reward_pool_canister(init_data.ekoke_send_reward_canister)
             .expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
             .expect("storage error");
@@ -212,7 +212,7 @@ impl Deferred {
             ic_cdk::trap("Unauthorized");
         }
 
-        if let Err(err) = Configuration::set_ekoke_ledger_canister(canister) {
+        if let Err(err) = Configuration::set_ekoke_reward_pool_canister(canister) {
             ic_cdk::trap(&err.to_string());
         }
     }
@@ -559,12 +559,12 @@ mod test {
     fn test_should_init_canister() {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
-            ekoke_ledger_canister: caller(),
+            ekoke_send_reward_canister: caller(),
             marketplace_canister: caller(),
         });
 
         assert_eq!(Deferred::custodians(), vec![caller()]);
-        assert_eq!(Configuration::get_ekoke_ledger_canister(), caller());
+        assert_eq!(Configuration::get_ekoke_reward_pool_canister(), caller());
         assert_eq!(Configuration::get_marketplace_canister(), caller());
     }
 
@@ -990,7 +990,7 @@ mod test {
     fn init_canister() {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
-            ekoke_ledger_canister: caller(),
+            ekoke_send_reward_canister: caller(),
             marketplace_canister: caller(),
         });
     }

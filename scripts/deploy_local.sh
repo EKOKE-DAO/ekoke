@@ -4,11 +4,10 @@ cd "$(dirname "$0")" || exit 1
 
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
-EKOKE_ARCHIVE_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-archive".local')
 EKOKE_ERC20_SWAP_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-erc20-swap".local')
-EKOKE_INDEX_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-index".local')
-EKOKE_LEDGER_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-ledger".local')
+EKOKE_LEDGER_PRINCIPAL="$(dfx canister id ekoke-ledger)"
 EKOKE_LIQUIDITY_POOL_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-liquidity-pool".local')
+EKOKE_REWARD_POOL_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-reward-pool".local')
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
 
 source ./deploy_functions.sh
@@ -28,14 +27,12 @@ dfx start --background
 
 cd ../
 
-deploy_deferred "reinstall" "local" "$DEFERRED_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
-deploy_ekoke_archive "reinstall" "local" "$EKOKE_ARCHIVE_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$EKOKE_INDEX_PRINCIPAL"
-
+deploy_deferred "reinstall" "local" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
 deploy_ekoke_erc20_swap "reinstall" "local" "$EKOKE_ERC20_SWAP_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ERC20_BRIDGE_ADDRESS" "$ERC20_SWAP_FEE" "$ERC20_NETWORK"
-deploy_ekoke_index "reinstall" "local" "$EKOKE_INDEX_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$EKOKE_ARCHIVE_PRINCIPAL"
-deploy_ekoke_ledger "reinstall" "local" "$EKOKE_LEDGER_PRINCIPAL" "$ADMIN_PRINCIPAL" "$INITIAL_SUPPLY" "$EKOKE_INITIAL_BALANCES" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$EKOKE_MINTING_ACCOUNT" "$EKOKE_ARCHIVE_PRINCIPAL"
+deploy_ekoke_reward_pool "reinstall" "local" "$EKOKE_LEDGER_PRINCIPAL" "$ADMIN_PRINCIPAL" "$INITIAL_SUPPLY" "$EKOKE_INITIAL_BALANCES" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$EKOKE_MINTING_ACCOUNT" "$EKOKE_ARCHIVE_PRINCIPAL"
 deploy_ekoke_liquidity_pool "reinstall" "local" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$SWAP_ACCOUNT"
-deploy_marketplace "reinstall" "local" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ADMIN_PRINCIPAL" ""$EKOKE_LIQUIDITY_POOL_PRINCIPAL"
+deploy_ekoke_reward_pool "reinstall" "local" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL"
+deploy_marketplace "reinstall" "local" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" ""$EKOKE_LIQUIDITY_POOL_PRINCIPAL"
 
 dfx stop
 

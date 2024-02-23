@@ -12,8 +12,8 @@ use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 use icrc::icrc1::account::Account;
 
 use crate::app::memory::{
-    DEFERRED_CANISTER_MEMORY_ID, EKOKE_LEDGER_CANISTER_MEMORY_ID,
-    EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID, EKOKE_LIQUIDITY_POOL_CANISTER_MEMORY_ID,
+    DEFERRED_CANISTER_MEMORY_ID, EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID,
+    EKOKE_LIQUIDITY_POOL_CANISTER_MEMORY_ID, EKOKE_REWARD_POOL_CANISTER_MEMORY_ID,
     ICP_LEDGER_CANISTER_MEMORY_ID, INTEREST_FOR_BUYER_MEMORY_ID, MEMORY_MANAGER,
     XRC_CANISTER_MEMORY_ID,
 };
@@ -22,8 +22,8 @@ use crate::constants::DEFAULT_INTEREST_MULTIPLIER_FOR_BUYER;
 
 thread_local! {
     /// Ekoke canister
-    static EKOKE_LEDGER_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_LEDGER_CANISTER_MEMORY_ID)),
+    static EKOKE_REWARD_POOL_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_REWARD_POOL_CANISTER_MEMORY_ID)),
         Principal::anonymous().into()).unwrap()
     );
 
@@ -72,8 +72,8 @@ pub struct Configuration;
 
 impl Configuration {
     /// Set ledger account
-    pub fn set_ekoke_ledger_canister(ekoke_ledger_canister: Principal) {
-        EKOKE_LEDGER_CANISTER.with_borrow_mut(|cell| {
+    pub fn set_ekoke_reward_pool_canister(ekoke_ledger_canister: Principal) {
+        EKOKE_REWARD_POOL_CANISTER.with_borrow_mut(|cell| {
             cell.set(ekoke_ledger_canister.into()).unwrap();
         });
     }
@@ -100,8 +100,8 @@ impl Configuration {
     }
 
     /// Get minting account address
-    pub fn get_ekoke_ledger_canister() -> Principal {
-        EKOKE_LEDGER_CANISTER.with(|ma| ma.borrow().get().0)
+    pub fn get_ekoke_reward_pool_canister() -> Principal {
+        EKOKE_REWARD_POOL_CANISTER.with(|ma| ma.borrow().get().0)
     }
 
     /// Get minting account address
@@ -189,8 +189,8 @@ mod test {
     #[test]
     fn test_should_set_ekoke_ledger_canister() {
         let canister = id();
-        Configuration::set_ekoke_ledger_canister(canister);
-        assert_eq!(Configuration::get_ekoke_ledger_canister(), canister);
+        Configuration::set_ekoke_reward_pool_canister(canister);
+        assert_eq!(Configuration::get_ekoke_reward_pool_canister(), canister);
     }
 
     #[test]

@@ -1,5 +1,5 @@
 use candid::{Nat, Principal};
-use did::ekoke::PicoEkoke;
+use did::ekoke::Ekoke;
 use icrc::icrc1::account::Account;
 
 pub fn bob() -> Principal {
@@ -18,7 +18,7 @@ pub fn bob_account() -> Account {
 }
 
 /// Convert ekoke to picoekoke
-pub fn ekoke_to_picoekoke(amount: u64) -> PicoEkoke {
+pub fn ekoke_to_picoekoke(amount: u64) -> Ekoke {
     let amount = Nat::from(amount);
     let multiplier = Nat::from(1_000_000_000_000_u64);
     amount * multiplier

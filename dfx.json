@@ -5,24 +5,14 @@
       "package": "deferred",
       "type": "rust"
     },
-    "ekoke-archive": {
-      "candid": "src/ekoke_archive/ekoke-archive.did",
-      "package": "ekoke_archive",
-      "type": "rust"
-    },
     "ekoke-erc20-swap": {
       "candid": "src/ekoke_erc20_swap/ekoke-erc20-swap.did",
       "package": "ekoke_erc20_swap",
       "type": "rust"
     },
-    "ekoke-index": {
-      "candid": "src/ekoke_index/ekoke-index.did",
-      "package": "ekoke_index",
-      "type": "rust"
-    },
-    "ekoke-ledger": {
-      "candid": "src/ekoke_ledger/ekoke-ledger.did",
-      "package": "ekoke_ledger",
+    "ekoke-reward-pool": {
+      "candid": "src/ekoke_reward_pool/ekoke-reward-pool.did",
+      "package": "ekoke_reward_pool",
       "type": "rust"
     },
     "ekoke-liquidity-pool": {
@@ -42,7 +32,6 @@
       "packtool": ""
     }
   },
-
   "output_env_file": ".env",
   "version": 1
 }

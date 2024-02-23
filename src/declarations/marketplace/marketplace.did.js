@@ -4,7 +4,7 @@ export const idlFactory = ({ IDL }) => {
     'icp_ledger_canister' : IDL.Principal,
     'ekoke_liquidity_pool_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
-    'ekoke_ledger_canister' : IDL.Principal,
+    'ekoke_reward_pool_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   const BuyError = IDL.Variant({
@@ -186,7 +186,7 @@ export const init = ({ IDL }) => {
     'icp_ledger_canister' : IDL.Principal,
     'ekoke_liquidity_pool_canister' : IDL.Principal,
     'xrc_canister' : IDL.Principal,
-    'ekoke_ledger_canister' : IDL.Principal,
+    'ekoke_reward_pool_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   return [MarketplaceInitData];

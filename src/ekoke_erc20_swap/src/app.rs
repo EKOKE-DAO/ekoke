@@ -5,7 +5,7 @@ mod memory;
 mod roles;
 
 use candid::{Nat, Principal};
-use did::ekoke::{AllowanceError, EkokeError, EkokeResult, PicoEkoke};
+use did::ekoke::{AllowanceError, Ekoke, EkokeError, EkokeResult};
 use did::ekoke_erc20_swap::EkokeErc20SwapInitData;
 use did::H160;
 use icrc::icrc1::account::Account;
@@ -84,7 +84,7 @@ impl EkokeErc20SwapCanister {
     /// Swap ICRC to ERC20
     pub async fn swap(
         recipient: H160,
-        amount: PicoEkoke,
+        amount: Ekoke,
         from_subaccount: Option<[u8; 32]>,
     ) -> EkokeResult<String> {
         let caller = Account {

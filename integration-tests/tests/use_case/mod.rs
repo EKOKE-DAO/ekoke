@@ -1,7 +1,6 @@
 mod buy_marketplace_nft;
 mod icrc2_spend;
 mod increment_contract_value;
-mod index_transactions;
 mod register_agency;
 mod register_contract_buyers;
 mod register_sell_contract;

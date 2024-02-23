@@ -1,7 +1,7 @@
 mod ekoke_swapped;
 mod response;
 
-use did::ekoke::{EkokeResult, PicoEkoke};
+use did::ekoke::{Ekoke, EkokeResult};
 use did::ekoke_erc20_swap::EthNetwork;
 use did::H160;
 use ethers_core::abi::AbiEncode;
@@ -266,7 +266,7 @@ impl EthRpcClient {
         &self,
         from: H160,
         recipient: H160,
-        amount: PicoEkoke,
+        amount: Ekoke,
     ) -> EkokeResult<TransactionRequest> {
         let ekoke_erc20: H160 = Configuration::get_erc20_bridge_address();
         let nonce = self.get_next_nonce(from.clone()).await?;

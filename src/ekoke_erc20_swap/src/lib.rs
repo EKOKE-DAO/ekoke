@@ -10,7 +10,7 @@ mod inspect;
 mod utils;
 
 use candid::{candid_method, Nat, Principal};
-use did::ekoke::{EkokeResult, PicoEkoke};
+use did::ekoke::{Ekoke, EkokeResult};
 use did::ekoke_erc20_swap::EkokeErc20SwapInitData;
 use did::H160;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
@@ -38,7 +38,7 @@ pub async fn swap_fee() -> EkokeResult<u64> {
 #[candid_method(update)]
 pub async fn swap(
     recipient: H160,
-    amount: PicoEkoke,
+    amount: Ekoke,
     from_subaccount: Option<[u8; 32]>,
 ) -> EkokeResult<String> {
     EkokeErc20SwapCanister::swap(recipient, amount, from_subaccount).await

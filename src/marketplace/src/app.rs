@@ -39,7 +39,7 @@ pub struct Marketplace;
 impl Marketplace {
     pub fn init(data: MarketplaceInitData) {
         Configuration::set_deferred_canister(data.deferred_canister);
-        Configuration::set_ekoke_ledger_canister(data.ekoke_ledger_canister);
+        Configuration::set_ekoke_reward_pool_canister(data.ekoke_reward_pool_canister);
         Configuration::set_ekoke_liquidity_pool_canister(data.ekoke_liquidity_pool_canister);
         Configuration::set_xrc_canister(data.xrc_canister);
         Configuration::set_icp_ledger_canister(data.icp_ledger_canister);
@@ -72,7 +72,7 @@ impl Marketplace {
         if !Inspect::inspect_is_admin(caller()) {
             ic_cdk::trap("unauthorized");
         }
-        Configuration::set_ekoke_ledger_canister(canister);
+        Configuration::set_ekoke_reward_pool_canister(canister);
 
         Ok(())
     }
@@ -143,7 +143,7 @@ impl Marketplace {
     ) -> MarketplaceResult<()> {
         let caller_account = Self::caller_account(subaccount);
         let deferred_client = DeferredClient::from(Configuration::get_deferred_canister());
-        let ekoke_client = EkokeClient::from(Configuration::get_ekoke_ledger_canister());
+        let ekoke_client = EkokeClient::from(Configuration::get_ekoke_reward_pool_canister());
         // get token info
         let info = Self::get_token_info_with_price(&token_id).await?;
         // 0. checks whether already owns the token
@@ -196,7 +196,7 @@ impl Marketplace {
             ekoke_client
                 .send_reward(
                     &info.token_info.contract.id,
-                    info.token_info.token.picoekoke_reward,
+                    info.token_info.token.ekoke_reward,
                     caller_account,
                 )
                 .await?;
@@ -337,7 +337,7 @@ mod test {
         init_canister();
         assert_eq!(Configuration::get_deferred_canister(), deferred_canister());
         assert_eq!(
-            Configuration::get_ekoke_ledger_canister(),
+            Configuration::get_ekoke_reward_pool_canister(),
             ekoke_ledger_canister()
         );
         assert_eq!(
@@ -357,7 +357,7 @@ mod test {
         let new_ekoke_ledger_canister = Principal::anonymous();
         Marketplace::admin_set_ekoke_ledger_canister(new_ekoke_ledger_canister).unwrap();
         assert_eq!(
-            Configuration::get_ekoke_ledger_canister(),
+            Configuration::get_ekoke_reward_pool_canister(),
             new_ekoke_ledger_canister
         );
     }
@@ -474,7 +474,7 @@ mod test {
         assert_eq!(
             allowance,
             icrc2::allowance::Allowance {
-                allowance: 5000000000_u64.into(),
+                allowance: 888010101000000u64.into(),
                 expires_at: None,
             }
         );
@@ -551,7 +551,7 @@ mod test {
     fn init_canister() {
         let data = MarketplaceInitData {
             deferred_canister: deferred_canister(),
-            ekoke_ledger_canister: ekoke_ledger_canister(),
+            ekoke_reward_pool_canister: ekoke_ledger_canister(),
             ekoke_liquidity_pool_canister: ekoke_liquidity_pool_canister(),
             icp_ledger_canister: caller(),
             admins: vec![caller()],

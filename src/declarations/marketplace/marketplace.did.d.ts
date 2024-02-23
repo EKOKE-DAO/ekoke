@@ -68,7 +68,7 @@ export interface MarketplaceInitData {
   'icp_ledger_canister' : Principal,
   'ekoke_liquidity_pool_canister' : Principal,
   'xrc_canister' : Principal,
-  'ekoke_ledger_canister' : Principal,
+  'ekoke_reward_pool_canister' : Principal,
   'admins' : Array<Principal>,
 }
 export type NftError = { 'UnauthorizedOperator' : null } |

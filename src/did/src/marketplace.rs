@@ -84,7 +84,7 @@ pub struct MarketplaceInitData {
     /// Deferred canister
     pub deferred_canister: Principal,
     /// Ekoke canister
-    pub ekoke_ledger_canister: Principal,
+    pub ekoke_reward_pool_canister: Principal,
     /// Ekoke liquidity pool canister
     pub ekoke_liquidity_pool_canister: Principal,
     /// ICP ledger canister

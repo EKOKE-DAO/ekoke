@@ -54,11 +54,9 @@ args = ["fmt", "--all", "--", "--check"]
 description = "Generate did files"
 dependencies = [
   "deferred-did",
-  "ekoke-archive-did",
   "ekoke-erc20-swap-did",
-  "ekoke-index-did",
-  "ekoke-ledger-did",
   "ekoke-liquidity-pool-did",
+  "ekoke-reward-pool-did",
   "marketplace-did",
   "dfx-generate",
 ]
@@ -69,29 +67,19 @@ description = "Generate did files for deferred"
 script = "cargo run --bin deferred-did  --features did > src/deferred/deferred.did"
 workspace = false
 
-[tasks.ekoke-archive-did]
-description = "Generate did files for ekoke-archive"
-script = "cargo run --bin ekoke-archive-did  --features did > src/ekoke_archive/ekoke-archive.did"
-workspace = false
-
 [tasks.ekoke-erc20-swap-did]
 description = "Generate did files for ekoke-erc20-swap"
 script = "cargo run --bin ekoke-erc20-swap-did  --features did > src/ekoke_erc20_swap/ekoke-erc20-swap.did"
 workspace = false
 
-[tasks.ekoke-index-did]
-description = "Generate did files for ekoke-index"
-script = "cargo run --bin ekoke-index-did  --features did > src/ekoke_index/ekoke-index.did"
-workspace = false
-
-[tasks.ekoke-ledger-did]
-description = "Generate did files for ekoke-ledger"
-script = "cargo run --bin ekoke-ledger-did  --features did > src/ekoke_ledger/ekoke-ledger.did"
-workspace = false
-
 [tasks.ekoke-liquidity-pool-did]
 description = "Generate did files for ekoke-liquidity-pool"
 script = "cargo run --bin ekoke-liquidity-pool-did  --features did > src/ekoke_liquidity_pool/ekoke-liquidity-pool.did"
+workspace = false
+
+[tasks.ekoke-reward-pool-did]
+description = "Generate did files for ekoke-reward-pool"
+script = "cargo run --bin ekoke-reward-pool-did  --features did > src/ekoke_reward_pool/ekoke-reward-pool.did"
 workspace = false
 
 [tasks.marketplace-did]

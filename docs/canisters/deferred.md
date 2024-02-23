@@ -229,7 +229,7 @@ Each NFT has the following properties, following the DIP721 standard.
 - `token:contract_id`: contract id
 - `token:value`: fiat value of the contract
 - `token:currency`: currency name to represent the value
-- `token:picoEkoke_reward`: reward given when someone buys the contract on the marketplace
+- `token:ekoke_reward`: reward given when someone buys the contract on the marketplace
 - `contract:sellers`: contract sellers principals
 - `contract:buyers`: contract buyers principals
 

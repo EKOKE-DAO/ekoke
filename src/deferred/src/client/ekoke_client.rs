@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use candid::Principal;
 use did::deferred::DeferredResult;
-use did::ekoke::PicoEkoke;
+use did::ekoke::Ekoke;
 use did::ID;
 
 #[cfg(not(test))]
@@ -21,7 +21,7 @@ pub trait EkokeClient {
         &self,
         contract_id: ID,
         installments: u64,
-    ) -> DeferredResult<PicoEkoke>;
+    ) -> DeferredResult<Ekoke>;
 }
 
 #[cfg(not(test))]
@@ -42,8 +42,8 @@ impl EkokeClient for IcEkokeClient {
         &self,
         contract_id: ID,
         installments: u64,
-    ) -> did::deferred::DeferredResult<PicoEkoke> {
-        let result: (did::ekoke::EkokeResult<PicoEkoke>,) = ic_cdk::call(
+    ) -> did::deferred::DeferredResult<Ekoke> {
+        let result: (did::ekoke::EkokeResult<Ekoke>,) = ic_cdk::call(
             self.principal,
             "get_contract_reward",
             (contract_id, installments),
@@ -64,7 +64,7 @@ impl EkokeClient for IcEkokeClient {
         &self,
         _contract_id: ID,
         _installments: u64,
-    ) -> DeferredResult<PicoEkoke> {
+    ) -> DeferredResult<Ekoke> {
         Ok(71_000_u64.into())
     }
 }

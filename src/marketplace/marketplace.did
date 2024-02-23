@@ -76,7 +76,7 @@ type MarketplaceInitData = record {
   icp_ledger_canister : principal;
   ekoke_liquidity_pool_canister : principal;
   xrc_canister : principal;
-  ekoke_ledger_canister : principal;
+  ekoke_reward_pool_canister : principal;
   admins : vec principal;
 };
 type NftError = variant {

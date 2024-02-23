@@ -82,7 +82,7 @@ type DeferredError = variant {
 };
 type DeferredInitData = record {
   custodians : vec principal;
-  ekoke_ledger_canister : principal;
+  ekoke_send_reward_canister : principal;
   marketplace_canister : principal;
 };
 type EcdsaError = variant {
@@ -188,13 +188,13 @@ type Token = record {
   id : nat;
   transferred_at : opt nat64;
   transferred_by : opt principal;
-  picoekoke_reward : nat;
   value : nat64;
   owner : opt principal;
   operator : opt principal;
   approved_at : opt nat64;
   approved_by : opt principal;
   contract_id : nat;
+  ekoke_reward : nat;
   is_burned : bool;
   burned_at : opt nat64;
   burned_by : opt principal;

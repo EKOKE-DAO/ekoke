@@ -1,7 +1,7 @@
 use candid::Principal;
+use did::ekoke::Ekoke;
 #[cfg(target_arch = "wasm32")]
 use did::ekoke::EkokeResult;
-use did::ekoke::PicoEkoke;
 #[cfg(target_arch = "wasm32")]
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;
@@ -26,7 +26,7 @@ impl EkokeClient {
     pub async fn send_reward(
         &self,
         contract_id: &ID,
-        amount: PicoEkoke,
+        amount: Ekoke,
         account: Account,
     ) -> MarketplaceResult<()> {
         #[cfg(not(target_arch = "wasm32"))]

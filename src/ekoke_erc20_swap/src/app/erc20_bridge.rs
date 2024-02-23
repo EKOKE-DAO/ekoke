@@ -7,7 +7,7 @@ mod swap_pool;
 
 use std::cell::RefCell;
 
-use did::ekoke::{AllowanceError, BalanceError, EkokeError, EkokeResult, PicoEkoke};
+use did::ekoke::{AllowanceError, BalanceError, Ekoke, EkokeError, EkokeResult};
 use did::H160;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
@@ -52,7 +52,7 @@ impl Erc20Bridge {
     pub async fn swap_icrc_to_erc20(
         caller: Account,
         recipient: H160,
-        amount: PicoEkoke,
+        amount: Ekoke,
     ) -> EkokeResult<String> {
         // check allowance
         Self::check_balance_and_allowance(caller, amount.clone()).await?;
@@ -142,7 +142,7 @@ impl Erc20Bridge {
         cketh_withdrawal::CkEthWithdrawal::withdraw_cketh().await
     }
 
-    async fn check_balance_and_allowance(caller: Account, amount: PicoEkoke) -> EkokeResult<()> {
+    async fn check_balance_and_allowance(caller: Account, amount: Ekoke) -> EkokeResult<()> {
         let ledger_client = IcrcLedgerClient::new(Configuration::get_ledger_canister());
         let caller_balance = ledger_client
             .icrc1_balance_of(caller)
