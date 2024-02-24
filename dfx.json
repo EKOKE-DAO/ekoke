@@ -10,6 +10,17 @@
       "package": "ekoke_erc20_swap",
       "type": "rust"
     },
+    "ekoke-erc20-swap-frontend": {
+      "dependencies": ["ekoke-erc20-swap"],
+      "frontend": {
+        "entrypoint": "src/ekoke_erc20_swap_frontend/src/index.html"
+      },
+      "source": [
+        "src/ekoke_erc20_swap_frontend/assets",
+        "dist/ekoke_erc20_swap_frontend/"
+      ],
+      "type": "assets"
+    },
     "ekoke-reward-pool": {
       "candid": "src/ekoke_reward_pool/ekoke-reward-pool.did",
       "package": "ekoke_reward_pool",

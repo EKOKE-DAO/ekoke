@@ -2,6 +2,7 @@
 
 ![CI state](https://github.com/EKOKEtoken/ekoke/workflows/build-test/badge.svg)
 ![Ethereum](https://github.com/EKOKEtoken/ekoke/workflows/ethereum/badge.svg)
+![Frontend](https://github.com/EKOKEtoken/ekoke/workflows/frontend/badge.svg)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 <img src="./assets/images/deferred-logo.png" alt="deferred logo" width="128" />
@@ -37,10 +38,10 @@ The project is composed by the following components:
 
 - **deferred**: A DIP721 ICP canister which represents the Deferred NFTs.
 - **EKOKE**: A ICRC-2 token ICP canister which represents the fungible token $EKOKE.
-  - **ekoke-archive**: block history for ekoke transactions
-  - **ekoke-index**: Index canister for ekoke
-  - **ekoke-ledger**: A ICRC-2 token ICP canister which represents the fungible token $EKOKE.
-  - **ekoke-swap**: A simple web canister to swap Ekoke tokens between ERC20 <> ICRC2 token
+  - **ekoke-erc20-swap**: Canister to swap EKOKE between ICRC and ERC20
+  - **ekoke-erc20-swap-frontend**: Frontend for erc20-swap canister
+  - **ekoke-liquidity-pool**: Canister which manages the EKOKE liquidity pool
+  - **ekoke-reward-pool**: Canister which handles the reward pool for EKOKE
 - **marketplace**: A canister which manages the Deferred tokens sell and $EKOKE rewards giveaway.
 
 ## Changelog
