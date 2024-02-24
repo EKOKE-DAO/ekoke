@@ -125,7 +125,7 @@ while current_month <= REWARD_PERIOD:
         cpm = 0
 
     # make halve
-    if rmc / 2 > 0.00000001:
+    if rmc / 2 > 0.000000000001:
         rmc /= 2
 
 handle.close()

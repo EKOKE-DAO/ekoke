@@ -126,7 +126,7 @@ impl Reward {
     /// If RMC value is below 2e-8, it will never halve.
     fn should_halve_rmc() -> bool {
         // check if RMC value less than 2e-8
-        if RMC.with_borrow(|rmc| *rmc.get() < 2e-8) {
+        if RMC.with_borrow(|rmc| *rmc.get() < 2e-12) {
             return false;
         }
         // check time
