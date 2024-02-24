@@ -15,7 +15,7 @@ use crate::app::memory::{
     NEXT_HALVING_MEMORY_ID, RMC_MEMORY_ID,
 };
 use crate::app::pool::Pool;
-use crate::constants::{INITIAL_RMC, MIN_REWARD};
+use crate::constants::{INITIAL_AVIDITY, INITIAL_RMC, MIN_REWARD};
 use crate::utils::time;
 
 thread_local! {
@@ -34,7 +34,7 @@ thread_local! {
     /// Avidity
     static AVIDITY: RefCell<StableCell<f64, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(AVIDITY_MEMORY_ID)),
-            1.0
+            INITIAL_AVIDITY
         ).unwrap()
     );
 
