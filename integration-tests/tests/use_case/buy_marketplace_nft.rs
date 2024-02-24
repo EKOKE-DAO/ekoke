@@ -53,7 +53,7 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
 
     // verify charlie got the reward
     let final_balance = ekoke_ledger_client.icrc1_balance_of(charlie_account());
-    let balance_diff = final_balance - initial_balance + 10_000u64;
+    let balance_diff = final_balance - initial_balance + 1_000u64;
     assert_eq!(balance_diff, token.ekoke_reward);
 }
 
@@ -107,7 +107,7 @@ fn test_should_buy_marketplace_nft_as_contract_buyer() {
 
     // verify alice got the reward
     let final_balance = ekoke_ledger_client.icrc1_balance_of(alice_account());
-    let balance_diff = final_balance - initial_balance + 10_000u64;
+    let balance_diff = final_balance - initial_balance + 1_000u64;
     assert_eq!(balance_diff, token.ekoke_reward);
 }
 

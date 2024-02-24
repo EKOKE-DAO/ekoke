@@ -356,7 +356,7 @@ impl TestEnv {
             name: "EKOKE".to_string(),
             symbol: "EKOKE".to_string(),
             decimals: 8,
-            fee: 10_000,
+            fee: 1_000,
             logo: "https://ic0.app/img/logo.png".to_string(),
             minting_account: actor::minting_account(),
             total_supply: total_supply.into(),

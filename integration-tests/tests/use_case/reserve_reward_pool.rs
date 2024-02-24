@@ -40,7 +40,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
 
     // give allowance to reward canister to spend my ekoke'
     let reward_amount = ekoke_to_e8s(installments);
-    let allowance_amount = reward_amount.clone() + 10_000u64;
+    let allowance_amount = reward_amount.clone() + 1_000u64;
     assert!(ekoke_ledger_client
         .icrc2_approve(
             alice(),

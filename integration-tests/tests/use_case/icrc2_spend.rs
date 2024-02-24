@@ -7,7 +7,7 @@ use serial_test::serial;
 #[test]
 #[serial]
 fn test_should_spend_approved_funds_on_ekoke() {
-    const EKOKE_FEE: u64 = 10_000;
+    const EKOKE_FEE: u64 = 1_000;
     let env = TestEnv::init();
 
     let ekoke_client = IcrcLedgerClient::new(env.ekoke_ledger_id, &env);

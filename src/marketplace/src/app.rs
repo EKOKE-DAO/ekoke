@@ -425,7 +425,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(2_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1353013530 + (10_000 * 2)); // with interest
+        assert_eq!(icp_price, 1353013530 + (1_000 * 2)); // with interest
     }
 
     #[tokio::test]
@@ -434,7 +434,7 @@ mod test {
         let icp_price = Marketplace::get_token_price_icp(TokenIdentifier::from(1_u64))
             .await
             .unwrap();
-        assert_eq!(icp_price, 1230012300 + 10_000);
+        assert_eq!(icp_price, 1230012300 + 1_000);
     }
 
     #[tokio::test]

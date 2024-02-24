@@ -79,7 +79,7 @@ fn test_should_inspect_send_reward() {
         .icrc2_approve(
             alice(),
             Account::from(env.ekoke_reward_pool_id),
-            ekoke_to_e8s(100) + 10_000u64,
+            ekoke_to_e8s(100) + 1_000u64,
             alice_account().subaccount
         )
         .is_ok());
@@ -112,7 +112,7 @@ fn test_should_fail_inspect_send_reward() {
         .icrc2_approve(
             alice(),
             Account::from(env.ekoke_reward_pool_id),
-            ekoke_to_e8s(100) + 10_000u64,
+            ekoke_to_e8s(100) + 1_000u64,
             alice_account().subaccount
         )
         .is_ok());

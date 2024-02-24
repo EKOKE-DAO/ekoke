@@ -31,7 +31,7 @@ impl IcrcLedgerClient {
     pub async fn icrc1_fee(&self) -> CallResult<Nat> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            Ok(10_000u64.into())
+            Ok(1_000u64.into())
         }
         #[cfg(target_arch = "wasm32")]
         {
