@@ -16,7 +16,7 @@ pub fn ekoke_client(_principal: Principal) -> IcEkokeClient {
 
 #[async_trait]
 pub trait EkokeClient {
-    /// Get contract reward. Returns $picoEkoke
+    /// Get contract reward. Returns $ekoke
     async fn get_contract_reward(
         &self,
         contract_id: ID,
@@ -37,7 +37,7 @@ pub struct IcEkokeClient;
 #[cfg(not(test))]
 #[async_trait]
 impl EkokeClient for IcEkokeClient {
-    /// Get contract reward. Returns $picoEkoke
+    /// Get contract reward. Returns $ekoke
     async fn get_contract_reward(
         &self,
         contract_id: ID,
@@ -59,7 +59,7 @@ impl EkokeClient for IcEkokeClient {
 #[cfg(test)]
 #[async_trait]
 impl EkokeClient for IcEkokeClient {
-    /// Get contract reward. Returns $picoEkoke
+    /// Get contract reward. Returns $ekoke
     async fn get_contract_reward(
         &self,
         _contract_id: ID,

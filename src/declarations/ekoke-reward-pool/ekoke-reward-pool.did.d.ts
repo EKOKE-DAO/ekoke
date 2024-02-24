@@ -91,6 +91,7 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
+  'available_liquidity' : ActorMethod<[], Result_1>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
   'reserve_pool' : ActorMethod<
     [bigint, bigint, [] | [Uint8Array | number[]]],

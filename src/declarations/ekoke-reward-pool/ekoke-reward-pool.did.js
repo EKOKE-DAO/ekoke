@@ -111,6 +111,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
+    'available_liquidity' : IDL.Func([], [Result_1], ['query']),
     'get_contract_reward' : IDL.Func([IDL.Nat, IDL.Nat64], [Result_1], []),
     'reserve_pool' : IDL.Func(
         [IDL.Nat, IDL.Nat, IDL.Opt(IDL.Vec(IDL.Nat8))],

@@ -8,7 +8,7 @@ use crate::app::Configuration;
 pub struct SwapPool;
 
 impl SwapPool {
-    /// Deposit $picoEkoke tokens to the swap pool from the provided account.
+    /// Deposit $ekoke tokens to the swap pool from the provided account.
     pub async fn deposit(from: Account, amount: Ekoke) -> EkokeResult<()> {
         let ledger_client = IcrcLedgerClient::new(Configuration::get_ledger_canister());
         ledger_client
@@ -19,7 +19,7 @@ impl SwapPool {
         Ok(())
     }
 
-    /// Withdraw $picoEkoke tokens from the swap pool to the provided account.
+    /// Withdraw $ekoke tokens from the swap pool to the provided account.
     pub async fn withdraw(to: Account, amount: Ekoke) -> EkokeResult<()> {
         let ledger_client = IcrcLedgerClient::new(Configuration::get_ledger_canister());
         ledger_client

@@ -101,6 +101,11 @@ impl EkokeRewardPoolCanister {
         Reward::get_contract_reward(contract_id, installments).await
     }
 
+    /// Get available liquidity
+    pub async fn available_liquidity() -> EkokeResult<Ekoke> {
+        Pool::available_liquidity().await
+    }
+
     // # admin methods
 
     /// Set role to the provided principal

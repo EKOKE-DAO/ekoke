@@ -34,6 +34,12 @@ pub async fn send_reward(contract_id: ID, amount: Ekoke, buyer: Account) -> Ekok
     EkokeRewardPoolCanister::send_reward(contract_id, amount, buyer).await
 }
 
+#[query]
+#[candid_method(query)]
+pub async fn available_liquidity() -> EkokeResult<Ekoke> {
+    EkokeRewardPoolCanister::available_liquidity().await
+}
+
 #[update]
 #[candid_method(update)]
 pub async fn reserve_pool(

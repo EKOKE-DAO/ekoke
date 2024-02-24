@@ -18,7 +18,7 @@ pub struct Token {
     pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
-    /// $picoEkoke (pico-ekoke) reward for buying a Token
+    /// $ekoke reward for buying a Token
     pub ekoke_reward: Ekoke,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
