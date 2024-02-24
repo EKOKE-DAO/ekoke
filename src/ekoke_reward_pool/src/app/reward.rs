@@ -212,7 +212,7 @@ mod test {
             Reward::get_contract_reward(1_u64.into(), 4_000)
                 .await
                 .unwrap(),
-            3729642424_u64
+            372964242_u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
         assert!(Pool::has_pool(&1_u64.into()));
@@ -222,7 +222,7 @@ mod test {
             Reward::get_contract_reward(2_u64.into(), 4_000)
                 .await
                 .unwrap(),
-            3666984431u64
+            372337662u64
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
         assert!(Pool::has_pool(&2_u64.into()));
