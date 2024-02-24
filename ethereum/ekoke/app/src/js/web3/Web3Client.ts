@@ -21,16 +21,16 @@ export default class Web3Client {
       .send({ from: this.address });
   }
 
-  async setEkokeCanisterAddress(newAddress: string) {
+  async setEkokeLedgerCanisterAddress(newAddress: string) {
     const contract = this.getContract();
     return contract.methods
-      .setEkokeCanisterAddress(newAddress)
+      .setEkokeLedgerCanisterAddress(newAddress)
       .send({ from: this.address });
   }
 
-  async getEkokeCanisterAddress(): Promise<string> {
+  async getEkokeLedgerCanisterAddress(): Promise<string> {
     const contract = this.getContract();
-    return contract.methods.getEkokeCanisterAddress().call();
+    return contract.methods.getEkokeLedgerCanisterAddress().call();
   }
 
   async renounceOwnership() {

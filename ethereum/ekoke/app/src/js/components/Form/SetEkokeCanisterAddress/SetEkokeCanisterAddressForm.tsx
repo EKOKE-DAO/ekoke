@@ -24,7 +24,7 @@ const setEkokeCanisterAddressForm = () => {
     setPendingTx(true);
     const client = new Web3Client(account, ethereum, chainId as ChainId);
     client
-      .setEkokeCanisterAddress(address)
+      .setEkokeLedgerCanisterAddress(address)
       .then(() => {
         setPendingTx(false);
         setError(undefined);
@@ -39,7 +39,7 @@ const setEkokeCanisterAddressForm = () => {
     if (account && ethereum && chainId) {
       const client = new Web3Client(account, ethereum, chainId as ChainId);
       client
-        .getEkokeCanisterAddress()
+        .getEkokeLedgerCanisterAddress()
         .then((address) => {
           setAddressSet(address);
         })

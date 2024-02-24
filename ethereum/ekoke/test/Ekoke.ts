@@ -3,10 +3,10 @@ import { ethers } from "hardhat";
 import { Ekoke } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-const TOTAL_SUPPLY = "8880101010000000000"; // 8 milions
+const TOTAL_SUPPLY = "888010101000000"; // 8 milions
 const NAME = "Ekoke";
 const SYMBOL = "EKOKE";
-const DECIMALS = 12;
+const DECIMALS = 8;
 const DUMMY_PRINCIPAL = new Uint8Array([
   64, 123, 39, 130, 111, 49, 3, 65, 143, 8, 40, 152, 37, 163, 102, 10, 226, 6,
   132, 148, 181, 23, 75, 76, 77, 109, 126, 107, 2, 14, 0, 10,
@@ -47,25 +47,25 @@ describe("Ekoke", () => {
     // check balance
     expect(await token.balanceOf(owner.address)).to.equal(0);
     // check ekoke canister is unset
-    expect(token.getEkokeCanisterAddress()).to.be.revertedWith(
+    expect(token.getEkokeLedgerCanisterAddress()).to.be.revertedWith(
       "Ekoke: ekoke canister address not set"
     );
   });
 
   it("Should set ekoke canister address just once", async () => {
     const { token, ekokeCanister } = deploy;
-    await token.setEkokeCanisterAddress(ekokeCanister.address);
-    expect(await token.getEkokeCanisterAddress()).to.equal(
+    await token.setEkokeLedgerCanisterAddress(ekokeCanister.address);
+    expect(await token.getEkokeLedgerCanisterAddress()).to.equal(
       ekokeCanister.address
     );
     expect(
-      token.setEkokeCanisterAddress(ekokeCanister.address)
+      token.setEkokeLedgerCanisterAddress(ekokeCanister.address)
     ).to.be.revertedWith("Ekoke: ekoke canister address already set");
   });
 
   it("Should transcribe swap", async () => {
     const { token, owner } = deploy;
-    await token.setEkokeCanisterAddress(owner.address);
+    await token.setEkokeLedgerCanisterAddress(owner.address);
     await token.transcribeSwap(owner.address, 100);
     expect(await token.balanceOf(owner.address)).to.equal(100);
   });
@@ -74,7 +74,7 @@ describe("Ekoke", () => {
     const { token, owner, ekokeCanister } = deploy;
     await token.mintTestnetTokens(owner.address, 100);
 
-    await token.setEkokeCanisterAddress(ekokeCanister.address);
+    await token.setEkokeLedgerCanisterAddress(ekokeCanister.address);
     const initialEkokeCanisterBalance = await ethers.provider.getBalance(
       ekokeCanister.address
     );
@@ -100,7 +100,7 @@ describe("Ekoke", () => {
 
   it("should fail swap if has not enough tokens", async () => {
     const { token, owner, ekokeCanister } = deploy;
-    await token.setEkokeCanisterAddress(ekokeCanister.address);
+    await token.setEkokeLedgerCanisterAddress(ekokeCanister.address);
     await token.mintTestnetTokens(owner.address, 100);
 
     await expect(token.swap(DUMMY_PRINCIPAL, 101)).to.be.revertedWith(

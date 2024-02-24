@@ -296,7 +296,7 @@ export const ABI = [
   },
   {
     inputs: [],
-    name: 'getEkokeCanisterAddress',
+    name: 'getEkokeLedgerCanisterAddress',
     outputs: [
       {
         internalType: 'address',
@@ -366,7 +366,7 @@ export const ABI = [
         type: 'address',
       },
     ],
-    name: 'setEkokeCanisterAddress',
+    name: 'setEkokeLedgerCanisterAddress',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

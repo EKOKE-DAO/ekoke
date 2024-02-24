@@ -8,7 +8,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 // import "hardhat/console.sol";
 
 contract Ekoke is ERC20, Ownable {
-    address private ekoke_canister_address;
+    address private ekoke_ledger_canister_address;
     uint8 private _decimals;
 
     uint256 private constant GOERLI_CHAIN_ID = 5;
@@ -24,24 +24,15 @@ contract Ekoke is ERC20, Ownable {
     constructor(
         address _initialOwner
     ) ERC20("Ekoke", "EKOKE") Ownable(_initialOwner) {
-        _decimals = 12;
-        ekoke_canister_address = address(0);
+        _decimals = 8;
+        ekoke_ledger_canister_address = address(0);
     }
 
-    modifier onlyEkokeCanister() {
+    modifier onlyEkokeLedgerCanister() {
         require(
-            msg.sender == ekoke_canister_address &&
-                ekoke_canister_address != address(0),
+            msg.sender == ekoke_ledger_canister_address &&
+                ekoke_ledger_canister_address != address(0),
             "Ekoke: caller is not the ekoke canister"
-        );
-        _;
-    }
-
-    modifier isOwnerOrEkokeCanister() {
-        require(
-            (msg.sender == ekoke_canister_address &&
-                ekoke_canister_address != address(0)) || msg.sender == owner(),
-            "Ekoke: caller is not the ekoke canister nor the owner"
         );
         _;
     }
@@ -61,7 +52,7 @@ contract Ekoke is ERC20, Ownable {
     }
 
     function totalSupply() public view virtual override returns (uint256) {
-        return 8_880_101_010_000_000_000;
+        return 888_010_101_000_000;
     }
 
     /**
@@ -76,26 +67,26 @@ contract Ekoke is ERC20, Ownable {
      * @dev Returns the address of the ekoke canister.
      * @return The address of the ekoke canister.
      */
-    function getEkokeCanisterAddress() public view returns (address) {
+    function getEkokeLedgerCanisterAddress() public view returns (address) {
         require(
-            ekoke_canister_address != address(0),
+            ekoke_ledger_canister_address != address(0),
             "Ekoke: ekoke canister address not set"
         );
-        return ekoke_canister_address;
+        return ekoke_ledger_canister_address;
     }
 
     /**
      * @dev Sets the address of the ekoke canister. The address can only be set once.
      * @param _ekoke_canister_address The new address of the ekoke canister.
      */
-    function setEkokeCanisterAddress(
+    function setEkokeLedgerCanisterAddress(
         address _ekoke_canister_address
     ) public onlyOwner {
         require(
-            ekoke_canister_address == address(0),
+            ekoke_ledger_canister_address == address(0),
             "Ekoke: ekoke canister address already set"
         );
-        ekoke_canister_address = _ekoke_canister_address;
+        ekoke_ledger_canister_address = _ekoke_canister_address;
     }
 
     /**
@@ -106,7 +97,7 @@ contract Ekoke is ERC20, Ownable {
     function swap(bytes32 _recipient, uint256 _amount) public {
         // check if the ekoke canister address is set
         require(
-            ekoke_canister_address != address(0),
+            ekoke_ledger_canister_address != address(0),
             "Ekoke: ekoke canister address not set"
         );
         // check if the caller has enough tokens to swap
@@ -128,7 +119,7 @@ contract Ekoke is ERC20, Ownable {
     function transcribeSwap(
         address _recipient,
         uint256 _amount
-    ) public onlyEkokeCanister {
+    ) public onlyEkokeLedgerCanister {
         // mint the tokens to the recipient
         _mint(_recipient, _amount);
     }
