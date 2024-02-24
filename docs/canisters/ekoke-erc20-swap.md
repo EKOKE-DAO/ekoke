@@ -18,7 +18,7 @@
 - Ethereum [0x]()
 - Sepolia: [0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d](https://sepolia.etherscan.io/address/0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d)
 
-Decimals: 8
+Decimals: 8  
 Symbol: **EKOKE**
 
 The EKOKE ICRC-2 token has a 1:1 token on Ethereum implemented as an ERC20 token, with the same name.
