@@ -12,13 +12,3 @@ account() {
     echo "record { owner = principal \"$OWNER\"; subaccount = opt vec $SUBACCOUNT; }"
   fi
 }
-
-balances() {
-  BALANCES="$1"
-
-  if [ -z "$BALANCES" ]; then
-    echo "vec {}"
-  else
-    echo "vec { $(for balance in $BALANCES; do echo "record { $(account ${balance%%:*}); ${balance##*:} };"; done) }"
-  fi
-}
