@@ -1,3 +1,5 @@
+use std::ops::Div as _;
+
 use candid::Principal;
 use serde::Deserialize;
 
@@ -22,43 +24,24 @@ impl EkokeSwapped {
     }
 
     pub fn principal(&self) -> Result<Principal, String> {
-        let principal_str = self.topics.get(2).ok_or("missing principal")?;
-        let principal_trimmed: &str = principal_str.trim_start_matches("0x");
+        let topic = self.topics.get(2).ok_or("Topic not found".to_string())?;
+        let principal_trimmed: &str = topic.trim_start_matches("0x");
 
         let slice =
             ethers_core::utils::hex::decode(principal_trimmed).map_err(|err| err.to_string())?;
 
-        const ANONYMOUS_PRINCIPAL_BYTES: [u8; 1] = [4];
-
         if slice.is_empty() {
-            return Err("slice too short".to_string());
+            return Err("Principal is empty".to_string());
         }
-        if slice.len() > 32 {
-            return Err(format!("Expected at most 32 bytes, got {}", slice.len()));
-        }
-        let num_bytes = slice[0] as usize;
-        if num_bytes == 0 {
-            return Err("management canister principal is not allowed".to_string());
-        }
-        if num_bytes > 29 {
-            return Err(format!(
-                "invalid number of bytes: expected a number in the range [1,29], got {num_bytes}",
-            ));
-        }
-        if slice.len() < 1 + num_bytes {
-            return Err("slice too short".to_string());
-        }
-        let (principal_bytes, trailing_zeroes) = slice[1..].split_at(num_bytes);
-        if !trailing_zeroes
-            .iter()
-            .all(|trailing_zero| *trailing_zero == 0)
-        {
-            return Err("trailing non-zero bytes".to_string());
-        }
-        if principal_bytes == ANONYMOUS_PRINCIPAL_BYTES {
-            return Err("anonymous principal is not allowed".to_string());
-        }
-        Principal::try_from_slice(principal_bytes).map_err(|err| err.to_string())
+
+        let principal_len = (slice[0] as usize)
+            .checked_sub(1)
+            .unwrap_or_default()
+            .div(2);
+        let principal_slice = &slice[0..principal_len];
+
+        Principal::try_from_slice(&principal_slice)
+            .map_err(|err| format!("Invalid principal: {}", err.to_string()))
     }
 
     pub fn amount(&self) -> Result<u64, String> {
@@ -82,21 +65,14 @@ mod test {
             topics: vec![
                 "0x257e057bb61920d8d0ed2cb7b720ac7f9c513cd1110bc9fa543079154f45f435".to_string(),
                 "0x00000000000000000000000053d290220b4ae5cd91987517ef04e206c1078850".to_string(),
-                "0x1d7a3af512fb166ee6447759bd4e3a1c7daa4d98c0b7b8cb1fbb20b62b020000".to_string(),
+                "0x3BCD06F8612FD5F804E0DC519CD2040571758E8FDA92A7EFEFFDF40702000000".to_string(),
             ],
         };
         assert_eq!(response.block_number().unwrap(), 18713258);
-        //assert_eq!(
-        //    response.from_address().unwrap(),
-        //    H160::from_hex_str("0x53d290220b4ae5cd91987517ef04e206c1078850").unwrap(),
-        //);
         assert_eq!(
             response.principal().unwrap(),
-            Principal::from_slice(&[
-                0x7a, 0x3a, 0xf5, 0x12, 0xfb, 0x16, 0x6e, 0xe6, 0x44, 0x77, 0x59, 0xbd, 0x4e, 0x3a,
-                0x1c, 0x7d, 0xaa, 0x4d, 0x98, 0xc0, 0xb7, 0xb8, 0xcb, 0x1f, 0xbb, 0x20, 0xb6, 0x2b,
-                0x02
-            ])
+            Principal::from_text("bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe")
+                .unwrap()
         );
         assert_eq!(response.amount().unwrap(), 10000000000000000);
     }
