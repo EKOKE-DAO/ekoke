@@ -16,6 +16,7 @@ const config: Config = {
         brand: '#31363b',
         brandAlt: '#31363b',
         page: '#f1eef5',
+        text: '#606060',
       },
       fontSize: {
         xl: '1.5rem',

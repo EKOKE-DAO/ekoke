@@ -12,6 +12,7 @@ import { CONTRACT_ADDRESS } from '../../../web3/contracts/Ekoke';
 import Button from '../../reusable/Button';
 import { Page, PageProps } from '../ConnectedPage';
 import EkokeLogo from '../../../../assets/images/ekoke-logo.webp';
+import Paragraph from '../../reusable/Paragraph';
 
 const Summary = ({ onSwitchPage }: PageProps) => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
@@ -28,7 +29,7 @@ const Summary = ({ onSwitchPage }: PageProps) => {
 
   return (
     <Container.FlexCols className="items-center justify-center">
-      <Container.Card className="px-12">
+      <Container.Card className="px-12 sm:px-1">
         <Container.FlexCols className="items-center justify-center">
           <Heading.H1>EKOKE Token</Heading.H1>
           <img
@@ -40,21 +41,22 @@ const Summary = ({ onSwitchPage }: PageProps) => {
         <Hr />
         <Container.FlexCols className="gap-4">
           <Container.Container>
-            <span className="text-lg">
+            <Paragraph.Default className="sm:!w-min text-lg sm:text-xs !text-left">
               ERC20 Token Address:{' '}
               <Link.Default
+                className="sm:text-xs"
                 href={`https://etherscan.io/address/${
                   CONTRACT_ADDRESS[chainId as ChainId]
                 }`}
               >
                 {CONTRACT_ADDRESS[chainId as ChainId]}
               </Link.Default>
-            </span>
+            </Paragraph.Default>
           </Container.Container>
           <Container.Container>
-            <span className="text-lg">
+            <Paragraph.Default className="sm:!w-min text-lg sm:text-xs !text-left">
               ERC20 Swapped Supply: {swappedSupply}
-            </span>
+            </Paragraph.Default>
           </Container.Container>
           <Container.FlexResponsiveRow className="items-center justify-center gap-8 sm:gap-2">
             <Button.Cta onClick={() => onSwitchPage(Page.IcrcToErc20)}>

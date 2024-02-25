@@ -2,6 +2,8 @@ import Web3 from 'web3';
 
 import { ABI, CONTRACT_ADDRESS } from './contracts/Ekoke';
 import { ChainId } from '../components/MetamaskConnect';
+import { Principal } from '@dfinity/principal';
+import { principalToBytes32 } from '../utils';
 
 export default class Web3Client {
   private address: string;
@@ -14,41 +16,10 @@ export default class Web3Client {
     this.chainId = chainId;
   }
 
-  async transferOwnership(newAddress: string) {
+  async swap(recipient: Principal, amount: bigint) {
     const contract = this.getContract();
     return contract.methods
-      .transferOwnership(newAddress)
-      .send({ from: this.address });
-  }
-
-  async setEkokeLedgerCanisterAddress(newAddress: string) {
-    const contract = this.getContract();
-    return contract.methods
-      .setEkokeLedgerCanisterAddress(newAddress)
-      .send({ from: this.address });
-  }
-
-  async getEkokeLedgerCanisterAddress(): Promise<string> {
-    const contract = this.getContract();
-    return contract.methods.getEkokeLedgerCanisterAddress().call();
-  }
-
-  async renounceOwnership() {
-    const contract = this.getContract();
-    return contract.methods.renounceOwnership().send({ from: this.address });
-  }
-
-  async transfer(recipient: string, amount: number) {
-    const contract = this.getContract();
-    return contract.methods
-      .transfer(recipient, amount)
-      .send({ from: this.address });
-  }
-
-  async mintTestnetTokens(recipient: string, amount: number) {
-    const contract = this.getContract();
-    return contract.methods
-      .mintTestnetTokens(recipient, amount)
+      .swap(principalToBytes32(recipient), amount)
       .send({ from: this.address });
   }
 

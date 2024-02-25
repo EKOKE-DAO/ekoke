@@ -15,7 +15,7 @@ const PageContent = (props: React.HTMLProps<HTMLDivElement>) => {
       itemProp={props.itemProp}
       itemScope={props.itemScope}
       itemType={props.itemType}
-      className={`${props.className} w-9/12 sm:11/12 mx-auto`}
+      className={`${props.className} w-9/12 sm:w-11/12 mx-auto`}
     >
       {props.children}
     </div>
