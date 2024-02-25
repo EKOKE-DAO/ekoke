@@ -2,80 +2,172 @@ import * as React from 'react';
 
 interface InputProps extends React.HTMLProps<HTMLInputElement> {
   id: string;
-  label: string;
+  label?: string;
   containerClassName?: string;
+  validate?: (
+    input: string | number | readonly string[] | undefined,
+  ) => boolean;
+  validationMessage?: string;
 }
 
-const Input = (props: InputProps) => (
-  <div className={`${props.containerClassName} mb-6`}>
-    <label
-      htmlFor={props.id}
-      className="block mb-2 text-sm font-medium text-gray-700 "
-    >
-      {props.label}
-    </label>
-    <input
-      type={props.type}
-      className={`${props.className} bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-800 focus:border-gray-500 block w-full p-2.5 700 600 400  :ring-gray-300 :border-gray-500`}
-      readOnly={props.readOnly}
-      onChange={props.onChange}
-      required={props.required}
-      name={props.name}
-      value={props.value}
-    />
-  </div>
-);
+const inputValidationStyle = (
+  validate:
+    | undefined
+    | ((input: string | number | readonly string[] | undefined) => boolean),
+  input: string | number | readonly string[] | undefined,
+  hasFocus: boolean,
+): string | undefined => {
+  if (
+    validate === undefined ||
+    input === undefined ||
+    input.toString().length === 0 ||
+    hasFocus
+  )
+    return undefined;
 
-interface IconInputProps extends InputProps {
-  icon: JSX.Element;
-}
+  if (!validate(input)) {
+    return 'bg-red-50 border-red-500 text-red-900 placeholder-red-700 focus:border-red-500';
+  }
 
-const IconInput = (props: IconInputProps) => (
-  <div className={`${props.containerClassName} mb-6`}>
-    <label
-      htmlFor={props.id}
-      className="block mb-2 text-sm font-medium text-gray-700 "
-    >
-      {props.label}
-    </label>
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        {props.icon}
-      </div>
+  return undefined;
+};
+const Input = (props: InputProps) => {
+  const [hasFocus, setHasFocus] = React.useState(false);
+
+  const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setHasFocus(true);
+    if (props.onFocus) props.onFocus(e);
+  };
+
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setHasFocus(false);
+    if (props.onBlur) props.onBlur(e);
+  };
+
+  return (
+    <div className={`${props.containerClassName} mb-6`}>
+      {props.label && (
+        <label
+          htmlFor={props.id}
+          className="block mb-2 text-sm font-medium text-gray-700 "
+        >
+          {props.label}
+        </label>
+      )}
       <input
         type={props.type}
-        className={`${props.className} pl-10 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-800 focus:border-gray-500 p-2.5 700 600 400  :ring-gray-300 :border-gray-500`}
+        className={`${props.className} ${inputValidationStyle(
+          props.validate,
+          props.value,
+          hasFocus,
+        )} bg-gray-50 border border-gray-300 text-text text-sm rounded-lg focus:ring-brand focus:border-brand p-4 focus-visible:outline-none`}
         readOnly={props.readOnly}
         onChange={props.onChange}
         required={props.required}
         name={props.name}
         value={props.value}
+        placeholder={props.placeholder}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
+      {props.validate &&
+        props.validationMessage &&
+        (props.value ? props.value.toString().length > 0 : false) &&
+        !hasFocus &&
+        !props.validate(props.value) && (
+          <span className="text-red-500 text-sm">
+            {props.validationMessage}
+          </span>
+        )}
     </div>
-  </div>
-);
+  );
+};
+interface IconInputProps extends InputProps {
+  icon: JSX.Element;
+}
+
+const IconInput = (props: IconInputProps) => {
+  const [hasFocus, setHasFocus] = React.useState(false);
+
+  const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setHasFocus(true);
+    if (props.onFocus) props.onFocus(e);
+  };
+
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setHasFocus(false);
+    if (props.onBlur) props.onBlur(e);
+  };
+
+  return (
+    <div className={`${props.containerClassName} mb-6`}>
+      {props.label && (
+        <label
+          htmlFor={props.id}
+          className="block mb-2 text-sm font-medium text-text "
+        >
+          {props.label}
+        </label>
+      )}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          {props.icon}
+        </div>
+        <input
+          type={props.type}
+          className={`${props.className} ${inputValidationStyle(
+            props.validate,
+            props.value,
+            hasFocus,
+          )} pl-10 block w-full bg-gray-50 border border-gray-300 text-text text-sm rounded-lg focus:ring-brand focus:border-brand p-4 focus-visible:outline-none`}
+          readOnly={props.readOnly}
+          onChange={props.onChange}
+          onKeyUp={props.onKeyUp}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          required={props.required}
+          name={props.name}
+          value={props.value}
+          placeholder={props.placeholder}
+        />
+      </div>
+      {props.validate &&
+        props.validationMessage &&
+        (props.value ? props.value.toString().length > 0 : false) &&
+        !hasFocus &&
+        !props.validate(props.value) && (
+          <span className="text-red-500 text-sm">
+            {props.validationMessage}
+          </span>
+        )}
+    </div>
+  );
+};
 
 interface TextAreaProps extends React.HTMLProps<HTMLTextAreaElement> {
   id: string;
-  label: string;
+  label?: string;
   containerClassName?: string;
 }
 
 const Textarea = (props: TextAreaProps) => (
   <div className={`${props.containerClassName} mb-6`}>
-    <label
-      htmlFor={props.id}
-      className="block mb-2 text-sm font-medium text-gray-700 "
-    >
-      {props.label}
-    </label>
+    {props.label && (
+      <label
+        htmlFor={props.id}
+        className="block mb-2 text-sm font-medium text-text "
+      >
+        {props.label}
+      </label>
+    )}
     <textarea
       id="message"
       rows={props.rows}
-      className={`${props.className} block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-gray-800 focus:border-gray-500 700 600 400  :gray-blue-300 :border-gray-500`}
+      className={`${props.className} block p-2.5 w-full text-sm text-text bg-gray-50 rounded-lg border border-gray-300 focus:ring-band focus:border-brand focus-visible:outline-none`}
       placeholder={props.placeholder}
       required={props.required}
       onChange={props.onChange}
+      onKeyUp={props.onKeyUp}
       name={props.name}
       value={props.value}
     ></textarea>

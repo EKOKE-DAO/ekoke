@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useMetaMask } from 'metamask-react';
-import Logo from './MetamaskConnect/Logo';
 import Button from './reusable/Button';
 import Container from './reusable/Container';
-import Select from './reusable/Select';
+import Metamask from './svg/Metamask';
 
 export enum ChainId {
   Mainnet = '0x1',
@@ -15,7 +14,7 @@ export enum ChainId {
   Hardhat = '0x7a69',
 }
 
-const CHAIN_ID = ChainId.Mainnet;
+const CHAIN_ID = ChainId.Sepolia;
 
 const MetamaskConnect = () => {
   const { status, connect, account, chainId, switchChain } = useMetaMask();
@@ -59,7 +58,7 @@ const MetamaskConnect = () => {
         onClick={onClick}
         disabled={disabled}
       >
-        <Logo />
+        <Metamask />
         {text()}
       </Button.Alternative>
     </Container.FlexRow>

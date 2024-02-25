@@ -3,17 +3,14 @@ import { useMetaMask } from 'metamask-react';
 import { useIcWallet } from 'react-ic-wallet';
 
 import ConnectMessage from './ConnectMessage';
+import ConnectedPage from './ConnectedPage';
 
 const LayoutSwitch = () => {
   const { status: metamaskStatus } = useMetaMask();
   const { status: icStatus } = useIcWallet();
 
   if (metamaskStatus === 'connected' && icStatus === 'connected') {
-    return (
-      <div>
-        <h1>Connected to both Metamask and IC Wallet</h1>
-      </div>
-    );
+    return <ConnectedPage />;
   }
 
   // default message to connect

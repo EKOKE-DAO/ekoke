@@ -525,11 +525,11 @@ interface ContractAddress {
 }
 
 export const CONTRACT_ADDRESS: ContractAddress = {
-  [ChainId.Goerli]: '0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663',
+  [ChainId.Goerli]: '',
   [ChainId.Kovan]: '',
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '0xc08e14F47382BCc1dA6c3Ff366018cAb1c77091F',
+  [ChainId.Sepolia]: '0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d',
   [ChainId.Hardhat]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
 };

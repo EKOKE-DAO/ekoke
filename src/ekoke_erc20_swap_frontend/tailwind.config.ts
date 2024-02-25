@@ -23,6 +23,9 @@ const config: Config = {
         '3xl': '3.5rem',
         '4xl': '7rem',
       },
+      width: {
+        page: '80%',
+      },
     },
   },
   plugins: [],

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useIcWallet } from 'react-ic-wallet';
 
-import Logo from './IcConnect/Logo';
 import Button from './reusable/Button';
 import Container from './reusable/Container';
+import InternetComputer from './svg/InternetComputer';
 
 const IcConnect = () => {
   const { status, connect, disconnect, principal } = useIcWallet();
@@ -30,7 +30,7 @@ const IcConnect = () => {
     if (status === 'unavailable') return 'IC Wallet not available';
     if (status === 'notConnected') return 'Connect to IC';
     if (status === 'connecting') return 'Connecting...';
-    if (status === 'connected') return principal;
+    if (status === 'connected') return `${principal.substring(0, 18)}...`;
     return undefined;
   };
 
@@ -41,7 +41,7 @@ const IcConnect = () => {
         onClick={onClick}
         disabled={disabled}
       >
-        <Logo className="inline w-[32px] mr-2" />
+        <InternetComputer className="inline w-[32px] mr-2" />
         {text()}
       </Button.Alternative>
     </Container.FlexRow>
