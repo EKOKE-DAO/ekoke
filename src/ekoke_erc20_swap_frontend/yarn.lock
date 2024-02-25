@@ -39,7 +39,7 @@
     chalk "^2.4.2"
     js-tokens "^4.0.0"
 
-"@dfinity/agent@^1.0.0":
+"@dfinity/agent@^1.0.0", "@dfinity/agent@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@dfinity/agent/-/agent-1.0.1.tgz#4207490454c5900b35f72c617a9ae5fbc8069eb6"
   integrity sha512-QoCiKIWEgsXoaiHpb76M2qLXYDS9IdfvC81dLJYvX9KVXRq8Ojo4S82tBqBFGtM0j0EKEC6mIAJV/bqhOJTtjQ==
@@ -2869,10 +2869,10 @@ react-helmet@^6.1:
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
 
-react-ic-wallet@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.1.0.tgz#cf81732ec9c7f10f7e92675a9105148f40f54548"
-  integrity sha512-Bp8omG11QpkapFY6YcOC2z/aQFeJ3O1yunRZC3qE/qGuQMuHL8hz3X+unkt0XyLXy6KqICFsyQ1JhUkDe+qxgw==
+react-ic-wallet@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.1.1.tgz#7bf1cc36b5a98079763c3522515787596e6fb1d1"
+  integrity sha512-sTMQJpFPYSE6GvU1tXE+3kOE0fDtE8x4J95Tt0F7pJKwYhFET6W7XXPw61romR/oKldG3DnbN5QRwM4vGMKtpA==
   dependencies:
     "@dfinity/agent" "^1.0.0"
     "@dfinity/candid" "^1.0.0"

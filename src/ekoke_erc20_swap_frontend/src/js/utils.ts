@@ -24,6 +24,14 @@ export const validatePrincipal = (
   }
 };
 
+export const validateEthAddress = (
+  address: string | number | readonly string[] | undefined,
+): boolean => {
+  if (typeof address !== 'string') return false;
+
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+};
+
 export const validateIsNumber = (
   amount: string | number | readonly string[] | undefined,
 ): boolean => {

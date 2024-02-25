@@ -2,40 +2,37 @@ import * as React from 'react';
 import * as Icon from 'react-feather';
 import { useConnectedMetaMask } from 'metamask-react';
 import { useConnectedIcWallet } from 'react-ic-wallet';
-import { Principal } from '@dfinity/principal';
 
-import Web3Client from '../../../web3/Web3Client';
-import { ChainId } from '../../MetamaskConnect';
-import Container from '../../reusable/Container';
-import Heading from '../../reusable/Heading';
-import Link from '../../reusable/Link';
-import Button from '../../reusable/Button';
 import { Page, PageProps } from '../ConnectedPage';
+import { e8sToEkoke, validateEthAddress } from '../../../utils';
+import Container from '../../reusable/Container';
+import Link from '../../reusable/Link';
 import Ethereum from '../../svg/Ethereum';
+import Heading from '../../reusable/Heading';
 import InternetComputer from '../../svg/InternetComputer';
-import EthereumWhite from '../../svg/EthereumWhite';
 import Input from '../../reusable/Input';
-import { e8sToEkoke, validatePrincipal } from '../../../utils';
 import Alerts from '../../reusable/Alerts';
 import Paragraph from '../../reusable/Paragraph';
+import Button from '../../reusable/Button';
 
-const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
-  const { account, ethereum, chainId } = useConnectedMetaMask();
+const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
+  const { account } = useConnectedMetaMask();
   const { principal } = useConnectedIcWallet();
 
-  const [recipientPrincipal, setRecipientPrincipal] =
-    React.useState<string>(principal);
+  const [recipientAddress, setRecipientAddress] =
+    React.useState<string>(account);
   const [amount, setAmount] = React.useState<string>('');
   const [userBalance, setUserBalance] = React.useState<BigInt>();
   const [processing, setProcessing] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<boolean>(false);
+  const [swapTxHash, setSwapTxHash] = React.useState<string | false>(false);
 
-  const onRecipientPrincipalChange = (
+  const onRecipientAddressChanged = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setRecipientPrincipal(e.target.value);
+    setRecipientAddress(e.target.value);
   };
+
   const onAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(e.target.value);
   };
@@ -64,43 +61,16 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
       setError('Insufficient balance.');
       return;
     }
-    if (!validatePrincipal(recipientPrincipal)) {
+    if (!validateEthAddress(recipientAddress)) {
       setProcessing(false);
-      setError('Invalid principal.');
+      setError('Invalid address.');
       return;
     }
 
-    const principal = Principal.fromText(recipientPrincipal);
     const numAmount = BigInt(amount);
-
-    const web3 = new Web3Client(account, ethereum, chainId as ChainId);
-    web3
-      .swap(principal, numAmount.valueOf())
-      .then(() => {
-        setProcessing(false);
-        setAmount('');
-        setError(null);
-        setSuccess(true);
-        setRecipientPrincipal('');
-      })
-      .catch((e) => {
-        setProcessing(false);
-        setError(`Swap failed: ${e.message}`);
-        setSuccess(false);
-      });
   };
 
-  React.useEffect(() => {
-    if (!ethereum || !account || !chainId) return;
-
-    const web3 = new Web3Client(account, ethereum, chainId as ChainId);
-
-    web3.balanceOf(account).then((balance) => {
-      setUserBalance(balance);
-    });
-  }, [ethereum, account, chainId]);
-
-  const disabled = !recipientPrincipal || !amount || processing;
+  const disabled = !recipientAddress || !amount || processing;
 
   return (
     <Container.FlexCols className="items-center justify-center">
@@ -118,30 +88,28 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
             )}
           </Container.Container>
           <Container.FlexRow className="flex-1 items-center justify-center gap-4">
-            <Ethereum className="w-[32px] sm:hidden" />
-            <Heading.H1 className="sm:text-lg">Swap ERC20 to ICRC</Heading.H1>
             <InternetComputer className="h-[32px] sm:hidden" />
+            <Heading.H1 className="sm:text-lg">Swap ICRC to ERC20</Heading.H1>
+            <Ethereum className="w-[32px] sm:hidden" />
           </Container.FlexRow>
         </Container.FlexResponsiveRow>
         {userBalance && (
           <Container.Container className="py-4 text-text">
-            <span>Your EKOKE ERC20 balance: {e8sToEkoke(userBalance)}</span>
+            <span>Your EKOKE ICRC balance: {e8sToEkoke(userBalance)}</span>
           </Container.Container>
         )}
         <Container.FlexCols className="gap-4">
           <Container.Container>
             <Input.IconInput
-              className="pl-[60px] sm:pl-[8px]"
-              icon={
-                <InternetComputer className="h-[20px] w-[40px] sm:hidden" />
-              }
-              label="Recipient Principal"
-              id="recipient-principal"
-              placeholder={principal}
-              value={recipientPrincipal}
-              validate={validatePrincipal}
-              validationMessage="Please enter a valid principal."
-              onChange={onRecipientPrincipalChange}
+              className="pl-[40px] sm:pl-[8px]"
+              icon={<Ethereum className="h-[20px] sm:hidden" />}
+              label="Recipient Ethereum Address"
+              id="recipient-eth-address"
+              placeholder={account}
+              value={recipientAddress}
+              validate={validateEthAddress}
+              validationMessage="Please enter a valid ethereum address."
+              onChange={onRecipientAddressChanged}
             />
           </Container.Container>
           <Container.Container>
@@ -149,7 +117,7 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
               className="pl-[40px]"
               icon={<Icon.DollarSign size={20} className="inline" />}
               label="Amount"
-              id="amount"
+              id="swap-amount"
               value={amount}
               placeholder="10000"
               type="number"
@@ -166,19 +134,24 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
                 </Paragraph.Default>
               </Alerts.Danger>
             )}
-            {success && (
+            {swapTxHash && (
               <Alerts.Info>
-                <span>
-                  Swap successful! Wait up to 3 hours to see the swapped amount
-                  on EKOKE ICRC .
-                </span>
+                <Paragraph.Default className="!text-left">
+                  Swap successful! See your transaction{' '}
+                  <Link.Paragraph
+                    href={`https://etherscan.io/tx/${swapTxHash}`}
+                    target="_blank"
+                  >
+                    {swapTxHash}
+                  </Link.Paragraph>
+                </Paragraph.Default>
               </Alerts.Info>
             )}
             <Button.Cta onClick={onSwap} disabled={disabled}>
               {processing ? (
                 <Icon.Loader className="inline mr-2 animate-spin" size={20} />
               ) : (
-                <EthereumWhite className="inline mr-2 h-[20px]" />
+                <InternetComputer className="inline mr-2 h-[20px]" />
               )}
               <span>Swap</span>
             </Button.Cta>
@@ -189,4 +162,4 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
   );
 };
 
-export default SwapErc20ToIcrc;
+export default SwapIcrcToErc20;
