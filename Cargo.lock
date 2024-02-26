@@ -655,7 +655,6 @@ name = "ekoke_erc20_swap"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bytes",
  "candid",
  "did",
  "ethers-contract",
@@ -681,7 +680,6 @@ dependencies = [
  "thiserror",
  "time",
  "tokio",
- "xrc",
 ]
 
 [[package]]

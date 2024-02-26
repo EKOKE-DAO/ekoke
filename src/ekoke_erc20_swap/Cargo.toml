@@ -19,7 +19,6 @@ did = []
 
 [dependencies]
 async-trait = { workspace = true }
-bytes = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }
 ethers-contract = { workspace = true }
@@ -42,7 +41,6 @@ sha2 = { workspace = true }
 sha3 = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true }
-xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"
