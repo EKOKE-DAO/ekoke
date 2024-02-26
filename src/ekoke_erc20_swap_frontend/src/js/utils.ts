@@ -2,7 +2,7 @@ import { Principal } from '@dfinity/principal';
 
 const DECIMALS = 8;
 
-export const e8sToEkoke = (e8s: BigInt): string => {
+export const e8sToEkoke = (e8s: bigint): string => {
   // put comma in `decimals` position
   const supplyStr = e8s.toString();
   const arr = supplyStr.split('');

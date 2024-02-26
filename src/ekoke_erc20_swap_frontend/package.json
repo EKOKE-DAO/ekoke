@@ -36,7 +36,7 @@
     "react-dom": "^18.2",
     "react-feather": "^2.0",
     "react-helmet": "^6.1",
-    "react-ic-wallet": "^0.1.1",
+    "react-ic-wallet": "^0.2.1",
     "web3": "^4.5.0"
   },
   "devDependencies": {

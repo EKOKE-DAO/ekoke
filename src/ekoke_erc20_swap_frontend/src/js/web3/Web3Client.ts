@@ -23,17 +23,17 @@ export default class Web3Client {
       .send({ from: this.address });
   }
 
-  async balanceOf(address: string): Promise<BigInt> {
+  async balanceOf(address: string): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.balanceOf(address).call();
   }
 
-  async decimals(): Promise<BigInt> {
+  async decimals(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.decimals().call();
   }
 
-  async swappedSupply(): Promise<BigInt> {
+  async swappedSupply(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.swappedSupply().call();
   }

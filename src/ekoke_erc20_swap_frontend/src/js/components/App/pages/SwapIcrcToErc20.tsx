@@ -14,18 +14,29 @@ import Input from '../../reusable/Input';
 import Alerts from '../../reusable/Alerts';
 import Paragraph from '../../reusable/Paragraph';
 import Button from '../../reusable/Button';
+import { useAgentContext } from '../../../ic/AgentContext';
+import SwapRunner, { RunState } from './SwapIcrcToErc20/SwapRunner';
+
+export interface CanisterSwapState {
+  ckEthBalance: bigint;
+  ckEthIcrcFee: bigint;
+  ekokeIcrcFee: bigint;
+  ekokeBalance: bigint;
+}
 
 const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
   const { account } = useConnectedMetaMask();
   const { principal } = useConnectedIcWallet();
+  const { ckEthLedger, ekokeLedger } = useAgentContext();
 
   const [recipientAddress, setRecipientAddress] =
     React.useState<string>(account);
   const [amount, setAmount] = React.useState<string>('');
-  const [userBalance, setUserBalance] = React.useState<BigInt>();
-  const [processing, setProcessing] = React.useState<boolean>(false);
+  const [canisterSwapState, setCanisterSwapState] =
+    React.useState<CanisterSwapState>();
   const [error, setError] = React.useState<string | null>(null);
-  const [swapTxHash, setSwapTxHash] = React.useState<string | false>(false);
+  const [swapTxHash, setSwapTxHash] = React.useState<string | null>(null);
+  const [runState, setRunState] = React.useState<RunState | null>(null);
 
   const onRecipientAddressChanged = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -46,38 +57,76 @@ const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
       return false;
     }
 
-    if (userBalance === undefined) return true;
+    if (canisterSwapState === undefined) return true;
 
     const userAmount = BigInt(amount);
-    return userAmount <= userBalance.valueOf();
+    return userAmount <= canisterSwapState.ekokeBalance.valueOf();
   };
 
   const onSwap = () => {
-    setProcessing(true);
-
     // check if the user has enough balance
     if (!validateUserAmount(amount)) {
-      setProcessing(false);
       setError('Insufficient balance.');
       return;
     }
     if (!validateEthAddress(recipientAddress)) {
-      setProcessing(false);
       setError('Invalid address.');
       return;
     }
 
-    const numAmount = BigInt(amount);
+    const swapAmount = BigInt(amount);
+
+    setRunState({
+      canisterSwapState: canisterSwapState!,
+      recipientAddress,
+      swapAmount,
+      account: {
+        owner: principal,
+        subaccount: [],
+      },
+    });
   };
 
-  const disabled = !recipientAddress || !amount || processing;
+  const onSwapCompleted = () => {
+    setRunState(null);
+  };
+
+  const onSwapTxHash = (txHash: string) => {
+    setSwapTxHash(txHash);
+  };
+
+  React.useEffect(() => {
+    if (ckEthLedger && ekokeLedger && !canisterSwapState) {
+      const fetchCanisterStates = async () => {
+        const ckEthBalance = await ckEthLedger.icrc1_balance_of({
+          owner: principal,
+          subaccount: [],
+        });
+        const ckEthIcrcFee = await ckEthLedger.icrc1_fee();
+        const ekokeIcrcFee = await ekokeLedger.icrc1_fee();
+        const ekokeBalance = await ekokeLedger.icrc1_balance_of({
+          owner: principal,
+          subaccount: [],
+        });
+        return { ckEthBalance, ckEthIcrcFee, ekokeIcrcFee, ekokeBalance };
+      };
+      fetchCanisterStates()
+        .then(setCanisterSwapState)
+        .catch((e) => {
+          setError(`Failed to fetch canister fee and balance: ${e.message}`);
+        });
+    }
+  }, [ckEthLedger, canisterSwapState, ekokeLedger]);
+
+  const disabled: boolean =
+    !recipientAddress || !amount || runState !== null || !canisterSwapState;
 
   return (
     <Container.FlexCols className="items-center justify-center">
       <Container.Card className="px-12 sm:px-4">
         <Container.FlexResponsiveRow className="items-center sm:items-start justify-between sm:justify-start gap-8">
           <Container.Container className="flex-0">
-            {!processing && (
+            {!runState && (
               <Link.IconLink
                 className="hover:cursor-pointer"
                 onClick={() => onSwitchPage(Page.Summary)}
@@ -93,9 +142,26 @@ const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
             <Ethereum className="w-[32px] sm:hidden" />
           </Container.FlexRow>
         </Container.FlexResponsiveRow>
-        {userBalance && (
+        {canisterSwapState && (
           <Container.Container className="py-4 text-text">
-            <span>Your EKOKE ICRC balance: {e8sToEkoke(userBalance)}</span>
+            <span>
+              Your EKOKE ICRC balance:{' '}
+              {e8sToEkoke(canisterSwapState.ekokeBalance)}
+            </span>
+          </Container.Container>
+        )}
+        {canisterSwapState && (
+          <Container.Container>
+            <Container.Container className="py-4 text-text">
+              <span>
+                CkEth Fee: {canisterSwapState.ckEthIcrcFee.toString()} ckETH
+              </span>
+            </Container.Container>
+            <Container.Container className="py-4 text-text">
+              <span>
+                CkEth Balance: {canisterSwapState.ckEthBalance.toString()} ckETH
+              </span>
+            </Container.Container>
           </Container.Container>
         )}
         <Container.FlexCols className="gap-4">
@@ -148,7 +214,7 @@ const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
               </Alerts.Info>
             )}
             <Button.Cta onClick={onSwap} disabled={disabled}>
-              {processing ? (
+              {runState !== null ? (
                 <Icon.Loader className="inline mr-2 animate-spin" size={20} />
               ) : (
                 <InternetComputer className="inline mr-2 h-[20px]" />
@@ -158,6 +224,11 @@ const SwapIcrcToErc20 = ({ onSwitchPage }: PageProps) => {
           </Container.FlexCols>
         </Container.FlexCols>
       </Container.Card>
+      <SwapRunner
+        run={runState}
+        onDone={onSwapCompleted}
+        onTxHash={onSwapTxHash}
+      />
     </Container.FlexCols>
   );
 };

@@ -23,10 +23,11 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
   const { principal } = useConnectedIcWallet();
 
-  const [recipientPrincipal, setRecipientPrincipal] =
-    React.useState<string>(principal);
+  const [recipientPrincipal, setRecipientPrincipal] = React.useState<string>(
+    principal.toString(),
+  );
   const [amount, setAmount] = React.useState<string>('');
-  const [userBalance, setUserBalance] = React.useState<BigInt>();
+  const [userBalance, setUserBalance] = React.useState<bigint>();
   const [processing, setProcessing] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<boolean>(false);
@@ -123,7 +124,7 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
             <InternetComputer className="h-[32px] sm:hidden" />
           </Container.FlexRow>
         </Container.FlexResponsiveRow>
-        {userBalance && (
+        {userBalance !== undefined && (
           <Container.Container className="py-4 text-text">
             <span>Your EKOKE ERC20 balance: {e8sToEkoke(userBalance)}</span>
           </Container.Container>
@@ -137,7 +138,7 @@ const SwapErc20ToIcrc = ({ onSwitchPage }: PageProps) => {
               }
               label="Recipient Principal"
               id="recipient-principal"
-              placeholder={principal}
+              placeholder={principal.toString()}
               value={recipientPrincipal}
               validate={validatePrincipal}
               validationMessage="Please enter a valid principal."

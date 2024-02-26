@@ -2869,10 +2869,10 @@ react-helmet@^6.1:
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
 
-react-ic-wallet@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.1.1.tgz#7bf1cc36b5a98079763c3522515787596e6fb1d1"
-  integrity sha512-sTMQJpFPYSE6GvU1tXE+3kOE0fDtE8x4J95Tt0F7pJKwYhFET6W7XXPw61romR/oKldG3DnbN5QRwM4vGMKtpA==
+react-ic-wallet@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.2.1.tgz#b6311f24a589ad689c2ecfb89a70aa00d5b53e2d"
+  integrity sha512-Gs9ulmvVzqv0KVYcZDSo+Nx0pyBN2HASzfDJN1tEdXy1EdgXzzQVDt/iZWmwPvnxbXRytr1lXfBDFSTifOKD9A==
   dependencies:
     "@dfinity/agent" "^1.0.0"
     "@dfinity/candid" "^1.0.0"
