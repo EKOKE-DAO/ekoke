@@ -4,8 +4,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 [tasks.build]
 description = "Build canisters"
 dependencies = []
-command = "dfx"
-args = ["build"]
+script = "./scripts/dfx-build.sh"
 workspace = false
 
 [tasks.run]
