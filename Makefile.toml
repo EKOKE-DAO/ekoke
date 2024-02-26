@@ -1,7 +1,7 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
-[tasks.build]
+[tasks.dfx-build]
 description = "Build canisters"
 dependencies = []
 script = "./scripts/dfx-build.sh"
@@ -24,13 +24,13 @@ workspace = false
 [tasks.integration-tests]
 description = "Run integration tests"
 script = "./scripts/integration-tests.sh"
-dependencies = ["did", "build"]
+dependencies = ["did", "dfx-build"]
 workspace = false
 
 [tasks.deploy-local]
 description = "Deploy testnet with dfx"
 script = "./scripts/deploy_local.sh"
-dependencies = ["dfx-setup", "build", "did"]
+dependencies = ["dfx-setup", "dfx-build", "did"]
 workspace = false
 
 [tasks.lint]

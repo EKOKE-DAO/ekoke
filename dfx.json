@@ -15,26 +15,53 @@
       "frontend": {
         "entrypoint": "src/ekoke_erc20_swap_frontend/src/index.html"
       },
-      "source": [
-        "src/ekoke_erc20_swap_frontend/assets",
-        "dist/ekoke_erc20_swap_frontend/"
-      ],
+      "source": ["src/ekoke_erc20_swap_frontend/dist"],
       "type": "assets"
-    },
-    "ekoke-reward-pool": {
-      "candid": "src/ekoke_reward_pool/ekoke-reward-pool.did",
-      "package": "ekoke_reward_pool",
-      "type": "rust"
     },
     "ekoke-liquidity-pool": {
       "candid": "src/ekoke_liquidity_pool/ekoke-liquidity-pool.did",
       "package": "ekoke_liquidity_pool",
       "type": "rust"
     },
+    "ekoke-reward-pool": {
+      "candid": "src/ekoke_reward_pool/ekoke-reward-pool.did",
+      "package": "ekoke_reward_pool",
+      "type": "rust"
+    },
     "marketplace": {
       "candid": "src/marketplace/marketplace.did",
       "package": "marketplace",
       "type": "rust"
+    },
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/sns-governance-canister.wasm"
+    },
+    "sns_index": {
+      "build": "",
+      "candid": "candid/sns_index.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/ic-icrc1-index.wasm"
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/ic-icrc1-ledger.wasm"
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/sns-root-canister.wasm"
+    },
+    "sns_swap": {
+      "build": "",
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/sns-swap-canister.wasm"
     }
   },
   "defaults": {

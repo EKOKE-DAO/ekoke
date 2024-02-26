@@ -15,3 +15,5 @@ ehthumbs.db
 Thumbs.db
 
 dist/
+
+parcel-bundle-reports/

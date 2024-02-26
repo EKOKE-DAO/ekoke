@@ -9,4 +9,5 @@ yarn build:release
 cd -
 
 # build rust canisters
+dfx sns download --wasms-dir assets/wasm/
 dfx build
