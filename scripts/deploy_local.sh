@@ -5,7 +5,7 @@ cd "$(dirname "$0")" || exit 1
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
 EKOKE_ERC20_SWAP_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-erc20-swap".local')
-EKOKE_LEDGER_PRINCIPAL="$(dfx canister id ekoke-ledger)"
+EKOKE_LEDGER_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."sns_ledger".local')
 EKOKE_LIQUIDITY_POOL_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-liquidity-pool".local')
 EKOKE_REWARD_POOL_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-reward-pool".local')
 MARKETPLACE_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.marketplace.local')"
