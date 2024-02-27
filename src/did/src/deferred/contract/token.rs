@@ -4,7 +4,7 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::Serialize;
 
-use crate::ekoke::PicoEkoke;
+use crate::ekoke::Ekoke;
 use crate::ID;
 
 /// A Non fungible token related to an installment of a contract
@@ -18,8 +18,8 @@ pub struct Token {
     pub owner: Option<Principal>,
     /// Value of the single token (FIAT)
     pub value: u64,
-    /// $picoEkoke (pico-ekoke) reward for buying a Token
-    pub picoekoke_reward: PicoEkoke,
+    /// $ekoke reward for buying a Token
+    pub ekoke_reward: Ekoke,
     /// A principal who can operate on the token
     pub operator: Option<Principal>,
     /// Whether the token is burned

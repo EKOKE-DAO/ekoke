@@ -81,8 +81,8 @@ type DeferredError = variant {
   CanisterCall : record { RejectionCode; text };
 };
 type DeferredInitData = record {
-  ekoke_canister : principal;
   custodians : vec principal;
+  ekoke_reward_pool_canister : principal;
   marketplace_canister : principal;
 };
 type EcdsaError = variant {
@@ -188,13 +188,13 @@ type Token = record {
   id : nat;
   transferred_at : opt nat64;
   transferred_by : opt principal;
-  picoekoke_reward : nat;
   value : nat64;
   owner : opt principal;
   operator : opt principal;
   approved_at : opt nat64;
   approved_by : opt principal;
   contract_id : nat;
+  ekoke_reward : nat;
   is_burned : bool;
   burned_at : opt nat64;
   burned_by : opt principal;
@@ -288,7 +288,7 @@ service : (DeferredInitData) -> {
   admin_get_unsigned_contracts : () -> (vec nat) query;
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
-  admin_set_ekoke_canister : (principal) -> ();
+  admin_set_ekoke_ledger_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   admin_sign_contract : (nat) -> (Result);

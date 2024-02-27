@@ -12,4 +12,4 @@ yarn hardhat verify --network goerli "$CONTRACT_ADDRESS" "$OWNER_ADDRESS" $SWAP_
 
 ## Address
 
-- Sepolia ERC20 Bridge: [0xc08e14F47382BCc1dA6c3Ff366018cAb1c77091F](https://sepolia.etherscan.io/address/0xc08e14F47382BCc1dA6c3Ff366018cAb1c77091F)
+- Sepolia: [0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d](https://sepolia.etherscan.io/address/0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d)

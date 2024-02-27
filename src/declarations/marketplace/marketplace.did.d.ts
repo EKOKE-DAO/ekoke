@@ -64,10 +64,11 @@ export type MarketplaceError = { 'Buy' : BuyError } |
   { 'Dip721' : NftError } |
   { 'Icrc2Transfer' : TransferFromError };
 export interface MarketplaceInitData {
-  'ekoke_canister' : Principal,
   'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
+  'ekoke_liquidity_pool_canister' : Principal,
   'xrc_canister' : Principal,
+  'ekoke_reward_pool_canister' : Principal,
   'admins' : Array<Principal>,
 }
 export type NftError = { 'UnauthorizedOperator' : null } |
@@ -136,7 +137,8 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,
   'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_ekoke_canister' : ActorMethod<[Principal], Result>,
+  'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], Result>,
+  'admin_set_ekoke_liquidity_pool_canister' : ActorMethod<[Principal], Result>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_interest_rate_for_buyer' : ActorMethod<[number], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,

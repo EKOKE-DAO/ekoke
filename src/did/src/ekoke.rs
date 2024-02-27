@@ -1,59 +1,115 @@
-//! Types associated to the "Ekoke" canister
+use candid::{CandidType, Nat};
+use ic_cdk::api::call::RejectionCode;
+use icrc::{icrc1, icrc2};
+use serde::Deserialize;
+use thiserror::Error;
 
-mod error;
-mod eth_network;
-mod liquidity_pool;
-mod role;
-mod transaction;
-
-use candid::{CandidType, Deserialize, Nat, Principal};
-use icrc::icrc1::account::Account;
-
-pub use self::error::{
-    AllowanceError, BalanceError, ConfigurationError, EcdsaError, EkokeError, PoolError,
-    RegisterError,
-};
-pub use self::eth_network::EthNetwork;
-pub use self::liquidity_pool::{LiquidityPoolAccounts, LiquidityPoolBalance};
-pub use self::role::{Role, Roles};
-pub use self::transaction::Transaction;
-use crate::H160;
+use crate::ID;
 
 pub type EkokeResult<T> = Result<T, EkokeError>;
 
-/// 0.000000000001 $ekoke
-pub type PicoEkoke = Nat;
+pub type Ekoke = Nat;
 
-/// These are the arguments which are taken by the ekoke canister on init
-#[derive(Debug, Clone, CandidType, Deserialize)]
-pub struct EkokeInitData {
-    pub admins: Vec<Principal>,
-    /// The canister ID of the CKBTC canister
-    pub ckbtc_canister: Principal,
-    /// The canister ID of the CKETH ledger canister
-    pub cketh_ledger_canister: Principal,
-    /// The canister ID of the CKETH minter canister
-    pub cketh_minter_canister: Principal,
-    /// The Ethereum address of the ERC20 bridge
-    pub erc20_bridge_address: H160,
-    /// Initial ERC20 swap fee
-    pub erc20_gas_price: u64,
-    /// The Ethereum network
-    pub erc20_network: EthNetwork,
-    /// Total supply of $picoekoke tokens
-    pub total_supply: PicoEkoke,
-    /// Initial balances (wallet subaccount -> picoekoke)
-    pub initial_balances: Vec<(Account, PicoEkoke)>,
-    /// Deferred canister
-    pub deferred_canister: Principal,
-    /// ICP ledger canister
-    pub icp_ledger_canister: Principal,
-    /// Marketplace canister
-    pub marketplace_canister: Principal,
-    /// Swap account
-    pub swap_account: Account,
-    /// Minting account, the account that can mint new tokens and burn them
-    pub minting_account: Account,
-    /// XRC canister
-    pub xrc_canister: Principal,
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum EkokeError {
+    #[error("allowance error {0}")]
+    Allowance(AllowanceError),
+    #[error("balance error {0}")]
+    Balance(BalanceError),
+    #[error("configuration error {0}")]
+    Configuration(ConfigurationError),
+    #[error("ecdsa error {0}")]
+    Ecdsa(EcdsaError),
+    #[error("pool error {0}")]
+    Pool(PoolError),
+    #[error("register error {0}")]
+    Register(RegisterError),
+    #[error("storage error")]
+    StorageError,
+    #[error("inter-canister call error: ({0:?}): {1}")]
+    CanisterCall(RejectionCode, String),
+    #[error("icrc2 approve error {0:?}")]
+    Icrc2Approve(icrc2::approve::ApproveError),
+    #[error("icrc2 transfer error {0:?}")]
+    Icrc2Transfer(icrc2::transfer_from::TransferFromError),
+    #[error("icrc1 transfer error {0:?}")]
+    Icrc1Transfer(icrc1::transfer::TransferError),
+    #[error("xrc error")]
+    XrcError,
+    #[error("eth rpc error: ({0}): {1}")]
+    EthRpcError(i32, String),
+}
+
+impl From<icrc2::transfer_from::TransferFromError> for EkokeError {
+    fn from(value: icrc2::transfer_from::TransferFromError) -> Self {
+        Self::Icrc2Transfer(value)
+    }
+}
+
+impl From<icrc1::transfer::TransferError> for EkokeError {
+    fn from(value: icrc1::transfer::TransferError) -> Self {
+        Self::Icrc1Transfer(value)
+    }
+}
+
+impl From<xrc::ExchangeRateError> for EkokeError {
+    fn from(_: xrc::ExchangeRateError) -> Self {
+        Self::XrcError
+    }
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum AllowanceError {
+    #[error("allowance not found")]
+    AllowanceNotFound,
+    #[error("allowance changed")]
+    AllowanceChanged,
+    #[error("allowance expired")]
+    AllowanceExpired,
+    #[error("the spender cannot be the caller")]
+    BadSpender,
+    #[error("the expiration date is in the past")]
+    BadExpiration,
+    #[error("insufficient funds")]
+    InsufficientFunds,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum BalanceError {
+    #[error("account not found")]
+    AccountNotFound,
+    #[error("insufficient balance")]
+    InsufficientBalance,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum ConfigurationError {
+    #[error("there must be at least one admin")]
+    AdminsCantBeEmpty,
+    #[error("the canister admin cannot be anonymous")]
+    AnonymousAdmin,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum EcdsaError {
+    #[error("invalid public key")]
+    InvalidPublicKey,
+    #[error("invalid signature")]
+    InvalidSignature,
+    #[error("failed to compute recovery id")]
+    RecoveryIdError,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum PoolError {
+    #[error("pool not found for contract {0}")]
+    PoolNotFound(ID),
+    #[error("not enough tokens in pool")]
+    NotEnoughTokens,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum RegisterError {
+    #[error("transaction not found in the register")]
+    TransactionNotFound,
 }

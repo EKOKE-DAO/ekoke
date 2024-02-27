@@ -7,15 +7,16 @@ use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 
 use crate::app::memory::{
-    CREATED_AT_MEMORY_ID, EKOKE_CANISTER_MEMORY_ID, LOGO_MEMORY_ID, MARKETPLACE_CANISTER_MEMORY_ID,
-    MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID, UPGRADED_AT_MEMORY_ID,
+    CREATED_AT_MEMORY_ID, EKOKE_REWARD_POOL_CANISTER_MEMORY_ID, LOGO_MEMORY_ID,
+    MARKETPLACE_CANISTER_MEMORY_ID, MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID,
+    UPGRADED_AT_MEMORY_ID,
 };
 use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
 thread_local! {
     /// Ekoke Canister principal
-    static EKOKE_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_CANISTER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
+    static EKOKE_REWARD_POOL_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EKOKE_REWARD_POOL_CANISTER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
     );
 
     /// Marketplace Canister principal
@@ -105,12 +106,12 @@ impl Configuration {
         Ok(())
     }
 
-    pub fn get_ekoke_canister() -> Principal {
-        EKOKE_CANISTER.with_borrow(|cell| *cell.get().as_principal())
+    pub fn get_ekoke_reward_pool_canister() -> Principal {
+        EKOKE_REWARD_POOL_CANISTER.with_borrow(|cell| *cell.get().as_principal())
     }
 
-    pub fn set_ekoke_canister(canister: Principal) -> DeferredResult<()> {
-        EKOKE_CANISTER
+    pub fn set_ekoke_reward_pool_canister(canister: Principal) -> DeferredResult<()> {
+        EKOKE_REWARD_POOL_CANISTER
             .with_borrow_mut(|cell| cell.set(StorablePrincipal::from(canister)))
             .map_err(|_| DeferredError::StorageError)?;
 
@@ -178,13 +179,16 @@ mod test {
     }
 
     #[test]
-    fn test_should_get_and_set_ekoke_canister() {
+    fn test_should_get_and_set_ekoke_ledger_canister() {
         let principal =
             Principal::from_text("zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae")
                 .unwrap();
-        assert_eq!(Configuration::get_ekoke_canister(), Principal::anonymous());
-        assert!(Configuration::set_ekoke_canister(principal).is_ok());
-        assert_eq!(Configuration::get_ekoke_canister(), principal);
+        assert_eq!(
+            Configuration::get_ekoke_reward_pool_canister(),
+            Principal::anonymous()
+        );
+        assert!(Configuration::set_ekoke_reward_pool_canister(principal).is_ok());
+        assert_eq!(Configuration::get_ekoke_reward_pool_canister(), principal);
     }
 
     #[test]

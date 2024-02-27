@@ -7,7 +7,7 @@ use ic_stable_structures::Storable;
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct DeferredInitData {
     pub custodians: Vec<Principal>,
-    pub ekoke_canister: Principal,
+    pub ekoke_reward_pool_canister: Principal,
     pub marketplace_canister: Principal,
 }
 

@@ -72,10 +72,11 @@ type MarketplaceError = variant {
   Icrc2Transfer : TransferFromError;
 };
 type MarketplaceInitData = record {
-  ekoke_canister : principal;
   deferred_canister : principal;
   icp_ledger_canister : principal;
+  ekoke_liquidity_pool_canister : principal;
   xrc_canister : principal;
+  ekoke_reward_pool_canister : principal;
   admins : vec principal;
 };
 type NftError = variant {
@@ -147,7 +148,8 @@ service : (MarketplaceInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_set_admins : (vec principal) -> (Result);
   admin_set_deferred_canister : (principal) -> ();
-  admin_set_ekoke_canister : (principal) -> (Result);
+  admin_set_ekoke_ledger_canister : (principal) -> (Result);
+  admin_set_ekoke_liquidity_pool_canister : (principal) -> (Result);
   admin_set_icp_ledger_canister : (principal) -> ();
   admin_set_interest_rate_for_buyer : (float64) -> ();
   admin_set_xrc_canister : (principal) -> ();

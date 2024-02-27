@@ -15,7 +15,7 @@ pub fn mock_token(id: u64, contract_id: u64) -> Token {
         transferred_by: None,
         approved_at: None,
         approved_by: None,
-        picoekoke_reward: 4000_u64.into(),
+        ekoke_reward: 4000_u64.into(),
         burned_at: None,
         burned_by: None,
         minted_at: 0,

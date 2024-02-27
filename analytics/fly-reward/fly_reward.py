@@ -8,13 +8,13 @@ import random
 INITIAL_TOTAL_SUPPLY = 8_700_000.0
 NFT_VALUE = 100
 AVG_REAL_ESTATE_VALUE = 400_000
-INITIAL_RMC = 0.000_004_200
+INITIAL_RMC = 0.000_000_420
 INITIAL_RMC_HALVING_INTERVAL = 4 * 12  # 4 years
 REAL_ESTATE_PER_MONTH = 1.0
 REWARD_PERIOD = 12 * 100  # 100 years
 INITIAL_AVIDITY = 1.0
-FEE = 0.000_000_010_000
-MIN_REWARD = FEE * 2
+FEE = 0.00001000
+MIN_REWARD = FEE * 10
 
 
 def calculate_fly_reward(remaining_supply: float, rmc: float, avidity: float) -> float:

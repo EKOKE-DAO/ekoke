@@ -7,10 +7,10 @@ use serial_test::serial;
 #[test]
 #[serial]
 fn test_should_spend_approved_funds_on_ekoke() {
-    const EKOKE_FEE: u64 = 10_000;
+    const EKOKE_FEE: u64 = 1_000;
     let env = TestEnv::init();
 
-    let ekoke_client = IcrcLedgerClient::new(env.ekoke_id, &env);
+    let ekoke_client = IcrcLedgerClient::new(env.ekoke_ledger_id, &env);
     let amount = Nat::from(1_000u64);
     let allowance = amount.clone() + EKOKE_FEE;
     let total_spent_by_alice = allowance.clone() + EKOKE_FEE; // Fee is paid for approval as well

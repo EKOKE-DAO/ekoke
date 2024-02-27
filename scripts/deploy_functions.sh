@@ -6,14 +6,14 @@ deploy_deferred() {\
   INSTALL_MODE="$1"
   NETWORK="$2"
   DEFERRED_PRINCIPAL="$3"
-  EKOKE_PRINCIPAL="$4"
+  EKOKE_REWARD_POOL_PRINCIPAL="$4"
   MARKETPLACE_PRINCIPAL="$5"
   ADMIN_PRINCIPAL="$6"
 
   echo "deploying deferred canister $DEFERRED_PRINCIPAL"
 
   deferred_init_args="(record {
-    ekoke_canister = principal \"$EKOKE_PRINCIPAL\";
+    ekoke_reward_pool_canister = principal \"$EKOKE_REWARD_POOL_PRINCIPAL\";
     marketplace_canister = principal \"$MARKETPLACE_PRINCIPAL\";
     custodians = vec { principal \"$ADMIN_PRINCIPAL\" };
   })"
@@ -22,34 +22,21 @@ deploy_deferred() {\
 
 }
 
-deploy_ekoke() {
+deploy_ekoke_erc20_swap() {
   INSTALL_MODE="$1"
   NETWORK="$2"
-  EKOKE_PRINCIPAL="$3"
+  EKOKE_ERC20_SWAP_PRINCIPAL="$3"
   ADMINS="$4"
-  TOTAL_SUPPLY="$5"
-  INITIAL_BALANCES="$6"
-  DEFERRED_PRINCIPAL="$7"
-  MARKETPLACE_PRINCIPAL="$8"
-  SWAP_ACCOUNT="$9"
-  MINTING_ACCOUNT="${10}"
-  ERC20_BRIDGE_ADDRESS="${11}"
-  ERC20_SWAP_FEE="${12}"
-  ERC20_NETWORK="${13}"
+  EKOKE_LEDGER_PRINCIPAL="$5"
+  ERC20_BRIDGE_ADDRESS="$6"
+  ERC20_SWAP_FEE="$7"
+  ERC20_NETWORK="$8"
 
-  echo "deploying ekoke canister $EKOKE_PRINCIPAL"
+  echo "deploying ekoke-erc20-swap canister $EKOKE_ERC20_SWAP_PRINCIPAL"
 
-  ekoke_init_args="(record {
-    deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
-    marketplace_canister = principal \"$MARKETPLACE_PRINCIPAL\";
-    swap_account = $SWAP_ACCOUNT;
+  ekoke_erc20_swap_init_args="(record {
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
-    total_supply = $TOTAL_SUPPLY;
-    initial_balances = $INITIAL_BALANCES;
-    minting_account = $MINTING_ACCOUNT;
-    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
-    ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
-    icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
+    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
     cketh_minter_canister = principal \"sv3dd-oaaaa-aaaar-qacoa-cai\";
     cketh_ledger_canister = principal \"ss2fx-dyaaa-aaaar-qacoq-cai\";
     erc20_bridge_address = \"$ERC20_BRIDGE_ADDRESS\";
@@ -57,7 +44,66 @@ deploy_ekoke() {
     erc20_network = variant { $ERC20_NETWORK };
   })"
 
-  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_erc20_swap_init_args" ekoke-erc20-swap
+}
+
+deploy_ekoke_index() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_INDEX_PRINCIPAL="$3"
+  EKOKE_LEDGER_PRINCIPAL="$4"
+  EKOKE_ARCHIVE_PRINCIPAL="$5"
+
+  echo "deploying ekoke-index canister $EKOKE_INDEX_PRINCIPAL"
+
+  ekoke_index_init_args="(record {
+    archive_id = principal \"$EKOKE_ARCHIVE_PRINCIPAL\";
+    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_index_init_args" ekoke-index
+}
+
+deploy_ekoke_reward_pool() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_REWARD_POOL_PRINCIPAL="$3"
+  ADMINS="$4"
+  EKOKE_LEDGER_PRINCIPAL="$5"
+  DEFERRED_PRINCIPAL="$6"
+  MARKETPLACE_PRINCIPAL="$7"
+
+  echo "deploying ekoke-reward-pool canister $EKOKE_REWARD_POOL_PRINCIPAL"
+
+  ekoke_init_args="(record {
+    deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
+    marketplace_canister = principal \"$MARKETPLACE_PRINCIPAL\";
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    ledger_canister = principal \"$EKOKE_LEDGER_PRINCIPAL\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_init_args" ekoke-reward-pool
+
+}
+
+deploy_ekoke_liquidity_pool() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$3"
+  ADMINS="$4"
+  SWAP_ACCOUNT="$5"
+
+  echo "deploying ekoke-liquidity-pool canister $EKOKE_LEDGER_PRINCIPAL"
+
+  ekoke_liquidity_pool_init_args="(record {
+    swap_account = $SWAP_ACCOUNT;
+    admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
+    ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
+    icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
+    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_liquidity_pool_init_args" ekoke-liquidity-pool
 
 }
 
@@ -66,14 +112,16 @@ deploy_marketplace() {
   NETWORK="$2"
   MARKETPLACE_PRINCIPAL="$3"
   DEFERRED_PRINCIPAL="$4"
-  EKOKE_PRINCIPAL="$5"
+  EKOKE_REWARD_POOL_PRINCIPAL="$5"
   ADMINS="$6"
+  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$7"
 
   echo "deploying marketplace canister $MARKETPLACE_PRINCIPAL"
 
   marketplace_init_args="(record {
     deferred_canister = principal \"$DEFERRED_PRINCIPAL\";
-    ekoke_canister = principal \"$EKOKE_PRINCIPAL\";
+    ekoke_reward_pool_canister = principal \"$EKOKE_REWARD_POOL_PRINCIPAL\";
+    ekoke_liquidity_pool_canister = principal \"$EKOKE_LIQUIDITY_POOL_PRINCIPAL\";
     xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";

@@ -1,0 +1,58 @@
+{
+  "name": "ekoke_erc20_swap_frontend",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EKOKEToken/ekoke.git"
+  },
+  "author": "Christian Visintin <christian.visintin@veeso.dev>",
+  "license": "MIT",
+  "browserslist": {
+    "production": [
+      "> 5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "> 5%",
+      "not dead",
+      "not op_mini all"
+    ]
+  },
+  "scripts": {
+    "build:release": "yarn clean && parcel build src/index.html --reporter @parcel/reporter-bundle-analyzer && cp sitemap.xml dist/sitemap.xml && cp robots.txt dist/robots.txt && cp favicon.ico dist/favicon.ico",
+    "clean": "rm -rf dist/* .parcel-cache/",
+    "dev": "parcel src/index.html",
+    "lint": "eslint . --ext .ts --ext .tsx --max-warnings=0",
+    "prettier": "prettier --config .prettierrc --write src/",
+    "prettier:check": "prettier --config .prettierrc --check src/"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^1.0.1",
+    "@dfinity/candid": "^1.0.1",
+    "@dfinity/principal": "^1.0.1",
+    "metamask-react": "^2.7.0",
+    "react": "^18.2",
+    "react-dom": "^18.2",
+    "react-feather": "^2.0",
+    "react-helmet": "^6.1",
+    "react-ic-wallet": "^0.2.1",
+    "web3": "^4.5.0"
+  },
+  "devDependencies": {
+    "@parcel/reporter-bundle-analyzer": "^2.11.0",
+    "@types/react": "^18.2",
+    "@types/react-dom": "^18.2",
+    "@types/react-helmet": "^6.1.11",
+    "@typescript-eslint/eslint-plugin": "^7.0",
+    "@typescript-eslint/parser": "^7.0",
+    "eslint": "^8.57",
+    "eslint-config-prettier": "^9.1",
+    "parcel": "^2.11",
+    "postcss": "^8.4",
+    "prettier": "^3",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.4",
+    "typescript": "^5.3"
+  }
+}

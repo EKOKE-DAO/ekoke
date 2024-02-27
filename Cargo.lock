@@ -651,10 +651,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
-name = "ekoke"
+name = "ekoke_erc20_swap"
 version = "0.1.0"
 dependencies = [
- "bytes",
+ "async-trait",
  "candid",
  "did",
  "ethers-contract",
@@ -680,7 +680,46 @@ dependencies = [
  "thiserror",
  "time",
  "tokio",
+]
+
+[[package]]
+name = "ekoke_liquidity_pool"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "candid",
+ "did",
+ "getrandom",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-cdk-timers",
+ "ic-stable-structures",
+ "icrc",
+ "pretty_assertions",
+ "rand",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
  "xrc",
+]
+
+[[package]]
+name = "ekoke_reward_pool"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "did",
+ "getrandom",
+ "ic-cdk",
+ "ic-cdk-macros",
+ "ic-stable-structures",
+ "icrc",
+ "num-bigint",
+ "num-traits",
+ "pretty_assertions",
+ "time",
+ "tokio",
 ]
 
 [[package]]

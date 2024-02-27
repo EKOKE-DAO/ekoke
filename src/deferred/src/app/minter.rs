@@ -17,7 +17,7 @@ impl Minter {
         contract_value: u64,
     ) -> DeferredResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
-        let picoekoke_reward = ekoke_client(Configuration::get_ekoke_canister())
+        let ekoke_reward = ekoke_client(Configuration::get_ekoke_reward_pool_canister())
             .get_contract_reward(contract_id.clone(), installments)
             .await?;
 
@@ -42,7 +42,7 @@ impl Minter {
                 owner: Some(*seller),
                 transferred_at: None,
                 transferred_by: None,
-                picoekoke_reward: picoekoke_reward.clone(),
+                ekoke_reward: ekoke_reward.clone(),
                 value: token_value,
             });
             tokens_ids.push(token_id.into());

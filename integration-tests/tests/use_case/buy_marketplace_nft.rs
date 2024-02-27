@@ -13,7 +13,7 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
 
     let deferred_client = DeferredClient::from(&env);
     let marketplace_client = MarketplaceClient::from(&env);
-    let ekoke_ledger_client = IcrcLedgerClient::new(env.ekoke_id, &env);
+    let ekoke_ledger_client = IcrcLedgerClient::new(env.ekoke_ledger_id, &env);
     let icp_ledger_client = IcrcLedgerClient::new(env.icp_ledger_id, &env);
 
     // get initial ekoke balance for charlie
@@ -29,16 +29,17 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
     assert_ne!(icp_price, 0);
 
     // approve on icp ledger client a spend for token price to marketplace canister
-    assert!(icp_ledger_client
+    let allowance = icp_ledger_client
         .icrc2_approve(
             charlie(),
             Account::from(env.marketplace_id),
             icp_price.into(),
-            None
+            charlie_account().subaccount,
         )
-        .is_ok());
+        .unwrap();
+    assert_eq!(icp_price, allowance);
     let allowance =
-        icp_ledger_client.icrc2_allowance(alice_account(), Account::from(env.marketplace_id));
+        icp_ledger_client.icrc2_allowance(charlie_account(), Account::from(env.marketplace_id));
     assert_eq!(icp_price, allowance.allowance);
 
     // buy token
@@ -52,8 +53,8 @@ fn test_should_buy_marketplace_nft_as_non_contract_buyer() {
 
     // verify charlie got the reward
     let final_balance = ekoke_ledger_client.icrc1_balance_of(charlie_account());
-    let balance_diff = final_balance - initial_balance;
-    assert_eq!(balance_diff, token.picoekoke_reward);
+    let balance_diff = final_balance - initial_balance + 1_000u64;
+    assert_eq!(balance_diff, token.ekoke_reward);
 }
 
 #[test]
@@ -64,7 +65,7 @@ fn test_should_buy_marketplace_nft_as_contract_buyer() {
 
     let deferred_client = DeferredClient::from(&env);
     let marketplace_client = MarketplaceClient::from(&env);
-    let ekoke_ledger_client = IcrcLedgerClient::new(env.ekoke_id, &env);
+    let ekoke_ledger_client = IcrcLedgerClient::new(env.ekoke_ledger_id, &env);
     let icp_ledger_client = IcrcLedgerClient::new(env.icp_ledger_id, &env);
 
     // get initial ekoke balance for charlie
@@ -106,8 +107,8 @@ fn test_should_buy_marketplace_nft_as_contract_buyer() {
 
     // verify alice got the reward
     let final_balance = ekoke_ledger_client.icrc1_balance_of(alice_account());
-    let balance_diff = final_balance - initial_balance;
-    assert_eq!(balance_diff, token.picoekoke_reward);
+    let balance_diff = final_balance - initial_balance + 1_000u64;
+    assert_eq!(balance_diff, token.ekoke_reward);
 }
 
 fn setup_contract_marketplace(env: &TestEnv) -> ID {

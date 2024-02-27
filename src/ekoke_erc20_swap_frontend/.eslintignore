@@ -1,0 +1,5 @@
+/**/*.js
+
+/src/js/declaration.d.ts
+tailwind.config.ts
+*.did.ts

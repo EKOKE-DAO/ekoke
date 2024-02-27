@@ -1,11 +1,10 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
-[tasks.build]
+[tasks.dfx-build]
 description = "Build canisters"
 dependencies = []
-command = "dfx"
-args = ["build"]
+script = "./scripts/dfx-build.sh"
 workspace = false
 
 [tasks.run]
@@ -25,13 +24,13 @@ workspace = false
 [tasks.integration-tests]
 description = "Run integration tests"
 script = "./scripts/integration-tests.sh"
-dependencies = ["did", "build"]
+dependencies = ["did", "dfx-build"]
 workspace = false
 
 [tasks.deploy-local]
 description = "Deploy testnet with dfx"
 script = "./scripts/deploy_local.sh"
-dependencies = ["dfx-setup", "build", "did"]
+dependencies = ["dfx-setup", "dfx-build", "did"]
 workspace = false
 
 [tasks.lint]
@@ -52,7 +51,14 @@ args = ["fmt", "--all", "--", "--check"]
 
 [tasks.did]
 description = "Generate did files"
-dependencies = ["deferred-did", "ekoke-did", "marketplace-did", "dfx-generate"]
+dependencies = [
+  "deferred-did",
+  "ekoke-erc20-swap-did",
+  "ekoke-liquidity-pool-did",
+  "ekoke-reward-pool-did",
+  "marketplace-did",
+  "dfx-generate",
+]
 workspace = false
 
 [tasks.deferred-did]
@@ -60,9 +66,19 @@ description = "Generate did files for deferred"
 script = "cargo run --bin deferred-did  --features did > src/deferred/deferred.did"
 workspace = false
 
-[tasks.ekoke-did]
-description = "Generate did files for ekoke"
-script = "cargo run --bin ekoke-did  --features did > src/ekoke/ekoke.did"
+[tasks.ekoke-erc20-swap-did]
+description = "Generate did files for ekoke-erc20-swap"
+script = "cargo run --bin ekoke-erc20-swap-did  --features did > src/ekoke_erc20_swap/ekoke-erc20-swap.did"
+workspace = false
+
+[tasks.ekoke-liquidity-pool-did]
+description = "Generate did files for ekoke-liquidity-pool"
+script = "cargo run --bin ekoke-liquidity-pool-did  --features did > src/ekoke_liquidity_pool/ekoke-liquidity-pool.did"
+workspace = false
+
+[tasks.ekoke-reward-pool-did]
+description = "Generate did files for ekoke-reward-pool"
+script = "cargo run --bin ekoke-reward-pool-did  --features did > src/ekoke_reward_pool/ekoke-reward-pool.did"
 workspace = false
 
 [tasks.marketplace-did]
@@ -78,5 +94,5 @@ workspace = false
 
 [tasks.dfx-setup]
 description = "setup dfx"
-script = "dfx stop; dfx start --background; dfx canister create deferred; dfx canister create ekoke; dfx canister create marketplace"
+script = "./scripts/dfx-setup.sh"
 workspace = false

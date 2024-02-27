@@ -4,11 +4,12 @@ use ic_stable_structures::DefaultMemoryImpl;
 // Configuration
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(20);
 pub const DEFERRED_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(21);
-pub const EKOKE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(22);
-pub const INTEREST_FOR_BUYER_MEMORY_ID: MemoryId = MemoryId::new(23);
-pub const EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(24);
-pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
-pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
+pub const EKOKE_REWARD_POOL_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(22);
+pub const EKOKE_LIQUIDITY_POOL_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(23);
+pub const INTEREST_FOR_BUYER_MEMORY_ID: MemoryId = MemoryId::new(24);
+pub const EKOKE_LIQUIDITY_POOL_ACCOUNT_MEMORY_ID: MemoryId = MemoryId::new(25);
+pub const XRC_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
+pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
 
 thread_local! {
     /// Memory manager
