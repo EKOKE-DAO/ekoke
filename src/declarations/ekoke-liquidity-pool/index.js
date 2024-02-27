@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke-liquidity-pool = canisterId ? createActor(canisterId) : undefined;
+export const ekoke-liquidity-pool = createActor(canisterId);

@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke-erc20-swap-frontend = canisterId ? createActor(canisterId) : undefined;
+export const ekoke-erc20-swap-frontend = createActor(canisterId);

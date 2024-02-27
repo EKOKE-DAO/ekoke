@@ -1,8 +1,8 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./ekoke-reward-pool.did.js";
-export { idlFactory } from "./ekoke-reward-pool.did.js";
+import { idlFactory } from "./sns_ledger.did.js";
+export { idlFactory } from "./sns_ledger.did.js";
 
 /* CANISTER_ID is replaced by webpack based on node environment
  * Note: canister environment variable will be standardized as
@@ -10,8 +10,8 @@ export { idlFactory } from "./ekoke-reward-pool.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_EKOKE-REWARD-POOL ||
-  process.env.EKOKE-REWARD-POOL_CANISTER_ID;
+  process.env.CANISTER_ID_SNS_LEDGER ||
+  process.env.SNS_LEDGER_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke-reward-pool = createActor(canisterId);
+export const sns_ledger = createActor(canisterId);
