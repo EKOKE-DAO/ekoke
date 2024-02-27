@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const deferred = createActor(canisterId);
+export const deferred = canisterId ? createActor(canisterId) : undefined;

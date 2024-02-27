@@ -262,7 +262,7 @@ impl TestEnv {
 
         let init_arg = DeferredInitData {
             custodians: vec![actor::admin()],
-            ekoke_send_reward_canister: ekoke_reward_pool_id,
+            ekoke_reward_pool_canister: ekoke_reward_pool_id,
             marketplace_canister: marketplace_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();

@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface Account {
   'owner' : Principal,
@@ -107,3 +108,5 @@ export interface _SERVICE {
   'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
   'liquidity_pool_balance' : ActorMethod<[], Result>,
 }
+export declare const idlFactory: IDL.InterfaceFactory;
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

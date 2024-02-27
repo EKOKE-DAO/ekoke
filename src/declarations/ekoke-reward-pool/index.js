@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke-reward-pool = createActor(canisterId);
+export const ekoke-reward-pool = canisterId ? createActor(canisterId) : undefined;

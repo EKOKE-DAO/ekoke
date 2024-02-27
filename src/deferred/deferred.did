@@ -82,7 +82,7 @@ type DeferredError = variant {
 };
 type DeferredInitData = record {
   custodians : vec principal;
-  ekoke_send_reward_canister : principal;
+  ekoke_reward_pool_canister : principal;
   marketplace_canister : principal;
 };
 type EcdsaError = variant {

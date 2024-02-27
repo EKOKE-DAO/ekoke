@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface Agency {
   'vat' : string,
@@ -80,7 +81,7 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
   'custodians' : Array<Principal>,
-  'ekoke_send_reward_canister' : Principal,
+  'ekoke_reward_pool_canister' : Principal,
   'marketplace_canister' : Principal,
 }
 export type EcdsaError = { 'RecoveryIdError' : null } |
@@ -343,3 +344,5 @@ export interface _SERVICE {
     Result
   >,
 }
+export declare const idlFactory: IDL.InterfaceFactory;
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

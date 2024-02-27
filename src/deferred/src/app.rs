@@ -38,7 +38,7 @@ impl Deferred {
     /// On init set custodians and canisters ids
     pub fn init(init_data: DeferredInitData) {
         RolesManager::set_custodians(init_data.custodians).expect("storage error");
-        Configuration::set_ekoke_reward_pool_canister(init_data.ekoke_send_reward_canister)
+        Configuration::set_ekoke_reward_pool_canister(init_data.ekoke_reward_pool_canister)
             .expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
             .expect("storage error");
@@ -559,7 +559,7 @@ mod test {
     fn test_should_init_canister() {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
-            ekoke_send_reward_canister: caller(),
+            ekoke_reward_pool_canister: caller(),
             marketplace_canister: caller(),
         });
 
@@ -990,7 +990,7 @@ mod test {
     fn init_canister() {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
-            ekoke_send_reward_canister: caller(),
+            ekoke_reward_pool_canister: caller(),
             marketplace_canister: caller(),
         });
     }

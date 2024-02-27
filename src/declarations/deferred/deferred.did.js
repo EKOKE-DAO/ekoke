@@ -2,7 +2,7 @@ export const idlFactory = ({ IDL }) => {
   const Vec = IDL.Rec();
   const DeferredInitData = IDL.Record({
     'custodians' : IDL.Vec(IDL.Principal),
-    'ekoke_send_reward_canister' : IDL.Principal,
+    'ekoke_reward_pool_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   const Continent = IDL.Variant({
@@ -427,7 +427,7 @@ export const idlFactory = ({ IDL }) => {
 export const init = ({ IDL }) => {
   const DeferredInitData = IDL.Record({
     'custodians' : IDL.Vec(IDL.Principal),
-    'ekoke_send_reward_canister' : IDL.Principal,
+    'ekoke_reward_pool_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   return [DeferredInitData];

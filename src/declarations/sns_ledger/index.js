@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const sns_ledger = createActor(canisterId);
+export const sns_ledger = canisterId ? createActor(canisterId) : undefined;

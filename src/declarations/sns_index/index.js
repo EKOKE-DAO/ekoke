@@ -40,4 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const sns_index = createActor(canisterId);
+export const sns_index = canisterId ? createActor(canisterId) : undefined;
