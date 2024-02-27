@@ -40,8 +40,8 @@ impl EkokeSwapped {
             .div(2);
         let principal_slice = &slice[0..principal_len];
 
-        Principal::try_from_slice(&principal_slice)
-            .map_err(|err| format!("Invalid principal: {}", err.to_string()))
+        Principal::try_from_slice(principal_slice)
+            .map_err(|err| format!("Invalid principal: {}", err))
     }
 
     pub fn amount(&self) -> Result<u64, String> {
