@@ -39,7 +39,7 @@
     chalk "^2.4.2"
     js-tokens "^4.0.0"
 
-"@dfinity/agent@^1.0.0", "@dfinity/agent@^1.0.1":
+"@dfinity/agent@^1.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@dfinity/agent/-/agent-1.0.1.tgz#4207490454c5900b35f72c617a9ae5fbc8069eb6"
   integrity sha512-QoCiKIWEgsXoaiHpb76M2qLXYDS9IdfvC81dLJYvX9KVXRq8Ojo4S82tBqBFGtM0j0EKEC6mIAJV/bqhOJTtjQ==
@@ -51,12 +51,28 @@
     buffer "^6.0.3"
     simple-cbor "^0.4.1"
 
-"@dfinity/candid@^1.0.0", "@dfinity/candid@^1.0.1":
+"@dfinity/auth-client@^1.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@dfinity/auth-client/-/auth-client-1.0.1.tgz#486693b18194d04f65c03955babcccff63bed537"
+  integrity sha512-QooHufXCDHTXySC1Tb1xf9+KRJISbw1sLYLIgY7PTxrA4Nc1ZgA7o4exwgRyIuJgoWMKrjgHPUZcu4N5ak69OQ==
+  dependencies:
+    idb "^7.0.2"
+
+"@dfinity/candid@^1.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@dfinity/candid/-/candid-1.0.1.tgz#8176dc1f9940b630ba71e00b9aefe966b4e2b464"
   integrity sha512-PfZNV1fTOWtl+NhLOw71ACLYGugKF9HdEJKtkyBJqbj+6pqshvK6rllCUkGwMsmXfP8YopLzmoNVdy1rp/eOgg==
 
-"@dfinity/principal@^1.0.0", "@dfinity/principal@^1.0.1":
+"@dfinity/identity@^1.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@dfinity/identity/-/identity-1.0.1.tgz#0e282c9ee1c156a50678b9698f94a09578703911"
+  integrity sha512-ArajyKSkiA4LjOq/ocGLMd66svgMVntF9j9P7irZScrzTCPcEXk5c7VteAqRGMwHCpI4LRipjmuZA1agwmUzRw==
+  dependencies:
+    "@noble/curves" "^1.2.0"
+    "@noble/hashes" "^1.3.1"
+    borc "^2.1.1"
+
+"@dfinity/principal@^1.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@dfinity/principal/-/principal-1.0.1.tgz#91658b70449186976c8e981d51a2aa7b6c34c946"
   integrity sha512-pCAuTLcvZEZ8fYgVzTVhfUfFGadxeWN4v2z8Q0rizeiqcHKhbJVfWUiXXjzPGG5lNz2DxKyUHQ/WS4UTbTaxvg==
@@ -2109,6 +2125,11 @@ htmlparser2@^7.1.1:
     domutils "^2.8.0"
     entities "^3.0.1"
 
+idb@^7.0.2:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/idb/-/idb-7.1.1.tgz#d910ded866d32c7ced9befc5bfdf36f572ced72b"
+  integrity sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==
+
 ieee754@^1.1.13, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
@@ -2869,14 +2890,16 @@ react-helmet@^6.1:
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
 
-react-ic-wallet@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.2.1.tgz#b6311f24a589ad689c2ecfb89a70aa00d5b53e2d"
-  integrity sha512-Gs9ulmvVzqv0KVYcZDSo+Nx0pyBN2HASzfDJN1tEdXy1EdgXzzQVDt/iZWmwPvnxbXRytr1lXfBDFSTifOKD9A==
+react-ic-wallet@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/react-ic-wallet/-/react-ic-wallet-0.3.1.tgz#ee60ba6bd8b82e74d2e14bf535f7b0b819dbdfd7"
+  integrity sha512-LkHKCwDQPwWHgbZX+smo3+XriU5WNw+PHaKbwMU7fd2xBjWu9iGCb5/3yoxrTKP+nQWpytiLk+Fafu+50Q4FJA==
   dependencies:
-    "@dfinity/agent" "^1.0.0"
-    "@dfinity/candid" "^1.0.0"
-    "@dfinity/principal" "^1.0.0"
+    "@dfinity/agent" "^1.0"
+    "@dfinity/auth-client" "^1.0"
+    "@dfinity/candid" "^1.0"
+    "@dfinity/identity" "^1.0"
+    "@dfinity/principal" "^1.0"
     react ">=18.x"
 
 react-is@^16.13.1:

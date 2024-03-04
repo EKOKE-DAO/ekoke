@@ -17,8 +17,8 @@ import {
 import { Principal } from '@dfinity/principal';
 
 const CKETH_LEDGER_CANISTER_ID = 'ss2fx-dyaaa-aaaar-qacoq-cai';
-const EKOKE_ERC20_SWAP_CANISTER_ID = '';
-const EKOKE_LEDGER_CANISTER_ID = '';
+const EKOKE_ERC20_SWAP_CANISTER_ID = 'ss2fx-dyaaa-aaaar-qacoq-cai'; // FIXME: change
+const EKOKE_LEDGER_CANISTER_ID = 'ss2fx-dyaaa-aaaar-qacoq-cai'; // FIXME: change
 
 export const ekokeErc20SwapAccount: {
   owner: Principal;

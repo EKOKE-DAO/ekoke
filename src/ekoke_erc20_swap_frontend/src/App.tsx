@@ -3,14 +3,25 @@ import { MetaMaskProvider } from 'metamask-react';
 import { IcWalletProvider } from 'react-ic-wallet';
 
 import AppLayout from './js/components/AppLayout';
+import AppContextProvider, {
+  useAppContext,
+} from './js/components/App/AppContext';
 
-const App = () => {
+const App = () => (
+  <MetaMaskProvider>
+    <AppContextProvider>
+      <AppLayoutWrapper />
+    </AppContextProvider>
+  </MetaMaskProvider>
+);
+
+const AppLayoutWrapper = () => {
+  const { icWallet } = useAppContext();
+
   return (
-    <MetaMaskProvider>
-      <IcWalletProvider>
-        <AppLayout />
-      </IcWalletProvider>
-    </MetaMaskProvider>
+    <IcWalletProvider provider={icWallet}>
+      <AppLayout />
+    </IcWalletProvider>
   );
 };
 
