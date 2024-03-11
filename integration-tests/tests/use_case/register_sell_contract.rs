@@ -31,6 +31,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // register agency for admin

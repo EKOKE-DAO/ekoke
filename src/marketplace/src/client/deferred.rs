@@ -76,6 +76,7 @@ impl DeferredClient {
                     currency: "EUR".to_string(),
                     properties: vec![],
                     agency: None,
+                    expiration: None,
                 },
             }))
         }

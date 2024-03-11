@@ -46,6 +46,7 @@ fn inspect_message_impl() {
                 data.value,
                 &data.sellers,
                 data.installments,
+                data.expiration.as_deref(),
             )
             .is_ok()
         }

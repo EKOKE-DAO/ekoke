@@ -30,6 +30,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register

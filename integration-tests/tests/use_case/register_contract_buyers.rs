@@ -24,6 +24,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register

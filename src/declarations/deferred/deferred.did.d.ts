@@ -55,6 +55,7 @@ export interface Contract {
   'agency' : [] | [Agency],
   'properties' : Array<[string, GenericValue]>,
   'sellers' : Array<Seller>,
+  'expiration' : [] | [string],
   'tokens' : Array<bigint>,
   'currency' : string,
   'installments' : bigint,
@@ -66,6 +67,7 @@ export interface ContractRegistration {
   'type' : ContractType,
   'properties' : Array<[string, GenericValue]>,
   'sellers' : Array<Seller>,
+  'expiration' : [] | [string],
   'currency' : string,
   'installments' : bigint,
   'buyers' : Array<Principal>,
@@ -217,6 +219,7 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'CannotCloseContract' : null } |
   { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoSeller' : null } |
+  { 'BadContractExpiration' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
   { 'BadMintTokenOwner' : bigint } |

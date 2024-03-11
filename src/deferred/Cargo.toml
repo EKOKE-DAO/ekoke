@@ -29,6 +29,7 @@ ic-stable-structures = { workspace = true }
 itertools = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+time = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1"

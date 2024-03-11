@@ -1,4 +1,5 @@
 use candid::{Nat, Principal};
+use time::{Date, OffsetDateTime};
 
 /// Returns current time in nanoseconds
 pub fn time() -> u64 {
@@ -36,4 +37,12 @@ pub fn caller() -> Principal {
     {
         ic_cdk::caller()
     }
+}
+
+/// Returns current date
+pub fn date() -> Date {
+    let time = time();
+
+    let date = OffsetDateTime::from_unix_timestamp_nanos(time as i128).unwrap();
+    date.date()
 }

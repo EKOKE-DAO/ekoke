@@ -136,7 +136,13 @@ impl Deferred {
     ///
     /// Returns the contract id
     pub fn register_contract(data: ContractRegistration) -> DeferredResult<ID> {
-        Inspect::inspect_register_contract(caller(), data.value, &data.sellers, data.installments)?;
+        Inspect::inspect_register_contract(
+            caller(),
+            data.value,
+            &data.sellers,
+            data.installments,
+            data.expiration.as_deref(),
+        )?;
 
         let next_contract_id = ContractStorage::next_contract_id();
 
@@ -153,6 +159,7 @@ impl Deferred {
             sellers: data.sellers,
             tokens: vec![],
             value: data.value,
+            expiration: data.expiration,
             agency: Agents::get_agency_by_wallet(caller()),
         };
 
@@ -624,6 +631,7 @@ mod test {
                 quota: 100,
             }],
             value: 100,
+            expiration: Some("2048-01-01".to_string()),
         };
 
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
@@ -651,6 +659,7 @@ mod test {
                 quota: 100,
             }],
             value: 100,
+            expiration: Some("2048-01-01".to_string()),
         };
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
         assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());

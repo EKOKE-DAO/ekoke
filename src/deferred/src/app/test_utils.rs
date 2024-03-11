@@ -46,6 +46,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
             dip721::GenericValue::TextContent("Rome".to_string()),
         )],
         agency: Some(mock_agency()),
+        expiration: None,
     }
 }
 

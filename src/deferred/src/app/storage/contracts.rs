@@ -49,6 +49,14 @@ impl ContractStorage {
             ));
         }
 
+        // check expiration
+        if let Some(expiration) = contract.expiration() {
+            let expiraton = expiration?;
+            if expiraton < crate::utils::date() {
+                return Err(DeferredError::Token(TokenError::BadContractExpiration));
+            }
+        }
+
         // check contract props
         if contract
             .properties
@@ -564,6 +572,15 @@ mod test {
     }
 
     #[test]
+    fn test_should_not_allow_contract_with_expiration_in_the_past() {
+        let contract = with_mock_contract(1, 40, |contract| {
+            contract.expiration = Some("2021-01-01".to_string());
+        });
+
+        assert!(ContractStorage::insert_contract(contract.clone()).is_err());
+    }
+
+    #[test]
     fn test_should_not_allow_duped_token() {
         let contract_id = ID::from(1_u64);
         let token_1 = mock_token(1, 1);
@@ -776,6 +793,7 @@ mod test {
                 dip721::GenericValue::TextContent("Rome".to_string()),
             )],
             agency: None,
+            expiration: None,
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(),).is_ok());

@@ -3,6 +3,7 @@ pub use dip721::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::Serialize;
+use time::Date;
 
 pub use crate::ID;
 
@@ -13,6 +14,8 @@ mod token;
 pub use agency::{Agency, Continent};
 pub use info::TokenInfo;
 pub use token::Token;
+
+use super::{DeferredError, DeferredResult, TokenError};
 
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
@@ -41,11 +44,23 @@ pub struct Contract {
     pub properties: ContractProperties,
     /// Agency data
     pub agency: Option<Agency>,
+    /// Contract expiration date YYYY-MM-DD
+    pub expiration: Option<String>,
 }
 
 impl Contract {
     pub fn is_seller(&self, principal: &Principal) -> bool {
         self.sellers.iter().any(|s| &s.principal == principal)
+    }
+
+    pub fn expiration(&self) -> Option<DeferredResult<Date>> {
+        let format = time::macros::format_description!("[year]-[month]-[day]");
+        self.expiration
+            .as_deref()
+            .map(|expiration| match time::Date::parse(expiration, format) {
+                Ok(expiration) => Ok(expiration),
+                Err(_) => Err(DeferredError::Token(TokenError::BadContractExpiration)),
+            })
     }
 }
 
@@ -89,5 +104,6 @@ pub struct ContractRegistration {
     pub value: u64,
     pub currency: String,
     pub installments: u64,
+    pub expiration: Option<String>,
     pub properties: ContractProperties,
 }

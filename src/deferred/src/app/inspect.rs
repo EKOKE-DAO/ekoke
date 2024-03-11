@@ -124,11 +124,13 @@ impl Inspect {
     /// - caller must be custodian or agent
     /// - value must be multiple of installments
     /// - must have sellers
+    /// - cannot be expired
     pub fn inspect_register_contract(
         caller: Principal,
         value: u64,
         sellers: &[Seller],
         installments: u64,
+        expiration: Option<&str>,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
@@ -153,6 +155,20 @@ impl Inspect {
             return Err(DeferredError::Token(
                 TokenError::ContractSellerQuotaIsNot100,
             ));
+        }
+
+        if let Some(expiration) = expiration {
+            let format = time::macros::format_description!("[year]-[month]-[day]");
+            match time::Date::parse(expiration, format) {
+                Ok(expiration) => {
+                    if expiration < crate::utils::date() {
+                        return Err(DeferredError::Token(TokenError::BadContractExpiration));
+                    }
+                }
+                Err(_) => {
+                    return Err(DeferredError::Token(TokenError::BadContractExpiration));
+                }
+            }
         }
 
         Ok(())
@@ -425,6 +441,7 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_err());
     }
@@ -441,6 +458,7 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_err());
     }
@@ -457,6 +475,7 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_err());
     }
@@ -473,6 +492,7 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_ok());
     }
@@ -489,6 +509,7 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_err());
     }
@@ -511,6 +532,7 @@ mod test {
                 }
             ],
             25,
+            None,
         )
         .is_err());
     }
@@ -527,8 +549,37 @@ mod test {
                 quota: 100,
             }],
             25,
+            None,
         )
         .is_ok());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_expired() {
+        let caller = crate::utils::caller();
+        RolesManager::give_role(caller, Role::Agent);
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            100,
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
+            25,
+            Some("2078-01-01"),
+        )
+        .is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            100,
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
+            25,
+            Some("2018-01-01"),
+        )
+        .is_err());
     }
 
     #[test]

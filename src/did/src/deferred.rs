@@ -108,6 +108,7 @@ mod test {
                 agent: "Agent".to_string(),
                 logo: None,
             }),
+            expiration: Some("2040-01-01".to_string()),
         };
         let data = Encode!(&contract).unwrap();
         let decoded_contract = Decode!(&data, Contract).unwrap();

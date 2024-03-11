@@ -25,6 +25,7 @@ fn test_should_register_agency_and_be_able_to_create_contract() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // give bob an agency

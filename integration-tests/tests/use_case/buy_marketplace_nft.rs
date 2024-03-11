@@ -128,6 +128,7 @@ fn setup_contract_marketplace(env: &TestEnv) -> ID {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
     // call register
     let contract_id = deferred_client

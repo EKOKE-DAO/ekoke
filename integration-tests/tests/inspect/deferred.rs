@@ -92,6 +92,7 @@ fn test_should_inspect_update_contract_property() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register
@@ -153,6 +154,7 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register
@@ -200,6 +202,7 @@ fn test_should_inspect_update_contract_property_bad_key() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register
@@ -241,6 +244,7 @@ fn test_should_inspect_update_contract_buyers() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register
@@ -293,6 +297,7 @@ fn test_should_inspect_update_contract_buyers_not_seller() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     // call register
@@ -328,6 +333,7 @@ fn test_should_inspect_register_contract() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     let result: DeferredResult<ID> = env
@@ -361,6 +367,7 @@ fn test_should_inspect_register_contract_unauthorized() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     let result: anyhow::Result<DeferredResult<ID>> = env.update(
@@ -389,6 +396,7 @@ fn test_should_inspect_register_contract_no_sellers() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     let result: anyhow::Result<DeferredResult<ID>> = env.update(
@@ -420,6 +428,39 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
+    };
+
+    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+        env.deferred_id,
+        admin(),
+        "register_contract",
+        Encode!(&registration_data).unwrap(),
+    );
+
+    assert!(result.is_err());
+}
+
+#[test]
+#[serial_test::serial]
+fn test_should_inspect_register_contract_expired() {
+    let env = TestEnv::init();
+
+    let registration_data = ContractRegistration {
+        r#type: ContractType::Sell,
+        sellers: vec![Seller {
+            principal: alice(),
+            quota: 100,
+        }],
+        buyers: vec![],
+        value: 400_000,
+        currency: "EUR".to_string(),
+        installments: 400_000 / 10,
+        properties: vec![(
+            "contract:address".to_string(),
+            GenericValue::TextContent("via roma 10".to_string()),
+        )],
+        expiration: Some("2021-01-01".to_string()),
     };
 
     let result: anyhow::Result<DeferredResult<ID>> = env.update(
@@ -452,6 +493,7 @@ fn test_should_inspect_burn() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        expiration: None,
     };
 
     let contract_id = client

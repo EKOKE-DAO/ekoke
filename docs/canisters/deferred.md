@@ -61,6 +61,7 @@ A Contract is identified by the following properties
 - **is_signed**: if signed the contract tokens can be sold. The token must be signed by custodians (or DAO)
 - **type**: the contract type (Sell / Funding)
 - **reward**: the reward of EKOKE token given to a NFT buyer
+- **expiration**: contract expiration with syntax `YYYY-MM-DD`.
 - **properties**: contract properties and metadata
 
 ## Roles

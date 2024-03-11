@@ -55,6 +55,7 @@ type Contract = record {
   agency : opt Agency;
   properties : vec record { text; GenericValue };
   sellers : vec Seller;
+  expiration : opt text;
   tokens : vec nat;
   currency : text;
   installments : nat64;
@@ -66,6 +67,7 @@ type ContractRegistration = record {
   "type" : ContractType;
   properties : vec record { text; GenericValue };
   sellers : vec Seller;
+  expiration : opt text;
   currency : text;
   installments : nat64;
   buyers : vec principal;
@@ -215,6 +217,7 @@ type TokenError = variant {
   CannotCloseContract;
   ContractNotSigned : nat;
   ContractHasNoSeller;
+  BadContractExpiration;
   ContractHasNoTokens;
   TokenIsBurned : nat;
   BadMintTokenOwner : nat;
