@@ -27,9 +27,9 @@ fn inspect_message_impl() {
         "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
             Inspect::inspect_is_custodian(caller())
         }
-        "seller_increment_contract_value" => {
+        "increment_contract_value" => {
             let (id, _, _) = api::call::arg_data::<(ID, u64, u64)>();
-            Inspect::inspect_seller_increment_contract_value(caller(), id).is_ok()
+            Inspect::inspect_increment_contract_value(caller(), id).is_ok()
         }
         "update_contract_property" => {
             let (id, key, _) = api::call::arg_data::<(ID, String, GenericValue)>();

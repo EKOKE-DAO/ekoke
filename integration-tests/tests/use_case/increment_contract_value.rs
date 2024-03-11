@@ -38,7 +38,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
 
     // increment contract value
     assert!(deferred_client
-        .seller_increment_contract_value(alice(), contract_id, 100_000, 1_000)
+        .increment_contract_value(alice(), contract_id, 100_000, 1_000)
         .is_ok());
 
     // verify new value and supply

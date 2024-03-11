@@ -187,11 +187,18 @@ impl Inspect {
         }
     }
 
-    pub fn inspect_seller_increment_contract_value(
+    pub fn inspect_increment_contract_value(
         caller: Principal,
         contract: ID,
     ) -> DeferredResult<Contract> {
-        let contract = Self::inspect_is_seller(caller, contract)?;
+        if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
+            return Err(DeferredError::Unauthorized);
+        }
+
+        let contract = match ContractStorage::get_contract(&contract) {
+            Some(contract) => contract,
+            None => return Err(DeferredError::Token(TokenError::ContractNotFound(contract))),
+        };
         // check if is signed
         if !contract.is_signed {
             return Err(DeferredError::Token(TokenError::ContractNotSigned(
@@ -602,23 +609,28 @@ mod test {
     }
 
     #[test]
-    fn test_should_inspect_seller_increment_contract_value() {
-        let caller = crate::utils::caller();
+    fn test_should_inspect_increment_contract_value() {
+        let caller = crate::app::test_utils::alice();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        // set agent
+        let agent = crate::app::test_utils::bob();
+        RolesManager::give_role(agent, Role::Agent);
         let contract = test_utils::with_mock_contract(0, 1, |_| {});
         assert!(ContractStorage::insert_contract(contract).is_ok());
         let tokens = vec![test_utils::mock_token(0, 0)];
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0_u64.into()).is_err());
+        assert!(Inspect::inspect_increment_contract_value(caller, 0_u64.into()).is_err());
         // sign contract
         assert!(ContractStorage::sign_contract_and_mint_tokens(&0_u64.into(), tokens).is_ok());
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 0_u64.into()).is_ok());
+        assert!(Inspect::inspect_increment_contract_value(caller, 0_u64.into()).is_ok());
+        assert!(Inspect::inspect_increment_contract_value(agent, 0_u64.into()).is_ok());
         // not seller
-        assert!(Inspect::inspect_seller_increment_contract_value(
+        assert!(Inspect::inspect_increment_contract_value(
             Principal::management_canister(),
             1_u64.into()
         )
         .is_err());
         // unexisting contract
-        assert!(Inspect::inspect_seller_increment_contract_value(caller, 2_u64.into()).is_err());
+        assert!(Inspect::inspect_increment_contract_value(caller, 2_u64.into()).is_err());
     }
 
     #[test]

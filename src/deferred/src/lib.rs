@@ -47,12 +47,12 @@ pub async fn admin_sign_contract(contract_id: ID) -> DeferredResult<()> {
 
 #[update]
 #[candid_method(update)]
-pub async fn seller_increment_contract_value(
+pub async fn increment_contract_value(
     contract_id: ID,
     value: u64,
     installments: u64,
 ) -> DeferredResult<()> {
-    Deferred::seller_increment_contract_value(contract_id, value, installments).await
+    Deferred::increment_contract_value(contract_id, value, installments).await
 }
 
 #[query]

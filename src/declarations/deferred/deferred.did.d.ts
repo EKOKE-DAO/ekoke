@@ -306,6 +306,7 @@ export interface _SERVICE {
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'increment_contract_value' : ActorMethod<[bigint, bigint, bigint], Result>,
   'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
   'logo' : ActorMethod<[], [] | [string]>,
   'metadata' : ActorMethod<[], Metadata>,
@@ -322,10 +323,6 @@ export interface _SERVICE {
   'owner_token_metadata' : ActorMethod<[Principal], Result_5>,
   'register_contract' : ActorMethod<[ContractRegistration], Result_6>,
   'remove_agency' : ActorMethod<[Principal], Result>,
-  'seller_increment_contract_value' : ActorMethod<
-    [bigint, bigint, bigint],
-    Result
-  >,
   'set_approval_for_all' : ActorMethod<[Principal, boolean], Result_1>,
   'set_custodians' : ActorMethod<[Array<Principal>], undefined>,
   'set_logo' : ActorMethod<[string], undefined>,

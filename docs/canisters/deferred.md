@@ -14,7 +14,7 @@
     - [get\_agencies](#get_agencies)
     - [remove\_agency](#remove_agency)
     - [admin\_get\_unsigned\_contracts](#admin_get_unsigned_contracts)
-    - [seller\_increment\_contract\_value](#seller_increment_contract_value)
+    - [increment\_contract\_value](#increment_contract_value)
     - [update\_contract\_buyers](#update_contract_buyers)
     - [update\_contract\_property](#update_contract_property)
     - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_ledger_canister)
@@ -109,7 +109,7 @@ Remove an agency. Only admin or the agent himself can call this method
 
 Get unsigned contracts
 
-### seller_increment_contract_value
+### increment_contract_value
 
 The seller increments the contract value and mint new NFTs for it
 

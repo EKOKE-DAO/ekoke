@@ -113,15 +113,14 @@ impl Deferred {
         ContractStorage::update_contract_property(&contract_id, key, value)
     }
 
-    /// Increment contract value. Only the seller can call this method.
-    pub async fn seller_increment_contract_value(
+    /// Increment contract value. Only an admin or the associated agency can call this method
+    pub async fn increment_contract_value(
         contract_id: ID,
         incr_by: u64,
         installments: u64,
     ) -> DeferredResult<()> {
         let contract_sellers =
-            Inspect::inspect_seller_increment_contract_value(caller(), contract_id.clone())?
-                .sellers;
+            Inspect::inspect_increment_contract_value(caller(), contract_id.clone())?.sellers;
 
         // mint new tokens
         let (tokens, _) =
@@ -665,11 +664,9 @@ mod test {
         assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());
 
         // increment value
-        assert!(
-            Deferred::seller_increment_contract_value(0_u64.into(), 50, 10)
-                .await
-                .is_ok()
-        );
+        assert!(Deferred::increment_contract_value(0_u64.into(), 50, 10)
+            .await
+            .is_ok());
         assert_eq!(Deferred::total_supply(), Nat::from(20_u64));
     }
 

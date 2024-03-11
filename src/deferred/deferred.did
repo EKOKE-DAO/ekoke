@@ -305,6 +305,7 @@ service : (DeferredInitData) -> {
   get_signed_contracts : () -> (vec nat) query;
   get_token : (nat) -> (opt TokenInfo) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
+  increment_contract_value : (nat, nat64, nat64) -> (Result);
   is_approved_for_all : (principal, principal) -> (Result_2);
   logo : () -> (opt text) query;
   metadata : () -> (Metadata) query;
@@ -318,7 +319,6 @@ service : (DeferredInitData) -> {
   owner_token_metadata : (principal) -> (Result_5) query;
   register_contract : (ContractRegistration) -> (Result_6);
   remove_agency : (principal) -> (Result);
-  seller_increment_contract_value : (nat, nat64, nat64) -> (Result);
   set_approval_for_all : (principal, bool) -> (Result_1);
   set_custodians : (vec principal) -> ();
   set_logo : (text) -> ();

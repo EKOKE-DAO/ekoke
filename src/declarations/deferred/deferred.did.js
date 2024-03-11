@@ -350,6 +350,11 @@ export const idlFactory = ({ IDL }) => {
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'increment_contract_value' : IDL.Func(
+        [IDL.Nat, IDL.Nat64, IDL.Nat64],
+        [Result],
+        [],
+      ),
     'is_approved_for_all' : IDL.Func(
         [IDL.Principal, IDL.Principal],
         [Result_2],
@@ -383,11 +388,6 @@ export const idlFactory = ({ IDL }) => {
     'owner_token_metadata' : IDL.Func([IDL.Principal], [Result_5], ['query']),
     'register_contract' : IDL.Func([ContractRegistration], [Result_6], []),
     'remove_agency' : IDL.Func([IDL.Principal], [Result], []),
-    'seller_increment_contract_value' : IDL.Func(
-        [IDL.Nat, IDL.Nat64, IDL.Nat64],
-        [Result],
-        [],
-      ),
     'set_approval_for_all' : IDL.Func(
         [IDL.Principal, IDL.Bool],
         [Result_1],

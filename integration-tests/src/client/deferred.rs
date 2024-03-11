@@ -72,7 +72,7 @@ impl<'a> DeferredClient<'a> {
         res
     }
 
-    pub fn seller_increment_contract_value(
+    pub fn increment_contract_value(
         &self,
         caller: Principal,
         id: ID,
@@ -83,7 +83,7 @@ impl<'a> DeferredClient<'a> {
             .update(
                 self.env.deferred_id,
                 caller,
-                "seller_increment_contract_value",
+                "increment_contract_value",
                 Encode!(&id, &value, &installments).unwrap(),
             )
             .unwrap()
