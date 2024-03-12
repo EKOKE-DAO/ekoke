@@ -65,7 +65,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     assert!(signed_contract.is_empty());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
+    let res = deferred_client.sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
 
     // get contract

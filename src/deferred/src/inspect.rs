@@ -24,6 +24,10 @@ fn inspect_message_impl() {
 
     let check_result = match method.as_str() {
         method if method.starts_with("admin_") => Inspect::inspect_is_custodian(caller()),
+        "sign_contract" => {
+            let (id,) = api::call::arg_data::<(ID,)>();
+            Inspect::inspect_sign_contract(caller(), &id)
+        }
         "set_logo" | "set_name" | "set_symbol" | "set_custodians" => {
             Inspect::inspect_is_custodian(caller())
         }

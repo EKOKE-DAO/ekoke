@@ -44,7 +44,7 @@ fn test_should_update_contract_property() {
         .register_contract(admin(), registration_data)
         .unwrap();
 
-    let res = deferred_client.admin_sign_contract(contract_id.clone());
+    let res = deferred_client.sign_contract(contract_id.clone());
     assert!(res.is_ok());
 
     // call update_contract_property

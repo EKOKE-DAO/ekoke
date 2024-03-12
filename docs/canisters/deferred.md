@@ -7,7 +7,7 @@
   - [Roles](#roles)
   - [API](#api)
     - [register\_contract](#register_contract)
-    - [admin\_sign\_contract](#admin_sign_contract)
+    - [sign\_contract](#sign_contract)
     - [get\_contract](#get_contract)
     - [get\_token](#get_token)
     - [get\_signed\_contracts](#get_signed_contracts)
@@ -69,7 +69,7 @@ A Contract is identified by the following properties
 On the deferred canister the following roles exists:
 
 - **Custodian**: administrator of the canister, following the DIP721 standard. It can administrate the canister and sign contracts.
-- **Agent**: role for agencies. Agent can create contracts, but he cannot sign them.
+- **Agent**: role for agencies. Agents can create contracts, and operate only on contracts created by their agency.
 
 ## API
 
@@ -81,9 +81,9 @@ Register a contract with the provided data.
 
 **The contract value** MUST be **multiple of installments**.
 
-### admin_sign_contract
+### sign_contract
 
-Approve and sign an existing contract. Once signed, the contract's tokens can be sold on the marketplace.
+Approve and sign an existing contract. Once signed, the contract's tokens can be sold on the marketplace. Only an admin or an agent can sign the contract.
 
 ### get_contract
 

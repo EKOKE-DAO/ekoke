@@ -339,7 +339,6 @@ export const idlFactory = ({ IDL }) => {
     'admin_set_ekoke_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
-    'admin_sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
@@ -397,6 +396,7 @@ export const idlFactory = ({ IDL }) => {
     'set_logo' : IDL.Func([IDL.Text], [], []),
     'set_name' : IDL.Func([IDL.Text], [], []),
     'set_symbol' : IDL.Func([IDL.Text], [], []),
+    'sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'stats' : IDL.Func([], [Stats], ['query']),
     'supported_interfaces' : IDL.Func(
         [],

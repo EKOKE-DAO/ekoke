@@ -169,8 +169,8 @@ impl Deferred {
     }
 
     /// Sign contract and mint tokens
-    pub async fn admin_sign_contract(contract_id: ID) -> DeferredResult<()> {
-        if !Inspect::inspect_is_custodian(caller()) {
+    pub async fn sign_contract(contract_id: ID) -> DeferredResult<()> {
+        if !Inspect::inspect_sign_contract(caller(), &contract_id) {
             ic_cdk::trap("Unauthorized");
         }
 
@@ -639,7 +639,7 @@ mod test {
             Deferred::admin_get_unsigned_contracts(),
             vec![Nat::from(0_u64)]
         );
-        assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());
+        assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
         assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0_u64)]);
         assert_eq!(Deferred::total_supply(), Nat::from(10_u64));
     }
@@ -661,7 +661,7 @@ mod test {
             expiration: Some("2048-01-01".to_string()),
         };
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
-        assert!(Deferred::admin_sign_contract(0_u64.into()).await.is_ok());
+        assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
 
         // increment value
         assert!(Deferred::increment_contract_value(0_u64.into(), 50, 10)

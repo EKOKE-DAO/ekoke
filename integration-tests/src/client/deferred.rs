@@ -39,13 +39,13 @@ impl<'a> DeferredClient<'a> {
         contract_id
     }
 
-    pub fn admin_sign_contract(&self, id: Nat) -> DeferredResult<()> {
+    pub fn sign_contract(&self, id: Nat) -> DeferredResult<()> {
         let res: DeferredResult<()> = self
             .env
             .update(
                 self.env.deferred_id,
                 admin(),
-                "admin_sign_contract",
+                "sign_contract",
                 Encode!(&id).unwrap(),
             )
             .unwrap();

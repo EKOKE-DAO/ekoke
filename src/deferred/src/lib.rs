@@ -41,8 +41,8 @@ pub fn register_contract(data: ContractRegistration) -> DeferredResult<Nat> {
 
 #[update]
 #[candid_method(update)]
-pub async fn admin_sign_contract(contract_id: ID) -> DeferredResult<()> {
-    Deferred::admin_sign_contract(contract_id).await
+pub async fn sign_contract(contract_id: ID) -> DeferredResult<()> {
+    Deferred::sign_contract(contract_id).await
 }
 
 #[update]

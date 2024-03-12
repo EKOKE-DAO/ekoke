@@ -294,7 +294,6 @@ service : (DeferredInitData) -> {
   admin_set_ekoke_ledger_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
-  admin_sign_contract : (nat) -> (Result);
   approve : (principal, nat) -> (Result_1);
   balance_of : (principal) -> (Result_1) query;
   burn : (nat) -> (Result_1);
@@ -324,6 +323,7 @@ service : (DeferredInitData) -> {
   set_logo : (text) -> ();
   set_name : (text) -> ();
   set_symbol : (text) -> ();
+  sign_contract : (nat) -> (Result);
   stats : () -> (Stats) query;
   supported_interfaces : () -> (vec SupportedInterface) query;
   symbol : () -> (opt text) query;

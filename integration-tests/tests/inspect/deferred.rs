@@ -1,5 +1,7 @@
 use candid::{Encode, Nat};
-use did::deferred::{ContractRegistration, ContractType, DeferredResult, GenericValue, Seller};
+use did::deferred::{
+    Agency, ContractRegistration, ContractType, DeferredResult, GenericValue, Seller,
+};
 use did::ID;
 use dip721::NftError;
 use integration_tests::actor::{admin, alice, bob};
@@ -475,6 +477,62 @@ fn test_should_inspect_register_contract_expired() {
 
 #[test]
 #[serial_test::serial]
+fn test_should_inspect_sign_contract() {
+    let env = TestEnv::init();
+    let client = DeferredClient::new(&env);
+
+    let agent = bob();
+    // give bob an agency
+    client.admin_register_agency(
+        agent,
+        Agency {
+            name: "Bob's agency".to_string(),
+            address: "Via Delle Botteghe Scure".to_string(),
+            city: "Rome".to_string(),
+            region: "Lazio".to_string(),
+            zip_code: "00100".to_string(),
+            country: "Italy".to_string(),
+            continent: did::deferred::Continent::Europe,
+            email: "email".to_string(),
+            website: "website".to_string(),
+            mobile: "mobile".to_string(),
+            vat: "vat".to_string(),
+            agent: "agent".to_string(),
+            logo: None,
+        },
+    );
+
+    let registration_data = ContractRegistration {
+        r#type: ContractType::Sell,
+        sellers: vec![Seller {
+            principal: alice(),
+            quota: 100,
+        }],
+        buyers: vec![bob()],
+        value: 400_000,
+        currency: "EUR".to_string(),
+        installments: 400_000 / 100,
+        properties: vec![(
+            "contract:address".to_string(),
+            GenericValue::TextContent("via roma 10".to_string()),
+        )],
+        expiration: None,
+    };
+
+    let contract_id = client.register_contract(agent, registration_data).unwrap();
+
+    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+        env.deferred_id,
+        agent,
+        "sign_contract",
+        Encode!(&contract_id).unwrap(),
+    );
+
+    assert!(result.is_ok());
+}
+
+#[test]
+#[serial_test::serial]
 fn test_should_inspect_burn() {
     let env = TestEnv::init();
     let client = DeferredClient::new(&env);
@@ -499,7 +557,7 @@ fn test_should_inspect_burn() {
     let contract_id = client
         .register_contract(admin(), registration_data)
         .unwrap();
-    assert!(client.admin_sign_contract(contract_id.clone()).is_ok());
+    assert!(client.sign_contract(contract_id.clone()).is_ok());
 
     // transfer token to buyer
     let token_id = Nat::from(1_u64);

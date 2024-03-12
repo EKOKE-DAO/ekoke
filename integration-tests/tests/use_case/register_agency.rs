@@ -61,7 +61,7 @@ fn test_should_register_agency_and_be_able_to_create_contract() {
     assert!(signed_contract.is_empty());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
+    let res = deferred_client.sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
 
     // agency could remove himself

@@ -22,8 +22,14 @@ impl Inspect {
         RolesManager::is_agent(caller)
     }
 
+    /// Inspect whether can sign contract
+    pub fn inspect_sign_contract(caller: Principal, contract_id: &ID) -> bool {
+        Inspect::inspect_is_custodian(caller)
+            || Inspect::inspect_is_agent_for_contract(caller, contract_id).is_ok()
+    }
+
     /// Returns whether caller is agent of the canister and agent for the contracts
-    fn inspect_is_agent_for_contract(
+    pub fn inspect_is_agent_for_contract(
         caller: Principal,
         contract_id: &ID,
     ) -> DeferredResult<Contract> {
@@ -139,7 +145,7 @@ impl Inspect {
         };
 
         if !Self::inspect_is_custodian(caller)
-            && !Self::inspect_is_agent_for_contract(caller, id).is_ok()
+            && Self::inspect_is_agent_for_contract(caller, id).is_err()
             && !contract.is_seller(&caller)
         {
             Err(DeferredError::Unauthorized)
@@ -221,7 +227,7 @@ impl Inspect {
         contract: ID,
     ) -> DeferredResult<Contract> {
         if !Self::inspect_is_custodian(caller)
-            && !Self::inspect_is_agent_for_contract(caller, &contract).is_ok()
+            && Self::inspect_is_agent_for_contract(caller, &contract).is_err()
         {
             return Err(DeferredError::Unauthorized);
         }
@@ -769,5 +775,37 @@ mod test {
         assert!(!Inspect::inspect_remove_agency(
             Principal::management_canister()
         ));
+    }
+
+    #[test]
+    fn test_should_inspect_sign_contract() {
+        let admin = alice();
+        assert!(RolesManager::set_custodians(vec![admin]).is_ok());
+        // set agent
+        let agent = bob();
+        let agency = mock_agency();
+        let other_agent = Principal::management_canister();
+        Agents::insert_agency(agent, agency.clone());
+        RolesManager::give_role(agent, Role::Agent);
+
+        let mut other_agency = agency.clone();
+        other_agency.name = "other".to_string();
+        Agents::insert_agency(other_agent, other_agency.clone());
+        RolesManager::give_role(other_agent, Role::Agent);
+
+        let contract_id = 0;
+        let contract = test_utils::with_mock_contract(contract_id, 1, |contract| {
+            contract.agency = Some(agency);
+        });
+        assert!(ContractStorage::insert_contract(contract).is_ok());
+
+        // admin
+        assert!(Inspect::inspect_sign_contract(admin, &contract_id.into()));
+
+        // agent
+        assert_eq!(
+            Inspect::inspect_sign_contract(other_agent, &contract_id.into()),
+            false
+        );
     }
 }

@@ -33,7 +33,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
         .unwrap();
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(contract_id.clone());
+    let res = deferred_client.sign_contract(contract_id.clone());
     assert!(res.is_ok());
 
     // update buyers
