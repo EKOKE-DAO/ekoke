@@ -10,8 +10,7 @@ export { idlFactory } from "./ekoke-liquidity-pool.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_EKOKE-LIQUIDITY-POOL ||
-  process.env.EKOKE-LIQUIDITY-POOL_CANISTER_ID;
+  process.env.CANISTER_ID_EKOKE-LIQUIDITY-POOL;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });

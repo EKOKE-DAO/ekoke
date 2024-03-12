@@ -58,7 +58,6 @@ dependencies = [
   "ekoke-reward-pool-did",
   "marketplace-did",
   "dfx-generate",
-  "assetstorage-did",
 ]
 workspace = false
 
@@ -91,11 +90,6 @@ workspace = false
 description = "Generate dfx did"
 command = "dfx"
 args = ["generate"]
-workspace = false
-
-[tasks.assetstorage-did]
-description = "Generate did files for assetstorage"
-script = "mkdir -p ./.dfx/local/canisters/ekoke-erc20-swap-frontend/ && cp ./src/ekoke_erc20_swap_frontend/assetstorage.did ./.dfx/local/canisters/ekoke-erc20-swap-frontend/assetstorage.did"
 workspace = false
 
 [tasks.dfx-setup]

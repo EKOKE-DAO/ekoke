@@ -10,8 +10,7 @@ export { idlFactory } from "./ekoke-erc20-swap-frontend.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_EKOKE-ERC20-SWAP-FRONTEND ||
-  process.env.EKOKE-ERC20-SWAP-FRONTEND_CANISTER_ID;
+  process.env.CANISTER_ID_EKOKE-ERC20-SWAP-FRONTEND;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
