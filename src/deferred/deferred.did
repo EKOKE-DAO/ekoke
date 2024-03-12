@@ -288,7 +288,6 @@ type Vec = vec record {
   };
 };
 service : (DeferredInitData) -> {
-  admin_get_unsigned_contracts : () -> (vec nat) query;
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_ekoke_ledger_canister : (principal) -> ();
@@ -303,6 +302,7 @@ service : (DeferredInitData) -> {
   get_contract : (nat) -> (opt Contract) query;
   get_signed_contracts : () -> (vec nat) query;
   get_token : (nat) -> (opt TokenInfo) query;
+  get_unsigned_contracts : () -> (vec nat) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
   increment_contract_value : (nat, nat64, nat64) -> (Result);
   is_approved_for_all : (principal, principal) -> (Result_2);

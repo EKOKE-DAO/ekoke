@@ -54,6 +54,9 @@ fn inspect_message_impl() {
             )
             .is_ok()
         }
+        "get_unsigned_contracts" => {
+            Inspect::inspect_is_agent(caller()) || Inspect::inspect_is_custodian(caller())
+        }
         "burn" => {
             let token_identifier = api::call::arg_data::<(Nat,)>().0;
             Inspect::inspect_burn(caller(), &token_identifier).is_ok()

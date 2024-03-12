@@ -18,7 +18,7 @@ impl Inspect {
         RolesManager::is_custodian(caller)
     }
 
-    fn inspect_is_agent(caller: Principal) -> bool {
+    pub fn inspect_is_agent(caller: Principal) -> bool {
         RolesManager::is_agent(caller)
     }
 

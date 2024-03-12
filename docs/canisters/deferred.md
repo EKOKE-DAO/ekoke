@@ -13,7 +13,7 @@
     - [get\_signed\_contracts](#get_signed_contracts)
     - [get\_agencies](#get_agencies)
     - [remove\_agency](#remove_agency)
-    - [admin\_get\_unsigned\_contracts](#admin_get_unsigned_contracts)
+    - [get\_unsigned\_contracts](#get_unsigned_contracts)
     - [increment\_contract\_value](#increment_contract_value)
     - [update\_contract\_buyers](#update_contract_buyers)
     - [update\_contract\_property](#update_contract_property)
@@ -105,9 +105,11 @@ Get all the agencies
 
 Remove an agency. Only admin or the agent himself can call this method
 
-### admin_get_unsigned_contracts
+### get_unsigned_contracts
 
-Get unsigned contracts
+Get unsigned contracts.
+If called by an agent it returns the unsigned contracts for their agency.
+If called by an admin it returns all of them.
 
 ### increment_contract_value
 

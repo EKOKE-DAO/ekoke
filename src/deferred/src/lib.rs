@@ -97,8 +97,8 @@ pub fn update_contract_property(
 
 #[query]
 #[candid_method(query)]
-pub fn admin_get_unsigned_contracts() -> Vec<ID> {
-    Deferred::admin_get_unsigned_contracts()
+pub fn get_unsigned_contracts() -> Vec<ID> {
+    Deferred::get_unsigned_contracts()
 }
 
 #[update]

@@ -88,13 +88,23 @@ impl Deferred {
         RolesManager::remove_role(wallet, Role::Agent)
     }
 
-    /// get unsigned contracts
-    pub fn admin_get_unsigned_contracts() -> Vec<ID> {
-        if !Inspect::inspect_is_custodian(caller()) {
+    /// get unsigned contracts for agent.
+    /// If called by admin return them all
+    pub fn get_unsigned_contracts() -> Vec<ID> {
+        let is_custodian = RolesManager::is_custodian(caller());
+        if !is_custodian && !Inspect::inspect_is_agent(caller()) {
             ic_cdk::trap("Unauthorized");
         }
 
-        ContractStorage::get_unsigned_contracts()
+        let agency = Agents::get_agency_by_wallet(caller());
+
+        ContractStorage::get_unsigned_contracts(|contract| {
+            if is_custodian {
+                true
+            } else {
+                contract.agency == agency
+            }
+        })
     }
 
     /// Update contract buyers. Only the seller can call this method.
@@ -635,10 +645,7 @@ mod test {
 
         assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
         assert_eq!(Deferred::total_supply(), Nat::from(0_u64));
-        assert_eq!(
-            Deferred::admin_get_unsigned_contracts(),
-            vec![Nat::from(0_u64)]
-        );
+        assert_eq!(Deferred::get_unsigned_contracts(), vec![Nat::from(0_u64)]);
         assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
         assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0_u64)]);
         assert_eq!(Deferred::total_supply(), Nat::from(10_u64));

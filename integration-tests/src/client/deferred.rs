@@ -170,13 +170,13 @@ impl<'a> DeferredClient<'a> {
         token
     }
 
-    pub fn admin_get_unsigned_contracts(&self) -> Vec<ID> {
+    pub fn get_unsigned_contracts(&self) -> Vec<ID> {
         let unsigned_contracts: Vec<ID> = self
             .env
             .query(
                 self.env.deferred_id,
                 admin(),
-                "admin_get_unsigned_contracts",
+                "get_unsigned_contracts",
                 Encode!(&()).unwrap(),
             )
             .unwrap();

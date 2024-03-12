@@ -289,7 +289,6 @@ export type Vec = Array<
   ]
 >;
 export interface _SERVICE {
-  'admin_get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], undefined>,
@@ -304,6 +303,7 @@ export interface _SERVICE {
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
+  'get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'increment_contract_value' : ActorMethod<[bigint, bigint, bigint], Result>,
   'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
