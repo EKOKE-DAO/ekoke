@@ -1,5 +1,5 @@
-use did::deferred::{ContractRegistration, ContractType, GenericValue, Seller};
-use integration_tests::actor::{admin, alice};
+use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, Seller};
+use integration_tests::actor::{alice, bob};
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
@@ -9,6 +9,27 @@ use pretty_assertions::assert_eq;
 fn test_as_seller_i_can_set_the_contract_buyers() {
     let env = TestEnv::init();
     let deferred_client = DeferredClient::from(&env);
+
+    let agent = bob();
+    // give bob an agency
+    deferred_client.admin_register_agency(
+        agent,
+        Agency {
+            name: "Bob's agency".to_string(),
+            address: "Via Delle Botteghe Scure".to_string(),
+            city: "Rome".to_string(),
+            region: "Lazio".to_string(),
+            zip_code: "00100".to_string(),
+            country: "Italy".to_string(),
+            continent: did::deferred::Continent::Europe,
+            email: "email".to_string(),
+            website: "website".to_string(),
+            mobile: "mobile".to_string(),
+            vat: "vat".to_string(),
+            agent: "agent".to_string(),
+            logo: None,
+        },
+    );
 
     let registration_data = ContractRegistration {
         r#type: ContractType::Sell,
@@ -29,7 +50,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
 
     // call register
     let contract_id = deferred_client
-        .register_contract(admin(), registration_data)
+        .register_contract(agent, registration_data)
         .unwrap();
 
     // sign contract
@@ -38,7 +59,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
 
     // increment contract value
     assert!(deferred_client
-        .increment_contract_value(alice(), contract_id, 100_000, 1_000)
+        .increment_contract_value(agent, contract_id, 100_000, 1_000)
         .is_ok());
 
     // verify new value and supply

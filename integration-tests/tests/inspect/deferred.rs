@@ -521,12 +521,14 @@ fn test_should_inspect_sign_contract() {
 
     let contract_id = client.register_contract(agent, registration_data).unwrap();
 
-    let result: anyhow::Result<DeferredResult<ID>> = env.update(
+    let result: anyhow::Result<DeferredResult<()>> = env.update(
         env.deferred_id,
         agent,
         "sign_contract",
         Encode!(&contract_id).unwrap(),
     );
+
+    println!("{:?}", result);
 
     assert!(result.is_ok());
 }
