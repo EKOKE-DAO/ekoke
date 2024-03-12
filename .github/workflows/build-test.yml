@@ -44,7 +44,7 @@ jobs:
         with:
           node-version: 18.x
       - name: build
-        run: cargo make dfx-build
+        run: cargo make dfx-setup && cargo make dfx-build
       - name: Unit Tests
         run: cargo make test
       - name: Deploy local
