@@ -289,13 +289,11 @@ export type Vec = Array<
   ]
 >;
 export interface _SERVICE {
-  'admin_get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
-  'admin_sign_contract' : ActorMethod<[bigint], Result>,
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
   'balance_of' : ActorMethod<[Principal], Result_1>,
   'burn' : ActorMethod<[bigint], Result_1>,
@@ -305,6 +303,7 @@ export interface _SERVICE {
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
+  'get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'increment_contract_value' : ActorMethod<[bigint, bigint, bigint], Result>,
   'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
@@ -328,6 +327,7 @@ export interface _SERVICE {
   'set_logo' : ActorMethod<[string], undefined>,
   'set_name' : ActorMethod<[string], undefined>,
   'set_symbol' : ActorMethod<[string], undefined>,
+  'sign_contract' : ActorMethod<[bigint], Result>,
   'stats' : ActorMethod<[], Stats>,
   'supported_interfaces' : ActorMethod<[], Array<SupportedInterface>>,
   'symbol' : ActorMethod<[], [] | [string]>,
@@ -345,4 +345,4 @@ export interface _SERVICE {
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

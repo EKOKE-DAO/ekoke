@@ -55,13 +55,13 @@ fn test_should_register_agency_and_be_able_to_create_contract() {
     assert_eq!(contract_id, 0_u64);
 
     // check unsigned contract and signed contracts
-    let unsigned_contracts = deferred_client.admin_get_unsigned_contracts();
+    let unsigned_contracts = deferred_client.get_unsigned_contracts();
     assert_eq!(unsigned_contracts, vec![contract_id.clone()]);
     let signed_contract = deferred_client.get_signed_contracts();
     assert!(signed_contract.is_empty());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
+    let res = deferred_client.sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
 
     // agency could remove himself

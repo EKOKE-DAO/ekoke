@@ -329,17 +329,11 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_8 = IDL.Variant({ 'Ok' : TxEvent, 'Err' : NftError });
   return IDL.Service({
-    'admin_get_unsigned_contracts' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Nat)],
-        ['query'],
-      ),
     'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_ekoke_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
-    'admin_sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'burn' : IDL.Func([IDL.Nat], [Result_1], []),
@@ -349,6 +343,7 @@ export const idlFactory = ({ IDL }) => {
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
+    'get_unsigned_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'increment_contract_value' : IDL.Func(
         [IDL.Nat, IDL.Nat64, IDL.Nat64],
@@ -397,6 +392,7 @@ export const idlFactory = ({ IDL }) => {
     'set_logo' : IDL.Func([IDL.Text], [], []),
     'set_name' : IDL.Func([IDL.Text], [], []),
     'set_symbol' : IDL.Func([IDL.Text], [], []),
+    'sign_contract' : IDL.Func([IDL.Nat], [Result], []),
     'stats' : IDL.Func([], [Stats], ['query']),
     'supported_interfaces' : IDL.Func(
         [],

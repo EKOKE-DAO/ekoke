@@ -59,13 +59,13 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     assert_eq!(contract_id, 0_u64);
 
     // check unsigned contract and signed contracts
-    let unsigned_contracts = deferred_client.admin_get_unsigned_contracts();
+    let unsigned_contracts = deferred_client.get_unsigned_contracts();
     assert_eq!(unsigned_contracts, vec![contract_id.clone()]);
     let signed_contract = deferred_client.get_signed_contracts();
     assert!(signed_contract.is_empty());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(Nat::from(0_u64));
+    let res = deferred_client.sign_contract(Nat::from(0_u64));
     assert!(res.is_ok());
 
     // get contract
@@ -73,7 +73,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
     assert_eq!(contract.agency.unwrap(), agency);
 
     // check unsigned contract and signed contracts
-    let unsigned_contracts = deferred_client.admin_get_unsigned_contracts();
+    let unsigned_contracts = deferred_client.get_unsigned_contracts();
     assert!(unsigned_contracts.is_empty());
     let signed_contract = deferred_client.get_signed_contracts();
     assert_eq!(signed_contract, vec![contract_id.clone()]);

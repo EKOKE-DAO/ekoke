@@ -271,12 +271,15 @@ impl ContractStorage {
     }
 
     /// get contracts
-    pub fn get_unsigned_contracts() -> Vec<ID> {
+    pub fn get_unsigned_contracts<F>(filter: F) -> Vec<ID>
+    where
+        F: Fn(&Contract) -> bool,
+    {
         with_contracts(|contracts| {
             contracts
                 .iter()
                 .filter_map(|(key, contract)| {
-                    if !contract.is_signed {
+                    if !contract.is_signed && filter(&contract) {
                         Some(key.0.clone())
                     } else {
                         None
@@ -904,7 +907,12 @@ mod test {
         assert!(ContractStorage::insert_contract(contract_2).is_ok());
 
         assert_eq!(ContractStorage::get_signed_contracts().len(), 1);
-        assert_eq!(ContractStorage::get_unsigned_contracts().len(), 1);
+        assert_eq!(ContractStorage::get_unsigned_contracts(|_| true).len(), 1);
+
+        assert_eq!(
+            ContractStorage::get_unsigned_contracts(|contract| contract.id == 1_u64).len(),
+            0
+        );
     }
 
     #[test]

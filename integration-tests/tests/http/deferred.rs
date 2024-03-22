@@ -120,7 +120,7 @@ fn init_contract(env: &TestEnv) -> ID {
     assert_eq!(contract_id, 0_u64);
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(contract_id.clone());
+    let res = deferred_client.sign_contract(contract_id.clone());
     assert!(res.is_ok());
 
     contract_id

@@ -7,13 +7,13 @@
   - [Roles](#roles)
   - [API](#api)
     - [register\_contract](#register_contract)
-    - [admin\_sign\_contract](#admin_sign_contract)
+    - [sign\_contract](#sign_contract)
     - [get\_contract](#get_contract)
     - [get\_token](#get_token)
     - [get\_signed\_contracts](#get_signed_contracts)
     - [get\_agencies](#get_agencies)
     - [remove\_agency](#remove_agency)
-    - [admin\_get\_unsigned\_contracts](#admin_get_unsigned_contracts)
+    - [get\_unsigned\_contracts](#get_unsigned_contracts)
     - [increment\_contract\_value](#increment_contract_value)
     - [update\_contract\_buyers](#update_contract_buyers)
     - [update\_contract\_property](#update_contract_property)
@@ -69,7 +69,7 @@ A Contract is identified by the following properties
 On the deferred canister the following roles exists:
 
 - **Custodian**: administrator of the canister, following the DIP721 standard. It can administrate the canister and sign contracts.
-- **Agent**: role for agencies. Agent can create contracts, but he cannot sign them.
+- **Agent**: role for agencies. Agents can create contracts, and operate only on contracts created by their agency.
 
 ## API
 
@@ -81,9 +81,9 @@ Register a contract with the provided data.
 
 **The contract value** MUST be **multiple of installments**.
 
-### admin_sign_contract
+### sign_contract
 
-Approve and sign an existing contract. Once signed, the contract's tokens can be sold on the marketplace.
+Approve and sign an existing contract. Once signed, the contract's tokens can be sold on the marketplace. Only an admin or an agent can sign the contract.
 
 ### get_contract
 
@@ -105,9 +105,11 @@ Get all the agencies
 
 Remove an agency. Only admin or the agent himself can call this method
 
-### admin_get_unsigned_contracts
+### get_unsigned_contracts
 
-Get unsigned contracts
+Get unsigned contracts.
+If called by an agent it returns the unsigned contracts for their agency.
+If called by an admin it returns all of them.
 
 ### increment_contract_value
 

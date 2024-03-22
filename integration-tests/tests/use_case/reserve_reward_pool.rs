@@ -64,7 +64,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
         .is_ok());
 
     // sign contract
-    let res = deferred_client.admin_sign_contract(contract_id);
+    let res = deferred_client.sign_contract(contract_id);
     assert!(res.is_ok());
 
     // verify reward
