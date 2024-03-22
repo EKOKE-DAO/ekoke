@@ -9,6 +9,10 @@
 - [EKOKE-reward-pool](./canisters/ekoke-reward-pool.md)
 - [Marketplace](./canisters/marketplace.md)
 
+## Canisters architecture
+
+![arch](./canisters/arch.drawio.png)
+
 ## EKOKE DAO
 
 - [DAO](./dao.md)
