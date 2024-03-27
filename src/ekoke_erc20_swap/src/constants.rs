@@ -5,7 +5,7 @@ pub const THREE_HOURS: Duration = Duration::from_secs(60 * 60 * 3);
 
 /// Ethereum address public key name
 #[cfg(target_family = "wasm")]
-pub const ETH_PUBKEY_NAME: &str = "eth-pubkey";
+pub const ETH_PUBKEY_NAME: &str = "key_1";
 
 /// Minimum amount of ckEth which can be withdrawn from the Ethereum bridge (wei)
 pub const ETH_MIN_WITHDRAWAL_AMOUNT: u64 = 30_000_000_000_000_000;
