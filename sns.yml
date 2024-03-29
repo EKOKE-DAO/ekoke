@@ -252,15 +252,15 @@ initial_token_distribution:
         developer_distribution:
             developer_neurons:
                 - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: developer wallet
-                  stake_e8s: 133_201_515_200_000 # 1_332_015.152 EKOKE
+                  stake_e8s: 133_201_487_000_000 # 1_333_201.487 EKOKE
                   memo: 0
-                  dissolve_delay_seconds: 31560000 # 1 year
+                  dissolve_delay_seconds: 94680000 # 3 years
         treasury_distribution:
-            total_e8s: 213_122_424_200_000 # 2_131_224.242 EKOKE
+            total_e8s: 213_122_400_000_000 # 2_131_224.242 EKOKE
 
         swap_distribution:
-            total_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
-            initial_swap_amount_e8s: 106_561_212_100_000
+            total_e8s: 106_561_210_000_000 # 1_065_612.12 EKOKE
+            initial_swap_amount_e8s: 106_561_210_000_000
 
         airdrop_distribution:
             airdrop_neurons:
