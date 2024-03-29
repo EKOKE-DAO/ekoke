@@ -5,7 +5,7 @@
 # SNS LEDGER
 #
 # Fee of a ledger transaction.
-transaction_fee_e8s: 1000
+transaction_fee_e8s: 1000 # 0.00001 EKOKE
 #
 # The name of the token issued by the SNS ledger.
 # This field has no default, a value must be provided by the user.
@@ -21,14 +21,14 @@ token_symbol: EKOKE
 # SNS GOVERNANCE
 #
 # The cost of making a proposal that is not adopted in e8s.
-# 0.01 EKOKE
+# 0.0128 EKOKE
 #
-proposal_reject_cost_e8s: 1000000
+proposal_reject_cost_e8s: 1_280_000
 #
 # The minimum amount of SNS Token e8s an SNS Ledger account must have to stake a neuron.
-# 0.1 EKOKE
+# 5 EKOKE
 #
-neuron_minimum_stake_e8s: 10000000
+neuron_minimum_stake_e8s: 500_000_000
 #
 # The minimum dissolve_delay in seconds a neuron must have to be able to cast votes on proposals.
 # Default value = 15778800 (6 months)
@@ -60,9 +60,9 @@ description: The EKOKE DAO provides a decentralized platform for people to buy r
 # `initial_reward_rate_basis_points` to `final_reward_rate_basis_points` over
 # the time period defined by `reward_rate_transition_duration_seconds`.
 #
-# Value set to 126230400 seconds (4 years).
+# Value set to 378691200 seconds (12 years).
 #
-reward_rate_transition_duration_seconds: 126230400
+reward_rate_transition_duration_seconds: 378691200
 #
 # The voting reward rate controls how quickly the supply of the SNS token
 # increases. For example, an initial_reward_rate_percentage of `2.0` will cause
@@ -87,8 +87,8 @@ reward_rate_transition_duration_seconds: 126230400
 # `NervousSystemParameters::initial_reward_rate_basis points` and
 # `NervousSystemParameters::final_reward_rate_basis points` in the SNS.
 #
-initial_reward_rate_percentage: 0.0
-final_reward_rate_percentage: 0.0
+initial_reward_rate_percentage: 2.5
+final_reward_rate_percentage: 2.0
 #
 # The maximum dissolve delay that a neuron can have.
 #
@@ -102,9 +102,9 @@ max_dissolve_delay_seconds: 252460800
 # be given. All older neurons will be treated as if they are this age. The unit
 # is seconds.
 #
-# The default value is 126230400 seconds (48 months).
+# The default value is 15778800 seconds (6 months).
 #
-max_neuron_age_seconds_for_age_bonus: 126230400
+max_neuron_age_seconds_for_age_bonus: 15778800
 #
 # Users with a higher dissolve delay are incentivized to take the long-term
 # interests of the SNS into consideration when voting. To reward this long time
@@ -251,22 +251,38 @@ initial_token_distribution:
     FractionalDeveloperVotingPower:
         developer_distribution:
             developer_neurons:
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
-                  stake_e8s: 1500000000
-                  memo: 1
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: developer wallet
+                  stake_e8s: 133_201_515_200_000 # 1_332_015.152 EKOKE
+                  memo: 0
                   dissolve_delay_seconds: 31560000 # 1 year
         treasury_distribution:
-            total_e8s: 888010101000000 # 8,880,101,010 EKOKE
+            total_e8s: 213_122_424_200_000 # 2_131_224.242 EKOKE
 
         swap_distribution:
-            total_e8s: 100000000000000
-            initial_swap_amount_e8s: 100000000000000
+            total_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
+            initial_swap_amount_e8s: 106_561_212_100_000
 
         airdrop_distribution:
             airdrop_neurons:
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # reward pool
-                  stake_e8s: 800000000000000 # 8,000,000,000 EKOKE
-                  memo: 0
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: reward pool
+                  stake_e8s: 266_403_000_000_000 # 2_664_030 EKOKE
+                  memo: 1
+                  dissolve_delay_seconds: 86400 # 1 day
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: ERC20 swap
+                  stake_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
+                  memo: 2
+                  dissolve_delay_seconds: 86400 # 1 day
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Investor
+                  stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
+                  memo: 3
+                  dissolve_delay_seconds: 86400 # 1 day
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Token Airdrop
+                  stake_e8s: 888_0101_010_000 # 88_801.0101 EKOKE
+                  memo: 4
+                  dissolve_delay_seconds: 86400 # 1 day
+                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: LBP Pool
+                  stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
+                  memo: 5
                   dissolve_delay_seconds: 86400 # 1 day
 
 #
@@ -287,4 +303,4 @@ confirmation_text: ~
 #
 # Example: ["CH", "FR"]
 #
-restricted_countries: ~
+restricted_countries: ["US", "KP"]
