@@ -51,7 +51,7 @@ Read the [Project Documentation](./docs/README.md)
 
 ## Whitepaper
 
-Coming soon
+You can find the whitepaper on our website <https://www.ekoketoken.com/whitepaper>
 
 ## Get started
 
