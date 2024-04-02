@@ -144,7 +144,7 @@ max_age_bonus_multiplier: 1.25
 # This field has no default, a value must be provided by the user.
 #
 fallback_controller_principal_ids:
-    [bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe]
+  [bs5l3-6b3zu-dpqyj-p2x4a-jyg4k-goneb-afof2-y5d62-skt67-3756q-dqe]
 #
 # The initial voting period in seconds of a newly created proposal.
 # (A proposal's voting period may be increased during a proposal's lifecycle due
@@ -248,42 +248,42 @@ wait_for_quiet_deadline_increase_seconds: 86400
 #           dissolve_delay_seconds: 15780000 # 6 months
 #
 initial_token_distribution:
-    FractionalDeveloperVotingPower:
-        developer_distribution:
-            developer_neurons:
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: developer wallet
-                  stake_e8s: 133_201_487_000_000 # 1_333_201.487 EKOKE
-                  memo: 0
-                  dissolve_delay_seconds: 94680000 # 3 years
-        treasury_distribution:
-            total_e8s: 213_122_400_000_000 # 2_131_224.242 EKOKE
+  FractionalDeveloperVotingPower:
+    developer_distribution:
+      developer_neurons:
+        - controller: siur6-vjlpc-yfvqh-t24v2-phx5n-r5mvm-v7kbo-s6ubm-idjky-jgwug-7qe
+          stake_e8s: 133_201_487_000_000 # 1_333_201.487 EKOKE
+          memo: 0
+          dissolve_delay_seconds: 94680000 # 3 years
+    treasury_distribution:
+      total_e8s: 213_122_400_000_000 # 2_131_224.242 EKOKE
 
-        swap_distribution:
-            total_e8s: 106_561_210_000_000 # 1_065_612.12 EKOKE
-            initial_swap_amount_e8s: 106_561_210_000_000
+    swap_distribution:
+      total_e8s: 106_561_210_000_000 # 1_065_612.12 EKOKE
+      initial_swap_amount_e8s: 106_561_210_000_000
 
-        airdrop_distribution:
-            airdrop_neurons:
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: reward pool
-                  stake_e8s: 266_403_000_000_000 # 2_664_030 EKOKE
-                  memo: 1
-                  dissolve_delay_seconds: 86400 # 1 day
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: ERC20 swap
-                  stake_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
-                  memo: 2
-                  dissolve_delay_seconds: 86400 # 1 day
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Investor
-                  stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
-                  memo: 3
-                  dissolve_delay_seconds: 86400 # 1 day
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Token Airdrop
-                  stake_e8s: 888_0101_010_000 # 88_801.0101 EKOKE
-                  memo: 4
-                  dissolve_delay_seconds: 86400 # 1 day
-                - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: LBP Pool
-                  stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
-                  memo: 5
-                  dissolve_delay_seconds: 86400 # 1 day
+    airdrop_distribution:
+      airdrop_neurons:
+        - controller: vtxdn-caaaa-aaaal-ai5dq-cai
+          stake_e8s: 266_403_000_000_000 # 2_664_030 EKOKE
+          memo: 1
+          dissolve_delay_seconds: 86400 # 1 day
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: ERC20 swap
+          stake_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
+          memo: 2
+          dissolve_delay_seconds: 86400 # 1 day
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Investor
+          stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
+          memo: 3
+          dissolve_delay_seconds: 86400 # 1 day
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Token Airdrop
+          stake_e8s: 888_0101_010_000 # 88_801.0101 EKOKE
+          memo: 4
+          dissolve_delay_seconds: 86400 # 1 day
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: LBP Pool
+          stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
+          memo: 5
+          dissolve_delay_seconds: 86400 # 1 day
 
 #
 #
