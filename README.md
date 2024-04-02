@@ -20,6 +20,7 @@ Powered by **Internet Computer**
     - [Main advantages](#main-advantages)
   - [Documentation](#documentation)
   - [Whitepaper](#whitepaper)
+  - [Canisters](#canisters)
   - [Get started](#get-started)
     - [Dependencies](#dependencies)
     - [Build canisters](#build-canisters)
@@ -52,6 +53,13 @@ Read the [Project Documentation](./docs/README.md)
 ## Whitepaper
 
 You can find the whitepaper on our website <https://www.ekoketoken.com/whitepaper>
+
+## Canisters
+
+- **Deferred**: `v5vof-zqaaa-aaaal-ai5cq-cai`
+- **EKOKE Liquidity Pool**: `v2uir-uiaaa-aaaal-ai5ca-cai`
+- **EKOKE Reward Pool**: `vtxdn-caaaa-aaaal-ai5dq-cai`
+- **Marketplace**: `vuwfz-pyaaa-aaaal-ai5da-cai`
 
 ## Get started
 

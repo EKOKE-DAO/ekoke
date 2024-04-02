@@ -16,6 +16,12 @@ CANISTER="$1"
 
 if [ -z "$CANISTER" ]; then
   echo "Please provide the canister name as an argument"
+  echo "Available canisters:"
+  echo "- deferred"
+  echo "- ekoke-erc20-swap"
+  echo "- ekoke-liquidity-pool"
+  echo "- ekoke-reward-pool"
+  echo "- marketplace"
   exit 1
 fi
 
@@ -29,33 +35,40 @@ case "$CANISTER" in
   "deferred")
     EKOKE_REWARD_POOL_PRINCIPAL=$(get_arg "ekoke-reward-pool" "$FALLBACK_CANISTER")
     MARKETPLACE_PRINCIPAL=$(get_arg "marketplace" "$FALLBACK_CANISTER")
-    deploy_deferred "create" "ic" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
+    deploy_deferred "reinstall" "ic" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$MARKETPLACE_PRINCIPAL" "$ADMIN_PRINCIPAL"
     ;;
   
   "ekoke-erc20-swap")
     EKOKE_LEDGER_PRINCIPAL=$(get_arg "ekoke-ledger" "$FALLBACK_CANISTER")
-    deploy_ekoke_erc20_swap "create" "ic" "$EKOKE_ERC20_SWAP_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ERC20_BRIDGE_ADDRESS" "$ERC20_SWAP_FEE" "$ERC20_NETWORK"
+    deploy_ekoke_erc20_swap "reinstall" "ic" "$EKOKE_ERC20_SWAP_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ERC20_BRIDGE_ADDRESS" "$ERC20_SWAP_FEE" "$ERC20_NETWORK"
     ;;
   
   "ekoke-liquidity-pool")
-    deploy_ekoke_liquidity_pool "create" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$SWAP_ACCOUNT"
+    deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$SWAP_ACCOUNT"
     ;;
 
   "ekoke-reward-pool")
     EKOKE_LEDGER_PRINCIPAL=$(get_arg "ekoke-ledger" "$FALLBACK_CANISTER")
     DEFERRED_PRINCIPAL=$(get_arg "deferred" "$FALLBACK_CANISTER")
     MARKETPLACE_PRINCIPAL=$(get_arg "marketplace" "$FALLBACK_CANISTER")
-    deploy_ekoke_reward_pool "create" "ic" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL"
+    deploy_ekoke_reward_pool "reinstall" "ic" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$MARKETPLACE_PRINCIPAL"
     ;;
 
   "marketplace")
     DEFERRED_PRINCIPAL=$(get_arg "deferred" "$FALLBACK_CANISTER")
     EKOKE_REWARD_POOL_PRINCIPAL=$(get_arg "ekoke-reward-pool" "$FALLBACK_CANISTER")
     EKOKE_LIQUIDITY_POOL_PRINCIPAL=$(get_arg "ekoke-liquidity-pool" "$FALLBACK_CANISTER")
-    deploy_marketplace "create" "ic" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL"
+    deploy_marketplace "reinstall" "ic" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$EKOKE_REWARD_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL"
+    ;;
 
   *)
     echo "Invalid canister name"
+    echo "Available canisters:"
+    echo "- deferred"
+    echo "- ekoke-erc20-swap"
+    echo "- ekoke-liquidity-pool"
+    echo "- ekoke-reward-pool"
+    echo "- marketplace"
     exit 1
     ;;
 
