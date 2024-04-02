@@ -25,5 +25,5 @@ jobs:
         run: yarn lint
         working-directory: ./src/ekoke_erc20_swap_frontend
       - name: build
-        run: yarn build:release
+        run: yarn build
         working-directory: ./src/ekoke_erc20_swap_frontend

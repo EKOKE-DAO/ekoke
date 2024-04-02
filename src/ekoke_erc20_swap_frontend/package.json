@@ -20,7 +20,7 @@
     ]
   },
   "scripts": {
-    "build:release": "yarn clean && parcel build src/index.html --reporter @parcel/reporter-bundle-analyzer && cp sitemap.xml dist/sitemap.xml && cp robots.txt dist/robots.txt && cp favicon.ico dist/favicon.ico",
+    "build": "yarn clean && parcel build src/index.html --reporter @parcel/reporter-bundle-analyzer && cp sitemap.xml dist/sitemap.xml && cp robots.txt dist/robots.txt && cp favicon.ico dist/favicon.ico",
     "clean": "rm -rf dist/* .parcel-cache/",
     "dev": "parcel src/index.html",
     "lint": "eslint . --ext .ts --ext .tsx --max-warnings=0",
