@@ -43,6 +43,10 @@ case "$CANISTER" in
     deploy_ekoke_erc20_swap "reinstall" "ic" "$EKOKE_ERC20_SWAP_PRINCIPAL" "$ADMIN_PRINCIPAL" "$EKOKE_LEDGER_PRINCIPAL" "$ERC20_BRIDGE_ADDRESS" "$ERC20_SWAP_FEE" "$ERC20_NETWORK"
     ;;
   
+  "ekoke-erc20-swap-frontend")
+    deploy_ekoke_erc20_swap_frontend "reinstall" "ic"
+    ;;
+  
   "ekoke-liquidity-pool")
     deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$SWAP_ACCOUNT"
     ;;

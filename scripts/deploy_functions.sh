@@ -47,6 +47,15 @@ deploy_ekoke_erc20_swap() {
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_erc20_swap_init_args" ekoke-erc20-swap
 }
 
+deploy_ekoke_erc20_swap_frontend() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+
+  echo "deploying ekoke-erc20-swap-frontend canister"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" ekoke-erc20-swap-frontend
+}
+
 deploy_ekoke_reward_pool() {
   INSTALL_MODE="$1"
   NETWORK="$2"
