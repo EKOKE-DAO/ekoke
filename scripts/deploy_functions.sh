@@ -112,3 +112,12 @@ deploy_marketplace() {
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$marketplace_init_args" marketplace
 }
+
+get_arg() {
+  read -p "$1: " arg
+  if [ -z "$arg" ]; then
+    echo "$2"
+  else
+    echo "$arg"
+  fi
+}
