@@ -291,7 +291,7 @@ export type Vec = Array<
 export interface _SERVICE {
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
-  'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], undefined>,
+  'admin_set_ekoke_reward_pool_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'approve' : ActorMethod<[Principal, bigint], Result_1>,
@@ -345,4 +345,4 @@ export interface _SERVICE {
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

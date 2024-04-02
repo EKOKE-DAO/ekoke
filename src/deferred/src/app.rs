@@ -222,8 +222,8 @@ impl Deferred {
         }
     }
 
-    /// Update ekoke ledger canister id
-    pub fn admin_set_ekoke_ledger_canister(canister: Principal) {
+    /// Update ekoke reward pool canister id
+    pub fn admin_set_ekoke_reward_pool_canister(canister: Principal) {
         if !Inspect::inspect_is_custodian(caller()) {
             ic_cdk::trap("Unauthorized");
         }

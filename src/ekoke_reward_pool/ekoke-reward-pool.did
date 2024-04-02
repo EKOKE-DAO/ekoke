@@ -84,6 +84,7 @@ type TransferFromError = variant {
 service : (EkokeRewardPoolInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_remove_role : (principal, Role) -> (Result);
+  admin_set_ledger_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
   available_liquidity : () -> (Result_1) query;
   get_contract_reward : (nat, nat64) -> (Result_1);

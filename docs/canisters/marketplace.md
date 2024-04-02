@@ -5,7 +5,7 @@
   - [API](#api)
     - [get\_token\_price\_icp](#get_token_price_icp)
     - [buy\_token](#buy_token)
-    - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_ledger_canister)
+    - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_reward_pool_canister)
     - [admin\_set\_ekoke\_liquidity\_pool\_canister](#admin_set_ekoke_liquidity_pool_canister)
     - [admin\_set\_deferred\_canister](#admin_set_deferred_canister)
     - [admin\_set\_xrc\_canister](#admin_set_xrc_canister)
@@ -35,7 +35,7 @@ Get ICP token price for the provided token
 
 See **Buy process**
 
-### admin_set_ekoke_ledger_canister
+### admin_set_ekoke_reward_pool_canister
 
 set the ekoke ledger canister
 

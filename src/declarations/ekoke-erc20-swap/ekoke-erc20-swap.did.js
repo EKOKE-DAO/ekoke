@@ -124,6 +124,7 @@ export const idlFactory = ({ IDL }) => {
     'admin_set_cketh_minter_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_erc20_bridge_address' : IDL.Func([IDL.Text], [], []),
     'admin_set_erc20_gas_price' : IDL.Func([IDL.Nat64], [], []),
+    'admin_set_ledger_canister' : IDL.Func([IDL.Principal], [], []),
     'http_transform_send_tx' : IDL.Func(
         [TransformArgs],
         [HttpResponse],

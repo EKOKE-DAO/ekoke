@@ -138,8 +138,8 @@ export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,
   'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_ekoke_ledger_canister' : ActorMethod<[Principal], Result>,
   'admin_set_ekoke_liquidity_pool_canister' : ActorMethod<[Principal], Result>,
+  'admin_set_ekoke_reward_pool_canister' : ActorMethod<[Principal], Result>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_interest_rate_for_buyer' : ActorMethod<[number], undefined>,
   'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
@@ -147,4 +147,4 @@ export interface _SERVICE {
   'get_token_price_icp' : ActorMethod<[bigint], Result_1>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

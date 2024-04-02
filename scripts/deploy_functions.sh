@@ -47,23 +47,6 @@ deploy_ekoke_erc20_swap() {
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_erc20_swap_init_args" ekoke-erc20-swap
 }
 
-deploy_ekoke_index() {
-  INSTALL_MODE="$1"
-  NETWORK="$2"
-  EKOKE_INDEX_PRINCIPAL="$3"
-  EKOKE_LEDGER_PRINCIPAL="$4"
-  EKOKE_ARCHIVE_PRINCIPAL="$5"
-
-  echo "deploying ekoke-index canister $EKOKE_INDEX_PRINCIPAL"
-
-  ekoke_index_init_args="(record {
-    archive_id = principal \"$EKOKE_ARCHIVE_PRINCIPAL\";
-    ledger_id = principal \"$EKOKE_LEDGER_PRINCIPAL\";
-  })"
-
-  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_index_init_args" ekoke-index
-}
-
 deploy_ekoke_reward_pool() {
   INSTALL_MODE="$1"
   NETWORK="$2"
@@ -93,7 +76,7 @@ deploy_ekoke_liquidity_pool() {
   ADMINS="$4"
   SWAP_ACCOUNT="$5"
 
-  echo "deploying ekoke-liquidity-pool canister $EKOKE_LEDGER_PRINCIPAL"
+  echo "deploying ekoke-liquidity-pool canister $EKOKE_LIQUIDITY_POOL_PRINCIPAL"
 
   ekoke_liquidity_pool_init_args="(record {
     swap_account = $SWAP_ACCOUNT;

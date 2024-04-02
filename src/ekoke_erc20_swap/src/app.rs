@@ -136,6 +136,14 @@ impl EkokeErc20SwapCanister {
         utils::cycles()
     }
 
+    /// Set ledger canister
+    pub fn admin_set_ledger_canister(ledger_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_ledger_canister(ledger_id);
+    }
+
     /// Set ckETH ledger canister
     pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
         if !Inspect::inspect_is_admin(utils::caller()) {

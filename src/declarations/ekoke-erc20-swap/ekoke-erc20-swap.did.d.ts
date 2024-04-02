@@ -104,9 +104,10 @@ export interface _SERVICE {
   'admin_set_cketh_minter_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_erc20_bridge_address' : ActorMethod<[string], undefined>,
   'admin_set_erc20_gas_price' : ActorMethod<[bigint], undefined>,
+  'admin_set_ledger_canister' : ActorMethod<[Principal], undefined>,
   'http_transform_send_tx' : ActorMethod<[TransformArgs], HttpResponse>,
   'swap' : ActorMethod<[string, bigint, [] | [Uint8Array | number[]]], Result>,
   'swap_fee' : ActorMethod<[], Result_1>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

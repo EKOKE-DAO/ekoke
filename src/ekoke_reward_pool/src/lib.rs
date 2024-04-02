@@ -52,6 +52,12 @@ pub async fn reserve_pool(
 
 #[update]
 #[candid_method(update)]
+pub fn admin_set_ledger_canister(ledger_id: Principal) {
+    EkokeRewardPoolCanister::admin_set_ledger_canister(ledger_id)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_role(principal: Principal, role: Role) {
     EkokeRewardPoolCanister::admin_set_role(principal, role)
 }

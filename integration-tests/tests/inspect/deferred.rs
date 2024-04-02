@@ -17,7 +17,7 @@ fn test_should_inspect_is_admin() {
         .update::<()>(
             env.deferred_id,
             admin(),
-            "admin_set_ekoke_ledger_canister",
+            "admin_set_ekoke_reward_pool_canister",
             Encode!(&env.marketplace_id).unwrap(),
         )
         .is_ok());
@@ -32,7 +32,7 @@ fn test_should_inspect_admin_not_admin() {
         .update::<()>(
             env.deferred_id,
             bob(),
-            "admin_set_ekoke_ledger_canister",
+            "admin_set_ekoke_reward_pool_canister",
             Encode!(&env.marketplace_id).unwrap(),
         )
         .is_err());

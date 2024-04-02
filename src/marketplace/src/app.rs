@@ -68,7 +68,7 @@ impl Marketplace {
         Configuration::set_deferred_canister(canister)
     }
 
-    pub fn admin_set_ekoke_ledger_canister(canister: Principal) -> MarketplaceResult<()> {
+    pub fn admin_set_ekoke_reward_pool_canister(canister: Principal) -> MarketplaceResult<()> {
         if !Inspect::inspect_is_admin(caller()) {
             ic_cdk::trap("unauthorized");
         }
@@ -355,7 +355,7 @@ mod test {
     async fn test_should_change_ekoke_ledger_canister() {
         init_canister();
         let new_ekoke_ledger_canister = Principal::anonymous();
-        Marketplace::admin_set_ekoke_ledger_canister(new_ekoke_ledger_canister).unwrap();
+        Marketplace::admin_set_ekoke_reward_pool_canister(new_ekoke_ledger_canister).unwrap();
         assert_eq!(
             Configuration::get_ekoke_reward_pool_canister(),
             new_ekoke_ledger_canister

@@ -10,7 +10,8 @@ export { idlFactory } from "./sns_ledger.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_SNS_LEDGER;
+  process.env.CANISTER_ID_SNS_LEDGER ||
+  process.env.SNS_LEDGER_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });

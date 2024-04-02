@@ -98,6 +98,7 @@ service : (EkokeErc20SwapInitData) -> {
   admin_set_cketh_minter_canister : (principal) -> ();
   admin_set_erc20_bridge_address : (text) -> ();
   admin_set_erc20_gas_price : (nat64) -> ();
+  admin_set_ledger_canister : (principal) -> ();
   http_transform_send_tx : (TransformArgs) -> (HttpResponse) query;
   swap : (text, nat, opt vec nat8) -> (Result);
   swap_fee : () -> (Result_1);

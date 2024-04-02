@@ -17,7 +17,7 @@
     - [increment\_contract\_value](#increment_contract_value)
     - [update\_contract\_buyers](#update_contract_buyers)
     - [update\_contract\_property](#update_contract_property)
-    - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_ledger_canister)
+    - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_reward_pool_canister)
     - [admin\_set\_marketplace\_canister](#admin_set_marketplace_canister)
     - [admin\_set\_role](#admin_set_role)
     - [admin\_remove\_role](#admin_remove_role)
@@ -127,7 +127,7 @@ Change a contract property.
 
 Can be called by Agent, Custodian or seller.
 
-### admin_set_ekoke_ledger_canister
+### admin_set_ekoke_reward_pool_canister
 
 Update ekoke ledger canister principal
 

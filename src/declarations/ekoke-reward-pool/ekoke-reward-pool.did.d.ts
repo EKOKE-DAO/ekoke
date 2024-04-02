@@ -90,6 +90,7 @@ export type TransferFromError = {
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
+  'admin_set_ledger_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'available_liquidity' : ActorMethod<[], Result_1>,
   'get_contract_reward' : ActorMethod<[bigint, bigint], Result_1>,
@@ -100,4 +101,4 @@ export interface _SERVICE {
   'send_reward' : ActorMethod<[bigint, bigint, Account], Result>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
-export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

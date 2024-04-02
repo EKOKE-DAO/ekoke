@@ -168,8 +168,12 @@ export const idlFactory = ({ IDL }) => {
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [Result], []),
     'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_ekoke_ledger_canister' : IDL.Func([IDL.Principal], [Result], []),
     'admin_set_ekoke_liquidity_pool_canister' : IDL.Func(
+        [IDL.Principal],
+        [Result],
+        [],
+      ),
+    'admin_set_ekoke_reward_pool_canister' : IDL.Func(
         [IDL.Principal],
         [Result],
         [],

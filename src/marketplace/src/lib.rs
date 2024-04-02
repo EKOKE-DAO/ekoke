@@ -49,8 +49,8 @@ pub fn admin_set_icp_ledger_canister(canister: Principal) {
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_ekoke_ledger_canister(canister: Principal) -> MarketplaceResult<()> {
-    Marketplace::admin_set_ekoke_ledger_canister(canister)
+pub fn admin_set_ekoke_reward_pool_canister(canister: Principal) -> MarketplaceResult<()> {
+    Marketplace::admin_set_ekoke_reward_pool_canister(canister)
 }
 
 #[update]

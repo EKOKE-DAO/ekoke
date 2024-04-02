@@ -52,6 +52,12 @@ pub fn admin_cycles() -> Nat {
 
 #[update]
 #[candid_method(update)]
+pub fn admin_set_ledger_canister(ledger_id: Principal) {
+    EkokeErc20SwapCanister::admin_set_ledger_canister(ledger_id)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_cketh_ledger_canister(canister_id: Principal) {
     EkokeErc20SwapCanister::admin_set_cketh_ledger_canister(canister_id)
 }

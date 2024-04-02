@@ -109,8 +109,8 @@ pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> Deferr
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_ekoke_ledger_canister(canister_id: Principal) {
-    Deferred::admin_set_ekoke_ledger_canister(canister_id)
+pub fn admin_set_ekoke_reward_pool_canister(canister_id: Principal) {
+    Deferred::admin_set_ekoke_reward_pool_canister(canister_id)
 }
 
 #[update]

@@ -108,6 +108,14 @@ impl EkokeRewardPoolCanister {
 
     // # admin methods
 
+    /// Set ledger canister
+    pub fn admin_set_ledger_canister(ledger_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_ledger_canister(ledger_id);
+    }
+
     /// Set role to the provided principal
     pub fn admin_set_role(principal: Principal, role: Role) {
         if !Inspect::inspect_is_admin(utils::caller()) {
