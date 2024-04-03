@@ -2,6 +2,9 @@
 .parcel-cache/
 coverage/
 dist/*
+!dist/.well-known
+!dist/.well-known/*
+!dist/.ic-assets.json
 node_modules/
 *.log
 
