@@ -128,6 +128,7 @@ fn setup_contract_marketplace(env: &TestEnv) -> ID {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
     // call register

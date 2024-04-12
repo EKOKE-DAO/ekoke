@@ -9,7 +9,8 @@ pub type DeferredResult<T> = Result<T, DeferredError>;
 pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
 pub use self::contract::{
     Agency, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
-    GenericValue, Seller, Token, TokenIdentifier, TokenInfo, ID,
+    GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Seller,
+    Token, TokenIdentifier, TokenInfo, ID,
 };
 pub use self::error::{ConfigurationError, DeferredError, TokenError};
 
@@ -92,6 +93,13 @@ mod test {
             properties: vec![(
                 "Rome".to_string(),
                 GenericValue::TextContent("Rome".to_string()),
+            )],
+            restricted_properties: vec![(
+                "Secret".to_string(),
+                RestrictedProperty {
+                    access_list: vec![RestrictionLevel::Agent],
+                    value: GenericValue::TextContent("Secret".to_string()),
+                },
             )],
             agency: Some(Agency {
                 name: "Agency".to_string(),

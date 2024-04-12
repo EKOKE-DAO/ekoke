@@ -1,5 +1,7 @@
 use candid::{Nat, Principal};
-use did::deferred::{Contract, DeferredError, DeferredResult, Seller, Token, TokenError};
+use did::deferred::{
+    Contract, DeferredError, DeferredResult, RestrictedProperty, Seller, Token, TokenError,
+};
 use did::{StorableNat, ID};
 use dip721::{GenericValue, TokenIdentifier, TokenMetadata};
 use itertools::Itertools;
@@ -311,6 +313,28 @@ impl ContractStorage {
         })
     }
 
+    /// Update restricted contract property
+    pub fn update_restricted_contract_property(
+        contract_id: &ID,
+        key: String,
+        value: RestrictedProperty,
+    ) -> DeferredResult<()> {
+        with_contract_mut(contract_id, |contract| {
+            let mut found = false;
+            for (k, v) in &mut contract.restricted_properties {
+                if k == &key {
+                    *v = value.clone();
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                contract.restricted_properties.push((key, value));
+            }
+            Ok(())
+        })
+    }
+
     /// Update the contract  buyers
     pub fn update_contract_buyers(contract_id: &ID, buyers: Vec<Principal>) -> DeferredResult<()> {
         with_contract_mut(contract_id, |contract| {
@@ -446,7 +470,7 @@ impl ContractStorage {
 mod test {
 
     use candid::Principal;
-    use did::deferred::Seller;
+    use did::deferred::{RestrictionLevel, Seller};
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -795,6 +819,7 @@ mod test {
                 "contract:city".to_string(),
                 dip721::GenericValue::TextContent("Rome".to_string()),
             )],
+            restricted_properties: vec![],
             agency: None,
             expiration: None,
         };
@@ -990,6 +1015,66 @@ mod test {
                 .unwrap()
                 .1,
             GenericValue::TextContent("Trieste".to_string())
+        );
+    }
+
+    #[test]
+    fn test_should_update_restricted_contract_property() {
+        let contract = with_mock_contract(1, 1, |contract| {
+            contract.restricted_properties.push((
+                "contract:address".to_string(),
+                RestrictedProperty {
+                    access_list: vec![RestrictionLevel::Seller],
+                    value: dip721::GenericValue::TextContent("Rome".to_string()),
+                },
+            ));
+        });
+        assert!(ContractStorage::insert_contract(contract).is_ok());
+
+        assert!(ContractStorage::update_restricted_contract_property(
+            &1_u64.into(),
+            "contract:address".to_string(),
+            RestrictedProperty {
+                access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
+                value: dip721::GenericValue::TextContent("Milan".to_string()),
+            },
+        )
+        .is_ok());
+        assert_eq!(
+            ContractStorage::get_contract(&1_u64.into())
+                .unwrap()
+                .restricted_properties
+                .iter()
+                .find(|(k, _)| k == "contract:address")
+                .unwrap()
+                .1,
+            RestrictedProperty {
+                access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
+                value: GenericValue::TextContent("Milan".to_string())
+            }
+        );
+
+        assert!(ContractStorage::update_restricted_contract_property(
+            &1_u64.into(),
+            "contract:addressLong".to_string(),
+            RestrictedProperty {
+                access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
+                value: GenericValue::TextContent("Milan".to_string())
+            }
+        )
+        .is_ok());
+        assert_eq!(
+            ContractStorage::get_contract(&1_u64.into())
+                .unwrap()
+                .restricted_properties
+                .iter()
+                .find(|(k, _)| k == "contract:addressLong")
+                .unwrap()
+                .1,
+            RestrictedProperty {
+                access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
+                value: GenericValue::TextContent("Milan".to_string())
+            }
         );
     }
 }

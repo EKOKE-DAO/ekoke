@@ -94,6 +94,7 @@ fn test_should_inspect_update_contract_property() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -156,6 +157,7 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -204,6 +206,7 @@ fn test_should_inspect_update_contract_property_bad_key() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -246,6 +249,7 @@ fn test_should_inspect_update_contract_buyers() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -299,6 +303,7 @@ fn test_should_inspect_update_contract_buyers_not_seller() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -335,6 +340,7 @@ fn test_should_inspect_register_contract() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -369,6 +375,7 @@ fn test_should_inspect_register_contract_unauthorized() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -398,6 +405,7 @@ fn test_should_inspect_register_contract_no_sellers() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -430,6 +438,7 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -462,6 +471,7 @@ fn test_should_inspect_register_contract_expired() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: Some("2021-01-01".to_string()),
     };
 
@@ -516,6 +526,7 @@ fn test_should_inspect_sign_contract() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 
@@ -553,6 +564,7 @@ fn test_should_inspect_burn() {
             "contract:address".to_string(),
             GenericValue::TextContent("via roma 10".to_string()),
         )],
+        restricted_properties: vec![],
         expiration: None,
     };
 

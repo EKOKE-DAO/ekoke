@@ -6,7 +6,8 @@
 
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
-    Agency, Contract, ContractRegistration, DeferredInitData, DeferredResult, Role, TokenInfo,
+    Agency, Contract, ContractRegistration, DeferredInitData, DeferredResult, RestrictedProperty,
+    Role, TokenInfo,
 };
 use did::{HttpRequest, HttpResponse, ID};
 use dip721::{Dip721 as _, GenericValue, TokenIdentifier};
@@ -93,6 +94,24 @@ pub fn update_contract_property(
     value: GenericValue,
 ) -> DeferredResult<()> {
     Deferred::update_contract_property(contract_id, key, value)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn update_restricted_contract_property(
+    contract_id: ID,
+    key: String,
+    value: RestrictedProperty,
+) -> DeferredResult<()> {
+    Deferred::update_restricted_contract_property(contract_id, key, value)
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_restricted_contract_properties(
+    contract_id: ID,
+) -> Option<Vec<(String, RestrictedProperty)>> {
+    Deferred::get_restricted_contract_properties(contract_id)
 }
 
 #[query]

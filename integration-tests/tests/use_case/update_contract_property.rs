@@ -36,6 +36,7 @@ fn test_should_update_contract_property() {
                 GenericValue::TextContent("Gino Valle".to_string()),
             ),
         ],
+        restricted_properties: vec![],
         expiration: None,
     };
 

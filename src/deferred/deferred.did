@@ -53,6 +53,7 @@ type Contract = record {
   "type" : ContractType;
   is_signed : bool;
   agency : opt Agency;
+  restricted_properties : vec record { text; RestrictedProperty };
   properties : vec record { text; GenericValue };
   sellers : vec Seller;
   expiration : opt text;
@@ -65,6 +66,7 @@ type Contract = record {
 type ContractRegistration = record {
   value : nat64;
   "type" : ContractType;
+  restricted_properties : vec record { text; RestrictedProperty };
   properties : vec record { text; GenericValue };
   sellers : vec Seller;
   expiration : opt text;
@@ -121,7 +123,7 @@ type GenericValue = variant {
   FloatContent : float64;
   Int16Content : int16;
   BlobContent : vec nat8;
-  NestedContent : Vec;
+  NestedContent : vec record { text; GenericValue };
   Principal : principal;
   TextContent : text;
 };
@@ -168,6 +170,11 @@ type RejectionCode = variant {
   SysFatal;
   CanisterReject;
 };
+type RestrictedProperty = record {
+  value : GenericValue;
+  access_list : vec RestrictionLevel;
+};
+type RestrictionLevel = variant { Buyer; Seller; Agent };
 type Result = variant { Ok; Err : DeferredError };
 type Result_1 = variant { Ok : nat; Err : NftError };
 type Result_2 = variant { Ok : bool; Err : NftError };
@@ -266,27 +273,6 @@ type TxEvent = record {
   details : vec record { text; GenericValue };
   caller : principal;
 };
-type Vec = vec record {
-  text;
-  variant {
-    Nat64Content : nat64;
-    Nat32Content : nat32;
-    BoolContent : bool;
-    Nat8Content : nat8;
-    Int64Content : int64;
-    IntContent : int;
-    NatContent : nat;
-    Nat16Content : nat16;
-    Int32Content : int32;
-    Int8Content : int8;
-    FloatContent : float64;
-    Int16Content : int16;
-    BlobContent : vec nat8;
-    NestedContent : Vec;
-    Principal : principal;
-    TextContent : text;
-  };
-};
 service : (DeferredInitData) -> {
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
@@ -300,6 +286,9 @@ service : (DeferredInitData) -> {
   cycles : () -> (nat) query;
   get_agencies : () -> (vec Agency) query;
   get_contract : (nat) -> (opt Contract) query;
+  get_restricted_contract_properties : (nat) -> (
+      opt vec record { text; RestrictedProperty },
+    ) query;
   get_signed_contracts : () -> (vec nat) query;
   get_token : (nat) -> (opt TokenInfo) query;
   get_unsigned_contracts : () -> (vec nat) query;
@@ -336,4 +325,7 @@ service : (DeferredInitData) -> {
   transfer_from : (principal, principal, nat) -> (Result_1);
   update_contract_buyers : (nat, vec principal) -> (Result);
   update_contract_property : (nat, text, GenericValue) -> (Result);
+  update_restricted_contract_property : (nat, text, RestrictedProperty) -> (
+      Result,
+    );
 }

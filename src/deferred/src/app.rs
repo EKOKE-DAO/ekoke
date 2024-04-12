@@ -15,8 +15,9 @@ use async_trait::async_trait;
 use candid::{Nat, Principal};
 use configuration::Configuration;
 use did::deferred::{
-    Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult, Role,
-    TokenError, TokenInfo,
+    Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult,
+    RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Role, TokenError,
+    TokenInfo,
 };
 use did::ID;
 use dip721::{
@@ -113,7 +114,7 @@ impl Deferred {
         ContractStorage::update_contract_buyers(&contract_id, buyers)
     }
 
-    /// Update a contract property. Only the seller or an agent can call this function
+    /// Update a contract property. Only custodian,seller,agent can call this function
     pub fn update_contract_property(
         contract_id: ID,
         key: String,
@@ -121,6 +122,51 @@ impl Deferred {
     ) -> DeferredResult<()> {
         Inspect::inspect_update_contract_property(caller(), &contract_id, &key)?;
         ContractStorage::update_contract_property(&contract_id, key, value)
+    }
+
+    /// Update a restricted contract property. Only custodian,seller,agent can call this function
+    pub fn update_restricted_contract_property(
+        contract_id: ID,
+        key: String,
+        value: RestrictedProperty,
+    ) -> DeferredResult<()> {
+        Inspect::inspect_update_contract_property(caller(), &contract_id, &key)?;
+        ContractStorage::update_restricted_contract_property(&contract_id, key, value)
+    }
+
+    /// Get all the restricted contract properties based on the contract id and the caller access
+    pub fn get_restricted_contract_properties(
+        contract_id: ID,
+    ) -> Option<RestrictedContractProperties> {
+        let contract = ContractStorage::get_contract(&contract_id)?;
+        let mut caller_access_levels = vec![];
+        let caller = caller();
+
+        if contract.buyers.contains(&caller) {
+            caller_access_levels.push(RestrictionLevel::Buyer);
+        }
+        if contract
+            .sellers
+            .iter()
+            .any(|seller| seller.principal == caller)
+        {
+            caller_access_levels.push(RestrictionLevel::Seller);
+        }
+        if Agents::get_agency_by_wallet(caller) == contract.agency {
+            caller_access_levels.push(RestrictionLevel::Agent);
+        }
+
+        Some(
+            contract
+                .restricted_properties
+                .into_iter()
+                .filter(|(_, prop)| {
+                    prop.access_list
+                        .iter()
+                        .any(|level| caller_access_levels.contains(level))
+                })
+                .collect(),
+        )
     }
 
     /// Increment contract value. Only an admin or the associated agency can call this method
@@ -162,6 +208,7 @@ impl Deferred {
             id: next_contract_id.clone(),
             initial_value: data.value,
             properties: data.properties,
+            restricted_properties: data.restricted_properties,
             installments: data.installments,
             is_signed: false,
             r#type: data.r#type,
@@ -634,6 +681,7 @@ mod test {
             currency: "EUR".to_string(),
             installments: 10,
             properties: vec![],
+            restricted_properties: vec![],
             r#type: did::deferred::ContractType::Financing,
             sellers: vec![Seller {
                 principal: caller(),
@@ -659,6 +707,7 @@ mod test {
             currency: "EUR".to_string(),
             installments: 10,
             properties: vec![],
+            restricted_properties: vec![],
             r#type: did::deferred::ContractType::Financing,
             sellers: vec![Seller {
                 principal: caller(),
@@ -998,6 +1047,45 @@ mod test {
         assert!(RolesManager::is_agent(wallet));
         // check if is in the storage
         assert_eq!(Agents::get_agency_by_wallet(wallet), Some(agency));
+    }
+
+    #[tokio::test]
+    async fn test_should_set_and_get_restricted_property() {
+        init_canister();
+        let contract = ContractRegistration {
+            buyers: vec![caller()],
+            currency: "EUR".to_string(),
+            installments: 10,
+            properties: vec![],
+            restricted_properties: vec![],
+            r#type: did::deferred::ContractType::Financing,
+            sellers: vec![Seller {
+                principal: caller(),
+                quota: 100,
+            }],
+            value: 100,
+            expiration: Some("2048-01-01".to_string()),
+        };
+
+        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
+        assert_eq!(Deferred::total_supply(), Nat::from(0_u64));
+        assert_eq!(Deferred::get_unsigned_contracts(), vec![Nat::from(0_u64)]);
+        assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
+
+        assert!(Deferred::update_restricted_contract_property(
+            0_u64.into(),
+            "contract:secret".to_string(),
+            RestrictedProperty {
+                value: GenericValue::TextContent("secret".to_string()),
+                access_list: vec![RestrictionLevel::Buyer],
+            }
+        )
+        .is_ok());
+        // get restricted properties
+        let restricted_properties =
+            Deferred::get_restricted_contract_properties(0_u64.into()).unwrap();
+
+        assert_eq!(restricted_properties.len(), 1);
     }
 
     fn init_canister() {
