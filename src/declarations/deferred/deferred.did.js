@@ -1,5 +1,5 @@
 export const idlFactory = ({ IDL }) => {
-  const Vec = IDL.Rec();
+  const GenericValue = IDL.Rec();
   const DeferredInitData = IDL.Record({
     'custodians' : IDL.Vec(IDL.Principal),
     'ekoke_reward_pool_canister' : IDL.Principal,
@@ -172,48 +172,34 @@ export const idlFactory = ({ IDL }) => {
     'Sell' : IDL.Null,
     'Financing' : IDL.Null,
   });
-  Vec.fill(
-    IDL.Vec(
-      IDL.Tuple(
-        IDL.Text,
-        IDL.Variant({
-          'Nat64Content' : IDL.Nat64,
-          'Nat32Content' : IDL.Nat32,
-          'BoolContent' : IDL.Bool,
-          'Nat8Content' : IDL.Nat8,
-          'Int64Content' : IDL.Int64,
-          'IntContent' : IDL.Int,
-          'NatContent' : IDL.Nat,
-          'Nat16Content' : IDL.Nat16,
-          'Int32Content' : IDL.Int32,
-          'Int8Content' : IDL.Int8,
-          'FloatContent' : IDL.Float64,
-          'Int16Content' : IDL.Int16,
-          'BlobContent' : IDL.Vec(IDL.Nat8),
-          'NestedContent' : Vec,
-          'Principal' : IDL.Principal,
-          'TextContent' : IDL.Text,
-        }),
-      )
-    )
+  GenericValue.fill(
+    IDL.Variant({
+      'Nat64Content' : IDL.Nat64,
+      'Nat32Content' : IDL.Nat32,
+      'BoolContent' : IDL.Bool,
+      'Nat8Content' : IDL.Nat8,
+      'Int64Content' : IDL.Int64,
+      'IntContent' : IDL.Int,
+      'NatContent' : IDL.Nat,
+      'Nat16Content' : IDL.Nat16,
+      'Int32Content' : IDL.Int32,
+      'Int8Content' : IDL.Int8,
+      'FloatContent' : IDL.Float64,
+      'Int16Content' : IDL.Int16,
+      'BlobContent' : IDL.Vec(IDL.Nat8),
+      'NestedContent' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
+      'Principal' : IDL.Principal,
+      'TextContent' : IDL.Text,
+    })
   );
-  const GenericValue = IDL.Variant({
-    'Nat64Content' : IDL.Nat64,
-    'Nat32Content' : IDL.Nat32,
-    'BoolContent' : IDL.Bool,
-    'Nat8Content' : IDL.Nat8,
-    'Int64Content' : IDL.Int64,
-    'IntContent' : IDL.Int,
-    'NatContent' : IDL.Nat,
-    'Nat16Content' : IDL.Nat16,
-    'Int32Content' : IDL.Int32,
-    'Int8Content' : IDL.Int8,
-    'FloatContent' : IDL.Float64,
-    'Int16Content' : IDL.Int16,
-    'BlobContent' : IDL.Vec(IDL.Nat8),
-    'NestedContent' : Vec,
-    'Principal' : IDL.Principal,
-    'TextContent' : IDL.Text,
+  const RestrictionLevel = IDL.Variant({
+    'Buyer' : IDL.Null,
+    'Seller' : IDL.Null,
+    'Agent' : IDL.Null,
+  });
+  const RestrictedProperty = IDL.Record({
+    'value' : GenericValue,
+    'access_list' : IDL.Vec(RestrictionLevel),
   });
   const Seller = IDL.Record({
     'principal' : IDL.Principal,
@@ -225,6 +211,7 @@ export const idlFactory = ({ IDL }) => {
     'type' : ContractType,
     'is_signed' : IDL.Bool,
     'agency' : IDL.Opt(Agency),
+    'restricted_properties' : IDL.Vec(IDL.Tuple(IDL.Text, RestrictedProperty)),
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'sellers' : IDL.Vec(Seller),
     'expiration' : IDL.Opt(IDL.Text),
@@ -300,6 +287,7 @@ export const idlFactory = ({ IDL }) => {
   const ContractRegistration = IDL.Record({
     'value' : IDL.Nat64,
     'type' : ContractType,
+    'restricted_properties' : IDL.Vec(IDL.Tuple(IDL.Text, RestrictedProperty)),
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'sellers' : IDL.Vec(Seller),
     'expiration' : IDL.Opt(IDL.Text),
@@ -341,6 +329,11 @@ export const idlFactory = ({ IDL }) => {
     'cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'get_agencies' : IDL.Func([], [IDL.Vec(Agency)], ['query']),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
+    'get_restricted_contract_properties' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, RestrictedProperty)))],
+        ['query'],
+      ),
     'get_signed_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'get_token' : IDL.Func([IDL.Nat], [IDL.Opt(TokenInfo)], ['query']),
     'get_unsigned_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
@@ -418,6 +411,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'update_contract_property' : IDL.Func(
         [IDL.Nat, IDL.Text, GenericValue],
+        [Result],
+        [],
+      ),
+    'update_restricted_contract_property' : IDL.Func(
+        [IDL.Nat, IDL.Text, RestrictedProperty],
         [Result],
         [],
       ),

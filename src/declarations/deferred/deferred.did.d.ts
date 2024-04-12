@@ -53,6 +53,7 @@ export interface Contract {
   'type' : ContractType,
   'is_signed' : boolean,
   'agency' : [] | [Agency],
+  'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
   'sellers' : Array<Seller>,
   'expiration' : [] | [string],
@@ -65,6 +66,7 @@ export interface Contract {
 export interface ContractRegistration {
   'value' : bigint,
   'type' : ContractType,
+  'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
   'sellers' : Array<Seller>,
   'expiration' : [] | [string],
@@ -115,7 +117,7 @@ export type GenericValue = { 'Nat64Content' : bigint } |
   { 'FloatContent' : number } |
   { 'Int16Content' : number } |
   { 'BlobContent' : Uint8Array | number[] } |
-  { 'NestedContent' : Vec } |
+  { 'NestedContent' : Array<[string, GenericValue]> } |
   { 'Principal' : Principal } |
   { 'TextContent' : string };
 export interface HttpRequest {
@@ -158,6 +160,13 @@ export type RejectionCode = { 'NoError' : null } |
   { 'Unknown' : null } |
   { 'SysFatal' : null } |
   { 'CanisterReject' : null };
+export interface RestrictedProperty {
+  'value' : GenericValue,
+  'access_list' : Array<RestrictionLevel>,
+}
+export type RestrictionLevel = { 'Buyer' : null } |
+  { 'Seller' : null } |
+  { 'Agent' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : DeferredError };
 export type Result_1 = { 'Ok' : bigint } |
@@ -267,27 +276,6 @@ export interface TxEvent {
   'details' : Array<[string, GenericValue]>,
   'caller' : Principal,
 }
-export type Vec = Array<
-  [
-    string,
-    { 'Nat64Content' : bigint } |
-      { 'Nat32Content' : number } |
-      { 'BoolContent' : boolean } |
-      { 'Nat8Content' : number } |
-      { 'Int64Content' : bigint } |
-      { 'IntContent' : bigint } |
-      { 'NatContent' : bigint } |
-      { 'Nat16Content' : number } |
-      { 'Int32Content' : number } |
-      { 'Int8Content' : number } |
-      { 'FloatContent' : number } |
-      { 'Int16Content' : number } |
-      { 'BlobContent' : Uint8Array | number[] } |
-      { 'NestedContent' : Vec } |
-      { 'Principal' : Principal } |
-      { 'TextContent' : string },
-  ]
->;
 export interface _SERVICE {
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
@@ -301,6 +289,10 @@ export interface _SERVICE {
   'cycles' : ActorMethod<[], bigint>,
   'get_agencies' : ActorMethod<[], Array<Agency>>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
+  'get_restricted_contract_properties' : ActorMethod<
+    [bigint],
+    [] | [Array<[string, RestrictedProperty]>]
+  >,
   'get_signed_contracts' : ActorMethod<[], Array<bigint>>,
   'get_token' : ActorMethod<[bigint], [] | [TokenInfo]>,
   'get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
@@ -341,6 +333,10 @@ export interface _SERVICE {
   'update_contract_buyers' : ActorMethod<[bigint, Array<Principal>], Result>,
   'update_contract_property' : ActorMethod<
     [bigint, string, GenericValue],
+    Result
+  >,
+  'update_restricted_contract_property' : ActorMethod<
+    [bigint, string, RestrictedProperty],
     Result
   >,
 }

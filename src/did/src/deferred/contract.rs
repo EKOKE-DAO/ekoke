@@ -42,6 +42,8 @@ pub struct Contract {
     pub currency: String,
     /// Data associated to the contract
     pub properties: ContractProperties,
+    /// Restricted data associated to the contract
+    pub restricted_properties: RestrictedContractProperties,
     /// Agency data
     pub agency: Option<Agency>,
     /// Contract expiration date YYYY-MM-DD
@@ -79,6 +81,27 @@ impl Storable for Contract {
 /// A list of properties associated to a contract
 pub type ContractProperties = Vec<(String, GenericValue)>;
 
+/// A list of restricted properties associated to a contract
+pub type RestrictedContractProperties = Vec<(String, RestrictedProperty)>;
+
+/// A restricted property, which defines the access level to the property and its value
+#[derive(Clone, Debug, CandidType, PartialEq, Serialize, Deserialize)]
+pub struct RestrictedProperty {
+    pub access_list: Vec<RestrictionLevel>,
+    pub value: GenericValue,
+}
+
+/// A variant which defines the restriction level for a contract property
+#[derive(Clone, Debug, CandidType, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RestrictionLevel {
+    /// Seller can access the property
+    Seller,
+    /// Buyer can access the property
+    Buyer,
+    /// Agent can access the property
+    Agent,
+}
+
 /// A variant which defines the contract type
 #[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub enum ContractType {
@@ -106,4 +129,5 @@ pub struct ContractRegistration {
     pub installments: u64,
     pub expiration: Option<String>,
     pub properties: ContractProperties,
+    pub restricted_properties: RestrictedContractProperties,
 }

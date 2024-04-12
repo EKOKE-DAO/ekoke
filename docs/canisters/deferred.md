@@ -17,7 +17,9 @@
     - [increment\_contract\_value](#increment_contract_value)
     - [update\_contract\_buyers](#update_contract_buyers)
     - [update\_contract\_property](#update_contract_property)
-    - [admin\_set\_ekoke\_ledger\_canister](#admin_set_ekoke_reward_pool_canister)
+    - [update\_restricted\_contract\_property](#update_restricted_contract_property)
+    - [get\_restricted\_contract\_properties](#get_restricted_contract_properties)
+    - [admin\_set\_ekoke\_reward\_pool\_canister](#admin_set_ekoke_reward_pool_canister)
     - [admin\_set\_marketplace\_canister](#admin_set_marketplace_canister)
     - [admin\_set\_role](#admin_set_role)
     - [admin\_remove\_role](#admin_remove_role)
@@ -63,6 +65,7 @@ A Contract is identified by the following properties
 - **reward**: the reward of EKOKE token given to a NFT buyer
 - **expiration**: contract expiration with syntax `YYYY-MM-DD`.
 - **properties**: contract properties and metadata
+- **restricted_properties**: contract restricted properties
 
 ## Roles
 
@@ -126,6 +129,18 @@ Only the sellers or the buyers can call this method.
 Change a contract property.
 
 Can be called by Agent, Custodian or seller.
+
+### update_restricted_contract_property
+
+Create or change a contract restricted property.
+
+Can be called by Agent, Custodian or seller.
+
+### get_restricted_contract_properties
+
+Get the restricted contract properties.
+
+The properties returned are those only accessible to the caller
 
 ### admin_set_ekoke_reward_pool_canister
 

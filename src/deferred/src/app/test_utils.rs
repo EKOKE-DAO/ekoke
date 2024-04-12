@@ -1,5 +1,5 @@
 use candid::Principal;
-use did::deferred::{Agency, Contract, Seller, Token};
+use did::deferred::{Agency, Contract, RestrictedProperty, RestrictionLevel, Seller, Token};
 use did::ID;
 use dip721::TokenIdentifier;
 
@@ -44,6 +44,13 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
         properties: vec![(
             "contract:city".to_string(),
             dip721::GenericValue::TextContent("Rome".to_string()),
+        )],
+        restricted_properties: vec![(
+            "contract:seller_address".to_string(),
+            RestrictedProperty {
+                access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
+                value: dip721::GenericValue::TextContent("Via Roma 123".to_string()),
+            },
         )],
         agency: Some(mock_agency()),
         expiration: None,
