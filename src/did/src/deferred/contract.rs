@@ -1,5 +1,5 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-pub use dip721::{GenericValue, TokenIdentifier};
+pub use dip721_rs::{GenericValue, TokenIdentifier};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::Serialize;

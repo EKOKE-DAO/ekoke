@@ -4,7 +4,7 @@ use did::deferred::{
     Agency, Contract, DeferredError, DeferredResult, StorableTxEvent, Token, TokenError,
 };
 use did::{StorableNat, StorablePrincipal, ID};
-use dip721::TokenIdentifier;
+use dip721_rs::TokenIdentifier;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
 

@@ -10,7 +10,7 @@ use did::deferred::{
     Role, TokenInfo,
 };
 use did::{HttpRequest, HttpResponse, ID};
-use dip721::{Dip721 as _, GenericValue, TokenIdentifier};
+use dip721_rs::{Dip721 as _, GenericValue, TokenIdentifier};
 use ic_cdk_macros::{init, post_upgrade, query, update};
 
 mod app;
@@ -160,13 +160,13 @@ pub fn admin_register_agency(wallet: Principal, agency: Agency) {
 
 #[query]
 #[candid_method(query)]
-pub fn metadata() -> dip721::Metadata {
+pub fn metadata() -> dip721_rs::Metadata {
     Deferred::metadata()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn stats() -> dip721::Stats {
+pub fn stats() -> dip721_rs::Stats {
     Deferred::stats()
 }
 
@@ -233,22 +233,22 @@ pub fn total_unique_holders() -> Nat {
 #[query]
 #[candid_method(query)]
 pub fn token_metadata(
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<dip721::TokenMetadata, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<dip721_rs::TokenMetadata, dip721_rs::NftError> {
     Deferred::token_metadata(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn balance_of(owner: Principal) -> Result<Nat, dip721::NftError> {
+pub fn balance_of(owner: Principal) -> Result<Nat, dip721_rs::NftError> {
     Deferred::balance_of(owner)
 }
 
 #[query]
 #[candid_method(query)]
 pub fn owner_of(
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<Option<Principal>, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<Option<Principal>, dip721_rs::NftError> {
     Deferred::owner_of(token_identifier)
 }
 
@@ -256,7 +256,7 @@ pub fn owner_of(
 #[candid_method(query)]
 pub fn owner_token_identifiers(
     owner: Principal,
-) -> Result<Vec<dip721::TokenIdentifier>, dip721::NftError> {
+) -> Result<Vec<dip721_rs::TokenIdentifier>, dip721_rs::NftError> {
     Deferred::owner_token_identifiers(owner)
 }
 
@@ -264,15 +264,15 @@ pub fn owner_token_identifiers(
 #[candid_method(query)]
 pub fn owner_token_metadata(
     owner: Principal,
-) -> Result<Vec<dip721::TokenMetadata>, dip721::NftError> {
+) -> Result<Vec<dip721_rs::TokenMetadata>, dip721_rs::NftError> {
     Deferred::owner_token_metadata(owner)
 }
 
 #[query]
 #[candid_method(query)]
 pub fn operator_of(
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<Option<Principal>, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<Option<Principal>, dip721_rs::NftError> {
     Deferred::operator_of(token_identifier)
 }
 
@@ -280,7 +280,7 @@ pub fn operator_of(
 #[candid_method(query)]
 pub fn operator_token_identifiers(
     operator: Principal,
-) -> Result<Vec<dip721::TokenIdentifier>, dip721::NftError> {
+) -> Result<Vec<dip721_rs::TokenIdentifier>, dip721_rs::NftError> {
     Deferred::operator_token_identifiers(operator)
 }
 
@@ -288,13 +288,13 @@ pub fn operator_token_identifiers(
 #[candid_method(query)]
 pub fn operator_token_metadata(
     operator: Principal,
-) -> Result<Vec<dip721::TokenMetadata>, dip721::NftError> {
+) -> Result<Vec<dip721_rs::TokenMetadata>, dip721_rs::NftError> {
     Deferred::operator_token_metadata(operator)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn supported_interfaces() -> Vec<dip721::SupportedInterface> {
+pub fn supported_interfaces() -> Vec<dip721_rs::SupportedInterface> {
     Deferred::supported_interfaces()
 }
 
@@ -308,8 +308,8 @@ pub fn total_supply() -> Nat {
 #[candid_method(update)]
 pub fn approve(
     spender: Principal,
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<dip721::TokenIdentifier, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
     Deferred::approve(spender, token_identifier)
 }
 
@@ -318,7 +318,7 @@ pub fn approve(
 pub fn set_approval_for_all(
     operator: Principal,
     approved: bool,
-) -> Result<dip721::TokenIdentifier, dip721::NftError> {
+) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
     Deferred::set_approval_for_all(operator, approved)
 }
 
@@ -327,7 +327,7 @@ pub fn set_approval_for_all(
 pub fn is_approved_for_all(
     owner: Principal,
     operator: Principal,
-) -> Result<bool, dip721::NftError> {
+) -> Result<bool, dip721_rs::NftError> {
     Deferred::is_approved_for_all(owner, operator)
 }
 
@@ -335,8 +335,8 @@ pub fn is_approved_for_all(
 #[candid_method(update)]
 pub async fn transfer(
     to: Principal,
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<Nat, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<Nat, dip721_rs::NftError> {
     Deferred::transfer(to, token_identifier).await
 }
 
@@ -345,8 +345,8 @@ pub async fn transfer(
 pub async fn transfer_from(
     from: Principal,
     to: Principal,
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<Nat, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<Nat, dip721_rs::NftError> {
     Deferred::transfer_from(from, to, token_identifier).await
 }
 
@@ -354,23 +354,23 @@ pub async fn transfer_from(
 #[candid_method(update)]
 pub fn mint(
     to: Principal,
-    token_identifier: dip721::TokenIdentifier,
-    properties: Vec<(String, dip721::GenericValue)>,
-) -> Result<Nat, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+    properties: Vec<(String, dip721_rs::GenericValue)>,
+) -> Result<Nat, dip721_rs::NftError> {
     Deferred::mint(to, token_identifier, properties)
 }
 
 #[update]
 #[candid_method(update)]
 pub fn burn(
-    token_identifier: dip721::TokenIdentifier,
-) -> Result<dip721::TokenIdentifier, dip721::NftError> {
+    token_identifier: dip721_rs::TokenIdentifier,
+) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
     Deferred::burn(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn transaction(tx_id: Nat) -> Result<dip721::TxEvent, dip721::NftError> {
+pub fn transaction(tx_id: Nat) -> Result<dip721_rs::TxEvent, dip721_rs::NftError> {
     Deferred::transaction(tx_id)
 }
 

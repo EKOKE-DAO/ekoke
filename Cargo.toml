@@ -2,7 +2,6 @@
 members = [
   "integration-tests",
   "src/did",
-  "src/dip721",
   "src/deferred",
   "src/ekoke_erc20_swap",
   "src/ekoke_liquidity_pool",
@@ -31,6 +30,7 @@ ethers-contract = { version = "2", default-features = false, features = [
 ethers-core = "2"
 ethers-signers = "2"
 ethnum = "1"
+dip721-rs = "0.1"
 getrandom = { version = "0.2", features = ["custom"] }
 hex = "0.4"
 ic-cdk = "0.12"

@@ -1,5 +1,5 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::TxEvent;
+use dip721_rs::TxEvent;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 

@@ -526,7 +526,7 @@ dependencies = [
  "async-trait",
  "candid",
  "did",
- "dip721",
+ "dip721-rs",
  "getrandom",
  "ic-cdk",
  "ic-cdk-macros",
@@ -574,7 +574,7 @@ name = "did"
 version = "0.1.0"
 dependencies = [
  "candid",
- "dip721",
+ "dip721-rs",
  "ethers-core",
  "hex",
  "ic-cdk",
@@ -609,13 +609,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "dip721"
+name = "dip721-rs"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d28ae0556ac567a6b4d3e27447ac6f5bb16d13607dc6e2cd7943900674f0672c"
 dependencies = [
  "async-trait",
  "candid",
  "ic-cdk",
- "pretty_assertions",
+ "ic-stable-structures",
  "serde",
  "thiserror",
 ]
@@ -1474,7 +1476,7 @@ dependencies = [
  "anyhow",
  "candid",
  "did",
- "dip721",
+ "dip721-rs",
  "icrc",
  "pocket-ic",
  "pretty_assertions",
@@ -1591,7 +1593,7 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "did",
- "dip721",
+ "dip721-rs",
  "getrandom",
  "ic-cdk",
  "ic-cdk-macros",

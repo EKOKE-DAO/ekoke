@@ -1,7 +1,7 @@
 use candid::{Nat, Principal};
 use did::deferred::ContractRegistration;
 use did::ID;
-use dip721::GenericValue;
+use dip721_rs::GenericValue;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;

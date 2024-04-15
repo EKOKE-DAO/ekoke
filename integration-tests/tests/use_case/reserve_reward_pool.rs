@@ -1,6 +1,6 @@
 use candid::Nat;
 use did::deferred::{ContractRegistration, ContractType, Seller};
-use dip721::GenericValue;
+use dip721_rs::GenericValue;
 use icrc::icrc1::account::Account;
 use integration_tests::actor::{admin, alice};
 use integration_tests::client::{DeferredClient, EkokeRewardPoolClient, IcrcLedgerClient};

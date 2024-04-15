@@ -1,7 +1,7 @@
 use candid::{Encode, Nat, Principal};
 use did::deferred::{Agency, Contract, ContractRegistration, DeferredResult, TokenInfo};
 use did::ID;
-use dip721::{GenericValue, NftError, TokenIdentifier, TokenMetadata};
+use dip721_rs::{GenericValue, NftError, TokenIdentifier, TokenMetadata};
 
 use crate::actor::{admin, alice};
 use crate::TestEnv;

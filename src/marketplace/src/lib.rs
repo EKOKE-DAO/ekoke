@@ -6,7 +6,7 @@ mod utils;
 
 use candid::{candid_method, Nat, Principal};
 use did::marketplace::{MarketplaceInitData, MarketplaceResult};
-use dip721::TokenIdentifier;
+use dip721_rs::TokenIdentifier;
 use ic_cdk_macros::{init, query, update};
 use icrc::icrc1::account::Subaccount;
 

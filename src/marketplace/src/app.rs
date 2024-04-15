@@ -9,7 +9,7 @@ mod test_utils;
 use candid::{Nat, Principal};
 use did::deferred::TokenInfo;
 use did::marketplace::{BuyError, MarketplaceError, MarketplaceInitData, MarketplaceResult};
-use dip721::TokenIdentifier;
+use dip721_rs::TokenIdentifier;
 use icrc::icrc1::account::{Account, Subaccount};
 use icrc::{icrc2, IcrcLedgerClient};
 use num_traits::ToPrimitive as _;

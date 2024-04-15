@@ -1,7 +1,7 @@
 //! Types associated to the "Ekoke" canister
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use dip721::NftError;
+use dip721_rs::NftError;
 use ic_cdk::api::call::RejectionCode;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;

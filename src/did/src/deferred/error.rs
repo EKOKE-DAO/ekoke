@@ -1,5 +1,5 @@
 use candid::{CandidType, Deserialize};
-use dip721::{NftError, TokenIdentifier};
+use dip721_rs::{NftError, TokenIdentifier};
 use ic_cdk::api::call::RejectionCode;
 use thiserror::Error;
 

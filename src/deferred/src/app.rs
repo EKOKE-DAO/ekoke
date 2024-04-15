@@ -20,7 +20,7 @@ use did::deferred::{
     TokenInfo,
 };
 use did::ID;
-use dip721::{
+use dip721_rs::{
     Dip721, GenericValue, Metadata, NftError, Stats, SupportedInterface, TokenIdentifier,
     TokenMetadata, TxEvent,
 };

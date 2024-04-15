@@ -8,7 +8,7 @@ use did::deferred::{TokenIdentifier, TokenInfo};
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;
 #[cfg(target_arch = "wasm32")]
-use dip721::NftError;
+use dip721_rs::NftError;
 
 #[cfg(not(target_arch = "wasm32"))]
 use crate::utils::caller;

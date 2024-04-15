@@ -10,7 +10,7 @@ repository = { workspace = true }
 anyhow = { workspace = true }
 candid = { workspace = true }
 did = { path = "../src/did" }
-dip721 = { path = "../src/dip721" }
+dip721-rs = { workspace = true }
 icrc = { path = "../src/icrc" }
 pocket-ic = "2"
 serde = { workspace = true }

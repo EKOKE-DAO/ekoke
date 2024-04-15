@@ -18,7 +18,7 @@ pub use self::error::{ConfigurationError, DeferredError, TokenError};
 mod test {
 
     use candid::{Decode, Encode, Principal};
-    use dip721::{GenericValue, TokenIdentifier, TxEvent};
+    use dip721_rs::{GenericValue, TokenIdentifier, TxEvent};
     use ic_stable_structures::Storable as _;
     use pretty_assertions::assert_eq;
 

@@ -21,7 +21,7 @@ did = []
 async-trait = { workspace = true }
 candid = { workspace = true }
 did = { path = "../did" }
-dip721 = { path = "../dip721" }
+dip721-rs = { workspace = true }
 getrandom = { workspace = true, features = ["custom"] }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }

@@ -3,7 +3,7 @@ use did::deferred::{
     Contract, DeferredError, DeferredResult, RestrictedProperty, Seller, Token, TokenError,
 };
 use did::{StorableNat, ID};
-use dip721::{GenericValue, TokenIdentifier, TokenMetadata};
+use dip721_rs::{GenericValue, TokenIdentifier, TokenMetadata};
 use itertools::Itertools;
 
 use super::{
@@ -817,7 +817,7 @@ mod test {
             currency: "EUR".to_string(),
             properties: vec![(
                 "contract:city".to_string(),
-                dip721::GenericValue::TextContent("Rome".to_string()),
+                dip721_rs::GenericValue::TextContent("Rome".to_string()),
             )],
             restricted_properties: vec![],
             agency: None,
@@ -946,11 +946,11 @@ mod test {
         let contract = with_mock_contract(1, 1, |contract| {
             contract.properties.push((
                 "contract:address".to_string(),
-                dip721::GenericValue::TextContent("Rome".to_string()),
+                dip721_rs::GenericValue::TextContent("Rome".to_string()),
             ));
             contract.properties.push((
                 "contract:country".to_string(),
-                dip721::GenericValue::TextContent("Italy".to_string()),
+                dip721_rs::GenericValue::TextContent("Italy".to_string()),
             ));
         });
         assert!(ContractStorage::insert_contract(contract).is_ok());
@@ -974,11 +974,11 @@ mod test {
         let contract = with_mock_contract(1, 1, |contract| {
             contract.properties.push((
                 "contract:address".to_string(),
-                dip721::GenericValue::TextContent("Rome".to_string()),
+                dip721_rs::GenericValue::TextContent("Rome".to_string()),
             ));
             contract.properties.push((
                 "contract:country".to_string(),
-                dip721::GenericValue::TextContent("Italy".to_string()),
+                dip721_rs::GenericValue::TextContent("Italy".to_string()),
             ));
         });
         assert!(ContractStorage::insert_contract(contract).is_ok());
@@ -986,7 +986,7 @@ mod test {
         assert!(ContractStorage::update_contract_property(
             &1_u64.into(),
             "contract:address".to_string(),
-            dip721::GenericValue::TextContent("Milan".to_string())
+            dip721_rs::GenericValue::TextContent("Milan".to_string())
         )
         .is_ok());
         assert_eq!(
@@ -1003,7 +1003,7 @@ mod test {
         assert!(ContractStorage::update_contract_property(
             &1_u64.into(),
             "contract:addressLong".to_string(),
-            dip721::GenericValue::TextContent("Trieste".to_string())
+            dip721_rs::GenericValue::TextContent("Trieste".to_string())
         )
         .is_ok());
         assert_eq!(
@@ -1025,7 +1025,7 @@ mod test {
                 "contract:address".to_string(),
                 RestrictedProperty {
                     access_list: vec![RestrictionLevel::Seller],
-                    value: dip721::GenericValue::TextContent("Rome".to_string()),
+                    value: dip721_rs::GenericValue::TextContent("Rome".to_string()),
                 },
             ));
         });
@@ -1036,7 +1036,7 @@ mod test {
             "contract:address".to_string(),
             RestrictedProperty {
                 access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
-                value: dip721::GenericValue::TextContent("Milan".to_string()),
+                value: dip721_rs::GenericValue::TextContent("Milan".to_string()),
             },
         )
         .is_ok());

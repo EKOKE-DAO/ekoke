@@ -5,7 +5,7 @@
 use candid::{Nat, Principal};
 use did::deferred::{Contract, DeferredError, DeferredResult, Seller, Token, TokenError};
 use did::ID;
-use dip721::NftError;
+use dip721_rs::NftError;
 
 use super::roles::RolesManager;
 use super::storage::{Agents, ContractStorage};

@@ -1,6 +1,6 @@
 use did::deferred::{Agency, Contract, ContractRegistration, ContractType, Seller, TokenInfo};
 use did::ID;
-use dip721::GenericValue;
+use dip721_rs::GenericValue;
 use integration_tests::actor::{admin, alice, bob};
 use integration_tests::client::{DeferredClient, HttpClient};
 use integration_tests::TestEnv;

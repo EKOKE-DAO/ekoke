@@ -1,6 +1,6 @@
 use candid::{Encode, Principal};
 use did::marketplace::MarketplaceResult;
-use dip721::TokenIdentifier;
+use dip721_rs::TokenIdentifier;
 use icrc::icrc1::account::Subaccount;
 
 use crate::TestEnv;

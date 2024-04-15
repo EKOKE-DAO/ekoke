@@ -1,6 +1,6 @@
 use candid::Nat;
 use did::deferred::Token;
-use dip721::{GenericValue, TxEvent};
+use dip721_rs::{GenericValue, TxEvent};
 
 use super::{with_tx_history, with_tx_history_mut};
 

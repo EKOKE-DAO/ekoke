@@ -3,7 +3,7 @@ use did::deferred::{
     Agency, ContractRegistration, ContractType, DeferredResult, GenericValue, Seller,
 };
 use did::ID;
-use dip721::NftError;
+use dip721_rs::NftError;
 use integration_tests::actor::{admin, alice, bob};
 use integration_tests::client::DeferredClient;
 use integration_tests::TestEnv;
