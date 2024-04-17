@@ -106,7 +106,7 @@ impl DeferredClient {
         {
             let result: (Result<Nat, NftError>,) = ic_cdk::api::call::call(
                 self.deferred_canister,
-                "transfer_from",
+                "dip721_transfer_from",
                 (from, to, token_id),
             )
             .await
@@ -126,7 +126,7 @@ impl DeferredClient {
         #[cfg(target_arch = "wasm32")]
         {
             let result: (Result<Nat, NftError>,) =
-                ic_cdk::api::call::call(self.deferred_canister, "burn", (token_id,))
+                ic_cdk::api::call::call(self.deferred_canister, "dip721_burn", (token_id,))
                     .await
                     .map_err(|(code, err)| MarketplaceError::CanisterCall(code, err))?;
 

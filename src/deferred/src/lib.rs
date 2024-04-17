@@ -160,224 +160,224 @@ pub fn admin_register_agency(wallet: Principal, agency: Agency) {
 
 #[query]
 #[candid_method(query)]
-pub fn metadata() -> dip721_rs::Metadata {
-    Deferred::metadata()
+pub fn dip721_metadata() -> dip721_rs::Metadata {
+    Deferred::dip721_metadata()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn stats() -> dip721_rs::Stats {
-    Deferred::stats()
+pub fn dip721_stats() -> dip721_rs::Stats {
+    Deferred::dip721_stats()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn logo() -> Option<String> {
-    Deferred::logo()
+pub fn dip721_logo() -> Option<String> {
+    Deferred::dip721_logo()
 }
 
 #[update]
 #[candid_method(update)]
-pub fn set_logo(logo: String) {
-    Deferred::set_logo(logo)
+pub fn dip721_set_logo(logo: String) {
+    Deferred::dip721_set_logo(logo)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn name() -> Option<String> {
-    Deferred::name()
+pub fn dip721_name() -> Option<String> {
+    Deferred::dip721_name()
 }
 
 #[update]
 #[candid_method(update)]
-pub fn set_name(name: String) {
-    Deferred::set_name(name)
+pub fn dip721_set_name(name: String) {
+    Deferred::dip721_set_name(name)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn symbol() -> Option<String> {
-    Deferred::symbol()
+pub fn dip721_symbol() -> Option<String> {
+    Deferred::dip721_symbol()
 }
 
 #[update]
 #[candid_method(update)]
-pub fn set_symbol(symbol: String) {
-    Deferred::set_symbol(symbol)
+pub fn dip721_set_symbol(symbol: String) {
+    Deferred::dip721_set_symbol(symbol)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn custodians() -> Vec<Principal> {
-    Deferred::custodians()
+pub fn dip721_custodians() -> Vec<Principal> {
+    Deferred::dip721_custodians()
 }
 
 #[update]
 #[candid_method(update)]
-pub fn set_custodians(custodians: Vec<Principal>) {
-    Deferred::set_custodians(custodians)
+pub fn dip721_set_custodians(custodians: Vec<Principal>) {
+    Deferred::dip721_set_custodians(custodians)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn cycles() -> Nat {
-    Deferred::cycles()
+pub fn dip721_cycles() -> Nat {
+    Deferred::dip721_cycles()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn total_unique_holders() -> Nat {
-    Deferred::total_unique_holders()
+pub fn dip721_total_unique_holders() -> Nat {
+    Deferred::dip721_total_unique_holders()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn token_metadata(
+pub fn dip721_token_metadata(
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<dip721_rs::TokenMetadata, dip721_rs::NftError> {
-    Deferred::token_metadata(token_identifier)
+    Deferred::dip721_token_metadata(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn balance_of(owner: Principal) -> Result<Nat, dip721_rs::NftError> {
-    Deferred::balance_of(owner)
+pub fn dip721_balance_of(owner: Principal) -> Result<Nat, dip721_rs::NftError> {
+    Deferred::dip721_balance_of(owner)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn owner_of(
+pub fn dip721_owner_of(
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<Option<Principal>, dip721_rs::NftError> {
-    Deferred::owner_of(token_identifier)
+    Deferred::dip721_owner_of(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn owner_token_identifiers(
+pub fn dip721_owner_token_identifiers(
     owner: Principal,
 ) -> Result<Vec<dip721_rs::TokenIdentifier>, dip721_rs::NftError> {
-    Deferred::owner_token_identifiers(owner)
+    Deferred::dip721_owner_token_identifiers(owner)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn owner_token_metadata(
+pub fn dip721_owner_token_metadata(
     owner: Principal,
 ) -> Result<Vec<dip721_rs::TokenMetadata>, dip721_rs::NftError> {
-    Deferred::owner_token_metadata(owner)
+    Deferred::dip721_owner_token_metadata(owner)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn operator_of(
+pub fn dip721_operator_of(
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<Option<Principal>, dip721_rs::NftError> {
-    Deferred::operator_of(token_identifier)
+    Deferred::dip721_operator_of(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn operator_token_identifiers(
+pub fn dip721_operator_token_identifiers(
     operator: Principal,
 ) -> Result<Vec<dip721_rs::TokenIdentifier>, dip721_rs::NftError> {
-    Deferred::operator_token_identifiers(operator)
+    Deferred::dip721_operator_token_identifiers(operator)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn operator_token_metadata(
+pub fn dip721_operator_token_metadata(
     operator: Principal,
 ) -> Result<Vec<dip721_rs::TokenMetadata>, dip721_rs::NftError> {
-    Deferred::operator_token_metadata(operator)
+    Deferred::dip721_operator_token_metadata(operator)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn supported_interfaces() -> Vec<dip721_rs::SupportedInterface> {
-    Deferred::supported_interfaces()
+pub fn dip721_supported_interfaces() -> Vec<dip721_rs::SupportedInterface> {
+    Deferred::dip721_supported_interfaces()
 }
 
 #[query]
 #[candid_method(query)]
-pub fn total_supply() -> Nat {
-    Deferred::total_supply()
+pub fn dip721_total_supply() -> Nat {
+    Deferred::dip721_total_supply()
 }
 
 #[update]
 #[candid_method(update)]
-pub fn approve(
+pub fn dip721_approve(
     spender: Principal,
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
-    Deferred::approve(spender, token_identifier)
+    Deferred::dip721_approve(spender, token_identifier)
 }
 
 #[update]
 #[candid_method(update)]
-pub fn set_approval_for_all(
+pub fn dip721_set_approval_for_all(
     operator: Principal,
     approved: bool,
 ) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
-    Deferred::set_approval_for_all(operator, approved)
+    Deferred::dip721_set_approval_for_all(operator, approved)
 }
 
 #[update]
 #[candid_method(update)]
-pub fn is_approved_for_all(
+pub fn dip721_is_approved_for_all(
     owner: Principal,
     operator: Principal,
 ) -> Result<bool, dip721_rs::NftError> {
-    Deferred::is_approved_for_all(owner, operator)
+    Deferred::dip721_is_approved_for_all(owner, operator)
 }
 
 #[update]
 #[candid_method(update)]
-pub async fn transfer(
+pub async fn dip721_transfer(
     to: Principal,
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<Nat, dip721_rs::NftError> {
-    Deferred::transfer(to, token_identifier).await
+    Deferred::dip721_transfer(to, token_identifier).await
 }
 
 #[update]
 #[candid_method(update)]
-pub async fn transfer_from(
+pub async fn dip721_transfer_from(
     from: Principal,
     to: Principal,
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<Nat, dip721_rs::NftError> {
-    Deferred::transfer_from(from, to, token_identifier).await
+    Deferred::dip721_transfer_from(from, to, token_identifier).await
 }
 
 #[update]
 #[candid_method(update)]
-pub fn mint(
+pub fn dip721_mint(
     to: Principal,
     token_identifier: dip721_rs::TokenIdentifier,
     properties: Vec<(String, dip721_rs::GenericValue)>,
 ) -> Result<Nat, dip721_rs::NftError> {
-    Deferred::mint(to, token_identifier, properties)
+    Deferred::dip721_mint(to, token_identifier, properties)
 }
 
 #[update]
 #[candid_method(update)]
-pub fn burn(
+pub fn dip721_burn(
     token_identifier: dip721_rs::TokenIdentifier,
 ) -> Result<dip721_rs::TokenIdentifier, dip721_rs::NftError> {
-    Deferred::burn(token_identifier)
+    Deferred::dip721_burn(token_identifier)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn transaction(tx_id: Nat) -> Result<dip721_rs::TxEvent, dip721_rs::NftError> {
-    Deferred::transaction(tx_id)
+pub fn dip721_transaction(tx_id: Nat) -> Result<dip721_rs::TxEvent, dip721_rs::NftError> {
+    Deferred::dip721_transaction(tx_id)
 }
 
 #[query]
 #[candid_method(query)]
-pub fn total_transactions() -> Nat {
-    Deferred::total_transactions()
+pub fn dip721_total_transactions() -> Nat {
+    Deferred::dip721_total_transactions()
 }
 
 // HTTP endpoint

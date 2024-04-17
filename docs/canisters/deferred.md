@@ -38,7 +38,7 @@
 
 ## Introduction
 
-Deferred is a canister which provides a **Non-fungible Token (NFT)** which implements the **DIP-721** Standard <https://github.com/Psychedelic/DIP721/blob/develop/spec.md>.
+Deferred is a canister which provides a **Non-fungible Token (NFT)** which implements the **DIP-721** Standard <https://github.com/Psychedelic/DIP721/blob/develop/spec.md> with the `dip721_` namespace.
 
 The Deferred canister takes care of registering the sell or financing of a real estate between two or more parts, **Buyers** and **Sellers**. This agreement between parts is called **Contract**.
 

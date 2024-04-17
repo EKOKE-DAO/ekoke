@@ -179,12 +179,12 @@ export type Result_4 = { 'Ok' : Array<bigint> } |
   { 'Err' : NftError };
 export type Result_5 = { 'Ok' : Array<TokenMetadata> } |
   { 'Err' : NftError };
-export type Result_6 = { 'Ok' : bigint } |
+export type Result_6 = { 'Ok' : TokenMetadata } |
+  { 'Err' : NftError };
+export type Result_7 = { 'Ok' : TxEvent } |
+  { 'Err' : NftError };
+export type Result_8 = { 'Ok' : bigint } |
   { 'Err' : DeferredError };
-export type Result_7 = { 'Ok' : TokenMetadata } |
-  { 'Err' : NftError };
-export type Result_8 = { 'Ok' : TxEvent } |
-  { 'Err' : NftError };
 export type Role = { 'Custodian' : null } |
   { 'Agent' : null };
 export interface Seller { 'principal' : Principal, 'quota' : number }
@@ -282,11 +282,43 @@ export interface _SERVICE {
   'admin_set_ekoke_reward_pool_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
-  'approve' : ActorMethod<[Principal, bigint], Result_1>,
-  'balance_of' : ActorMethod<[Principal], Result_1>,
-  'burn' : ActorMethod<[bigint], Result_1>,
-  'custodians' : ActorMethod<[], Array<Principal>>,
-  'cycles' : ActorMethod<[], bigint>,
+  'dip721_approve' : ActorMethod<[Principal, bigint], Result_1>,
+  'dip721_balance_of' : ActorMethod<[Principal], Result_1>,
+  'dip721_burn' : ActorMethod<[bigint], Result_1>,
+  'dip721_custodians' : ActorMethod<[], Array<Principal>>,
+  'dip721_cycles' : ActorMethod<[], bigint>,
+  'dip721_is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
+  'dip721_logo' : ActorMethod<[], [] | [string]>,
+  'dip721_metadata' : ActorMethod<[], Metadata>,
+  'dip721_mint' : ActorMethod<
+    [Principal, bigint, Array<[string, GenericValue]>],
+    Result_1
+  >,
+  'dip721_name' : ActorMethod<[], [] | [string]>,
+  'dip721_operator_of' : ActorMethod<[bigint], Result_3>,
+  'dip721_operator_token_identifiers' : ActorMethod<[Principal], Result_4>,
+  'dip721_operator_token_metadata' : ActorMethod<[Principal], Result_5>,
+  'dip721_owner_of' : ActorMethod<[bigint], Result_3>,
+  'dip721_owner_token_identifiers' : ActorMethod<[Principal], Result_4>,
+  'dip721_owner_token_metadata' : ActorMethod<[Principal], Result_5>,
+  'dip721_set_approval_for_all' : ActorMethod<[Principal, boolean], Result_1>,
+  'dip721_set_custodians' : ActorMethod<[Array<Principal>], undefined>,
+  'dip721_set_logo' : ActorMethod<[string], undefined>,
+  'dip721_set_name' : ActorMethod<[string], undefined>,
+  'dip721_set_symbol' : ActorMethod<[string], undefined>,
+  'dip721_stats' : ActorMethod<[], Stats>,
+  'dip721_supported_interfaces' : ActorMethod<[], Array<SupportedInterface>>,
+  'dip721_symbol' : ActorMethod<[], [] | [string]>,
+  'dip721_token_metadata' : ActorMethod<[bigint], Result_6>,
+  'dip721_total_supply' : ActorMethod<[], bigint>,
+  'dip721_total_transactions' : ActorMethod<[], bigint>,
+  'dip721_total_unique_holders' : ActorMethod<[], bigint>,
+  'dip721_transaction' : ActorMethod<[bigint], Result_7>,
+  'dip721_transfer' : ActorMethod<[Principal, bigint], Result_1>,
+  'dip721_transfer_from' : ActorMethod<
+    [Principal, Principal, bigint],
+    Result_1
+  >,
   'get_agencies' : ActorMethod<[], Array<Agency>>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_restricted_contract_properties' : ActorMethod<
@@ -298,38 +330,9 @@ export interface _SERVICE {
   'get_unsigned_contracts' : ActorMethod<[], Array<bigint>>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'increment_contract_value' : ActorMethod<[bigint, bigint, bigint], Result>,
-  'is_approved_for_all' : ActorMethod<[Principal, Principal], Result_2>,
-  'logo' : ActorMethod<[], [] | [string]>,
-  'metadata' : ActorMethod<[], Metadata>,
-  'mint' : ActorMethod<
-    [Principal, bigint, Array<[string, GenericValue]>],
-    Result_1
-  >,
-  'name' : ActorMethod<[], [] | [string]>,
-  'operator_of' : ActorMethod<[bigint], Result_3>,
-  'operator_token_identifiers' : ActorMethod<[Principal], Result_4>,
-  'operator_token_metadata' : ActorMethod<[Principal], Result_5>,
-  'owner_of' : ActorMethod<[bigint], Result_3>,
-  'owner_token_identifiers' : ActorMethod<[Principal], Result_4>,
-  'owner_token_metadata' : ActorMethod<[Principal], Result_5>,
-  'register_contract' : ActorMethod<[ContractRegistration], Result_6>,
+  'register_contract' : ActorMethod<[ContractRegistration], Result_8>,
   'remove_agency' : ActorMethod<[Principal], Result>,
-  'set_approval_for_all' : ActorMethod<[Principal, boolean], Result_1>,
-  'set_custodians' : ActorMethod<[Array<Principal>], undefined>,
-  'set_logo' : ActorMethod<[string], undefined>,
-  'set_name' : ActorMethod<[string], undefined>,
-  'set_symbol' : ActorMethod<[string], undefined>,
   'sign_contract' : ActorMethod<[bigint], Result>,
-  'stats' : ActorMethod<[], Stats>,
-  'supported_interfaces' : ActorMethod<[], Array<SupportedInterface>>,
-  'symbol' : ActorMethod<[], [] | [string]>,
-  'token_metadata' : ActorMethod<[bigint], Result_7>,
-  'total_supply' : ActorMethod<[], bigint>,
-  'total_transactions' : ActorMethod<[], bigint>,
-  'total_unique_holders' : ActorMethod<[], bigint>,
-  'transaction' : ActorMethod<[bigint], Result_8>,
-  'transfer' : ActorMethod<[Principal, bigint], Result_1>,
-  'transfer_from' : ActorMethod<[Principal, Principal, bigint], Result_1>,
   'update_contract_buyers' : ActorMethod<[bigint, Array<Principal>], Result>,
   'update_contract_property' : ActorMethod<
     [bigint, string, GenericValue],

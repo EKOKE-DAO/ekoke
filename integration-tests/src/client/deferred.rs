@@ -148,7 +148,7 @@ impl<'a> DeferredClient<'a> {
             .query(
                 self.env.deferred_id,
                 admin(),
-                "total_supply",
+                "dip721_total_supply",
                 Encode!(&()).unwrap(),
             )
             .unwrap();
@@ -162,7 +162,7 @@ impl<'a> DeferredClient<'a> {
             .query(
                 self.env.deferred_id,
                 alice(),
-                "token_metadata",
+                "dip721_token_metadata",
                 Encode!(&token_id).unwrap(),
             )
             .unwrap();
@@ -189,7 +189,7 @@ impl<'a> DeferredClient<'a> {
             .update::<()>(
                 self.env.deferred_id,
                 admin(),
-                "set_custodians",
+                "dip721_set_custodians",
                 Encode!(&principals).unwrap(),
             )
             .unwrap();
@@ -206,7 +206,7 @@ impl<'a> DeferredClient<'a> {
             .update(
                 self.env.deferred_id,
                 caller,
-                "transfer_from",
+                "dip721_transfer_from",
                 Encode!(&from, &to, &id).unwrap(),
             )
             .unwrap()
