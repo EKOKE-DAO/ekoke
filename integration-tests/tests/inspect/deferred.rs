@@ -50,7 +50,7 @@ fn test_should_inspect_is_custodian() {
         .update::<()>(
             env.deferred_id,
             alice(),
-            "set_name",
+            "dip721_set_name",
             Encode!(&"new name").unwrap(),
         )
         .is_ok());
@@ -68,7 +68,7 @@ fn test_should_inspect_is_custodian_not_custodian() {
         .update::<()>(
             env.deferred_id,
             admin(),
-            "set_name",
+            "dip721_set_name",
             Encode!(&"new name").unwrap(),
         )
         .is_err());
@@ -584,7 +584,7 @@ fn test_should_inspect_burn() {
         .update::<Result<Nat, NftError>>(
             env.deferred_id,
             bob(),
-            "burn",
+            "dip721_burn",
             Encode!(&token_id).unwrap(),
         )
         .is_ok());

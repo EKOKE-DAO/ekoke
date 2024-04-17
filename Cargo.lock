@@ -610,9 +610,9 @@ dependencies = [
 
 [[package]]
 name = "dip721-rs"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d28ae0556ac567a6b4d3e27447ac6f5bb16d13607dc6e2cd7943900674f0672c"
+checksum = "5f30dec47955de459de2c1f81b105f4de22cade14de9063e0e03f6cf213eb88b"
 dependencies = [
  "async-trait",
  "candid",
