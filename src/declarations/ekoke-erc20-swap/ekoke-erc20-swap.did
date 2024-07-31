@@ -52,7 +52,7 @@ type EthNetwork = variant { Ethereum; Goerli; Sepolia };
 type HttpHeader = record { value : text; name : text };
 type HttpResponse = record {
   status : nat;
-  body : vec nat8;
+  body : blob;
   headers : vec HttpHeader;
 };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
@@ -89,7 +89,7 @@ type TransferFromError = variant {
   TooOld;
   InsufficientFunds : record { balance : nat };
 };
-type TransformArgs = record { context : vec nat8; response : HttpResponse };
+type TransformArgs = record { context : blob; response : HttpResponse };
 service : (EkokeErc20SwapInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_eth_wallet_address : () -> (text) query;
@@ -100,6 +100,6 @@ service : (EkokeErc20SwapInitData) -> {
   admin_set_erc20_gas_price : (nat64) -> ();
   admin_set_ledger_canister : (principal) -> ();
   http_transform_send_tx : (TransformArgs) -> (HttpResponse) query;
-  swap : (text, nat, opt vec nat8) -> (Result);
+  swap : (text, nat, opt blob) -> (Result);
   swap_fee : () -> (Result_1);
 }

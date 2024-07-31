@@ -23,11 +23,7 @@ jobs:
           wget -O /tmp/cargo-make.zip https://github.com/sagiegurari/cargo-make/releases/download/0.37.5/cargo-make-v0.37.5-x86_64-unknown-linux-gnu.zip && \
           sudo unzip /tmp/cargo-make.zip -d /tmp && \
           sudo mv /tmp/cargo-make-v0.37.5-x86_64-unknown-linux-gnu/cargo-make $HOME/.cargo/bin/cargo-make && \
-          sudo chmod +x $HOME/.cargo/bin/cargo-make && \
-          wget -O pocket-ic.gz https://github.com/dfinity/pocketic/releases/download/3.0.0/pocket-ic-x86_64-linux.gz && \
-          gzip -d pocket-ic.gz && \
-          chmod +x pocket-ic && \
-          mv pocket-ic ./integration-tests/pocket-ic
+          sudo chmod +x $HOME/.cargo/bin/cargo-make
       - name: Install dfx
         run: |
           DFXVM_INIT_YES=1 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"

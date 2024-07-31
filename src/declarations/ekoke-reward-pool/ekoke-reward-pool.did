@@ -1,4 +1,4 @@
-type Account = record { owner : principal; subaccount : opt vec nat8 };
+type Account = record { owner : principal; subaccount : opt blob };
 type AllowanceError = variant {
   AllowanceNotFound;
   BadSpender;
@@ -88,6 +88,6 @@ service : (EkokeRewardPoolInitData) -> {
   admin_set_role : (principal, Role) -> ();
   available_liquidity : () -> (Result_1) query;
   get_contract_reward : (nat, nat64) -> (Result_1);
-  reserve_pool : (nat, nat, opt vec nat8) -> (Result_1);
+  reserve_pool : (nat, nat, opt blob) -> (Result_1);
   send_reward : (nat, nat, Account) -> (Result);
 }

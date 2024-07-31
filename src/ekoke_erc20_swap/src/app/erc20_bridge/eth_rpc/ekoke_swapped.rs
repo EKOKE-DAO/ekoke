@@ -3,6 +3,12 @@ use std::ops::Div as _;
 use candid::Principal;
 use serde::Deserialize;
 
+#[cfg(target_family = "wasm")]
+#[derive(Debug, Deserialize)]
+pub struct EkokeSwappedRpcResult {
+    pub result: Vec<EkokeSwapped>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct EkokeSwapped {
     pub data: String,

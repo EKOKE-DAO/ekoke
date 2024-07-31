@@ -12,7 +12,7 @@ candid = { workspace = true }
 did = { path = "../src/did" }
 dip721-rs = { workspace = true }
 icrc = { path = "../src/icrc" }
-pocket-ic = "2"
+pocket-ic = "4"
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }

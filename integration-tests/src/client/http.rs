@@ -51,7 +51,7 @@ impl<'a> HttpClient<'a> {
         };
 
         self.env
-            .query(
+            .update(
                 self.principal,
                 admin(),
                 "http_request",

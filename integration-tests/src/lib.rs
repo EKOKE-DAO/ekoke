@@ -120,7 +120,6 @@ impl TestEnv {
         Self::install_icrc2(&pic, icp_ledger_id, "ICP", "Internet Computer", 8);
         Self::install_icrc2(&pic, ckbtc_id, "ckBTC", "ckBTC", 8);
         Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
-        // TODO: install ckETH minter
         Self::install_deferred(&pic, deferred_id, ekoke_reward_pool_id, marketplace_id);
         Self::install_xrc(&pic, xrc_id);
         Self::install_ekoke_erc20_swap(

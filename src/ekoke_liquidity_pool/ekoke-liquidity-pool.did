@@ -1,4 +1,4 @@
-type Account = record { owner : principal; subaccount : opt vec nat8 };
+type Account = record { owner : principal; subaccount : opt blob };
 type AllowanceError = variant {
   AllowanceNotFound;
   BadSpender;
@@ -50,11 +50,11 @@ type EkokeLiquidityPoolInitData = record {
 type HttpRequest = record {
   url : text;
   method : text;
-  body : vec nat8;
+  body : blob;
   headers : vec record { text; text };
 };
 type HttpResponse = record {
-  body : vec nat8;
+  body : blob;
   headers : vec record { text; text };
   upgrade : opt bool;
   status_code : nat16;
