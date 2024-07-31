@@ -58,8 +58,8 @@ A Contract is identified by the following properties
 - **value**: the FIAT value of the contract
 - **currency**: the currency used to represent the value
 - **agency**: the agency which has created the contract
-- **sellers**: the contract sellers
-- **buyers**: the contract buyers
+- **sellers**: the contract sellers. Cannot be empty
+- **buyers**: the contract buyers. Cannot be empty
 - **is_signed**: if signed the contract tokens can be sold. The token must be signed by custodians (or DAO)
 - **type**: the contract type (Sell / Funding)
 - **reward**: the reward of EKOKE token given to a NFT buyer

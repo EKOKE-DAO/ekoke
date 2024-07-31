@@ -195,6 +195,7 @@ impl Deferred {
             caller(),
             data.value,
             &data.sellers,
+            &data.buyers,
             data.installments,
             data.expiration.as_deref(),
         )?;

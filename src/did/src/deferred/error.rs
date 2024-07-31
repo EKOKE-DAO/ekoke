@@ -58,6 +58,8 @@ pub enum TokenError {
     ContractValueIsNotMultipleOfInstallments,
     #[error("the provided contract has no seller")]
     ContractHasNoSeller,
+    #[error("the provided contract has no buyer")]
+    ContractHasNoBuyer,
     #[error("in order to close the contract, all the tokens must be owned by the seller")]
     CannotCloseContract,
     #[error("the provided contract seller quota sum is not 100")]

@@ -164,6 +164,7 @@ impl Inspect {
         caller: Principal,
         value: u64,
         sellers: &[Seller],
+        buyers: &[Principal],
         installments: u64,
         expiration: Option<&str>,
     ) -> DeferredResult<()> {
@@ -177,6 +178,10 @@ impl Inspect {
                 .any(|seller| seller.principal == Principal::anonymous())
         {
             return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
+        }
+
+        if buyers.is_empty() || buyers.iter().any(|buyer| buyer == &Principal::anonymous()) {
+            return Err(DeferredError::Token(TokenError::ContractHasNoBuyer));
         }
 
         // verify value must be multiple of installments
@@ -533,6 +538,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -550,6 +556,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -567,6 +574,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -584,6 +592,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -601,6 +610,7 @@ mod test {
                 principal: Principal::anonymous(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -611,7 +621,51 @@ mod test {
     fn test_should_inspect_contract_register_if_sellers_is_empty() {
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(Inspect::inspect_register_contract(caller, 100, &[], 25, None,).is_err());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            100,
+            &[],
+            &[Principal::management_canister()],
+            25,
+            None,
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_buyer_is_anonymous() {
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            100,
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
+            &[Principal::anonymous()],
+            25,
+            None,
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_buyers_is_empty() {
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            100,
+            &[Seller {
+                principal: Principal::management_canister(),
+                quota: 100,
+            }],
+            &[],
+            25,
+            None,
+        )
+        .is_err());
     }
 
     #[test]
@@ -631,6 +685,7 @@ mod test {
                     quota: 40,
                 }
             ],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -648,6 +703,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             None,
         )
@@ -665,6 +721,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             Some("2078-01-01"),
         )
@@ -676,6 +733,7 @@ mod test {
                 principal: Principal::management_canister(),
                 quota: 100,
             }],
+            &[Principal::management_canister()],
             25,
             Some("2018-01-01"),
         )

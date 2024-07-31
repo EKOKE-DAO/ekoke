@@ -134,6 +134,7 @@ export const idlFactory = ({ IDL }) => {
     'CannotCloseContract' : IDL.Null,
     'ContractNotSigned' : IDL.Nat,
     'ContractHasNoSeller' : IDL.Null,
+    'ContractHasNoBuyer' : IDL.Null,
     'BadContractExpiration' : IDL.Null,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,

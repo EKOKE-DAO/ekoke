@@ -49,6 +49,7 @@ fn inspect_message_impl() {
                 caller(),
                 data.value,
                 &data.sellers,
+                &data.buyers,
                 data.installments,
                 data.expiration.as_deref(),
             )

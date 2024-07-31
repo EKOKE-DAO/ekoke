@@ -118,6 +118,7 @@ type TokenError = variant {
   CannotCloseContract;
   ContractNotSigned : nat;
   ContractHasNoSeller;
+  ContractHasNoBuyer;
   BadContractExpiration;
   ContractHasNoTokens;
   TokenIsBurned : nat;
