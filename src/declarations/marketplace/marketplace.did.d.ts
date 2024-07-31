@@ -98,14 +98,21 @@ export type Result_1 = { 'Ok' : bigint } |
 export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
+  { 'BadBuyerDepositAccount' : null } |
   { 'TokensMismatch' : null } |
   { 'ContractAlreadyExists' : bigint } |
   { 'ContractTokensShouldBeEmpty' : null } |
   { 'TokenDoesNotBelongToContract' : bigint } |
+  { 'DepositAllowanceExpired' : null } |
   { 'TokenNotFound' : bigint } |
+  {
+    'DepositAllowanceNotEnough' : { 'available' : bigint, 'required' : bigint }
+  } |
   { 'ContractSellerQuotaIsNot100' : null } |
+  { 'DepositRejected' : TransferFromError } |
   { 'ContractNotFound' : bigint } |
   { 'CannotCloseContract' : null } |
+  { 'ContractValueIsLessThanDeposit' : null } |
   { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoSeller' : null } |
   { 'ContractHasNoBuyer' : null } |

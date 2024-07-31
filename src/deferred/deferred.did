@@ -1,3 +1,4 @@
+type Account = record { owner : principal; subaccount : opt blob };
 type Agency = record {
   vat : text;
   region : text;
@@ -33,6 +34,7 @@ type ApproveError = variant {
   InsufficientFunds : record { balance : nat };
 };
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
+type Buyers = record { deposit_account : Account; principals : vec principal };
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;
@@ -55,6 +57,7 @@ type Contract = record {
   agency : opt Agency;
   restricted_properties : vec record { text; RestrictedProperty };
   properties : vec record { text; GenericValue };
+  deposit : Deposit;
   sellers : vec Seller;
   expiration : opt text;
   tokens : vec nat;
@@ -68,11 +71,12 @@ type ContractRegistration = record {
   "type" : ContractType;
   restricted_properties : vec record { text; RestrictedProperty };
   properties : vec record { text; GenericValue };
+  deposit : Deposit;
   sellers : vec Seller;
   expiration : opt text;
   currency : text;
   installments : nat64;
-  buyers : vec principal;
+  buyers : Buyers;
 };
 type ContractType = variant { Sell; Financing };
 type DeferredError = variant {
@@ -85,10 +89,12 @@ type DeferredError = variant {
   CanisterCall : record { RejectionCode; text };
 };
 type DeferredInitData = record {
+  icp_ledger_canister : principal;
   custodians : vec principal;
   ekoke_reward_pool_canister : principal;
   marketplace_canister : principal;
 };
+type Deposit = record { value_fiat : nat64; value_icp : nat64 };
 type EcdsaError = variant {
   RecoveryIdError;
   InvalidSignature;
@@ -214,14 +220,19 @@ type TokenError = variant {
   ContractAlreadySigned : nat;
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;
+  BadBuyerDepositAccount;
   TokensMismatch;
   ContractAlreadyExists : nat;
   ContractTokensShouldBeEmpty;
   TokenDoesNotBelongToContract : nat;
+  DepositAllowanceExpired;
   TokenNotFound : nat;
+  DepositAllowanceNotEnough : record { available : nat; required : nat };
   ContractSellerQuotaIsNot100;
+  DepositRejected : TransferFromError;
   ContractNotFound : nat;
   CannotCloseContract;
+  ContractValueIsLessThanDeposit;
   ContractNotSigned : nat;
   ContractHasNoSeller;
   ContractHasNoBuyer;

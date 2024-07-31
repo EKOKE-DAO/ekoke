@@ -36,8 +36,8 @@ pub fn post_upgrade() {
 
 #[update]
 #[candid_method(update)]
-pub fn register_contract(data: ContractRegistration) -> DeferredResult<Nat> {
-    Deferred::register_contract(data)
+pub async fn register_contract(data: ContractRegistration) -> DeferredResult<Nat> {
+    Deferred::register_contract(data).await
 }
 
 #[update]

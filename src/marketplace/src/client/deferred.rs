@@ -3,7 +3,7 @@ use candid::Nat;
 use candid::Principal;
 #[cfg(not(target_arch = "wasm32"))]
 use did::deferred::{Contract, Seller, Token};
-use did::deferred::{TokenIdentifier, TokenInfo};
+use did::deferred::{Deposit, TokenIdentifier, TokenInfo};
 #[cfg(target_arch = "wasm32")]
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;
@@ -67,6 +67,10 @@ impl DeferredClient {
                         id if id == &candid::Nat::from(2_u64) => vec![caller()],
                         id if id == &candid::Nat::from(4_u64) => vec![caller()],
                         _ => vec![Principal::management_canister()],
+                    },
+                    deposit: Deposit {
+                        value_fiat: 80_000,
+                        value_icp: 100,
                     },
                     tokens: vec![],
                     installments: 4_000,

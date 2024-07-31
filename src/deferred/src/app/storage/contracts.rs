@@ -470,7 +470,7 @@ impl ContractStorage {
 mod test {
 
     use candid::Principal;
-    use did::deferred::{RestrictionLevel, Seller};
+    use did::deferred::{Deposit, RestrictionLevel, Seller};
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -814,6 +814,10 @@ mod test {
             is_signed: false,
             initial_value: 250_000,
             value: 250_000,
+            deposit: Deposit {
+                value_fiat: 50_000,
+                value_icp: 100,
+            },
             currency: "EUR".to_string(),
             properties: vec![(
                 "contract:city".to_string(),

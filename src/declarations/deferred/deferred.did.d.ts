@@ -2,6 +2,10 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
+export interface Account {
+  'owner' : Principal,
+  'subaccount' : [] | [Uint8Array | number[]],
+}
 export interface Agency {
   'vat' : string,
   'region' : string,
@@ -36,6 +40,10 @@ export type ApproveError = {
   { 'InsufficientFunds' : { 'balance' : bigint } };
 export type BalanceError = { 'AccountNotFound' : null } |
   { 'InsufficientBalance' : null };
+export interface Buyers {
+  'deposit_account' : Account,
+  'principals' : Array<Principal>,
+}
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
@@ -55,6 +63,7 @@ export interface Contract {
   'agency' : [] | [Agency],
   'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
+  'deposit' : Deposit,
   'sellers' : Array<Seller>,
   'expiration' : [] | [string],
   'tokens' : Array<bigint>,
@@ -68,11 +77,12 @@ export interface ContractRegistration {
   'type' : ContractType,
   'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
+  'deposit' : Deposit,
   'sellers' : Array<Seller>,
   'expiration' : [] | [string],
   'currency' : string,
   'installments' : bigint,
-  'buyers' : Array<Principal>,
+  'buyers' : Buyers,
 }
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
@@ -84,10 +94,12 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
+  'icp_ledger_canister' : Principal,
   'custodians' : Array<Principal>,
   'ekoke_reward_pool_canister' : Principal,
   'marketplace_canister' : Principal,
 }
+export interface Deposit { 'value_fiat' : bigint, 'value_icp' : bigint }
 export type EcdsaError = { 'RecoveryIdError' : null } |
   { 'InvalidSignature' : null } |
   { 'InvalidPublicKey' : null };
@@ -218,14 +230,21 @@ export interface Token {
 export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
+  { 'BadBuyerDepositAccount' : null } |
   { 'TokensMismatch' : null } |
   { 'ContractAlreadyExists' : bigint } |
   { 'ContractTokensShouldBeEmpty' : null } |
   { 'TokenDoesNotBelongToContract' : bigint } |
+  { 'DepositAllowanceExpired' : null } |
   { 'TokenNotFound' : bigint } |
+  {
+    'DepositAllowanceNotEnough' : { 'available' : bigint, 'required' : bigint }
+  } |
   { 'ContractSellerQuotaIsNot100' : null } |
+  { 'DepositRejected' : TransferFromError } |
   { 'ContractNotFound' : bigint } |
   { 'CannotCloseContract' : null } |
+  { 'ContractValueIsLessThanDeposit' : null } |
   { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoSeller' : null } |
   { 'ContractHasNoBuyer' : null } |

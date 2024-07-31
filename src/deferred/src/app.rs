@@ -24,12 +24,14 @@ use dip721_rs::{
     Dip721, GenericValue, Metadata, NftError, Stats, SupportedInterface, TokenIdentifier,
     TokenMetadata, TxEvent,
 };
+use icrc::icrc1::account::Account;
+use icrc::IcrcLedgerClient;
 
 pub use self::inspect::Inspect;
 use self::minter::Minter;
 use self::roles::RolesManager;
 use self::storage::{Agents, ContractStorage, TxHistory};
-use crate::utils::caller;
+use crate::utils::{self, caller};
 
 #[derive(Default)]
 /// Deferred canister API
@@ -42,6 +44,8 @@ impl Deferred {
         Configuration::set_ekoke_reward_pool_canister(init_data.ekoke_reward_pool_canister)
             .expect("storage error");
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
+            .expect("storage error");
+        Configuration::set_icp_ledger_canister(init_data.icp_ledger_canister)
             .expect("storage error");
     }
 
@@ -190,10 +194,11 @@ impl Deferred {
     /// Only a custodian can call this method.
     ///
     /// Returns the contract id
-    pub fn register_contract(data: ContractRegistration) -> DeferredResult<ID> {
+    pub async fn register_contract(data: ContractRegistration) -> DeferredResult<ID> {
         Inspect::inspect_register_contract(
             caller(),
             data.value,
+            &data.deposit,
             &data.sellers,
             &data.buyers,
             data.installments,
@@ -202,9 +207,14 @@ impl Deferred {
 
         let next_contract_id = ContractStorage::next_contract_id();
 
+        // take buyer's deposit
+        if data.deposit.value_icp > 0 {
+            Self::take_buyers_deposit(data.buyers.deposit_account, data.deposit.value_icp).await?;
+        }
+
         // make contract
         let contract = Contract {
-            buyers: data.buyers,
+            buyers: data.buyers.principals,
             currency: data.currency,
             id: next_contract_id.clone(),
             initial_value: data.value,
@@ -216,6 +226,7 @@ impl Deferred {
             sellers: data.sellers,
             tokens: vec![],
             value: data.value,
+            deposit: data.deposit,
             expiration: data.expiration,
             agency: Agents::get_agency_by_wallet(caller()),
         };
@@ -241,12 +252,14 @@ impl Deferred {
             }
         };
 
+        let installments_value = contract.installments_value();
+
         // mint new tokens
         let (tokens, _) = Minter::mint(
             &contract_id,
             contract.sellers,
             contract.installments,
-            contract.value,
+            installments_value,
         )
         .await?;
 
@@ -311,6 +324,64 @@ impl Deferred {
         }
 
         RolesManager::remove_role(principal, role)
+    }
+
+    /// Take buyer's deposit
+    ///
+    /// 1. Get ICP fee
+    /// 2. Check given allowance to the canister
+    /// 3. Transfer the deposit to the canister
+    async fn take_buyers_deposit(deposit_account: Account, value: u64) -> DeferredResult<()> {
+        let icp_ledger_client = IcrcLedgerClient::new(Configuration::get_icp_ledger_canister());
+
+        let canister_account = Self::canister_account();
+        let icp_ledger_fee = icp_ledger_client
+            .icrc1_fee()
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
+        let allowance = icp_ledger_client
+            .icrc2_allowance(canister_account, deposit_account)
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
+
+        // check allowance expiration and value
+        if allowance
+            .expires_at
+            .map(|expiration| expiration < utils::time())
+            .unwrap_or_default()
+        {
+            return Err(DeferredError::Token(TokenError::DepositAllowanceExpired));
+        }
+
+        let required_allowance = value + icp_ledger_fee;
+
+        // check if allowance is enough
+        if allowance.allowance < required_allowance {
+            return Err(DeferredError::Token(
+                TokenError::DepositAllowanceNotEnough {
+                    required: required_allowance,
+                    available: allowance.allowance,
+                },
+            ));
+        }
+
+        icp_ledger_client
+            .icrc2_transfer_from(
+                canister_account.subaccount,
+                deposit_account,
+                canister_account,
+                value.into(),
+            )
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
+            .map_err(|err| DeferredError::Token(TokenError::DepositRejected(err)))?;
+
+        Ok(())
+    }
+
+    /// Canister ICRC account
+    fn canister_account() -> Account {
+        Account::from(utils::id())
     }
 }
 
@@ -623,8 +694,9 @@ mod test {
 
     use std::time::Duration;
 
-    use did::deferred::Seller;
+    use did::deferred::{Buyers, Deposit, Seller};
     use pretty_assertions::assert_eq;
+    use test_utils::bob_account;
 
     use self::test_utils::{bob, mock_agency};
     use super::test_utils::store_mock_contract;
@@ -637,6 +709,7 @@ mod test {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
             ekoke_reward_pool_canister: caller(),
+            icp_ledger_canister: caller(),
             marketplace_canister: caller(),
         });
 
@@ -691,11 +764,18 @@ mod test {
     async fn test_should_register_and_sign_contract() {
         init_canister();
         let contract = ContractRegistration {
-            buyers: vec![caller()],
+            buyers: Buyers {
+                principals: vec![caller()],
+                deposit_account: bob_account(),
+            },
             currency: "EUR".to_string(),
             installments: 10,
             properties: vec![],
             restricted_properties: vec![],
+            deposit: Deposit {
+                value_fiat: 20,
+                value_icp: 100,
+            },
             r#type: did::deferred::ContractType::Financing,
             sellers: vec![Seller {
                 principal: caller(),
@@ -705,23 +785,36 @@ mod test {
             expiration: Some("2048-01-01".to_string()),
         };
 
-        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
+        assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);
         assert_eq!(Deferred::dip721_total_supply(), Nat::from(0_u64));
         assert_eq!(Deferred::get_unsigned_contracts(), vec![Nat::from(0_u64)]);
+
+        // sign and get total supply
         assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
         assert_eq!(Deferred::get_signed_contracts(), vec![Nat::from(0_u64)]);
         assert_eq!(Deferred::dip721_total_supply(), Nat::from(10_u64));
+
+        // verify installment value is 8
+        let token = ContractStorage::get_token(&0_u64.into()).unwrap();
+        assert_eq!(token.value, 8);
     }
 
     #[tokio::test]
     async fn test_should_increment_contract_value() {
         init_canister();
         let contract = ContractRegistration {
-            buyers: vec![caller()],
+            buyers: Buyers {
+                principals: vec![caller()],
+                deposit_account: bob_account(),
+            },
             currency: "EUR".to_string(),
             installments: 10,
             properties: vec![],
             restricted_properties: vec![],
+            deposit: Deposit {
+                value_fiat: 20,
+                value_icp: 100,
+            },
             r#type: did::deferred::ContractType::Financing,
             sellers: vec![Seller {
                 principal: caller(),
@@ -730,7 +823,7 @@ mod test {
             value: 100,
             expiration: Some("2048-01-01".to_string()),
         };
-        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
+        assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);
         assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
 
         // increment value
@@ -1084,11 +1177,18 @@ mod test {
     async fn test_should_set_and_get_restricted_property() {
         init_canister();
         let contract = ContractRegistration {
-            buyers: vec![caller()],
+            buyers: Buyers {
+                principals: vec![caller()],
+                deposit_account: bob_account(),
+            },
             currency: "EUR".to_string(),
             installments: 10,
             properties: vec![],
             restricted_properties: vec![],
+            deposit: Deposit {
+                value_fiat: 10,
+                value_icp: 100,
+            },
             r#type: did::deferred::ContractType::Financing,
             sellers: vec![Seller {
                 principal: caller(),
@@ -1098,7 +1198,7 @@ mod test {
             expiration: Some("2048-01-01".to_string()),
         };
 
-        assert_eq!(Deferred::register_contract(contract).unwrap(), 0_u64);
+        assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);
         assert_eq!(Deferred::dip721_total_supply(), Nat::from(0_u64));
         assert_eq!(Deferred::get_unsigned_contracts(), vec![Nat::from(0_u64)]);
         assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
@@ -1122,6 +1222,7 @@ mod test {
     fn init_canister() {
         Deferred::init(DeferredInitData {
             custodians: vec![caller()],
+            icp_ledger_canister: caller(),
             ekoke_reward_pool_canister: caller(),
             marketplace_canister: caller(),
         });

@@ -1,6 +1,7 @@
-use candid::{CandidType, Deserialize};
+use candid::{CandidType, Deserialize, Nat};
 use dip721_rs::{NftError, TokenIdentifier};
 use ic_cdk::api::call::RejectionCode;
+use icrc::icrc2::transfer_from::TransferFromError;
 use thiserror::Error;
 
 use crate::ekoke::EkokeError;
@@ -56,10 +57,20 @@ pub enum TokenError {
     TokenIsBurned(TokenIdentifier),
     #[error("the provided contract value is not a multiple of the number of installments")]
     ContractValueIsNotMultipleOfInstallments,
+    #[error("the provided contract value is less than the deposit")]
+    ContractValueIsLessThanDeposit,
     #[error("the provided contract has no seller")]
     ContractHasNoSeller,
     #[error("the provided contract has no buyer")]
     ContractHasNoBuyer,
+    #[error("the provided deposit account for the buyers is invalid")]
+    BadBuyerDepositAccount,
+    #[error("the deposit allowance for the buyer has expired")]
+    DepositAllowanceExpired,
+    #[error("the deposit allowance for the buyer is not enough. Required: {required}, available: {available}")]
+    DepositAllowanceNotEnough { required: Nat, available: Nat },
+    #[error("buyer deposit rejected")]
+    DepositRejected(TransferFromError),
     #[error("in order to close the contract, all the tokens must be owned by the seller")]
     CannotCloseContract,
     #[error("the provided contract seller quota sum is not 100")]

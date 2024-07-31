@@ -8,9 +8,9 @@ pub type DeferredResult<T> = Result<T, DeferredError>;
 
 pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
 pub use self::contract::{
-    Agency, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
-    GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Seller,
-    Token, TokenIdentifier, TokenInfo, ID,
+    Agency, Buyers, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
+    Deposit, GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel,
+    Seller, Token, TokenIdentifier, TokenInfo, ID,
 };
 pub use self::error::{ConfigurationError, DeferredError, TokenError};
 
@@ -89,6 +89,10 @@ mod test {
             tokens: vec![TokenIdentifier::from(1_u64), TokenIdentifier::from(2_u64)],
             initial_value: 250_000,
             value: 250_000,
+            deposit: Deposit {
+                value_fiat: 50_000,
+                value_icp: 100,
+            },
             currency: "EUR".to_string(),
             properties: vec![(
                 "Rome".to_string(),

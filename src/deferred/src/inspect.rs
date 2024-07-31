@@ -48,6 +48,7 @@ fn inspect_message_impl() {
             Inspect::inspect_register_contract(
                 caller(),
                 data.value,
+                &data.deposit,
                 &data.sellers,
                 &data.buyers,
                 data.installments,

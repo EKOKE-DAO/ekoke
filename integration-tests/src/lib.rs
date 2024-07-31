@@ -120,7 +120,13 @@ impl TestEnv {
         Self::install_icrc2(&pic, icp_ledger_id, "ICP", "Internet Computer", 8);
         Self::install_icrc2(&pic, ckbtc_id, "ckBTC", "ckBTC", 8);
         Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18);
-        Self::install_deferred(&pic, deferred_id, ekoke_reward_pool_id, marketplace_id);
+        Self::install_deferred(
+            &pic,
+            deferred_id,
+            ekoke_reward_pool_id,
+            marketplace_id,
+            icp_ledger_id,
+        );
         Self::install_xrc(&pic, xrc_id);
         Self::install_ekoke_erc20_swap(
             &pic,
@@ -255,6 +261,7 @@ impl TestEnv {
         deferred_id: Principal,
         ekoke_reward_pool_id: Principal,
         marketplace_id: Principal,
+        icp_ledger_canister: Principal,
     ) {
         pic.add_cycles(deferred_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Deferred);
@@ -262,6 +269,7 @@ impl TestEnv {
         let init_arg = DeferredInitData {
             custodians: vec![actor::admin()],
             ekoke_reward_pool_canister: ekoke_reward_pool_id,
+            icp_ledger_canister,
             marketplace_canister: marketplace_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();
