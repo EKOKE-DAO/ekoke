@@ -25,10 +25,7 @@ jobs:
           sudo mv /tmp/cargo-make-v0.37.5-x86_64-unknown-linux-gnu/cargo-make $HOME/.cargo/bin/cargo-make && \
           sudo chmod +x $HOME/.cargo/bin/cargo-make
       - name: Install dfx
-        run: |
-          sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
-          dfxvm install 0.19.0
-          dfx extension install sns
+        uses: dfinity/setup-dfx@main
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
