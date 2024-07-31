@@ -26,8 +26,8 @@ jobs:
           sudo chmod +x $HOME/.cargo/bin/cargo-make
       - name: Install dfx
         run: |
-          DFXVM_INIT_YES=1 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-          sudo cp $HOME/.local/share/dfx/bin/* /usr/bin
+          sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+          dfxvm install 0.19.0
           dfx extension install sns
       - uses: actions-rs/toolchain@v1
         with:
