@@ -171,9 +171,10 @@ impl Inspect {
             return Err(DeferredError::Unauthorized);
         }
 
-        if sellers
-            .iter()
-            .any(|seller| seller.principal == Principal::anonymous())
+        if sellers.is_empty()
+            || sellers
+                .iter()
+                .any(|seller| seller.principal == Principal::anonymous())
         {
             return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
         }
@@ -604,6 +605,13 @@ mod test {
             None,
         )
         .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_sellers_is_empty() {
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(caller, 100, &[], 25, None,).is_err());
     }
 
     #[test]
