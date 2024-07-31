@@ -2,8 +2,8 @@
 use candid::Nat;
 use candid::Principal;
 #[cfg(not(target_arch = "wasm32"))]
-use did::deferred::{Contract, Seller, Token};
-use did::deferred::{Deposit, TokenIdentifier, TokenInfo};
+use did::deferred::{Contract, Deposit, Seller, Token};
+use did::deferred::{TokenIdentifier, TokenInfo};
 #[cfg(target_arch = "wasm32")]
 use did::marketplace::MarketplaceError;
 use did::marketplace::MarketplaceResult;

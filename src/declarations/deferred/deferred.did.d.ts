@@ -88,6 +88,7 @@ export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
+  { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
@@ -296,6 +297,10 @@ export interface TxEvent {
   'details' : Array<[string, GenericValue]>,
   'caller' : Principal,
 }
+export type WithdrawError = { 'InvalidTransferAmount' : [bigint, number] } |
+  { 'ContractNotFound' : bigint } |
+  { 'DepositTransferFailed' : TransferError } |
+  { 'ContractNotPaid' : bigint };
 export interface _SERVICE {
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
@@ -360,6 +365,10 @@ export interface _SERVICE {
   >,
   'update_restricted_contract_property' : ActorMethod<
     [bigint, string, RestrictedProperty],
+    Result
+  >,
+  'withdraw_contract_deposit' : ActorMethod<
+    [bigint, [] | [Uint8Array | number[]]],
     Result
   >,
 }

@@ -82,6 +82,7 @@ type ContractType = variant { Sell; Financing };
 type DeferredError = variant {
   Nft : NftError;
   Ekoke : EkokeError;
+  Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
@@ -285,6 +286,12 @@ type TxEvent = record {
   details : vec record { text; GenericValue };
   caller : principal;
 };
+type WithdrawError = variant {
+  InvalidTransferAmount : record { nat64; nat8 };
+  ContractNotFound : nat;
+  DepositTransferFailed : TransferError;
+  ContractNotPaid : nat;
+};
 service : (DeferredInitData) -> {
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
@@ -342,4 +349,5 @@ service : (DeferredInitData) -> {
   update_restricted_contract_property : (nat, text, RestrictedProperty) -> (
       Result,
     );
+  withdraw_contract_deposit : (nat, opt blob) -> (Result);
 }

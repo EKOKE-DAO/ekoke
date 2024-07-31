@@ -134,6 +134,12 @@ export const idlFactory = ({ IDL }) => {
     'Icrc2Transfer' : TransferFromError,
     'Ecdsa' : EcdsaError,
   });
+  const WithdrawError = IDL.Variant({
+    'InvalidTransferAmount' : IDL.Tuple(IDL.Nat64, IDL.Nat8),
+    'ContractNotFound' : IDL.Nat,
+    'DepositTransferFailed' : TransferError,
+    'ContractNotPaid' : IDL.Nat,
+  });
   const ConfigurationError_1 = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
@@ -170,6 +176,7 @@ export const idlFactory = ({ IDL }) => {
   const DeferredError = IDL.Variant({
     'Nft' : NftError,
     'Ekoke' : EkokeError,
+    'Withdraw' : WithdrawError,
     'Configuration' : ConfigurationError_1,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
@@ -444,6 +451,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'update_restricted_contract_property' : IDL.Func(
         [IDL.Nat, IDL.Text, RestrictedProperty],
+        [Result],
+        [],
+      ),
+    'withdraw_contract_deposit' : IDL.Func(
+        [IDL.Nat, IDL.Opt(IDL.Vec(IDL.Nat8))],
         [Result],
         [],
       ),

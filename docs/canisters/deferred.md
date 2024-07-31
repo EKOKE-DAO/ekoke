@@ -19,6 +19,7 @@
     - [update\_contract\_property](#update_contract_property)
     - [update\_restricted\_contract\_property](#update_restricted_contract_property)
     - [get\_restricted\_contract\_properties](#get_restricted_contract_properties)
+    - [withdraw\_contract\_deposit](#withdraw_contract_deposit)
     - [admin\_set\_ekoke\_reward\_pool\_canister](#admin_set_ekoke_reward_pool_canister)
     - [admin\_set\_marketplace\_canister](#admin_set_marketplace_canister)
     - [admin\_set\_role](#admin_set_role)
@@ -59,7 +60,8 @@ A Contract is identified by the following properties
 - **currency**: the currency used to represent the value
 - **agency**: the agency which has created the contract
 - **sellers**: the contract sellers. Cannot be empty
-- **buyers**: the contract buyers. Cannot be empty
+- **buyers**: the contract buyers. Cannot be empty. It also contains the deposit account
+- **deposit**: buyer deposit amount (FIAT and ICP)
 - **is_signed**: if signed the contract tokens can be sold. The token must be signed by custodians (or DAO)
 - **type**: the contract type (Sell / Funding)
 - **reward**: the reward of EKOKE token given to a NFT buyer
@@ -141,6 +143,18 @@ Can be called by Agent, Custodian or seller.
 Get the restricted contract properties.
 
 The properties returned are those only accessible to the caller
+
+### withdraw_contract_deposit
+
+Update endpoint called by the seller once all the NFTs have been bought by the contract buyers.
+
+The seller provides the contract id he wants to withdraw for and an optional ICRC subaccount.
+
+If the all the NFTs have been paid by the buyer, the deferred canister will transfer the deposit amount to the caller.
+
+The seller will receive only `deposit.value_icp / seller.quota` its part of the deposit.
+
+Each seller must call this method to withdraw their quota of the contract
 
 ### admin_set_ekoke_reward_pool_canister
 

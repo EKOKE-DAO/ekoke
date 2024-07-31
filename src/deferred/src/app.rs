@@ -17,7 +17,7 @@ use configuration::Configuration;
 use did::deferred::{
     Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult,
     RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Role, TokenError,
-    TokenInfo,
+    TokenInfo, WithdrawError,
 };
 use did::ID;
 use dip721_rs::{
@@ -270,6 +270,68 @@ impl Deferred {
 
         // update contract
         ContractStorage::sign_contract_and_mint_tokens(&contract_id, tokens)
+    }
+
+    /// Call for the contract seller to withdraw the buyer deposit in case the contract has been completely paid
+    pub async fn withdraw_contract_deposit(
+        contract_id: ID,
+        withdraw_subaccount: Option<Subaccount>,
+    ) -> DeferredResult<()> {
+        Inspect::inspect_is_seller(caller(), contract_id.clone())?;
+
+        // check if the contract has been paid
+        // get contract
+        let contract = ContractStorage::get_contract(&contract_id).ok_or(
+            DeferredError::Withdraw(WithdrawError::ContractNotFound(contract_id.clone())),
+        )?;
+
+        // check if all the tokens are burned (bought by the contract buyer)
+        if contract.tokens.iter().any(|token_id| {
+            ContractStorage::get_token(token_id)
+                .map(|token| !token.is_burned)
+                .unwrap_or_default()
+        }) {
+            return Err(DeferredError::Withdraw(WithdrawError::ContractNotPaid(
+                contract_id,
+            )));
+        }
+
+        // transfer the deposit to the seller
+        let icp_ledger_client = IcrcLedgerClient::new(Configuration::get_icp_ledger_canister());
+        // get fee
+        let icp_fee = icp_ledger_client
+            .icrc1_fee()
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
+
+        // get seller quota
+        let seller_quota = contract
+            .sellers
+            .iter()
+            .find(|seller| seller.principal == caller())
+            .map(|seller| seller.quota)
+            .unwrap(); // unwrap is safe because the caller is the seller
+
+        let transfer_amount = (contract.deposit.value_icp.checked_mul(seller_quota as u64))
+            .and_then(|value| value.checked_div(100))
+            .map(|value| value - icp_fee)
+            .ok_or(DeferredError::Withdraw(
+                WithdrawError::InvalidTransferAmount(contract.deposit.value_icp, seller_quota),
+            ))?;
+
+        icp_ledger_client
+            .icrc1_transfer(
+                Account {
+                    owner: caller(),
+                    subaccount: withdraw_subaccount,
+                },
+                transfer_amount,
+            )
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
+            .map_err(|err| DeferredError::Withdraw(WithdrawError::DepositTransferFailed(err)))?;
+
+        Ok(())
     }
 
     /// Update marketplace canister id and update the operator for all the tokens
@@ -720,7 +782,7 @@ mod test {
 
     use did::deferred::{Buyers, Deposit, Seller};
     use pretty_assertions::{assert_eq, assert_ne};
-    use test_utils::bob_account;
+    use test_utils::{alice, bob_account};
 
     use self::test_utils::{bob, mock_agency};
     use super::test_utils::store_mock_contract;
@@ -855,6 +917,118 @@ mod test {
             .await
             .is_ok());
         assert_eq!(Deferred::dip721_total_supply(), Nat::from(20_u64));
+    }
+
+    #[tokio::test]
+    async fn test_should_withdraw_contract_deposit() {
+        init_canister();
+
+        let contract_id = 1;
+        test_utils::store_mock_contract_with(
+            &[1, 2, 3],
+            contract_id,
+            |contract| {
+                contract.value = 400_000;
+                contract.deposit = Deposit {
+                    value_fiat: 10000,
+                    value_icp: 100_000_000,
+                };
+                contract.sellers = vec![
+                    Seller {
+                        principal: caller(),
+                        quota: 50,
+                    },
+                    Seller {
+                        principal: bob(),
+                        quota: 50,
+                    },
+                ];
+            },
+            |token| {
+                token.is_burned = true;
+                token.owner = Some(caller());
+            },
+        );
+
+        // withdraw deposit
+        assert!(
+            Deferred::withdraw_contract_deposit(contract_id.into(), None)
+                .await
+                .is_ok()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_not_withdraw_contract_deposit_if_not_burned_yet() {
+        init_canister();
+
+        let contract_id = 1;
+        test_utils::store_mock_contract_with(
+            &[1, 2, 3],
+            contract_id,
+            |contract| {
+                contract.deposit = Deposit {
+                    value_fiat: 10000,
+                    value_icp: 100_000_000,
+                };
+                contract.sellers = vec![
+                    Seller {
+                        principal: caller(),
+                        quota: 50,
+                    },
+                    Seller {
+                        principal: bob(),
+                        quota: 50,
+                    },
+                ];
+            },
+            |token| token.is_burned = false,
+        );
+
+        // withdraw deposit
+        assert!(
+            Deferred::withdraw_contract_deposit(contract_id.into(), None)
+                .await
+                .is_err()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_not_withdraw_contract_deposit_if_not_seller() {
+        init_canister();
+
+        let contract_id = 1;
+        test_utils::store_mock_contract_with(
+            &[1, 2, 3],
+            contract_id,
+            |contract| {
+                contract.deposit = Deposit {
+                    value_fiat: 10000,
+                    value_icp: 100,
+                };
+                contract.sellers = vec![
+                    Seller {
+                        principal: alice(),
+                        quota: 50,
+                    },
+                    Seller {
+                        principal: bob(),
+                        quota: 50,
+                    },
+                ];
+            },
+            |token| {
+                token.is_burned = true;
+                token.owner = Some(alice());
+            },
+        );
+
+        // withdraw deposit
+        assert!(
+            Deferred::withdraw_contract_deposit(contract_id.into(), None)
+                .await
+                .is_err()
+        );
     }
 
     #[test]

@@ -1,6 +1,7 @@
 use candid::{CandidType, Deserialize, Nat};
 use dip721_rs::{NftError, TokenIdentifier};
 use ic_cdk::api::call::RejectionCode;
+use icrc::icrc1::transfer::TransferError;
 use icrc::icrc2::transfer_from::TransferFromError;
 use thiserror::Error;
 
@@ -15,6 +16,8 @@ pub enum DeferredError {
     Ekoke(#[from] EkokeError),
     #[error("token error: {0}")]
     Token(TokenError),
+    #[error("withdraw error: {0}")]
+    Withdraw(WithdrawError),
     #[error("configuration error: {0}")]
     Configuration(ConfigurationError),
     #[error("storage error")]
@@ -83,4 +86,16 @@ pub enum ConfigurationError {
     CustodialsCantBeEmpty,
     #[error("the canister custodial cannot be anonymous")]
     AnonymousCustodial,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum WithdrawError {
+    #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
+    ContractNotFound(ID),
+    #[error("the contract {0} has not been completely paid yet")]
+    ContractNotPaid(ID),
+    #[error("deposit transfer failed: {0}")]
+    DepositTransferFailed(TransferError),
+    #[error("invalid transfer amount: {0} for quota {1}")]
+    InvalidTransferAmount(u64, u8),
 }

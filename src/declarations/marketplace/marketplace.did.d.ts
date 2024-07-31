@@ -31,6 +31,7 @@ export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
 export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
+  { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
@@ -142,6 +143,10 @@ export type TransferFromError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
+export type WithdrawError = { 'InvalidTransferAmount' : [bigint, number] } |
+  { 'ContractNotFound' : bigint } |
+  { 'DepositTransferFailed' : TransferError } |
+  { 'ContractNotPaid' : bigint };
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,

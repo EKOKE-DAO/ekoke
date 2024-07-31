@@ -21,6 +21,7 @@ mod inspect;
 mod utils;
 
 use app::Deferred;
+use icrc::icrc1::account::Subaccount;
 
 #[init]
 pub fn init(init_data: DeferredInitData) {
@@ -124,6 +125,15 @@ pub fn get_unsigned_contracts() -> Vec<ID> {
 #[candid_method(update)]
 pub fn update_contract_buyers(contract_id: ID, buyers: Vec<Principal>) -> DeferredResult<()> {
     Deferred::update_contract_buyers(contract_id, buyers)
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn withdraw_contract_deposit(
+    contract_id: ID,
+    withdraw_subaccount: Option<Subaccount>,
+) -> DeferredResult<()> {
+    Deferred::withdraw_contract_deposit(contract_id, withdraw_subaccount).await
 }
 
 #[update]

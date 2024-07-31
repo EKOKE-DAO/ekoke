@@ -32,6 +32,7 @@ type ConfigurationError_1 = variant {
 type DeferredError = variant {
   Nft : NftError;
   Ekoke : EkokeError;
+  Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
   Unauthorized;
   Token : TokenError;
@@ -150,6 +151,12 @@ type TransferFromError = variant {
   CreatedInFuture : record { ledger_time : nat64 };
   TooOld;
   InsufficientFunds : record { balance : nat };
+};
+type WithdrawError = variant {
+  InvalidTransferAmount : record { nat64; nat8 };
+  ContractNotFound : nat;
+  DepositTransferFailed : TransferError;
+  ContractNotPaid : nat;
 };
 service : (MarketplaceInitData) -> {
   admin_cycles : () -> (nat) query;

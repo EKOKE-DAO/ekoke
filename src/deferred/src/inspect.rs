@@ -5,6 +5,7 @@ use dip721_rs::GenericValue;
 use ic_cdk::api;
 #[cfg(target_family = "wasm")]
 use ic_cdk_macros::inspect_message;
+use icrc::icrc1::account::Subaccount;
 
 use crate::app::Inspect;
 use crate::utils::caller;
@@ -55,6 +56,10 @@ fn inspect_message_impl() {
                 data.expiration.as_deref(),
             )
             .is_ok()
+        }
+        "withdraw_contract_deposit" => {
+            let id = api::call::arg_data::<(ID, Option<Subaccount>)>().0;
+            Inspect::inspect_is_seller(caller(), id).is_ok()
         }
         "get_unsigned_contracts" => {
             Inspect::inspect_is_agent(caller()) || Inspect::inspect_is_custodian(caller())
