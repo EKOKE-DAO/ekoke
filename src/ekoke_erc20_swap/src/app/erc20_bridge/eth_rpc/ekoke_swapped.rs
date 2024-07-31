@@ -4,11 +4,6 @@ use candid::Principal;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct EkokeSwappedRpcResult {
-    pub result: Vec<EkokeSwapped>,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct EkokeSwapped {
     pub data: String,
     pub block_number: String,

@@ -68,7 +68,7 @@ workspace = false
 
 [tasks.ekoke-erc20-swap-did]
 description = "Generate did files for ekoke-erc20-swap"
-script = "cargo run --bin ekoke-erc20-swap-did  --features did > src/ekoke_erc20_swap/ekoke-erc20-swap.did"
+script = "mkdir -p .dfx/local/canisters/ekoke-erc20-swap-frontend/ && cp candid/assetsstorage.did .dfx/local/canisters/ekoke-erc20-swap-frontend/assetstorage.did && cargo run --bin ekoke-erc20-swap-did  --features did > src/ekoke_erc20_swap/ekoke-erc20-swap.did"
 workspace = false
 
 [tasks.ekoke-liquidity-pool-did]

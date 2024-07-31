@@ -47,4 +47,4 @@ export declare const createActor: (
  * Intialized Actor using default settings, ready to talk to a canister using its candid interface
  * @constructs {@link ActorSubClass}
  */
-export declare const ekoke-erc20-swap: ActorSubclass<_SERVICE>;
+export declare const ekoke_erc20_swap: ActorSubclass<_SERVICE>;

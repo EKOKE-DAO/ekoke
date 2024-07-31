@@ -10,8 +10,7 @@ export { idlFactory } from "./sns_swap.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_SNS_SWAP ||
-  process.env.SNS_SWAP_CANISTER_ID;
+  process.env.CANISTER_ID_SNS_SWAP;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });

@@ -10,8 +10,7 @@ export { idlFactory } from "./ekoke-reward-pool.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_EKOKE-REWARD-POOL ||
-  process.env.EKOKE-REWARD-POOL_CANISTER_ID;
+  process.env.CANISTER_ID_EKOKE_REWARD_POOL;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +39,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const ekoke-reward-pool = canisterId ? createActor(canisterId) : undefined;
+export const ekoke_reward_pool = canisterId ? createActor(canisterId) : undefined;
