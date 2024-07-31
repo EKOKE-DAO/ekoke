@@ -24,7 +24,7 @@ use dip721_rs::{
     Dip721, GenericValue, Metadata, NftError, Stats, SupportedInterface, TokenIdentifier,
     TokenMetadata, TxEvent,
 };
-use icrc::icrc1::account::Account;
+use icrc::icrc1::account::{Account, Subaccount};
 use icrc::IcrcLedgerClient;
 
 pub use self::inspect::Inspect;
@@ -209,14 +209,19 @@ impl Deferred {
 
         // take buyer's deposit
         if data.deposit.value_icp > 0 {
-            Self::take_buyers_deposit(data.buyers.deposit_account, data.deposit.value_icp).await?;
+            Self::take_buyers_deposit(
+                &next_contract_id,
+                data.buyers.deposit_account,
+                data.deposit.value_icp,
+            )
+            .await?;
         }
 
         // make contract
         let contract = Contract {
+            id: next_contract_id.clone(),
             buyers: data.buyers.principals,
             currency: data.currency,
-            id: next_contract_id.clone(),
             initial_value: data.value,
             properties: data.properties,
             restricted_properties: data.restricted_properties,
@@ -331,10 +336,14 @@ impl Deferred {
     /// 1. Get ICP fee
     /// 2. Check given allowance to the canister
     /// 3. Transfer the deposit to the canister
-    async fn take_buyers_deposit(deposit_account: Account, value: u64) -> DeferredResult<()> {
+    async fn take_buyers_deposit(
+        contract_id: &ID,
+        deposit_account: Account,
+        value: u64,
+    ) -> DeferredResult<()> {
         let icp_ledger_client = IcrcLedgerClient::new(Configuration::get_icp_ledger_canister());
 
-        let canister_account = Self::canister_account();
+        let canister_account = Self::canister_deposit_account(contract_id);
         let icp_ledger_fee = icp_ledger_client
             .icrc1_fee()
             .await
@@ -366,12 +375,7 @@ impl Deferred {
         }
 
         icp_ledger_client
-            .icrc2_transfer_from(
-                canister_account.subaccount,
-                deposit_account,
-                canister_account,
-                value.into(),
-            )
+            .icrc2_transfer_from(None, deposit_account, canister_account, value.into())
             .await
             .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
             .map_err(|err| DeferredError::Token(TokenError::DepositRejected(err)))?;
@@ -379,9 +383,28 @@ impl Deferred {
         Ok(())
     }
 
+    /// Canister subaccount for contract deposit
+    fn contract_deposit_subaccount(contract_id: &ID) -> Subaccount {
+        let contract_id = contract_id.0.to_bytes_be();
+        // if contract id is less than 32 bytes, pad it with zeros
+        let contract_id = if contract_id.len() < 32 {
+            let mut padded = vec![0; 32 - contract_id.len()];
+            padded.extend_from_slice(&contract_id);
+            padded
+        } else {
+            contract_id
+        };
+        let subaccount: Subaccount = contract_id.try_into().expect("invalid contract id");
+
+        subaccount
+    }
+
     /// Canister ICRC account
-    fn canister_account() -> Account {
-        Account::from(utils::id())
+    fn canister_deposit_account(contract_id: &ID) -> Account {
+        Account {
+            owner: utils::id(),
+            subaccount: Some(Self::contract_deposit_subaccount(contract_id)),
+        }
     }
 }
 
@@ -693,9 +716,10 @@ impl Dip721 for Deferred {
 mod test {
 
     use std::time::Duration;
+    use std::u64;
 
     use did::deferred::{Buyers, Deposit, Seller};
-    use pretty_assertions::assert_eq;
+    use pretty_assertions::{assert_eq, assert_ne};
     use test_utils::bob_account;
 
     use self::test_utils::{bob, mock_agency};
@@ -1217,6 +1241,16 @@ mod test {
             Deferred::get_restricted_contract_properties(0_u64.into()).unwrap();
 
         assert_eq!(restricted_properties.len(), 1);
+    }
+
+    #[test]
+    fn test_should_make_subaccount_from_contract_id() {
+        let subaccount_a = Deferred::contract_deposit_subaccount(&ID::from(1u64));
+        let subaccount_b = Deferred::contract_deposit_subaccount(&ID::from(2u64));
+        let subaccount_c = Deferred::contract_deposit_subaccount(&ID::from(u64::MAX));
+
+        assert_ne!(subaccount_a, subaccount_b);
+        assert_ne!(subaccount_a, subaccount_c);
     }
 
     fn init_canister() {
