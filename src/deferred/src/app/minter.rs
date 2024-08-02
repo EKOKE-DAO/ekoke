@@ -10,6 +10,9 @@ use crate::utils::caller;
 pub struct Minter;
 
 impl Minter {
+    /// Mint tokens for a contract
+    ///
+    /// NOTE: Returns vec because hashmap is not ordered
     pub async fn mint(
         contract_id: &ID,
         sellers: Vec<Seller>,
