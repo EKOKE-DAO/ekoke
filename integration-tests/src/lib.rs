@@ -130,13 +130,7 @@ impl TestEnv {
             ekoke_ledger_id,
         );
         Self::install_ekoke_ledger(&pic, ekoke_ledger_id, ekoke_reward_pool_id);
-        Self::install_ekoke_liquidity_pool(
-            &pic,
-            ekoke_liquidity_pool_id,
-            icp_ledger_id,
-            ckbtc_id,
-            xrc_id,
-        );
+        Self::install_ekoke_liquidity_pool(&pic, ekoke_liquidity_pool_id, icp_ledger_id);
         Self::install_ekoke_reward_pool(
             &pic,
             ekoke_reward_pool_id,
@@ -299,18 +293,13 @@ impl TestEnv {
         pic: &PocketIc,
         ekoke_liquidity_pool_id: Principal,
         icp_ledger_canister: Principal,
-        ckbtc_canister: Principal,
-        xrc_canister: Principal,
     ) {
         pic.add_cycles(ekoke_liquidity_pool_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::EkokeLiquidityPool);
 
         let init_arg = EkokeLiquidityPoolInitData {
             admins: vec![actor::admin()],
-            swap_account: actor::swap_account(),
             icp_ledger_canister,
-            ckbtc_canister,
-            xrc_canister,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 

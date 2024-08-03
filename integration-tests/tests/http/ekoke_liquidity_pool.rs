@@ -12,10 +12,6 @@ fn test_http_should_get_liquidity_pool_accounts_and_balance() {
         http_client.http_request("liquidityPoolAccounts", serde_json::json!({}));
 
     assert_eq!(
-        liquidity_pool_accounts.ckbtc.owner,
-        env.ekoke_liquidity_pool_id
-    );
-    assert_eq!(
         liquidity_pool_accounts.icp.owner,
         env.ekoke_liquidity_pool_id
     );
@@ -23,6 +19,5 @@ fn test_http_should_get_liquidity_pool_accounts_and_balance() {
     let liquidity_pool_balance: LiquidityPoolBalance =
         http_client.http_request("liquidityPoolBalance", serde_json::json!({}));
 
-    assert_eq!(liquidity_pool_balance.ckbtc, 0u64);
     assert_eq!(liquidity_pool_balance.icp, 0u64);
 }
