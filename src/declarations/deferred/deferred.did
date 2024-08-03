@@ -35,6 +35,14 @@ type ApproveError = variant {
 };
 type BalanceError = variant { AccountNotFound; InsufficientBalance };
 type Buyers = record { deposit_account : Account; principals : vec principal };
+type CloseContractError = variant {
+  ContractPaid : nat;
+  LiquidityPoolHasNotEnoughIcp : record { available : nat; required : nat };
+  ContractNotFound : nat;
+  ContractNotExpired : nat;
+  RefundInvestors : TransferError;
+  DepositTransferFailed : TransferError;
+};
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;
@@ -84,6 +92,7 @@ type DeferredError = variant {
   Ekoke : EkokeError;
   Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
+  CloseContract : CloseContractError;
   Unauthorized;
   Token : TokenError;
   StorageError;
@@ -93,6 +102,7 @@ type DeferredInitData = record {
   icp_ledger_canister : principal;
   custodians : vec principal;
   ekoke_reward_pool_canister : principal;
+  liquidity_pool_canister : principal;
   marketplace_canister : principal;
 };
 type Deposit = record { value_fiat : nat64; value_icp : nat64 };
@@ -295,9 +305,11 @@ type WithdrawError = variant {
 service : (DeferredInitData) -> {
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
+  admin_set_ekoke_liquidity_pool_canister : (principal) -> ();
   admin_set_ekoke_reward_pool_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();
   admin_set_role : (principal, Role) -> ();
+  close_contract : (nat) -> (Result);
   dip721_approve : (principal, nat) -> (Result_1);
   dip721_balance_of : (principal) -> (Result_1) query;
   dip721_burn : (nat) -> (Result_1);

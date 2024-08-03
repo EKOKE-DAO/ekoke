@@ -44,6 +44,17 @@ export interface Buyers {
   'deposit_account' : Account,
   'principals' : Array<Principal>,
 }
+export type CloseContractError = { 'ContractPaid' : bigint } |
+  {
+    'LiquidityPoolHasNotEnoughIcp' : {
+      'available' : bigint,
+      'required' : bigint,
+    }
+  } |
+  { 'ContractNotFound' : bigint } |
+  { 'ContractNotExpired' : bigint } |
+  { 'RefundInvestors' : TransferError } |
+  { 'DepositTransferFailed' : TransferError };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
@@ -90,6 +101,7 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
   { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
+  { 'CloseContract' : CloseContractError } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
@@ -98,6 +110,7 @@ export interface DeferredInitData {
   'icp_ledger_canister' : Principal,
   'custodians' : Array<Principal>,
   'ekoke_reward_pool_canister' : Principal,
+  'liquidity_pool_canister' : Principal,
   'marketplace_canister' : Principal,
 }
 export interface Deposit { 'value_fiat' : bigint, 'value_icp' : bigint }
@@ -304,9 +317,14 @@ export type WithdrawError = { 'InvalidTransferAmount' : [bigint, number] } |
 export interface _SERVICE {
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
+  'admin_set_ekoke_liquidity_pool_canister' : ActorMethod<
+    [Principal],
+    undefined
+  >,
   'admin_set_ekoke_reward_pool_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_marketplace_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
+  'close_contract' : ActorMethod<[bigint], Result>,
   'dip721_approve' : ActorMethod<[Principal, bigint], Result_1>,
   'dip721_balance_of' : ActorMethod<[Principal], Result_1>,
   'dip721_burn' : ActorMethod<[bigint], Result_1>,

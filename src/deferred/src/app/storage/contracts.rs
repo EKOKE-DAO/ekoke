@@ -464,6 +464,22 @@ impl ContractStorage {
     pub fn total_supply() -> u64 {
         with_tokens(|tokens| tokens.len())
     }
+
+    #[cfg(test)]
+    pub fn mut_token<F>(token_id: &TokenIdentifier, f: F) -> DeferredResult<()>
+    where
+        F: Fn(&mut Token) -> DeferredResult<()>,
+    {
+        with_token_mut(token_id, f)
+    }
+
+    #[cfg(test)]
+    pub fn mut_contract<F>(contract_id: &ID, f: F) -> DeferredResult<()>
+    where
+        F: Fn(&mut Contract) -> DeferredResult<()>,
+    {
+        with_contract_mut(contract_id, f)
+    }
 }
 
 #[cfg(test)]

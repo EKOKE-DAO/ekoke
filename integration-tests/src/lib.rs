@@ -126,6 +126,7 @@ impl TestEnv {
             ekoke_reward_pool_id,
             marketplace_id,
             icp_ledger_id,
+            ekoke_liquidity_pool_id,
         );
         Self::install_xrc(&pic, xrc_id);
         Self::install_ekoke_erc20_swap(
@@ -262,6 +263,7 @@ impl TestEnv {
         ekoke_reward_pool_id: Principal,
         marketplace_id: Principal,
         icp_ledger_canister: Principal,
+        liquidity_pool_id: Principal,
     ) {
         pic.add_cycles(deferred_id, DEFAULT_CYCLES);
         let wasm_bytes = Self::load_wasm(Canister::Deferred);
@@ -270,6 +272,7 @@ impl TestEnv {
             custodians: vec![actor::admin()],
             ekoke_reward_pool_canister: ekoke_reward_pool_id,
             icp_ledger_canister,
+            liquidity_pool_canister: liquidity_pool_id,
             marketplace_canister: marketplace_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();

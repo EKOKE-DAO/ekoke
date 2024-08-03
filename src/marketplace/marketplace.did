@@ -24,6 +24,14 @@ type BuyError = variant {
   CallerAlreadyOwnsToken;
   IcpAllowanceExpired;
 };
+type CloseContractError = variant {
+  ContractPaid : nat;
+  LiquidityPoolHasNotEnoughIcp : record { available : nat; required : nat };
+  ContractNotFound : nat;
+  ContractNotExpired : nat;
+  RefundInvestors : TransferError;
+  DepositTransferFailed : TransferError;
+};
 type ConfigurationError = variant { AdminsCantBeEmpty; AnonymousAdmin };
 type ConfigurationError_1 = variant {
   CustodialsCantBeEmpty;
@@ -34,6 +42,7 @@ type DeferredError = variant {
   Ekoke : EkokeError;
   Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
+  CloseContract : CloseContractError;
   Unauthorized;
   Token : TokenError;
   StorageError;

@@ -20,6 +20,7 @@
     - [update\_restricted\_contract\_property](#update_restricted_contract_property)
     - [get\_restricted\_contract\_properties](#get_restricted_contract_properties)
     - [withdraw\_contract\_deposit](#withdraw_contract_deposit)
+    - [close\_contract](#close_contract)
     - [admin\_set\_ekoke\_reward\_pool\_canister](#admin_set_ekoke_reward_pool_canister)
     - [admin\_set\_marketplace\_canister](#admin_set_marketplace_canister)
     - [admin\_set\_role](#admin_set_role)
@@ -155,6 +156,12 @@ If the all the NFTs have been paid by the buyer, the deferred canister will tran
 The seller will receive only `deposit.value_icp / seller.quota` its part of the deposit.
 
 Each seller must call this method to withdraw their quota of the contract
+
+### close_contract
+
+Update endpoint for the agency to close an expired contract.
+
+All the third party investors are refunded by the liquidity pool with this call, by using the deposit balance. If the deposit balance is not enough, funds from the liquidity pool will be used instead.
 
 ### admin_set_ekoke_reward_pool_canister
 

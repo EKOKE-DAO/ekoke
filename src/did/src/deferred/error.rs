@@ -17,9 +17,11 @@ pub enum DeferredError {
     #[error("token error: {0}")]
     Token(TokenError),
     #[error("withdraw error: {0}")]
-    Withdraw(WithdrawError),
+    Withdraw(#[from] WithdrawError),
+    #[error("close contract error: {0}")]
+    CloseContract(#[from] CloseContractError),
     #[error("configuration error: {0}")]
-    Configuration(ConfigurationError),
+    Configuration(#[from] ConfigurationError),
     #[error("storage error")]
     StorageError,
     #[error("nft error: {0}")]
@@ -98,4 +100,20 @@ pub enum WithdrawError {
     DepositTransferFailed(TransferError),
     #[error("invalid transfer amount: {0} for quota {1}")]
     InvalidTransferAmount(u64, u8),
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum CloseContractError {
+    #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
+    ContractNotFound(ID),
+    #[error("the contract {0} hasn't expired yet")]
+    ContractNotExpired(ID),
+    #[error("the contract {0} is actually completely paid")]
+    ContractPaid(ID),
+    #[error("transfer to liquidity pool failed: {0}")]
+    DepositTransferFailed(TransferError),
+    #[error("refund to investors call failed: {0}")]
+    RefundInvestors(TransferError),
+    #[error("liquidity pool has not enough ICP to refund investors. required: {required}, available: {available}")]
+    LiquidityPoolHasNotEnoughIcp { required: Nat, available: Nat },
 }

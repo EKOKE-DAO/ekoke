@@ -138,8 +138,20 @@ pub async fn withdraw_contract_deposit(
 
 #[update]
 #[candid_method(update)]
+pub async fn close_contract(contract_id: ID) -> DeferredResult<()> {
+    Deferred::close_contract(contract_id).await
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_ekoke_reward_pool_canister(canister_id: Principal) {
     Deferred::admin_set_ekoke_reward_pool_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_ekoke_liquidity_pool_canister(canister_id: Principal) {
+    Deferred::admin_set_ekoke_liquidity_pool_canister(canister_id)
 }
 
 #[update]

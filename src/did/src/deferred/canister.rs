@@ -9,6 +9,7 @@ pub struct DeferredInitData {
     pub custodians: Vec<Principal>,
     pub ekoke_reward_pool_canister: Principal,
     pub icp_ledger_canister: Principal,
+    pub liquidity_pool_canister: Principal,
     pub marketplace_canister: Principal,
 }
 

@@ -4,7 +4,7 @@ use did::ID;
 
 use super::configuration::Configuration;
 use super::storage::ContractStorage;
-use crate::client::{ekoke_client, EkokeClient};
+use crate::client::{ekoke_reward_pool_client, EkokeRewardPoolClient};
 use crate::utils::caller;
 
 pub struct Minter;
@@ -20,9 +20,10 @@ impl Minter {
         contract_value: u64,
     ) -> DeferredResult<(Vec<Token>, Vec<Nat>)> {
         // get reward for contract
-        let ekoke_reward = ekoke_client(Configuration::get_ekoke_reward_pool_canister())
-            .get_contract_reward(contract_id.clone(), installments)
-            .await?;
+        let ekoke_reward =
+            ekoke_reward_pool_client(Configuration::get_ekoke_reward_pool_canister())
+                .get_contract_reward(contract_id.clone(), installments)
+                .await?;
 
         // make tokens
         let mut tokens = Vec::with_capacity(installments as usize);

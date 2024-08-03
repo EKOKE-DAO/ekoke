@@ -4,6 +4,7 @@ export const idlFactory = ({ IDL }) => {
     'icp_ledger_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'ekoke_reward_pool_canister' : IDL.Principal,
+    'liquidity_pool_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   const Continent = IDL.Variant({
@@ -144,6 +145,17 @@ export const idlFactory = ({ IDL }) => {
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
   });
+  const CloseContractError = IDL.Variant({
+    'ContractPaid' : IDL.Nat,
+    'LiquidityPoolHasNotEnoughIcp' : IDL.Record({
+      'available' : IDL.Nat,
+      'required' : IDL.Nat,
+    }),
+    'ContractNotFound' : IDL.Nat,
+    'ContractNotExpired' : IDL.Nat,
+    'RefundInvestors' : TransferError,
+    'DepositTransferFailed' : TransferError,
+  });
   const TokenError = IDL.Variant({
     'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
@@ -178,6 +190,7 @@ export const idlFactory = ({ IDL }) => {
     'Ekoke' : EkokeError,
     'Withdraw' : WithdrawError,
     'Configuration' : ConfigurationError_1,
+    'CloseContract' : CloseContractError,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,
@@ -350,9 +363,15 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
+    'admin_set_ekoke_liquidity_pool_canister' : IDL.Func(
+        [IDL.Principal],
+        [],
+        [],
+      ),
     'admin_set_ekoke_reward_pool_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_marketplace_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_role' : IDL.Func([IDL.Principal, Role], [], []),
+    'close_contract' : IDL.Func([IDL.Nat], [Result], []),
     'dip721_approve' : IDL.Func([IDL.Principal, IDL.Nat], [Result_1], []),
     'dip721_balance_of' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'dip721_burn' : IDL.Func([IDL.Nat], [Result_1], []),
@@ -466,6 +485,7 @@ export const init = ({ IDL }) => {
     'icp_ledger_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'ekoke_reward_pool_canister' : IDL.Principal,
+    'liquidity_pool_canister' : IDL.Principal,
     'marketplace_canister' : IDL.Principal,
   });
   return [DeferredInitData];

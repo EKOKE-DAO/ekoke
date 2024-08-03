@@ -2,6 +2,7 @@
 //!
 //! API for Deferred
 
+mod close_op;
 mod configuration;
 mod inspect;
 mod memory;
@@ -13,11 +14,12 @@ mod test_utils;
 
 use async_trait::async_trait;
 use candid::{Nat, Principal};
+use close_op::CloseOp;
 use configuration::Configuration;
 use did::deferred::{
     Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult,
     RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Role, TokenError,
-    TokenInfo, WithdrawError,
+    TokenInfo,
 };
 use did::ID;
 use dip721_rs::{
@@ -46,6 +48,8 @@ impl Deferred {
         Configuration::set_marketplace_canister(init_data.marketplace_canister)
             .expect("storage error");
         Configuration::set_icp_ledger_canister(init_data.icp_ledger_canister)
+            .expect("storage error");
+        Configuration::set_liquidity_pool_canister(init_data.liquidity_pool_canister)
             .expect("storage error");
     }
 
@@ -279,59 +283,22 @@ impl Deferred {
     ) -> DeferredResult<()> {
         Inspect::inspect_is_seller(caller(), contract_id.clone())?;
 
-        // check if the contract has been paid
-        // get contract
-        let contract = ContractStorage::get_contract(&contract_id).ok_or(
-            DeferredError::Withdraw(WithdrawError::ContractNotFound(contract_id.clone())),
-        )?;
+        CloseOp::withdraw_contract_deposit(contract_id, withdraw_subaccount).await
+    }
 
-        // check if all the tokens are burned (bought by the contract buyer)
-        if contract.tokens.iter().any(|token_id| {
-            ContractStorage::get_token(token_id)
-                .map(|token| !token.is_burned)
-                .unwrap_or_default()
-        }) {
-            return Err(DeferredError::Withdraw(WithdrawError::ContractNotPaid(
-                contract_id,
-            )));
+    /// Close a contract which hasn't been completely paid and is expired.
+    ///
+    /// Only the agency can call this method.
+    ///
+    /// This method will burn all the tokens and will proportionally refund the NFTs owners, except the contract buyer.
+    pub async fn close_contract(contract_id: ID) -> DeferredResult<()> {
+        let inspect_result = Inspect::inspect_is_agent_for_contract(caller(), &contract_id);
+        if inspect_result.is_err() {
+            ic_cdk::trap("Unauthorized");
         }
+        let contract = inspect_result.unwrap();
 
-        // transfer the deposit to the seller
-        let icp_ledger_client = IcrcLedgerClient::new(Configuration::get_icp_ledger_canister());
-        // get fee
-        let icp_fee = icp_ledger_client
-            .icrc1_fee()
-            .await
-            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
-
-        // get seller quota
-        let seller_quota = contract
-            .sellers
-            .iter()
-            .find(|seller| seller.principal == caller())
-            .map(|seller| seller.quota)
-            .unwrap(); // unwrap is safe because the caller is the seller
-
-        let transfer_amount = (contract.deposit.value_icp.checked_mul(seller_quota as u64))
-            .and_then(|value| value.checked_div(100))
-            .map(|value| value - icp_fee)
-            .ok_or(DeferredError::Withdraw(
-                WithdrawError::InvalidTransferAmount(contract.deposit.value_icp, seller_quota),
-            ))?;
-
-        icp_ledger_client
-            .icrc1_transfer(
-                Account {
-                    owner: caller(),
-                    subaccount: withdraw_subaccount,
-                },
-                transfer_amount,
-            )
-            .await
-            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
-            .map_err(|err| DeferredError::Withdraw(WithdrawError::DepositTransferFailed(err)))?;
-
-        Ok(())
+        CloseOp::close_contract(contract).await
     }
 
     /// Update marketplace canister id and update the operator for all the tokens
@@ -346,6 +313,17 @@ impl Deferred {
 
         // update tokens
         if let Err(err) = ContractStorage::update_tokens_operator(canister) {
+            ic_cdk::trap(&err.to_string());
+        }
+    }
+
+    /// Update liquidity pool canister id
+    pub fn admin_set_ekoke_liquidity_pool_canister(canister: Principal) {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        if let Err(err) = Configuration::set_liquidity_pool_canister(canister) {
             ic_cdk::trap(&err.to_string());
         }
     }
@@ -796,6 +774,7 @@ mod test {
             custodians: vec![caller()],
             ekoke_reward_pool_canister: caller(),
             icp_ledger_canister: caller(),
+            liquidity_pool_canister: caller(),
             marketplace_canister: caller(),
         });
 
@@ -1432,6 +1411,7 @@ mod test {
             custodians: vec![caller()],
             icp_ledger_canister: caller(),
             ekoke_reward_pool_canister: caller(),
+            liquidity_pool_canister: caller(),
             marketplace_canister: caller(),
         });
     }

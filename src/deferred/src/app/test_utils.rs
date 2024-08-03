@@ -142,3 +142,11 @@ pub fn bob() -> Principal {
 pub fn bob_account() -> Account {
     Account::from(bob())
 }
+
+pub fn charlie() -> Principal {
+    Principal::from_text("vuwfz-pyaaa-aaaal-ai5da-cai").unwrap()
+}
+
+pub fn dylan() -> Principal {
+    Principal::from_text("vtxdn-caaaa-aaaal-ai5dq-cai").unwrap()
+}

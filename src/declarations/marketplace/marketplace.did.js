@@ -126,6 +126,17 @@ export const idlFactory = ({ IDL }) => {
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
   });
+  const CloseContractError = IDL.Variant({
+    'ContractPaid' : IDL.Nat,
+    'LiquidityPoolHasNotEnoughIcp' : IDL.Record({
+      'available' : IDL.Nat,
+      'required' : IDL.Nat,
+    }),
+    'ContractNotFound' : IDL.Nat,
+    'ContractNotExpired' : IDL.Nat,
+    'RefundInvestors' : TransferError,
+    'DepositTransferFailed' : TransferError,
+  });
   const TokenError = IDL.Variant({
     'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
@@ -160,6 +171,7 @@ export const idlFactory = ({ IDL }) => {
     'Ekoke' : EkokeError,
     'Withdraw' : WithdrawError,
     'Configuration' : ConfigurationError_1,
+    'CloseContract' : CloseContractError,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,

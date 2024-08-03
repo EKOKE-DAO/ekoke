@@ -25,6 +25,17 @@ export type BuyError = { 'TokenHasNoOwner' : null } |
   { 'IcpAllowanceNotEnough' : null } |
   { 'CallerAlreadyOwnsToken' : null } |
   { 'IcpAllowanceExpired' : null };
+export type CloseContractError = { 'ContractPaid' : bigint } |
+  {
+    'LiquidityPoolHasNotEnoughIcp' : {
+      'available' : bigint,
+      'required' : bigint,
+    }
+  } |
+  { 'ContractNotFound' : bigint } |
+  { 'ContractNotExpired' : bigint } |
+  { 'RefundInvestors' : TransferError } |
+  { 'DepositTransferFailed' : TransferError };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
@@ -33,6 +44,7 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
   { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
+  { 'CloseContract' : CloseContractError } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |

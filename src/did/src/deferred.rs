@@ -12,7 +12,9 @@ pub use self::contract::{
     Deposit, GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel,
     Seller, Token, TokenIdentifier, TokenInfo, ID,
 };
-pub use self::error::{ConfigurationError, DeferredError, TokenError, WithdrawError};
+pub use self::error::{
+    CloseContractError, ConfigurationError, DeferredError, TokenError, WithdrawError,
+};
 
 #[cfg(test)]
 mod test {
