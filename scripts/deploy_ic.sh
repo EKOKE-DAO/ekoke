@@ -48,7 +48,8 @@ case "$CANISTER" in
     ;;
   
   "ekoke-liquidity-pool")
-    deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL"
+    DEFERRED_PRINCIPAL=$(get_arg "deferred" "$FALLBACK_CANISTER")
+    deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$DEFERRED_PRINCIPAL" "$ADMIN_PRINCIPAL"
     ;;
 
   "ekoke-reward-pool")

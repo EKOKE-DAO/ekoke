@@ -73,6 +73,20 @@ impl<'a> DeferredClient<'a> {
         res
     }
 
+    pub fn close_contract(&self, caller: Principal, contract_id: ID) -> DeferredResult<()> {
+        let res: DeferredResult<()> = self
+            .env
+            .update(
+                self.env.deferred_id,
+                caller,
+                "close_contract",
+                Encode!(&contract_id).unwrap(),
+            )
+            .unwrap();
+
+        res
+    }
+
     pub fn update_contract_buyers(
         &self,
         caller: Principal,

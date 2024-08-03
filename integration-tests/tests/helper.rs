@@ -13,7 +13,7 @@ pub fn contract_deposit(test_env: &TestEnv, deposit_account: Account, amount: u6
             deposit_account.owner,
             test_env.deferred_id.into(),
             amount,
-            None,
+            deposit_account.subaccount,
         )
         .expect("contract deposit approve failed");
 }

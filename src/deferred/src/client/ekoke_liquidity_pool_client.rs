@@ -16,7 +16,7 @@ pub fn ekoke_liquidity_pool_client(_principal: Principal) -> IcEkokeLiquidityPoo
 
 #[async_trait]
 pub trait EkokeLiquidityPoolClient {
-    /// Get contract reward. Returns $ekoke
+    /// Refund investors
     async fn refund_investors(&self, refunds: HashMap<Principal, Nat>) -> DeferredResult<()>;
 }
 

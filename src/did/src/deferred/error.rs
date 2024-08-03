@@ -16,6 +16,8 @@ pub enum DeferredError {
     Ekoke(#[from] EkokeError),
     #[error("token error: {0}")]
     Token(TokenError),
+    #[error("deposit error: {0}")]
+    Deposit(DepositError),
     #[error("withdraw error: {0}")]
     Withdraw(#[from] WithdrawError),
     #[error("close contract error: {0}")]
@@ -70,12 +72,6 @@ pub enum TokenError {
     ContractHasNoBuyer,
     #[error("the provided deposit account for the buyers is invalid")]
     BadBuyerDepositAccount,
-    #[error("the deposit allowance for the buyer has expired")]
-    DepositAllowanceExpired,
-    #[error("the deposit allowance for the buyer is not enough. Required: {required}, available: {available}")]
-    DepositAllowanceNotEnough { required: Nat, available: Nat },
-    #[error("buyer deposit rejected")]
-    DepositRejected(TransferFromError),
     #[error("in order to close the contract, all the tokens must be owned by the seller")]
     CannotCloseContract,
     #[error("the provided contract seller quota sum is not 100")]
@@ -88,6 +84,16 @@ pub enum ConfigurationError {
     CustodialsCantBeEmpty,
     #[error("the canister custodial cannot be anonymous")]
     AnonymousCustodial,
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum DepositError {
+    #[error("the deposit allowance for the buyer has expired")]
+    AllowanceExpired,
+    #[error("the deposit allowance for the buyer is not enough. Required: {required}, available: {available}")]
+    AllowanceNotEnough { required: Nat, available: Nat },
+    #[error("buyer deposit rejected")]
+    Rejected(TransferFromError),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

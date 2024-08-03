@@ -13,7 +13,7 @@ pub use self::contract::{
     Seller, Token, TokenIdentifier, TokenInfo, ID,
 };
 pub use self::error::{
-    CloseContractError, ConfigurationError, DeferredError, TokenError, WithdrawError,
+    CloseContractError, ConfigurationError, DeferredError, DepositError, TokenError, WithdrawError,
 };
 
 #[cfg(test)]

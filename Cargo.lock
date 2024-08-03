@@ -1549,6 +1549,7 @@ dependencies = [
  "serde_bytes",
  "serde_json",
  "serial_test",
+ "time",
  "tokio",
  "xrc",
 ]

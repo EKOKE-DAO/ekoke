@@ -63,6 +63,7 @@ fn inspect_message_impl() {
         "close_contract" => {
             let id = api::call::arg_data::<(ID,)>(ArgDecoderConfig::default()).0;
             Inspect::inspect_is_agent_for_contract(caller(), &id).is_ok()
+                || Inspect::inspect_is_custodian(caller())
         }
         "withdraw_contract_deposit" => {
             let id = api::call::arg_data::<(ID, Option<Subaccount>)>(ArgDecoderConfig::default()).0;

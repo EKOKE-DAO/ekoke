@@ -8,8 +8,9 @@ use did::ID;
 use icrc::icrc1::account::{Account, Subaccount};
 use icrc::IcrcLedgerClient;
 
-use super::configuration::Configuration;
-use super::storage::ContractStorage;
+use crate::app::configuration::Configuration;
+use crate::app::storage::ContractStorage;
+use crate::app::Deferred;
 use crate::client::{ekoke_liquidity_pool_client, EkokeLiquidityPoolClient};
 use crate::utils;
 
@@ -61,6 +62,8 @@ impl CloseOp {
                 WithdrawError::InvalidTransferAmount(contract.deposit.value_icp, seller_quota),
             ))?;
 
+        let contract_subaccount = Deferred::canister_deposit_account(&contract_id).subaccount;
+
         icp_ledger_client
             .icrc1_transfer(
                 Account {
@@ -68,6 +71,7 @@ impl CloseOp {
                     subaccount: withdraw_subaccount,
                 },
                 transfer_amount,
+                contract_subaccount,
             )
             .await
             .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
@@ -144,13 +148,20 @@ impl CloseOp {
             ));
         }
 
+        // get deposit amount
+        let contract_account = Deferred::canister_deposit_account(&contract_id);
+        let deposited_amount = icp_ledger_client
+            .icrc1_balance_of(contract_account)
+            .await
+            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
         // send deposit to liquidity pool
-        println!("total refund amount: {}", total_refund_amount);
-        let amount_to_liquidity_pool = total_refund_amount - icp_fee;
+        let amount_to_liquidity_pool = deposited_amount - icp_fee;
+
         icp_ledger_client
             .icrc1_transfer(
                 Account::from(liquidity_pool_canister),
                 amount_to_liquidity_pool,
+                contract_account.subaccount,
             )
             .await
             .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
@@ -201,21 +212,25 @@ impl CloseOp {
         value_by_owners: HashMap<Principal, u64>,
         deposit: &Deposit,
     ) -> HashMap<Principal, u64> {
-        let icp_unit_value = Self::icp_unit_value(deposit);
         value_by_owners.into_iter().fold(
             HashMap::<Principal, u64>::new(),
             |mut acc, (owner, value)| {
-                acc.insert(owner, value * icp_unit_value);
+                acc.insert(owner, Self::fiat_to_icp(deposit, value));
                 acc
             },
         )
     }
 
-    /// Calculate the ICP unit value from the deposit.
-    ///
-    /// fiat_value : icp_value = 1 : x
-    fn icp_unit_value(deposit: &Deposit) -> u64 {
-        deposit.value_icp / deposit.value_fiat
+    /// Convert the fiat value to ICP value
+    fn fiat_to_icp(rate: &Deposit, value: u64) -> u64 {
+        // we need to convert the fiat value to ICP value. But ICP value is in e8s
+        // so we need to divide the ICP value by 10^8
+        let amount = value as f64;
+        // get the rate which is in e8s
+        let rate = (rate.value_icp / rate.value_fiat / 100) as f64;
+        const DECIMALS: f64 = 8.0;
+
+        ((amount * 10_f64.powf(DECIMALS) / rate) * 10_f64.powf(DECIMALS)).round() as u64
     }
 
     /// Calculate the required balance for the liquidity pool canister to refund the third parties\
@@ -247,15 +262,15 @@ mod test {
     use crate::app::test_utils::{alice, bob, charlie, dylan, store_mock_contract_with};
 
     #[test]
-    fn test_should_calculate_icp_unit_value() {
+    fn test_should_convert_fiat_to_icp() {
         let deposit = Deposit {
-            value_icp: 100,
+            value_icp: 100 * 100_000_000,
             value_fiat: 10,
         };
 
-        let icp_unit_value = CloseOp::icp_unit_value(&deposit);
-
-        assert_eq!(icp_unit_value, 10);
+        let fiat_amount = 5;
+        let icp_value = CloseOp::fiat_to_icp(&deposit, fiat_amount);
+        assert_eq!(icp_value, 50 * 10u64.pow(8));
     }
 
     #[test]
@@ -352,14 +367,17 @@ mod test {
         value_by_owners.insert(dylan(), 10);
 
         let deposit = Deposit {
-            value_icp: 100,
+            value_icp: 100 * 100_000_000,
             value_fiat: 10,
         };
 
         let refund_amounts = CloseOp::refund_by_owners(value_by_owners, &deposit);
         assert_eq!(refund_amounts.len(), 2);
-        assert_eq!(refund_amounts.get(&charlie()).unwrap(), &200);
-        assert_eq!(refund_amounts.get(&dylan()).unwrap(), &100);
+        assert_eq!(
+            refund_amounts.get(&charlie()).unwrap(),
+            &(200 * 10u64.pow(8))
+        );
+        assert_eq!(refund_amounts.get(&dylan()).unwrap(), &(100 * 10u64.pow(8)));
     }
 
     #[tokio::test]

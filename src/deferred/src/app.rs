@@ -2,11 +2,11 @@
 //!
 //! API for Deferred
 
-mod close_op;
 mod configuration;
 mod inspect;
 mod memory;
 mod minter;
+mod ops;
 mod roles;
 pub mod storage;
 #[cfg(test)]
@@ -14,12 +14,11 @@ mod test_utils;
 
 use async_trait::async_trait;
 use candid::{Nat, Principal};
-use close_op::CloseOp;
 use configuration::Configuration;
 use did::deferred::{
-    Agency, Contract, ContractRegistration, DeferredError, DeferredInitData, DeferredResult,
-    RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Role, TokenError,
-    TokenInfo,
+    Agency, CloseContractError, Contract, ContractRegistration, DeferredError, DeferredInitData,
+    DeferredResult, RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Role,
+    TokenError, TokenInfo,
 };
 use did::ID;
 use dip721_rs::{
@@ -27,7 +26,7 @@ use dip721_rs::{
     TokenMetadata, TxEvent,
 };
 use icrc::icrc1::account::{Account, Subaccount};
-use icrc::IcrcLedgerClient;
+use ops::{CloseOp, DepositOp};
 
 pub use self::inspect::Inspect;
 use self::minter::Minter;
@@ -213,7 +212,7 @@ impl Deferred {
 
         // take buyer's deposit
         if data.deposit.value_icp > 0 {
-            Self::take_buyers_deposit(
+            DepositOp::take_buyers_deposit(
                 &next_contract_id,
                 data.buyers.deposit_account,
                 data.deposit.value_icp,
@@ -292,11 +291,14 @@ impl Deferred {
     ///
     /// This method will burn all the tokens and will proportionally refund the NFTs owners, except the contract buyer.
     pub async fn close_contract(contract_id: ID) -> DeferredResult<()> {
-        let inspect_result = Inspect::inspect_is_agent_for_contract(caller(), &contract_id);
-        if inspect_result.is_err() {
+        if Inspect::inspect_is_agent_for_contract(caller(), &contract_id).is_err()
+            && !Inspect::inspect_is_custodian(caller())
+        {
             ic_cdk::trap("Unauthorized");
         }
-        let contract = inspect_result.unwrap();
+        let contract = ContractStorage::get_contract(&contract_id).ok_or_else(|| {
+            DeferredError::CloseContract(CloseContractError::ContractNotFound(contract_id.clone()))
+        })?;
 
         CloseOp::close_contract(contract).await
     }
@@ -369,58 +371,6 @@ impl Deferred {
         }
 
         RolesManager::remove_role(principal, role)
-    }
-
-    /// Take buyer's deposit
-    ///
-    /// 1. Get ICP fee
-    /// 2. Check given allowance to the canister
-    /// 3. Transfer the deposit to the canister
-    async fn take_buyers_deposit(
-        contract_id: &ID,
-        deposit_account: Account,
-        value: u64,
-    ) -> DeferredResult<()> {
-        let icp_ledger_client = IcrcLedgerClient::new(Configuration::get_icp_ledger_canister());
-
-        let canister_account = Self::canister_deposit_account(contract_id);
-        let icp_ledger_fee = icp_ledger_client
-            .icrc1_fee()
-            .await
-            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
-        let allowance = icp_ledger_client
-            .icrc2_allowance(canister_account, deposit_account)
-            .await
-            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?;
-
-        // check allowance expiration and value
-        if allowance
-            .expires_at
-            .map(|expiration| expiration < utils::time())
-            .unwrap_or_default()
-        {
-            return Err(DeferredError::Token(TokenError::DepositAllowanceExpired));
-        }
-
-        let required_allowance = value + icp_ledger_fee;
-
-        // check if allowance is enough
-        if allowance.allowance < required_allowance {
-            return Err(DeferredError::Token(
-                TokenError::DepositAllowanceNotEnough {
-                    required: required_allowance,
-                    available: allowance.allowance,
-                },
-            ));
-        }
-
-        icp_ledger_client
-            .icrc2_transfer_from(None, deposit_account, canister_account, value.into())
-            .await
-            .map_err(|(code, msg)| DeferredError::CanisterCall(code, msg))?
-            .map_err(|err| DeferredError::Token(TokenError::DepositRejected(err)))?;
-
-        Ok(())
     }
 
     /// Canister subaccount for contract deposit
