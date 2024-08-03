@@ -1,8 +1,6 @@
 //! The liquidity pool provides the access to the internal "deposit-only" pool of liquidity that
 //! backs the value of the Ekoke token.
 
-mod xrc;
-
 use std::cell::RefCell;
 
 use candid::Principal;
