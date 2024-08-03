@@ -83,16 +83,12 @@ deploy_ekoke_liquidity_pool() {
   NETWORK="$2"
   EKOKE_LIQUIDITY_POOL_PRINCIPAL="$3"
   ADMINS="$4"
-  SWAP_ACCOUNT="$5"
 
   echo "deploying ekoke-liquidity-pool canister $EKOKE_LIQUIDITY_POOL_PRINCIPAL"
 
   ekoke_liquidity_pool_init_args="(record {
-    swap_account = $SWAP_ACCOUNT;
     admins = vec { $(for admin in $ADMINS; do echo "principal \"$admin\";"; done) };
-    ckbtc_canister = principal \"mxzaz-hqaaa-aaaar-qaada-cai\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
-    xrc_canister = principal \"uf6dk-hyaaa-aaaaq-qaaaq-cai\";
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_liquidity_pool_init_args" ekoke-liquidity-pool

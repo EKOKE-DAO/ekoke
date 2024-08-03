@@ -42,9 +42,6 @@ type EkokeError = variant {
 };
 type EkokeLiquidityPoolInitData = record {
   icp_ledger_canister : principal;
-  ckbtc_canister : principal;
-  swap_account : Account;
-  xrc_canister : principal;
   admins : vec principal;
 };
 type HttpRequest = record {
@@ -59,8 +56,8 @@ type HttpResponse = record {
   upgrade : opt bool;
   status_code : nat16;
 };
-type LiquidityPoolAccounts = record { icp : Account; ckbtc : Account };
-type LiquidityPoolBalance = record { icp : nat; ckbtc : nat };
+type LiquidityPoolAccounts = record { icp : Account };
+type LiquidityPoolBalance = record { icp : nat };
 type PoolError = variant { PoolNotFound : nat; NotEnoughTokens };
 type RegisterError = variant { TransactionNotFound };
 type RejectionCode = variant {
@@ -97,10 +94,7 @@ type TransferFromError = variant {
 service : (EkokeLiquidityPoolInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_set_admins : (vec principal) -> ();
-  admin_set_ckbtc_canister : (principal) -> ();
   admin_set_icp_ledger_canister : (principal) -> ();
-  admin_set_swap_account : (Account) -> ();
-  admin_set_xrc_canister : (principal) -> ();
   http_request : (HttpRequest) -> (HttpResponse) query;
   liquidity_pool_accounts : () -> (LiquidityPoolAccounts) query;
   liquidity_pool_balance : () -> (Result) query;

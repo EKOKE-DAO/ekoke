@@ -30,7 +30,6 @@ icrc = { path = "../icrc" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

@@ -1,13 +1,6 @@
 export const idlFactory = ({ IDL }) => {
-  const Account = IDL.Record({
-    'owner' : IDL.Principal,
-    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-  });
   const EkokeLiquidityPoolInitData = IDL.Record({
     'icp_ledger_canister' : IDL.Principal,
-    'ckbtc_canister' : IDL.Principal,
-    'swap_account' : Account,
-    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   const HttpRequest = IDL.Record({
@@ -22,14 +15,12 @@ export const idlFactory = ({ IDL }) => {
     'upgrade' : IDL.Opt(IDL.Bool),
     'status_code' : IDL.Nat16,
   });
-  const LiquidityPoolAccounts = IDL.Record({
-    'icp' : Account,
-    'ckbtc' : Account,
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
-  const LiquidityPoolBalance = IDL.Record({
-    'icp' : IDL.Nat,
-    'ckbtc' : IDL.Nat,
-  });
+  const LiquidityPoolAccounts = IDL.Record({ 'icp' : Account });
+  const LiquidityPoolBalance = IDL.Record({ 'icp' : IDL.Nat });
   const ConfigurationError = IDL.Variant({
     'AdminsCantBeEmpty' : IDL.Null,
     'AnonymousAdmin' : IDL.Null,
@@ -128,10 +119,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
-    'admin_set_ckbtc_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
-    'admin_set_swap_account' : IDL.Func([Account], [], []),
-    'admin_set_xrc_canister' : IDL.Func([IDL.Principal], [], []),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'liquidity_pool_accounts' : IDL.Func(
         [],
@@ -142,15 +130,8 @@ export const idlFactory = ({ IDL }) => {
   });
 };
 export const init = ({ IDL }) => {
-  const Account = IDL.Record({
-    'owner' : IDL.Principal,
-    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-  });
   const EkokeLiquidityPoolInitData = IDL.Record({
     'icp_ledger_canister' : IDL.Principal,
-    'ckbtc_canister' : IDL.Principal,
-    'swap_account' : Account,
-    'xrc_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
   return [EkokeLiquidityPoolInitData];

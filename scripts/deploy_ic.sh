@@ -6,7 +6,6 @@ source ./deploy_functions.sh
 source ./did.sh
 
 ADMIN_PRINCIPAL="$(dfx identity get-principal)"
-SWAP_ACCOUNT="$(account "$ADMIN_PRINCIPAL")"
 ERC20_BRIDGE_ADDRESS="0xc08e14F47382BCc1dA6c3Ff366018cAb1c77091F"
 ERC20_SWAP_FEE="231634000000000"
 ERC20_NETWORK="Ethereum"
@@ -48,7 +47,7 @@ case "$CANISTER" in
     ;;
   
   "ekoke-liquidity-pool")
-    deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL" "$SWAP_ACCOUNT"
+    deploy_ekoke_liquidity_pool "reinstall" "ic" "$EKOKE_LIQUIDITY_POOL_PRINCIPAL" "$ADMIN_PRINCIPAL"
     ;;
 
   "ekoke-reward-pool")
