@@ -13,19 +13,13 @@ use did::ekoke::EkokeResult;
 use did::ekoke_liquidity_pool::{
     EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance,
 };
-use ic_cdk_macros::{init, post_upgrade, query, update};
-use icrc::icrc1::account::Account;
+use ic_cdk_macros::{init, query, update};
 
 use self::app::EkokeLiquidityPoolCanister;
 
 #[init]
 pub fn init(data: EkokeLiquidityPoolInitData) {
     EkokeLiquidityPoolCanister::init(data);
-}
-
-#[post_upgrade]
-pub fn post_upgrade() {
-    EkokeLiquidityPoolCanister::post_upgrade();
 }
 
 #[query]
@@ -48,18 +42,6 @@ pub fn admin_cycles() -> Nat {
 
 #[update]
 #[candid_method(update)]
-pub fn admin_set_swap_account(account: Account) {
-    EkokeLiquidityPoolCanister::admin_set_swap_account(account)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_ckbtc_canister(canister_id: Principal) {
-    EkokeLiquidityPoolCanister::admin_set_ckbtc_canister(canister_id)
-}
-
-#[update]
-#[candid_method(update)]
 pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
     EkokeLiquidityPoolCanister::admin_set_icp_ledger_canister(canister_id)
 }
@@ -68,12 +50,6 @@ pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
 #[candid_method(update)]
 pub fn admin_set_admins(admins: Vec<Principal>) {
     EkokeLiquidityPoolCanister::admin_set_admins(admins)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_set_xrc_canister(canister_id: Principal) {
-    EkokeLiquidityPoolCanister::admin_set_xrc_canister(canister_id)
 }
 
 // HTTP endpoint

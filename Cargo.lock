@@ -718,7 +718,6 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
- "xrc",
 ]
 
 [[package]]

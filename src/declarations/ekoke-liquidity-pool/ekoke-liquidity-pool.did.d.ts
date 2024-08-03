@@ -45,9 +45,6 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Ecdsa' : EcdsaError };
 export interface EkokeLiquidityPoolInitData {
   'icp_ledger_canister' : Principal,
-  'ckbtc_canister' : Principal,
-  'swap_account' : Account,
-  'xrc_canister' : Principal,
   'admins' : Array<Principal>,
 }
 export interface HttpRequest {
@@ -62,8 +59,8 @@ export interface HttpResponse {
   'upgrade' : [] | [boolean],
   'status_code' : number,
 }
-export interface LiquidityPoolAccounts { 'icp' : Account, 'ckbtc' : Account }
-export interface LiquidityPoolBalance { 'icp' : bigint, 'ckbtc' : bigint }
+export interface LiquidityPoolAccounts { 'icp' : Account }
+export interface LiquidityPoolBalance { 'icp' : bigint }
 export type PoolError = { 'PoolNotFound' : bigint } |
   { 'NotEnoughTokens' : null };
 export type RegisterError = { 'TransactionNotFound' : null };
@@ -100,10 +97,7 @@ export type TransferFromError = {
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], undefined>,
-  'admin_set_ckbtc_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
-  'admin_set_swap_account' : ActorMethod<[Account], undefined>,
-  'admin_set_xrc_canister' : ActorMethod<[Principal], undefined>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
   'liquidity_pool_balance' : ActorMethod<[], Result>,

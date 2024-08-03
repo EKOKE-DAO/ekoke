@@ -28,10 +28,6 @@ impl EkokeLiquidityPoolClient {
                     owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
                     subaccount: None,
                 },
-                ckbtc: icrc::icrc1::account::Account {
-                    owner: Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap(),
-                    subaccount: None,
-                },
             })
         }
         #[cfg(target_arch = "wasm32")]
