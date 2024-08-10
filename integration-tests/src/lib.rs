@@ -284,6 +284,7 @@ impl TestEnv {
         let wasm_bytes = Self::load_wasm(Canister::Deferred);
 
         let init_arg = DeferredInitData {
+            allowed_currencies: vec!["USD".to_string(), "EUR".to_string()],
             custodians: vec![actor::admin()],
             ekoke_reward_pool_canister: ekoke_reward_pool_id,
             icp_ledger_canister,

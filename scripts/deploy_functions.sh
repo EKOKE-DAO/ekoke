@@ -14,6 +14,7 @@ deploy_deferred() {\
   echo "deploying deferred canister $DEFERRED_PRINCIPAL"
 
   deferred_init_args="(record {
+    allowed_currencies = vec { \"USD\"; \"EUR\"; \"GBP\"; \"CHF\"; \"JPY\"; \"CNY\"; };
     ekoke_reward_pool_canister = principal \"$EKOKE_REWARD_POOL_PRINCIPAL\";
     icp_ledger_canister = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\";
     liquidity_pool_canister = principal \"$EKOKE_LIQUIDITY_POOL_PRINCIPAL\";

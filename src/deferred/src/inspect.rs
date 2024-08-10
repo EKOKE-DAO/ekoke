@@ -49,16 +49,7 @@ fn inspect_message_impl() {
         "register_contract" => {
             let data =
                 api::call::arg_data::<(ContractRegistration,)>(ArgDecoderConfig::default()).0;
-            Inspect::inspect_register_contract(
-                caller(),
-                data.value,
-                &data.deposit,
-                &data.sellers,
-                &data.buyers,
-                data.installments,
-                &data.expiration,
-            )
-            .is_ok()
+            Inspect::inspect_register_contract(caller(), &data).is_ok()
         }
         "close_contract" => {
             let id = api::call::arg_data::<(ID,)>(ArgDecoderConfig::default()).0;

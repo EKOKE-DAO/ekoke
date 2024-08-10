@@ -76,6 +76,8 @@ pub enum TokenError {
     CannotCloseContract,
     #[error("the provided contract seller quota sum is not 100")]
     ContractSellerQuotaIsNot100,
+    #[error("currency {0} is not allowed for contracts")]
+    CurrencyNotAllowed(String),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

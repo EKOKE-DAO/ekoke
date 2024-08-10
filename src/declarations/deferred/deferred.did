@@ -100,6 +100,7 @@ type DeferredError = variant {
   CanisterCall : record { RejectionCode; text };
 };
 type DeferredInitData = record {
+  allowed_currencies : vec text;
   icp_ledger_canister : principal;
   custodians : vec principal;
   ekoke_reward_pool_canister : principal;
@@ -234,6 +235,7 @@ type Token = record {
   minted_by : principal;
 };
 type TokenError = variant {
+  CurrencyNotAllowed : text;
   ContractAlreadySigned : nat;
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;

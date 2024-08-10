@@ -15,6 +15,7 @@ pub const EKOKE_REWARD_POOL_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(25);
 pub const MARKETPLACE_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(26);
 pub const ICP_LEDGER_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(27);
 pub const LIQUIDITY_POOL_CANISTER_MEMORY_ID: MemoryId = MemoryId::new(28);
+pub const ALLOWED_CURRENCIES_MEMORY_ID: MemoryId = MemoryId::new(29);
 
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(30);
 

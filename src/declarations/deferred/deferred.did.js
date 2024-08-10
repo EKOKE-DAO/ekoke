@@ -1,6 +1,7 @@
 export const idlFactory = ({ IDL }) => {
   const GenericValue = IDL.Rec();
   const DeferredInitData = IDL.Record({
+    'allowed_currencies' : IDL.Vec(IDL.Text),
     'icp_ledger_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'ekoke_reward_pool_canister' : IDL.Principal,
@@ -165,6 +166,7 @@ export const idlFactory = ({ IDL }) => {
     'DepositTransferFailed' : TransferError,
   });
   const TokenError = IDL.Variant({
+    'CurrencyNotAllowed' : IDL.Text,
     'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
     'TokenAlreadyExists' : IDL.Nat,
@@ -485,6 +487,7 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   const DeferredInitData = IDL.Record({
+    'allowed_currencies' : IDL.Vec(IDL.Text),
     'icp_ledger_canister' : IDL.Principal,
     'custodians' : IDL.Vec(IDL.Principal),
     'ekoke_reward_pool_canister' : IDL.Principal,

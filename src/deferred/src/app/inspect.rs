@@ -4,11 +4,12 @@
 
 use candid::{Nat, Principal};
 use did::deferred::{
-    Buyers, Contract, DeferredError, DeferredResult, Deposit, Seller, Token, TokenError,
+    Contract, ContractRegistration, DeferredError, DeferredResult, Token, TokenError,
 };
 use did::ID;
 use dip721_rs::NftError;
 
+use super::configuration::Configuration;
 use super::roles::RolesManager;
 use super::storage::{Agents, ContractStorage};
 
@@ -162,29 +163,27 @@ impl Inspect {
     /// - value must be multiple of installments
     /// - must have sellers
     /// - cannot be expired
+    /// - currency must be allowed
     pub fn inspect_register_contract(
         caller: Principal,
-        value: u64,
-        deposit: &Deposit,
-        sellers: &[Seller],
-        buyers: &Buyers,
-        installments: u64,
-        expiration: &str,
+        data: &ContractRegistration,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
         }
 
-        if sellers.is_empty()
-            || sellers
+        if data.sellers.is_empty()
+            || data
+                .sellers
                 .iter()
                 .any(|seller| seller.principal == Principal::anonymous())
         {
             return Err(DeferredError::Token(TokenError::ContractHasNoSeller));
         }
 
-        if buyers.principals.is_empty()
-            || buyers
+        if data.buyers.principals.is_empty()
+            || data
+                .buyers
                 .principals
                 .iter()
                 .any(|buyer| buyer == &Principal::anonymous())
@@ -192,25 +191,25 @@ impl Inspect {
             return Err(DeferredError::Token(TokenError::ContractHasNoBuyer));
         }
 
-        if buyers.deposit_account.owner == Principal::anonymous() {
+        if data.buyers.deposit_account.owner == Principal::anonymous() {
             return Err(DeferredError::Token(TokenError::BadBuyerDepositAccount));
         }
 
-        if value < deposit.value_fiat {
+        if data.value < data.deposit.value_fiat {
             return Err(DeferredError::Token(
                 TokenError::ContractValueIsLessThanDeposit,
             ));
         }
-        let installments_value = value - deposit.value_fiat;
+        let installments_value = data.value - data.deposit.value_fiat;
 
         // verify value must be multiple of installments
-        if installments_value % installments != 0 {
+        if installments_value % data.installments != 0 {
             return Err(DeferredError::Token(
                 TokenError::ContractValueIsNotMultipleOfInstallments,
             ));
         }
 
-        let total_quota = sellers.iter().map(|seller| seller.quota).sum::<u8>();
+        let total_quota = data.sellers.iter().map(|seller| seller.quota).sum::<u8>();
         if total_quota != 100 {
             return Err(DeferredError::Token(
                 TokenError::ContractSellerQuotaIsNot100,
@@ -219,7 +218,7 @@ impl Inspect {
 
         // verify expiration date
         let format = time::macros::format_description!("[year]-[month]-[day]");
-        match time::Date::parse(expiration, format) {
+        match time::Date::parse(&data.expiration, format) {
             Ok(expiration) => {
                 if expiration < crate::utils::date() {
                     return Err(DeferredError::Token(TokenError::BadContractExpiration));
@@ -228,6 +227,14 @@ impl Inspect {
             Err(_) => {
                 return Err(DeferredError::Token(TokenError::BadContractExpiration));
             }
+        }
+
+        // verify currency
+        let allowed_currencies = Configuration::get_allowed_currencies();
+        if !allowed_currencies.contains(&data.currency) {
+            return Err(DeferredError::Token(TokenError::CurrencyNotAllowed(
+                data.currency.clone(),
+            )));
         }
 
         Ok(())
@@ -279,8 +286,7 @@ impl Inspect {
 #[cfg(test)]
 mod test {
 
-    use did::deferred::{Role, Seller};
-    use icrc::icrc1::account::Account;
+    use did::deferred::{Buyers, Deposit, Role, Seller};
     use pretty_assertions::assert_eq;
 
     use super::*;
@@ -548,347 +554,424 @@ mod test {
     #[test]
     fn test_should_inspect_contract_register_caller_is_not_custodian() {
         // caller is not custodian
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         assert!(RolesManager::set_custodians(vec![crate::utils::caller()]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_value_is_not_multiple_of_installments() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            110,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 10,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 110,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 10,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_caller_is_not_agent() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         // caller is not agent
         let caller = Principal::from_text("aaaaa-aa").unwrap();
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_custodian() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_ok());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_seller_is_anonymous() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::anonymous(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::anonymous(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_sellers_is_empty() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_value_is_less_than_deposit() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 200,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 200,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_buyer_is_anonymous() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![Principal::anonymous()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![Principal::anonymous()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_buyers_is_empty() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_buyer_deposit_account_is_invalid() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: Account::from(Principal::anonymous()),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: Principal::anonymous().into(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_quota_is_not_100() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         RolesManager::give_role(caller, Role::Agent);
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[
-                Seller {
-                    principal: Principal::management_canister(),
-                    quota: 20,
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
                 },
-                Seller {
-                    principal: caller,
-                    quota: 40,
-                }
-            ],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+                sellers: vec![
+                    Seller {
+                        principal: Principal::management_canister(),
+                        quota: 20,
+                    },
+                    Seller {
+                        principal: caller,
+                        quota: 40,
+                    }
+                ],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_agent() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         RolesManager::give_role(caller, Role::Agent);
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
         .is_ok());
     }
 
     #[test]
     fn test_should_inspect_contract_register_if_expired() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
         let caller = crate::utils::caller();
         RolesManager::give_role(caller, Role::Agent);
+
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2078-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2018-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
         )
-        .is_ok());
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_invalid_currency() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
         assert!(Inspect::inspect_register_contract(
             caller,
-            100,
-            &Deposit {
-                value_fiat: 25,
-                value_icp: 25,
-            },
-            &[Seller {
-                principal: Principal::management_canister(),
-                quota: 100,
-            }],
-            &Buyers {
-                principals: vec![bob()],
-                deposit_account: bob_account(),
-            },
-            25,
-            "2018-01-01",
+            &ContractRegistration {
+                value: 100,
+                deposit: Deposit {
+                    value_fiat: 25,
+                    value_icp: 25,
+                },
+                sellers: vec![Seller {
+                    principal: Principal::management_canister(),
+                    quota: 100,
+                }],
+                buyers: Buyers {
+                    principals: vec![bob()],
+                    deposit_account: bob_account(),
+                },
+                installments: 25,
+                expiration: "2078-01-01".to_string(),
+                currency: "EUR".to_string(),
+                ..Default::default()
+            }
         )
         .is_err());
     }

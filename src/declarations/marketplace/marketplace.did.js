@@ -146,6 +146,7 @@ export const idlFactory = ({ IDL }) => {
     'DepositTransferFailed' : TransferError,
   });
   const TokenError = IDL.Variant({
+    'CurrencyNotAllowed' : IDL.Text,
     'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
     'TokenAlreadyExists' : IDL.Nat,

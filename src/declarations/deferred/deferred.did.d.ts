@@ -108,6 +108,7 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
 export interface DeferredInitData {
+  'allowed_currencies' : Array<string>,
   'icp_ledger_canister' : Principal,
   'custodians' : Array<Principal>,
   'ekoke_reward_pool_canister' : Principal,
@@ -245,7 +246,8 @@ export interface Token {
   'minted_at' : bigint,
   'minted_by' : Principal,
 }
-export type TokenError = { 'ContractAlreadySigned' : bigint } |
+export type TokenError = { 'CurrencyNotAllowed' : string } |
+  { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
   { 'BadBuyerDepositAccount' : null } |

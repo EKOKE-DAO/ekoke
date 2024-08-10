@@ -1,15 +1,20 @@
+mod currency;
+
 use std::cell::RefCell;
+use std::str::FromStr as _;
 
 use candid::Principal;
 use did::deferred::{DeferredError, DeferredResult};
 use did::StorablePrincipal;
 use ic_stable_structures::memory_manager::VirtualMemory;
-use ic_stable_structures::{DefaultMemoryImpl, StableCell};
+use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
 
+use self::currency::Currency;
 use crate::app::memory::{
-    CREATED_AT_MEMORY_ID, EKOKE_REWARD_POOL_CANISTER_MEMORY_ID, ICP_LEDGER_CANISTER_MEMORY_ID,
-    LIQUIDITY_POOL_CANISTER_MEMORY_ID, LOGO_MEMORY_ID, MARKETPLACE_CANISTER_MEMORY_ID,
-    MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID, UPGRADED_AT_MEMORY_ID,
+    ALLOWED_CURRENCIES_MEMORY_ID, CREATED_AT_MEMORY_ID, EKOKE_REWARD_POOL_CANISTER_MEMORY_ID,
+    ICP_LEDGER_CANISTER_MEMORY_ID, LIQUIDITY_POOL_CANISTER_MEMORY_ID, LOGO_MEMORY_ID,
+    MARKETPLACE_CANISTER_MEMORY_ID, MEMORY_MANAGER, NAME_MEMORY_ID, SYMBOL_MEMORY_ID,
+    UPGRADED_AT_MEMORY_ID,
 };
 use crate::constants::{DEFAULT_LOGO, DEFAULT_NAME, DEFAULT_SYMBOL};
 
@@ -57,6 +62,11 @@ thread_local! {
     /// Contract last upgrade timestamp
     static UPGRADED_AT: RefCell<StableCell<Option<u64>, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(UPGRADED_AT_MEMORY_ID)), None).unwrap()
+    );
+
+    /// Allowed currencies
+    static ALLOWED_CURRENCIES: RefCell<StableVec<Currency, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableVec::new(MEMORY_MANAGER.with(|mm| mm.get(ALLOWED_CURRENCIES_MEMORY_ID))).unwrap()
     );
 
 }
@@ -163,6 +173,31 @@ impl Configuration {
     pub fn get_liquidity_pool_canister() -> Principal {
         LIQUIDITY_POOL_CANISTER.with_borrow(|cell| *cell.get().as_principal())
     }
+
+    /// Set allowed currencies
+    pub fn set_allowed_currencies(currencies: Vec<String>) {
+        let currencies = currencies
+            .iter()
+            .map(|currency| Currency::from_str(currency).expect("Invalid currency"))
+            .collect::<Vec<Currency>>();
+
+        ALLOWED_CURRENCIES.with_borrow_mut(|cell| {
+            let items = cell.len();
+            for _ in 0..items {
+                cell.pop();
+            }
+
+            for currency in currencies {
+                cell.push(&currency).expect("Failed to push currency");
+            }
+        })
+    }
+
+    /// Get allowed currencies
+    pub fn get_allowed_currencies() -> Vec<String> {
+        ALLOWED_CURRENCIES
+            .with_borrow(|cell| cell.iter().map(|currency| currency.to_string()).collect())
+    }
 }
 
 #[cfg(test)]
@@ -262,5 +297,13 @@ mod test {
         );
         assert!(Configuration::set_liquidity_pool_canister(principal).is_ok());
         assert_eq!(Configuration::get_liquidity_pool_canister(), principal);
+    }
+
+    #[test]
+    fn test_should_set_and_get_allowed_currencies() {
+        assert!(Configuration::get_allowed_currencies().is_empty());
+        let currencies = vec!["USD".to_string(), "EUR".to_string(), "GBP".to_string()];
+        Configuration::set_allowed_currencies(currencies.clone());
+        assert_eq!(Configuration::get_allowed_currencies(), currencies);
     }
 }

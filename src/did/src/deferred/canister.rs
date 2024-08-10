@@ -6,6 +6,7 @@ use ic_stable_structures::Storable;
 /// These are the arguments which are taken by the sell contract canister on init
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct DeferredInitData {
+    pub allowed_currencies: Vec<String>,
     pub custodians: Vec<Principal>,
     pub ekoke_reward_pool_canister: Principal,
     pub icp_ledger_canister: Principal,

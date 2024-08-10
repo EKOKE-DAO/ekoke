@@ -50,6 +50,7 @@ impl Deferred {
             .expect("storage error");
         Configuration::set_liquidity_pool_canister(init_data.liquidity_pool_canister)
             .expect("storage error");
+        Configuration::set_allowed_currencies(init_data.allowed_currencies);
     }
 
     /// Task to execute on post upgrade
@@ -198,15 +199,7 @@ impl Deferred {
     ///
     /// Returns the contract id
     pub async fn register_contract(data: ContractRegistration) -> DeferredResult<ID> {
-        Inspect::inspect_register_contract(
-            caller(),
-            data.value,
-            &data.deposit,
-            &data.sellers,
-            &data.buyers,
-            data.installments,
-            &data.expiration,
-        )?;
+        Inspect::inspect_register_contract(caller(), &data)?;
 
         let next_contract_id = ContractStorage::next_contract_id();
 
@@ -317,6 +310,15 @@ impl Deferred {
         if let Err(err) = ContractStorage::update_tokens_operator(canister) {
             ic_cdk::trap(&err.to_string());
         }
+    }
+
+    /// Update allowed currencies
+    pub fn admin_set_allowed_currencies(currencies: Vec<String>) {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        Configuration::set_allowed_currencies(currencies);
     }
 
     /// Update liquidity pool canister id
@@ -721,6 +723,7 @@ mod test {
     #[test]
     fn test_should_init_canister() {
         Deferred::init(DeferredInitData {
+            allowed_currencies: vec!["USD".to_string(), "EUR".to_string()],
             custodians: vec![caller()],
             ekoke_reward_pool_canister: caller(),
             icp_ledger_canister: caller(),
@@ -1356,8 +1359,17 @@ mod test {
         assert_ne!(subaccount_a, subaccount_c);
     }
 
+    #[test]
+    fn test_should_update_allowed_currencies() {
+        init_canister();
+        let currencies = vec!["USD".to_string(), "EUR".to_string(), "GBP".to_string()];
+        Deferred::admin_set_allowed_currencies(currencies.clone());
+        assert_eq!(Configuration::get_allowed_currencies(), currencies);
+    }
+
     fn init_canister() {
         Deferred::init(DeferredInitData {
+            allowed_currencies: vec!["USD".to_string(), "EUR".to_string()],
             custodians: vec![caller()],
             icp_ledger_canister: caller(),
             ekoke_reward_pool_canister: caller(),

@@ -161,3 +161,26 @@ pub struct ContractRegistration {
     pub properties: ContractProperties,
     pub restricted_properties: RestrictedContractProperties,
 }
+
+impl Default for ContractRegistration {
+    fn default() -> Self {
+        Self {
+            r#type: ContractType::Sell,
+            sellers: Vec::new(),
+            buyers: Buyers {
+                principals: Vec::new(),
+                deposit_account: Account::from(Principal::anonymous()),
+            },
+            value: 0,
+            currency: String::new(),
+            deposit: Deposit {
+                value_fiat: 0,
+                value_icp: 0,
+            },
+            installments: 1,
+            expiration: "1970-01-01".to_string(),
+            properties: Vec::new(),
+            restricted_properties: Vec::new(),
+        }
+    }
+}

@@ -121,6 +121,7 @@ type RejectionCode = variant {
 type Result = variant { Ok; Err : MarketplaceError };
 type Result_1 = variant { Ok : nat64; Err : MarketplaceError };
 type TokenError = variant {
+  CurrencyNotAllowed : text;
   ContractAlreadySigned : nat;
   ContractValueIsNotMultipleOfInstallments;
   TokenAlreadyExists : nat;

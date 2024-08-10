@@ -112,7 +112,8 @@ export type Result = { 'Ok' : null } |
   { 'Err' : MarketplaceError };
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : MarketplaceError };
-export type TokenError = { 'ContractAlreadySigned' : bigint } |
+export type TokenError = { 'CurrencyNotAllowed' : string } |
+  { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
   { 'BadBuyerDepositAccount' : null } |
