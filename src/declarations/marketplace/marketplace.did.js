@@ -116,14 +116,40 @@ export const idlFactory = ({ IDL }) => {
     'Icrc2Transfer' : TransferFromError,
     'Ecdsa' : EcdsaError,
   });
+  const WithdrawError = IDL.Variant({
+    'InvalidTransferAmount' : IDL.Tuple(IDL.Nat64, IDL.Nat8),
+    'ContractNotFound' : IDL.Nat,
+    'DepositTransferFailed' : TransferError,
+    'ContractNotPaid' : IDL.Nat,
+  });
   const ConfigurationError_1 = IDL.Variant({
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
+  });
+  const DepositError = IDL.Variant({
+    'Rejected' : TransferFromError,
+    'AllowanceNotEnough' : IDL.Record({
+      'available' : IDL.Nat,
+      'required' : IDL.Nat,
+    }),
+    'AllowanceExpired' : IDL.Null,
+  });
+  const CloseContractError = IDL.Variant({
+    'ContractPaid' : IDL.Nat,
+    'LiquidityPoolHasNotEnoughIcp' : IDL.Record({
+      'available' : IDL.Nat,
+      'required' : IDL.Nat,
+    }),
+    'ContractNotFound' : IDL.Nat,
+    'ContractNotExpired' : IDL.Nat,
+    'RefundInvestors' : TransferError,
+    'DepositTransferFailed' : TransferError,
   });
   const TokenError = IDL.Variant({
     'ContractAlreadySigned' : IDL.Nat,
     'ContractValueIsNotMultipleOfInstallments' : IDL.Null,
     'TokenAlreadyExists' : IDL.Nat,
+    'BadBuyerDepositAccount' : IDL.Null,
     'TokensMismatch' : IDL.Null,
     'ContractAlreadyExists' : IDL.Nat,
     'ContractTokensShouldBeEmpty' : IDL.Null,
@@ -132,8 +158,10 @@ export const idlFactory = ({ IDL }) => {
     'ContractSellerQuotaIsNot100' : IDL.Null,
     'ContractNotFound' : IDL.Nat,
     'CannotCloseContract' : IDL.Null,
+    'ContractValueIsLessThanDeposit' : IDL.Null,
     'ContractNotSigned' : IDL.Nat,
     'ContractHasNoSeller' : IDL.Null,
+    'ContractHasNoBuyer' : IDL.Null,
     'BadContractExpiration' : IDL.Null,
     'ContractHasNoTokens' : IDL.Null,
     'TokenIsBurned' : IDL.Nat,
@@ -143,7 +171,10 @@ export const idlFactory = ({ IDL }) => {
   const DeferredError = IDL.Variant({
     'Nft' : NftError,
     'Ekoke' : EkokeError,
+    'Withdraw' : WithdrawError,
     'Configuration' : ConfigurationError_1,
+    'Deposit' : DepositError,
+    'CloseContract' : CloseContractError,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,
     'StorageError' : IDL.Null,

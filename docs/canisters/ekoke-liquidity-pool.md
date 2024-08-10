@@ -4,6 +4,7 @@
   - [Introduction](#introduction)
   - [Refund to investors](#refund-to-investors)
   - [API](#api)
+    - [withdraw\_refund](#withdraw_refund)
   - [HTTP API](#http-api)
     - [Request protocol](#request-protocol)
     - [Request Body](#request-body)
@@ -26,6 +27,12 @@ In case a contract fails to be paid, the liquidity pool receives the initial dep
 ## API
 
 See full [DID](../../src/ekoke_liquidity_pool/ekoke-liquidity-pool.did)
+
+### withdraw_refund
+
+In case a user was a third party investor in a deferred contract and the buyer fails to pay the installments, the contracts get closed by the agent.
+
+After the contract has been closed, each investor can call the method `withdraw_refund` to withdraw the refund ICP tokens from the liquidity pool providing the subaccount they want to receive the icp tokens to.
 
 ## HTTP API
 

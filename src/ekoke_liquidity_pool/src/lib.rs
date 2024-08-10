@@ -8,12 +8,15 @@ mod http;
 mod inspect;
 mod utils;
 
+use std::collections::HashMap;
+
 use candid::{candid_method, Nat, Principal};
 use did::ekoke::EkokeResult;
 use did::ekoke_liquidity_pool::{
-    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance,
+    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance, WithdrawError,
 };
 use ic_cdk_macros::{init, query, update};
+use icrc::icrc1::account::Subaccount;
 
 use self::app::EkokeLiquidityPoolCanister;
 
@@ -34,6 +37,18 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
     EkokeLiquidityPoolCanister::liquidity_pool_accounts()
 }
 
+#[update]
+#[candid_method(update)]
+pub async fn create_refunds(refunds: HashMap<Principal, Nat>) {
+    EkokeLiquidityPoolCanister::create_refunds(refunds).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn withdraw_refund(subaccount: Option<Subaccount>) -> Result<(), WithdrawError> {
+    EkokeLiquidityPoolCanister::withdraw_refund(subaccount).await
+}
+
 #[query]
 #[candid_method(query)]
 pub fn admin_cycles() -> Nat {
@@ -44,6 +59,12 @@ pub fn admin_cycles() -> Nat {
 #[candid_method(update)]
 pub fn admin_set_icp_ledger_canister(canister_id: Principal) {
     EkokeLiquidityPoolCanister::admin_set_icp_ledger_canister(canister_id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn admin_set_deferred_canister(canister_id: Principal) {
+    EkokeLiquidityPoolCanister::admin_set_deferred_canister(canister_id)
 }
 
 #[update]

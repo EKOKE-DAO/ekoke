@@ -25,17 +25,34 @@ export type BuyError = { 'TokenHasNoOwner' : null } |
   { 'IcpAllowanceNotEnough' : null } |
   { 'CallerAlreadyOwnsToken' : null } |
   { 'IcpAllowanceExpired' : null };
+export type CloseContractError = { 'ContractPaid' : bigint } |
+  {
+    'LiquidityPoolHasNotEnoughIcp' : {
+      'available' : bigint,
+      'required' : bigint,
+    }
+  } |
+  { 'ContractNotFound' : bigint } |
+  { 'ContractNotExpired' : bigint } |
+  { 'RefundInvestors' : TransferError } |
+  { 'DepositTransferFailed' : TransferError };
 export type ConfigurationError = { 'AdminsCantBeEmpty' : null } |
   { 'AnonymousAdmin' : null };
 export type ConfigurationError_1 = { 'CustodialsCantBeEmpty' : null } |
   { 'AnonymousCustodial' : null };
 export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
+  { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
+  { 'Deposit' : DepositError } |
+  { 'CloseContract' : CloseContractError } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
+export type DepositError = { 'Rejected' : TransferFromError } |
+  { 'AllowanceNotEnough' : { 'available' : bigint, 'required' : bigint } } |
+  { 'AllowanceExpired' : null };
 export type EcdsaError = { 'RecoveryIdError' : null } |
   { 'InvalidSignature' : null } |
   { 'InvalidPublicKey' : null };
@@ -98,6 +115,7 @@ export type Result_1 = { 'Ok' : bigint } |
 export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'TokenAlreadyExists' : bigint } |
+  { 'BadBuyerDepositAccount' : null } |
   { 'TokensMismatch' : null } |
   { 'ContractAlreadyExists' : bigint } |
   { 'ContractTokensShouldBeEmpty' : null } |
@@ -106,8 +124,10 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractSellerQuotaIsNot100' : null } |
   { 'ContractNotFound' : bigint } |
   { 'CannotCloseContract' : null } |
+  { 'ContractValueIsLessThanDeposit' : null } |
   { 'ContractNotSigned' : bigint } |
   { 'ContractHasNoSeller' : null } |
+  { 'ContractHasNoBuyer' : null } |
   { 'BadContractExpiration' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'TokenIsBurned' : bigint } |
@@ -134,6 +154,10 @@ export type TransferFromError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
+export type WithdrawError = { 'InvalidTransferAmount' : [bigint, number] } |
+  { 'ContractNotFound' : bigint } |
+  { 'DepositTransferFailed' : TransferError } |
+  { 'ContractNotPaid' : bigint };
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], Result>,

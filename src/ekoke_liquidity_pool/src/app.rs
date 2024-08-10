@@ -2,17 +2,22 @@ mod configuration;
 mod inspect;
 mod liquidity_pool;
 mod memory;
+mod refund;
 mod roles;
+
+use std::collections::HashMap;
 
 use candid::{Nat, Principal};
 use did::ekoke::EkokeResult;
 use did::ekoke_liquidity_pool::{
-    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance,
+    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance, WithdrawError,
 };
+use icrc::icrc1::account::{Account, Subaccount};
 
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::liquidity_pool::LiquidityPool;
+use self::refund::Refund;
 use self::roles::RolesManager;
 use crate::utils;
 
@@ -21,6 +26,7 @@ pub struct EkokeLiquidityPoolCanister;
 impl EkokeLiquidityPoolCanister {
     pub fn init(args: EkokeLiquidityPoolInitData) {
         Configuration::set_icp_ledger_canister(args.icp_ledger_canister);
+        Configuration::set_deferred_canister(args.deferred_canister);
         LiquidityPool::init();
         RolesManager::set_admins(args.admins).unwrap();
     }
@@ -33,6 +39,38 @@ impl EkokeLiquidityPoolCanister {
     /// Get liquidity pool accounts
     pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
         LiquidityPool::accounts()
+    }
+
+    /// Create refunds
+    pub async fn create_refunds(refunds: HashMap<Principal, Nat>) {
+        if !Inspect::inspect_is_deferred_canister(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        for (principal, amount) in refunds {
+            Refund::insert_or_update(principal, amount);
+        }
+    }
+
+    /// Withdraw refund
+    pub async fn withdraw_refund(subaccount: Option<Subaccount>) -> Result<(), WithdrawError> {
+        let caller = utils::caller();
+        // get refund amount
+        let Some(refund_amount) = Refund::get(caller) else {
+            return Err(WithdrawError::NothingToWithdraw(caller));
+        };
+        let account = Account {
+            owner: caller,
+            subaccount,
+        };
+
+        // withdraw icp
+        LiquidityPool::withdraw_icp(account, refund_amount).await?;
+
+        // remove refund
+        Refund::remove(caller);
+
+        Ok(())
     }
 
     /// Returns cycles
@@ -49,6 +87,13 @@ impl EkokeLiquidityPoolCanister {
             ic_cdk::trap("Unauthorized");
         }
         Configuration::set_icp_ledger_canister(canister_id);
+    }
+
+    pub fn admin_set_deferred_canister(canister_id: Principal) {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+        Configuration::set_deferred_canister(canister_id);
     }
 
     pub fn admin_set_admins(admins: Vec<Principal>) {
@@ -84,6 +129,19 @@ mod test {
     }
 
     #[tokio::test]
+    async fn test_should_withdraw_icp() {
+        init_canister();
+
+        // insert refund
+        Refund::insert_or_update(caller(), Nat::from(100u64));
+
+        // withdraw refund
+        EkokeLiquidityPoolCanister::withdraw_refund(None)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
     async fn test_should_get_cycles() {
         init_canister();
         assert_eq!(EkokeLiquidityPoolCanister::admin_cycles(), utils::cycles());
@@ -109,6 +167,7 @@ mod test {
         let data = EkokeLiquidityPoolInitData {
             admins: vec![caller()],
             icp_ledger_canister: caller(),
+            deferred_canister: caller(),
         };
         EkokeLiquidityPoolCanister::init(data);
     }

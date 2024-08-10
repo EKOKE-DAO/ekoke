@@ -44,6 +44,7 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Icrc2Transfer' : TransferFromError } |
   { 'Ecdsa' : EcdsaError };
 export interface EkokeLiquidityPoolInitData {
+  'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
   'admins' : Array<Principal>,
 }
@@ -73,6 +74,8 @@ export type RejectionCode = { 'NoError' : null } |
   { 'CanisterReject' : null };
 export type Result = { 'Ok' : LiquidityPoolBalance } |
   { 'Err' : EkokeError };
+export type Result_1 = { 'Ok' : null } |
+  { 'Err' : WithdrawError };
 export type TransferError = {
     'GenericError' : { 'message' : string, 'error_code' : bigint }
   } |
@@ -94,13 +97,19 @@ export type TransferFromError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null } |
   { 'InsufficientFunds' : { 'balance' : bigint } };
+export type WithdrawError = { 'NothingToWithdraw' : Principal } |
+  { 'Transfer' : TransferError } |
+  { 'CanisterCall' : [RejectionCode, string] };
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_set_admins' : ActorMethod<[Array<Principal>], undefined>,
+  'admin_set_deferred_canister' : ActorMethod<[Principal], undefined>,
   'admin_set_icp_ledger_canister' : ActorMethod<[Principal], undefined>,
+  'create_refunds' : ActorMethod<[Array<[Principal, bigint]>], undefined>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'liquidity_pool_accounts' : ActorMethod<[], LiquidityPoolAccounts>,
   'liquidity_pool_balance' : ActorMethod<[], Result>,
+  'withdraw_refund' : ActorMethod<[[] | [Uint8Array | number[]]], Result_1>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

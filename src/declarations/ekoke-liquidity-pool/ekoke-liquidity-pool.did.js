@@ -1,5 +1,6 @@
 export const idlFactory = ({ IDL }) => {
   const EkokeLiquidityPoolInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
@@ -116,10 +117,22 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : LiquidityPoolBalance,
     'Err' : EkokeError,
   });
+  const WithdrawError = IDL.Variant({
+    'NothingToWithdraw' : IDL.Principal,
+    'Transfer' : TransferError,
+    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
+  });
+  const Result_1 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : WithdrawError });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
+    'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
+    'create_refunds' : IDL.Func(
+        [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat))],
+        [],
+        [],
+      ),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'liquidity_pool_accounts' : IDL.Func(
         [],
@@ -127,10 +140,12 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'liquidity_pool_balance' : IDL.Func([], [Result], ['query']),
+    'withdraw_refund' : IDL.Func([IDL.Opt(IDL.Vec(IDL.Nat8))], [Result_1], []),
   });
 };
 export const init = ({ IDL }) => {
   const EkokeLiquidityPoolInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
