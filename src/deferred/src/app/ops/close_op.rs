@@ -169,15 +169,13 @@ impl CloseOp {
                 DeferredError::CloseContract(CloseContractError::DepositTransferFailed(err))
             })?;
 
-        // call the liquidity pool canister to refund the third parties
+        // call the liquidity pool canister to register the refunds
         let refund_amounts = refund_amounts
             .into_iter()
             .map(|(principal, amount)| (principal, amount.into()))
             .collect::<HashMap<_, _>>();
         let liquidity_pool_client = ekoke_liquidity_pool_client(liquidity_pool_canister);
-        liquidity_pool_client
-            .refund_investors(refund_amounts)
-            .await?;
+        liquidity_pool_client.create_refunds(refund_amounts).await?;
 
         // burn all the tokens
         for token in tokens {

@@ -145,6 +145,14 @@ export const idlFactory = ({ IDL }) => {
     'CustodialsCantBeEmpty' : IDL.Null,
     'AnonymousCustodial' : IDL.Null,
   });
+  const DepositError = IDL.Variant({
+    'Rejected' : TransferFromError,
+    'AllowanceNotEnough' : IDL.Record({
+      'available' : IDL.Nat,
+      'required' : IDL.Nat,
+    }),
+    'AllowanceExpired' : IDL.Null,
+  });
   const CloseContractError = IDL.Variant({
     'ContractPaid' : IDL.Nat,
     'LiquidityPoolHasNotEnoughIcp' : IDL.Record({
@@ -165,14 +173,8 @@ export const idlFactory = ({ IDL }) => {
     'ContractAlreadyExists' : IDL.Nat,
     'ContractTokensShouldBeEmpty' : IDL.Null,
     'TokenDoesNotBelongToContract' : IDL.Nat,
-    'DepositAllowanceExpired' : IDL.Null,
     'TokenNotFound' : IDL.Nat,
-    'DepositAllowanceNotEnough' : IDL.Record({
-      'available' : IDL.Nat,
-      'required' : IDL.Nat,
-    }),
     'ContractSellerQuotaIsNot100' : IDL.Null,
-    'DepositRejected' : TransferFromError,
     'ContractNotFound' : IDL.Nat,
     'CannotCloseContract' : IDL.Null,
     'ContractValueIsLessThanDeposit' : IDL.Null,
@@ -190,6 +192,7 @@ export const idlFactory = ({ IDL }) => {
     'Ekoke' : EkokeError,
     'Withdraw' : WithdrawError,
     'Configuration' : ConfigurationError_1,
+    'Deposit' : DepositError,
     'CloseContract' : CloseContractError,
     'Unauthorized' : IDL.Null,
     'Token' : TokenError,

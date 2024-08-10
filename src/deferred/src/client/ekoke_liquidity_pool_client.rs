@@ -16,8 +16,8 @@ pub fn ekoke_liquidity_pool_client(_principal: Principal) -> IcEkokeLiquidityPoo
 
 #[async_trait]
 pub trait EkokeLiquidityPoolClient {
-    /// Refund investors
-    async fn refund_investors(&self, refunds: HashMap<Principal, Nat>) -> DeferredResult<()>;
+    /// Create refunds records
+    async fn create_refunds(&self, refunds: HashMap<Principal, Nat>) -> DeferredResult<()>;
 }
 
 #[cfg(not(test))]
@@ -33,21 +33,15 @@ pub struct IcEkokeLiquidityPoolClient;
 #[cfg(not(test))]
 #[async_trait]
 impl EkokeLiquidityPoolClient for IcEkokeLiquidityPoolClient {
-    /// Get contract reward. Returns $ekoke
-    async fn refund_investors(
+    /// Create refunds
+    async fn create_refunds(
         &self,
         refunds: HashMap<Principal, Nat>,
     ) -> did::deferred::DeferredResult<()> {
-        let result: (Result<(), icrc::icrc1::transfer::TransferError>,) =
-            ic_cdk::call(self.principal, "refund_investors", (refunds,))
-                .await
-                .map_err(|(code, err)| did::deferred::DeferredError::CanisterCall(code, err))?;
+        let _: ((),) = ic_cdk::call(self.principal, "create_refunds", (refunds,))
+            .await
+            .map_err(|(code, err)| did::deferred::DeferredError::CanisterCall(code, err))?;
 
-        result.0.map_err(|err| {
-            did::deferred::DeferredError::CloseContract(
-                did::deferred::CloseContractError::RefundInvestors(err),
-            )
-        })?;
         Ok(())
     }
 }
@@ -55,8 +49,8 @@ impl EkokeLiquidityPoolClient for IcEkokeLiquidityPoolClient {
 #[cfg(test)]
 #[async_trait]
 impl EkokeLiquidityPoolClient for IcEkokeLiquidityPoolClient {
-    /// Get contract reward. Returns $ekoke
-    async fn refund_investors(&self, _refunds: HashMap<Principal, Nat>) -> DeferredResult<()> {
+    /// Create refunds
+    async fn create_refunds(&self, _refunds: HashMap<Principal, Nat>) -> DeferredResult<()> {
         Ok(())
     }
 }

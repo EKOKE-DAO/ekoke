@@ -92,6 +92,7 @@ type DeferredError = variant {
   Ekoke : EkokeError;
   Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
+  Deposit : DepositError;
   CloseContract : CloseContractError;
   Unauthorized;
   Token : TokenError;
@@ -106,6 +107,11 @@ type DeferredInitData = record {
   marketplace_canister : principal;
 };
 type Deposit = record { value_fiat : nat64; value_icp : nat64 };
+type DepositError = variant {
+  Rejected : TransferFromError;
+  AllowanceNotEnough : record { available : nat; required : nat };
+  AllowanceExpired;
+};
 type EcdsaError = variant {
   RecoveryIdError;
   InvalidSignature;
@@ -236,11 +242,8 @@ type TokenError = variant {
   ContractAlreadyExists : nat;
   ContractTokensShouldBeEmpty;
   TokenDoesNotBelongToContract : nat;
-  DepositAllowanceExpired;
   TokenNotFound : nat;
-  DepositAllowanceNotEnough : record { available : nat; required : nat };
   ContractSellerQuotaIsNot100;
-  DepositRejected : TransferFromError;
   ContractNotFound : nat;
   CannotCloseContract;
   ContractValueIsLessThanDeposit;

@@ -3,7 +3,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use did::deferred::{Buyers, ContractRegistration, ContractType, Deposit, GenericValue, Seller};
 use icrc::icrc1::account::Account;
 use integration_tests::actor::{admin, alice, bob, bob_account, charlie, charlie_account};
-use integration_tests::client::{DeferredClient, IcrcLedgerClient, MarketplaceClient};
+use integration_tests::client::{
+    DeferredClient, EkokeLiquidityPoolClient, IcrcLedgerClient, MarketplaceClient,
+};
 use integration_tests::TestEnv;
 use pretty_assertions::assert_eq;
 use time::OffsetDateTime;
@@ -125,6 +127,12 @@ fn test_as_agent_i_should_close_contract_after_expiration() {
     let charlie_balance = icp_ledger_client.icrc1_balance_of(charlie_account());
     assert!(deferred_client
         .close_contract(admin(), contract_id.clone())
+        .is_ok());
+
+    // withdraw refund
+    let ekoke_liquidity_pool_client = EkokeLiquidityPoolClient::from(&env);
+    assert!(ekoke_liquidity_pool_client
+        .withdraw_refund(charlie(), charlie_account().subaccount)
         .is_ok());
     // verify balance
     let new_balance = icp_ledger_client.icrc1_balance_of(charlie_account());

@@ -2,11 +2,10 @@
 //! backs the value of the Ekoke token.
 
 use std::cell::RefCell;
-use std::collections::HashMap;
 
 use candid::{Nat, Principal};
 use did::ekoke::{EkokeError, EkokeResult};
-use did::ekoke_liquidity_pool::{LiquidityPoolAccounts, LiquidityPoolBalance};
+use did::ekoke_liquidity_pool::{LiquidityPoolAccounts, LiquidityPoolBalance, WithdrawError};
 use did::StorableAccount;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
@@ -68,32 +67,29 @@ impl LiquidityPool {
         Ok(LiquidityPoolBalance { icp: icp_balance })
     }
 
-    /// Refund investors
-    pub async fn refund_investors(refunds: HashMap<Principal, Nat>) -> Result<(), TransferError> {
+    /// Withdraw ICP from the liquidity pool
+    pub async fn withdraw_icp(account: Account, amount: Nat) -> Result<(), WithdrawError> {
         let icp_ledger_client = IcrcLedgerClient::from(Configuration::get_icp_ledger_canister());
 
         let icp_fee = icp_ledger_client
             .icrc1_fee()
             .await
-            .expect("failed to get icp fee");
+            .map_err(|(code, msg)| WithdrawError::CanisterCall(code, msg))?;
 
         // verify the balance
         let balance = Self::balance().await.expect("failed to get balance").icp;
-        let total_refund = refunds
-            .values()
-            .fold(Nat::from(0u64), |acc, x| acc + x.clone() + icp_fee.clone());
+        let required_balance = amount.clone() + icp_fee;
 
-        if balance < total_refund {
-            return Err(TransferError::InsufficientFunds { balance });
+        // check if the balance is sufficient
+        if balance < required_balance {
+            return Err(TransferError::InsufficientFunds { balance }.into());
         }
 
-        // for each investor, transfer the amount
-        for (investor, amount) in refunds {
-            icp_ledger_client
-                .icrc1_transfer(Account::from(investor), amount, None)
-                .await
-                .expect("icp ledger call failed")?;
-        }
+        // transfer
+        icp_ledger_client
+            .icrc1_transfer(account, amount, None)
+            .await
+            .map_err(|(code, msg)| WithdrawError::CanisterCall(code, msg))??;
 
         Ok(())
     }
@@ -123,5 +119,17 @@ mod test {
         LiquidityPool::init();
         let balance = LiquidityPool::balance().await.unwrap();
         assert_eq!(balance.icp, 888010101000000u64);
+    }
+
+    #[tokio::test]
+    async fn test_should_withdraw_icp() {
+        LiquidityPool::init();
+        let account = Account {
+            owner: utils::id(),
+            subaccount: None,
+        };
+        let amount = Nat::from(100u64);
+
+        LiquidityPool::withdraw_icp(account, amount).await.unwrap();
     }
 }

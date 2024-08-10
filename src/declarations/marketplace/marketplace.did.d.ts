@@ -44,11 +44,15 @@ export type DeferredError = { 'Nft' : NftError } |
   { 'Ekoke' : EkokeError } |
   { 'Withdraw' : WithdrawError } |
   { 'Configuration' : ConfigurationError_1 } |
+  { 'Deposit' : DepositError } |
   { 'CloseContract' : CloseContractError } |
   { 'Unauthorized' : null } |
   { 'Token' : TokenError } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
+export type DepositError = { 'Rejected' : TransferFromError } |
+  { 'AllowanceNotEnough' : { 'available' : bigint, 'required' : bigint } } |
+  { 'AllowanceExpired' : null };
 export type EcdsaError = { 'RecoveryIdError' : null } |
   { 'InvalidSignature' : null } |
   { 'InvalidPublicKey' : null };
@@ -116,13 +120,8 @@ export type TokenError = { 'ContractAlreadySigned' : bigint } |
   { 'ContractAlreadyExists' : bigint } |
   { 'ContractTokensShouldBeEmpty' : null } |
   { 'TokenDoesNotBelongToContract' : bigint } |
-  { 'DepositAllowanceExpired' : null } |
   { 'TokenNotFound' : bigint } |
-  {
-    'DepositAllowanceNotEnough' : { 'available' : bigint, 'required' : bigint }
-  } |
   { 'ContractSellerQuotaIsNot100' : null } |
-  { 'DepositRejected' : TransferFromError } |
   { 'ContractNotFound' : bigint } |
   { 'CannotCloseContract' : null } |
   { 'ContractValueIsLessThanDeposit' : null } |

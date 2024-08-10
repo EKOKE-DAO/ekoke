@@ -13,10 +13,10 @@ use std::collections::HashMap;
 use candid::{candid_method, Nat, Principal};
 use did::ekoke::EkokeResult;
 use did::ekoke_liquidity_pool::{
-    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance,
+    EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance, WithdrawError,
 };
 use ic_cdk_macros::{init, query, update};
-use icrc::icrc1::transfer::TransferError;
+use icrc::icrc1::account::Subaccount;
 
 use self::app::EkokeLiquidityPoolCanister;
 
@@ -39,8 +39,14 @@ pub fn liquidity_pool_accounts() -> LiquidityPoolAccounts {
 
 #[update]
 #[candid_method(update)]
-pub async fn refund_investors(refunds: HashMap<Principal, Nat>) -> Result<(), TransferError> {
-    EkokeLiquidityPoolCanister::refund_investors(refunds).await
+pub async fn create_refunds(refunds: HashMap<Principal, Nat>) {
+    EkokeLiquidityPoolCanister::create_refunds(refunds).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn withdraw_refund(subaccount: Option<Subaccount>) -> Result<(), WithdrawError> {
+    EkokeLiquidityPoolCanister::withdraw_refund(subaccount).await
 }
 
 #[query]

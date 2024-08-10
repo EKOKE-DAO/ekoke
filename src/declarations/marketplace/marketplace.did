@@ -42,11 +42,17 @@ type DeferredError = variant {
   Ekoke : EkokeError;
   Withdraw : WithdrawError;
   Configuration : ConfigurationError_1;
+  Deposit : DepositError;
   CloseContract : CloseContractError;
   Unauthorized;
   Token : TokenError;
   StorageError;
   CanisterCall : record { RejectionCode; text };
+};
+type DepositError = variant {
+  Rejected : TransferFromError;
+  AllowanceNotEnough : record { available : nat; required : nat };
+  AllowanceExpired;
 };
 type EcdsaError = variant {
   RecoveryIdError;
@@ -123,11 +129,8 @@ type TokenError = variant {
   ContractAlreadyExists : nat;
   ContractTokensShouldBeEmpty;
   TokenDoesNotBelongToContract : nat;
-  DepositAllowanceExpired;
   TokenNotFound : nat;
-  DepositAllowanceNotEnough : record { available : nat; required : nat };
   ContractSellerQuotaIsNot100;
-  DepositRejected : TransferFromError;
   ContractNotFound : nat;
   CannotCloseContract;
   ContractValueIsLessThanDeposit;
