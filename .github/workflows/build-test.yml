@@ -26,6 +26,8 @@ jobs:
           sudo chmod +x $HOME/.cargo/bin/cargo-make
       - name: Install dfx
         uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 0.19.0
       - name: Install SNS
         run: dfx extension install sns
       - uses: actions-rs/toolchain@v1
