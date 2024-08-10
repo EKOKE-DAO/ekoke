@@ -1,8 +1,8 @@
 export const idlFactory = ({ IDL }) => {
   const EkokeLiquidityPoolInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'deferred_canister_id' : IDL.Principal,
   });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
@@ -145,9 +145,9 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   const EkokeLiquidityPoolInitData = IDL.Record({
+    'deferred_canister' : IDL.Principal,
     'icp_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
-    'deferred_canister_id' : IDL.Principal,
   });
   return [EkokeLiquidityPoolInitData];
 };

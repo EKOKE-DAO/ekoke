@@ -44,9 +44,9 @@ export type EkokeError = { 'Configuration' : ConfigurationError } |
   { 'Icrc2Transfer' : TransferFromError } |
   { 'Ecdsa' : EcdsaError };
 export interface EkokeLiquidityPoolInitData {
+  'deferred_canister' : Principal,
   'icp_ledger_canister' : Principal,
   'admins' : Array<Principal>,
-  'deferred_canister_id' : Principal,
 }
 export interface HttpRequest {
   'url' : string,

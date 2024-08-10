@@ -41,9 +41,9 @@ type EkokeError = variant {
   Ecdsa : EcdsaError;
 };
 type EkokeLiquidityPoolInitData = record {
+  deferred_canister : principal;
   icp_ledger_canister : principal;
   admins : vec principal;
-  deferred_canister_id : principal;
 };
 type HttpRequest = record {
   url : text;

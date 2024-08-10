@@ -13,5 +13,5 @@ pub struct EkokeLiquidityPoolInitData {
     /// ICP ledger canister id
     pub icp_ledger_canister: Principal,
     /// Deferred canister id
-    pub deferred_canister_id: Principal,
+    pub deferred_canister: Principal,
 }

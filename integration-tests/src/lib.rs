@@ -333,7 +333,7 @@ impl TestEnv {
         let init_arg = EkokeLiquidityPoolInitData {
             admins: vec![actor::admin()],
             icp_ledger_canister,
-            deferred_canister_id: deferred_id,
+            deferred_canister: deferred_id,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 

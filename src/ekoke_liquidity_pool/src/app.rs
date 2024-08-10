@@ -26,7 +26,7 @@ pub struct EkokeLiquidityPoolCanister;
 impl EkokeLiquidityPoolCanister {
     pub fn init(args: EkokeLiquidityPoolInitData) {
         Configuration::set_icp_ledger_canister(args.icp_ledger_canister);
-        Configuration::set_deferred_canister(args.deferred_canister_id);
+        Configuration::set_deferred_canister(args.deferred_canister);
         LiquidityPool::init();
         RolesManager::set_admins(args.admins).unwrap();
     }
@@ -167,7 +167,7 @@ mod test {
         let data = EkokeLiquidityPoolInitData {
             admins: vec![caller()],
             icp_ledger_canister: caller(),
-            deferred_canister_id: caller(),
+            deferred_canister: caller(),
         };
         EkokeLiquidityPoolCanister::init(data);
     }
