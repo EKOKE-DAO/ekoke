@@ -205,7 +205,7 @@ impl Deferred {
             &data.sellers,
             &data.buyers,
             data.installments,
-            data.expiration.as_deref(),
+            &data.expiration,
         )?;
 
         let next_contract_id = ContractStorage::next_contract_id();
@@ -797,7 +797,7 @@ mod test {
                 quota: 100,
             }],
             value: 100,
-            expiration: Some("2048-01-01".to_string()),
+            expiration: "2048-01-01".to_string(),
         };
 
         assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);
@@ -836,7 +836,7 @@ mod test {
                 quota: 100,
             }],
             value: 100,
-            expiration: Some("2048-01-01".to_string()),
+            expiration: "2048-01-01".to_string(),
         };
         assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);
         assert!(Deferred::sign_contract(0_u64.into()).await.is_ok());
@@ -1322,7 +1322,7 @@ mod test {
                 quota: 100,
             }],
             value: 100,
-            expiration: Some("2048-01-01".to_string()),
+            expiration: "2048-01-01".to_string(),
         };
 
         assert_eq!(Deferred::register_contract(contract).await.unwrap(), 0_u64);

@@ -169,7 +169,7 @@ impl Inspect {
         sellers: &[Seller],
         buyers: &Buyers,
         installments: u64,
-        expiration: Option<&str>,
+        expiration: &str,
     ) -> DeferredResult<()> {
         if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
             return Err(DeferredError::Unauthorized);
@@ -217,17 +217,16 @@ impl Inspect {
             ));
         }
 
-        if let Some(expiration) = expiration {
-            let format = time::macros::format_description!("[year]-[month]-[day]");
-            match time::Date::parse(expiration, format) {
-                Ok(expiration) => {
-                    if expiration < crate::utils::date() {
-                        return Err(DeferredError::Token(TokenError::BadContractExpiration));
-                    }
-                }
-                Err(_) => {
+        // verify expiration date
+        let format = time::macros::format_description!("[year]-[month]-[day]");
+        match time::Date::parse(expiration, format) {
+            Ok(expiration) => {
+                if expiration < crate::utils::date() {
                     return Err(DeferredError::Token(TokenError::BadContractExpiration));
                 }
+            }
+            Err(_) => {
+                return Err(DeferredError::Token(TokenError::BadContractExpiration));
             }
         }
 
@@ -567,7 +566,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -592,7 +591,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -617,7 +616,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -642,7 +641,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_ok());
     }
@@ -667,7 +666,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -689,7 +688,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -714,7 +713,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -739,7 +738,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -764,7 +763,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -789,7 +788,7 @@ mod test {
                 deposit_account: Account::from(Principal::anonymous()),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -820,7 +819,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_err());
     }
@@ -845,7 +844,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            None,
+            "2078-01-01",
         )
         .is_ok());
     }
@@ -870,7 +869,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            Some("2078-01-01"),
+            "2078-01-01",
         )
         .is_ok());
         assert!(Inspect::inspect_register_contract(
@@ -889,7 +888,7 @@ mod test {
                 deposit_account: bob_account(),
             },
             25,
-            Some("2018-01-01"),
+            "2018-01-01",
         )
         .is_err());
     }

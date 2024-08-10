@@ -81,7 +81,7 @@ impl DeferredClient {
                     properties: vec![],
                     restricted_properties: vec![],
                     agency: None,
-                    expiration: None,
+                    expiration: "2050-01-01".to_string(),
                 },
             }))
         }

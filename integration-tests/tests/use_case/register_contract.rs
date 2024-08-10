@@ -33,7 +33,7 @@ fn test_as_agency_i_can_register_contract() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     let deposit_value_icp = registration_data.deposit.value_icp;
     // approve deposit

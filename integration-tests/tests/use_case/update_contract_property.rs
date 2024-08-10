@@ -45,7 +45,7 @@ fn test_should_update_contract_property() {
             ),
         ],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(

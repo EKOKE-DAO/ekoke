@@ -102,13 +102,10 @@ impl CloseOp {
         }
 
         // check if the contract is expired
-        if let Some(expiration) = contract.expiration() {
-            let expiration = expiration?;
-            if utils::date() < expiration {
-                return Err(DeferredError::CloseContract(
-                    CloseContractError::ContractNotExpired(contract_id),
-                ));
-            }
+        if utils::date() < contract.expiration()? {
+            return Err(DeferredError::CloseContract(
+                CloseContractError::ContractNotExpired(contract_id),
+            ));
         }
 
         // collect all the tokens owners by owned value
@@ -302,7 +299,7 @@ mod test {
                     principal: bob(),
                     quota: 100,
                 }];
-                contract.expiration = Some("2050-01-01".to_string());
+                contract.expiration = "2050-01-01".to_string();
             },
             |token| {
                 token.owner = Some(bob());
@@ -311,7 +308,7 @@ mod test {
         );
         // set expiration to 1970-01-01
         ContractStorage::mut_contract(&1u64.into(), |contract| {
-            contract.expiration = Some("1970-01-01".to_string());
+            contract.expiration = "1970-01-01".to_string();
             Ok(())
         })
         .expect("failed to update contract");
@@ -393,7 +390,7 @@ mod test {
                     value_icp: 100_000_000,
                     value_fiat: 10,
                 };
-                contract.expiration = Some("2050-01-01".to_string());
+                contract.expiration = "2050-01-01".to_string();
             },
             |token| {
                 token.owner = Some(bob());
@@ -403,7 +400,7 @@ mod test {
 
         // set expiration to 1970-01-01
         ContractStorage::mut_contract(&1u64.into(), |contract| {
-            contract.expiration = Some("1970-01-01".to_string());
+            contract.expiration = "1970-01-01".to_string();
             Ok(())
         })
         .expect("failed to update contract");

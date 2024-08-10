@@ -104,7 +104,7 @@ fn test_should_inspect_update_contract_property() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -180,7 +180,7 @@ fn test_should_inspect_update_contract_property_is_not_authorized() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -242,7 +242,7 @@ fn test_should_inspect_update_contract_property_bad_key() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -298,7 +298,7 @@ fn test_should_inspect_update_contract_buyers() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -365,7 +365,7 @@ fn test_should_inspect_update_contract_buyers_not_seller() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -415,7 +415,7 @@ fn test_should_inspect_register_contract() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -463,7 +463,7 @@ fn test_should_inspect_register_contract_unauthorized() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -506,7 +506,7 @@ fn test_should_inspect_register_contract_no_sellers() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -552,7 +552,7 @@ fn test_should_inspect_register_contract_installments_not_multiple() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -598,7 +598,7 @@ fn test_should_inspect_register_contract_expired() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: Some("2021-01-01".to_string()),
+        expiration: "2021-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -666,7 +666,7 @@ fn test_should_inspect_sign_contract() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(
@@ -717,7 +717,7 @@ fn test_should_inspect_burn() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(

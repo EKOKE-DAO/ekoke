@@ -42,7 +42,7 @@ fn test_as_seller_i_can_register_a_sell_contract() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
 
     let expected_token_value = (registration_data.value - registration_data.deposit.value_fiat)

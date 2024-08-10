@@ -57,7 +57,7 @@ fn test_as_agent_i_should_close_contract_after_expiration() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: Some(expiration),
+        expiration,
     };
     let deposit = registration_data.deposit.clone();
     // value_icp : value_fiat = x : 1

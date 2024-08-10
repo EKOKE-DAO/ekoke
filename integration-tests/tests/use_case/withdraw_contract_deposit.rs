@@ -41,7 +41,7 @@ fn test_as_seller_i_should_withdraw_contract_deposit_after_being_paid() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     let deposit_value_icp = registration_data.deposit.value_icp;
     // approve deposit

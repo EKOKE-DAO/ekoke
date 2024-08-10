@@ -60,7 +60,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
             },
         )],
         agency: Some(mock_agency()),
-        expiration: None,
+        expiration: "2078-01-01".to_string(),
     }
 }
 

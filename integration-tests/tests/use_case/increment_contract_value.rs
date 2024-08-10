@@ -56,7 +56,7 @@ fn test_as_seller_i_can_set_the_contract_buyers() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(

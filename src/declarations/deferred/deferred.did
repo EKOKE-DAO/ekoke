@@ -67,7 +67,7 @@ type Contract = record {
   properties : vec record { text; GenericValue };
   deposit : Deposit;
   sellers : vec Seller;
-  expiration : opt text;
+  expiration : text;
   tokens : vec nat;
   currency : text;
   installments : nat64;
@@ -81,7 +81,7 @@ type ContractRegistration = record {
   properties : vec record { text; GenericValue };
   deposit : Deposit;
   sellers : vec Seller;
-  expiration : opt text;
+  expiration : text;
   currency : text;
   installments : nat64;
   buyers : Buyers;

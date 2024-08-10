@@ -38,7 +38,7 @@ fn test_should_reserve_a_reward_pool_on_ekoke() {
             GenericValue::TextContent("via roma 10".to_string()),
         )],
         restricted_properties: vec![],
-        expiration: None,
+        expiration: "2050-01-01".to_string(),
     };
     // approve deposit
     crate::helper::contract_deposit(

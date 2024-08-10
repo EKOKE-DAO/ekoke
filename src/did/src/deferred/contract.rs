@@ -50,7 +50,7 @@ pub struct Contract {
     /// Agency data
     pub agency: Option<Agency>,
     /// Contract expiration date YYYY-MM-DD
-    pub expiration: Option<String>,
+    pub expiration: String,
 }
 
 impl Contract {
@@ -58,14 +58,13 @@ impl Contract {
         self.sellers.iter().any(|s| &s.principal == principal)
     }
 
-    pub fn expiration(&self) -> Option<DeferredResult<Date>> {
+    pub fn expiration(&self) -> DeferredResult<Date> {
         let format = time::macros::format_description!("[year]-[month]-[day]");
-        self.expiration
-            .as_deref()
-            .map(|expiration| match time::Date::parse(expiration, format) {
-                Ok(expiration) => Ok(expiration),
-                Err(_) => Err(DeferredError::Token(TokenError::BadContractExpiration)),
-            })
+
+        match time::Date::parse(&self.expiration, format) {
+            Ok(expiration) => Ok(expiration),
+            Err(_) => Err(DeferredError::Token(TokenError::BadContractExpiration)),
+        }
     }
 
     /// Returns the total value of the installments
@@ -157,7 +156,8 @@ pub struct ContractRegistration {
     pub deposit: Deposit,
     /// Must be a divisor of `value - deposit_value_fiat`
     pub installments: u64,
-    pub expiration: Option<String>,
+    /// Contract expiration date YYYY-MM-DD
+    pub expiration: String,
     pub properties: ContractProperties,
     pub restricted_properties: RestrictedContractProperties,
 }

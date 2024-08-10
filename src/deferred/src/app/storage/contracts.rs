@@ -52,11 +52,8 @@ impl ContractStorage {
         }
 
         // check expiration
-        if let Some(expiration) = contract.expiration() {
-            let expiraton = expiration?;
-            if expiraton < crate::utils::date() {
-                return Err(DeferredError::Token(TokenError::BadContractExpiration));
-            }
+        if contract.expiration()? < crate::utils::date() {
+            return Err(DeferredError::Token(TokenError::BadContractExpiration));
         }
 
         // check contract props
@@ -617,7 +614,7 @@ mod test {
     #[test]
     fn test_should_not_allow_contract_with_expiration_in_the_past() {
         let contract = with_mock_contract(1, 40, |contract| {
-            contract.expiration = Some("2021-01-01".to_string());
+            contract.expiration = "2021-01-01".to_string();
         });
 
         assert!(ContractStorage::insert_contract(contract.clone()).is_err());
@@ -841,7 +838,7 @@ mod test {
             )],
             restricted_properties: vec![],
             agency: None,
-            expiration: None,
+            expiration: "2050-01-01".to_string(),
         };
 
         assert!(ContractStorage::insert_contract(contract.clone(),).is_ok());
