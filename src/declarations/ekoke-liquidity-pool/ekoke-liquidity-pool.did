@@ -70,8 +70,8 @@ type RejectionCode = variant {
   SysFatal;
   CanisterReject;
 };
-type Result = variant { Ok : LiquidityPoolBalance; Err : EkokeError };
-type Result_1 = variant { Ok; Err : WithdrawError };
+type Result = variant { Ok; Err : WithdrawError };
+type Result_1 = variant { Ok : LiquidityPoolBalance; Err : EkokeError };
 type TransferError = variant {
   GenericError : record { message : text; error_code : nat };
   TemporarilyUnavailable;
@@ -103,9 +103,10 @@ service : (EkokeLiquidityPoolInitData) -> {
   admin_set_admins : (vec principal) -> ();
   admin_set_deferred_canister : (principal) -> ();
   admin_set_icp_ledger_canister : (principal) -> ();
+  admin_withdraw_icp : (Account, nat) -> (Result);
   create_refunds : (vec record { principal; nat }) -> ();
   http_request : (HttpRequest) -> (HttpResponse) query;
   liquidity_pool_accounts : () -> (LiquidityPoolAccounts) query;
-  liquidity_pool_balance : () -> (Result) query;
-  withdraw_refund : (opt blob) -> (Result_1);
+  liquidity_pool_balance : () -> (Result_1) query;
+  withdraw_refund : (opt blob) -> (Result);
 }

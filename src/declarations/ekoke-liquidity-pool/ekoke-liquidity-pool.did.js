@@ -4,6 +4,38 @@ export const idlFactory = ({ IDL }) => {
     'icp_ledger_canister' : IDL.Principal,
     'admins' : IDL.Vec(IDL.Principal),
   });
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+  });
+  const TransferError = IDL.Variant({
+    'GenericError' : IDL.Record({
+      'message' : IDL.Text,
+      'error_code' : IDL.Nat,
+    }),
+    'TemporarilyUnavailable' : IDL.Null,
+    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
+    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
+    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
+    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
+    'TooOld' : IDL.Null,
+    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
+  });
+  const RejectionCode = IDL.Variant({
+    'NoError' : IDL.Null,
+    'CanisterError' : IDL.Null,
+    'SysTransient' : IDL.Null,
+    'DestinationInvalid' : IDL.Null,
+    'Unknown' : IDL.Null,
+    'SysFatal' : IDL.Null,
+    'CanisterReject' : IDL.Null,
+  });
+  const WithdrawError = IDL.Variant({
+    'NothingToWithdraw' : IDL.Principal,
+    'Transfer' : TransferError,
+    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
+  });
+  const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : WithdrawError });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
     'method' : IDL.Text,
@@ -15,10 +47,6 @@ export const idlFactory = ({ IDL }) => {
     'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
     'upgrade' : IDL.Opt(IDL.Bool),
     'status_code' : IDL.Nat16,
-  });
-  const Account = IDL.Record({
-    'owner' : IDL.Principal,
-    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const LiquidityPoolAccounts = IDL.Record({ 'icp' : Account });
   const LiquidityPoolBalance = IDL.Record({ 'icp' : IDL.Nat });
@@ -40,19 +68,6 @@ export const idlFactory = ({ IDL }) => {
     'Expired' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
     'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
   });
-  const TransferError = IDL.Variant({
-    'GenericError' : IDL.Record({
-      'message' : IDL.Text,
-      'error_code' : IDL.Nat,
-    }),
-    'TemporarilyUnavailable' : IDL.Null,
-    'BadBurn' : IDL.Record({ 'min_burn_amount' : IDL.Nat }),
-    'Duplicate' : IDL.Record({ 'duplicate_of' : IDL.Nat }),
-    'BadFee' : IDL.Record({ 'expected_fee' : IDL.Nat }),
-    'CreatedInFuture' : IDL.Record({ 'ledger_time' : IDL.Nat64 }),
-    'TooOld' : IDL.Null,
-    'InsufficientFunds' : IDL.Record({ 'balance' : IDL.Nat }),
-  });
   const PoolError = IDL.Variant({
     'PoolNotFound' : IDL.Nat,
     'NotEnoughTokens' : IDL.Null,
@@ -66,15 +81,6 @@ export const idlFactory = ({ IDL }) => {
     'InsufficientFunds' : IDL.Null,
   });
   const RegisterError = IDL.Variant({ 'TransactionNotFound' : IDL.Null });
-  const RejectionCode = IDL.Variant({
-    'NoError' : IDL.Null,
-    'CanisterError' : IDL.Null,
-    'SysTransient' : IDL.Null,
-    'DestinationInvalid' : IDL.Null,
-    'Unknown' : IDL.Null,
-    'SysFatal' : IDL.Null,
-    'CanisterReject' : IDL.Null,
-  });
   const BalanceError = IDL.Variant({
     'AccountNotFound' : IDL.Null,
     'InsufficientBalance' : IDL.Null,
@@ -113,21 +119,16 @@ export const idlFactory = ({ IDL }) => {
     'Icrc2Transfer' : TransferFromError,
     'Ecdsa' : EcdsaError,
   });
-  const Result = IDL.Variant({
+  const Result_1 = IDL.Variant({
     'Ok' : LiquidityPoolBalance,
     'Err' : EkokeError,
   });
-  const WithdrawError = IDL.Variant({
-    'NothingToWithdraw' : IDL.Principal,
-    'Transfer' : TransferError,
-    'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
-  });
-  const Result_1 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : WithdrawError });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_set_admins' : IDL.Func([IDL.Vec(IDL.Principal)], [], []),
     'admin_set_deferred_canister' : IDL.Func([IDL.Principal], [], []),
     'admin_set_icp_ledger_canister' : IDL.Func([IDL.Principal], [], []),
+    'admin_withdraw_icp' : IDL.Func([Account, IDL.Nat], [Result], []),
     'create_refunds' : IDL.Func(
         [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat))],
         [],
@@ -139,8 +140,8 @@ export const idlFactory = ({ IDL }) => {
         [LiquidityPoolAccounts],
         ['query'],
       ),
-    'liquidity_pool_balance' : IDL.Func([], [Result], ['query']),
-    'withdraw_refund' : IDL.Func([IDL.Opt(IDL.Vec(IDL.Nat8))], [Result_1], []),
+    'liquidity_pool_balance' : IDL.Func([], [Result_1], ['query']),
+    'withdraw_refund' : IDL.Func([IDL.Opt(IDL.Vec(IDL.Nat8))], [Result], []),
   });
 };
 export const init = ({ IDL }) => {

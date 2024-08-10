@@ -16,7 +16,7 @@ use did::ekoke_liquidity_pool::{
     EkokeLiquidityPoolInitData, LiquidityPoolAccounts, LiquidityPoolBalance, WithdrawError,
 };
 use ic_cdk_macros::{init, query, update};
-use icrc::icrc1::account::Subaccount;
+use icrc::icrc1::account::{Account, Subaccount};
 
 use self::app::EkokeLiquidityPoolCanister;
 
@@ -47,6 +47,12 @@ pub async fn create_refunds(refunds: HashMap<Principal, Nat>) {
 #[candid_method(update)]
 pub async fn withdraw_refund(subaccount: Option<Subaccount>) -> Result<(), WithdrawError> {
     EkokeLiquidityPoolCanister::withdraw_refund(subaccount).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn admin_withdraw_icp(to: Account, amount: Nat) -> Result<(), WithdrawError> {
+    EkokeLiquidityPoolCanister::admin_withdraw_icp(to, amount).await
 }
 
 #[query]

@@ -9,3 +9,4 @@ mod register_sell_contract;
 mod reserve_reward_pool;
 mod update_contract_property;
 mod withdraw_contract_deposit;
+mod withdraw_liquidity_pool_icp;

@@ -1,7 +1,8 @@
-use candid::{Encode, Principal};
+use candid::{Encode, Nat, Principal};
 use did::ekoke_liquidity_pool::WithdrawError;
-use icrc::icrc1::account::Subaccount;
+use icrc::icrc1::account::{Account, Subaccount};
 
+use crate::actor::admin;
 use crate::TestEnv;
 
 pub struct EkokeLiquidityPoolClient<'a> {
@@ -30,6 +31,17 @@ impl<'a> EkokeLiquidityPoolClient<'a> {
                 caller,
                 "withdraw_refund",
                 Encode!(&subaccount).unwrap(),
+            )
+            .unwrap()
+    }
+
+    pub fn admin_withdraw_icp(&self, to: Account, amount: Nat) -> Result<(), WithdrawError> {
+        self.env
+            .update(
+                self.env.ekoke_liquidity_pool_id,
+                admin(),
+                "admin_withdraw_icp",
+                Encode!(&to, &amount).unwrap(),
             )
             .unwrap()
     }

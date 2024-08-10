@@ -73,6 +73,15 @@ impl EkokeLiquidityPoolCanister {
         Ok(())
     }
 
+    /// Withdraw icp to an account
+    pub async fn admin_withdraw_icp(to: Account, amount: Nat) -> Result<(), WithdrawError> {
+        if !Inspect::inspect_is_admin(utils::caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        LiquidityPool::withdraw_icp(to, amount).await
+    }
+
     /// Returns cycles
     pub fn admin_cycles() -> Nat {
         if !Inspect::inspect_is_admin(utils::caller()) {
