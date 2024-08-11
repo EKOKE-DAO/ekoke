@@ -144,6 +144,12 @@ pub async fn close_contract(contract_id: ID) -> DeferredResult<()> {
 
 #[update]
 #[candid_method(update)]
+pub fn admin_set_allowed_currencies(currencies: Vec<String>) {
+    Deferred::admin_set_allowed_currencies(currencies)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn admin_set_ekoke_reward_pool_canister(canister_id: Principal) {
     Deferred::admin_set_ekoke_reward_pool_canister(canister_id)
 }
