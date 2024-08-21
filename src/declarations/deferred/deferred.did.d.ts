@@ -318,6 +318,7 @@ export type WithdrawError = { 'InvalidTransferAmount' : [bigint, number] } |
 export interface _SERVICE {
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
+  'admin_set_allowed_currencies' : ActorMethod<[Array<string>], undefined>,
   'admin_set_ekoke_liquidity_pool_canister' : ActorMethod<
     [Principal],
     undefined

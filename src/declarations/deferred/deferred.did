@@ -310,6 +310,7 @@ type WithdrawError = variant {
 service : (DeferredInitData) -> {
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
+  admin_set_allowed_currencies : (vec text) -> ();
   admin_set_ekoke_liquidity_pool_canister : (principal) -> ();
   admin_set_ekoke_reward_pool_canister : (principal) -> ();
   admin_set_marketplace_canister : (principal) -> ();

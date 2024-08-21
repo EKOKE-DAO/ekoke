@@ -368,6 +368,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
+    'admin_set_allowed_currencies' : IDL.Func([IDL.Vec(IDL.Text)], [], []),
     'admin_set_ekoke_liquidity_pool_canister' : IDL.Func(
         [IDL.Principal],
         [],
