@@ -27,13 +27,12 @@ jobs:
       - name: Install dfx
         uses: dfinity/setup-dfx@main
         with:
-          dfx-version: 0.20.1
+          dfx-version: 0.24.1
       - name: Install SNS
         run: dfx extension install sns
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          override: true
           components: rustfmt, clippy
           target: wasm32-unknown-unknown
       - name: Set Node.js 20.x
@@ -42,13 +41,13 @@ jobs:
           node-version: 20.x
       - name: build
         run: cargo make dfx-setup && cargo make dfx-build
+      - name: format
+        run: cargo make check-format
+      - name: lint
+        run: cargo make lint
       - name: Unit Tests
         run: cargo make test
       - name: Deploy local
         run: cargo make deploy-local
       - name: Integration Tests
         run: cargo make integration-tests
-      - name: Format
-        run: cargo make check-format
-      - name: Lint
-        run: cargo make lint
