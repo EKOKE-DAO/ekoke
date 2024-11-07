@@ -57,6 +57,8 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 ## Canisters
 
 - **Deferred**: `v5vof-zqaaa-aaaal-ai5cq-cai`
+- **EKOKE ERC20 Swap**: `un25n-wyaaa-aaaal-ams5a-cai`
+- **EKOKE ERC20 Swap frontend**: `uk33z-3aaaa-aaaal-ams5q-cai`
 - **EKOKE Liquidity Pool**: `v2uir-uiaaa-aaaal-ai5ca-cai`
 - **EKOKE Reward Pool**: `vtxdn-caaaa-aaaal-ai5dq-cai`
 - **Marketplace**: `vuwfz-pyaaa-aaaal-ai5da-cai`

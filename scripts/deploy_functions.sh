@@ -5,13 +5,12 @@ set -e
 deploy_deferred() {\
   INSTALL_MODE="$1"
   NETWORK="$2"
-  DEFERRED_PRINCIPAL="$3"
-  EKOKE_REWARD_POOL_PRINCIPAL="$4"
-  MARKETPLACE_PRINCIPAL="$5"
-  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$6"
-  ADMIN_PRINCIPAL="$7"
+  EKOKE_REWARD_POOL_PRINCIPAL="$3"
+  MARKETPLACE_PRINCIPAL="$4"
+  EKOKE_LIQUIDITY_POOL_PRINCIPAL="$5"
+  ADMIN_PRINCIPAL="$6"
 
-  echo "deploying deferred canister $DEFERRED_PRINCIPAL"
+  echo "deploying deferred canister"
 
   deferred_init_args="(record {
     allowed_currencies = vec { \"USD\"; \"EUR\"; \"GBP\"; \"CHF\"; \"JPY\"; \"CNY\"; };

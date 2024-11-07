@@ -2,6 +2,12 @@
   "deferred": {
     "ic": "v5vof-zqaaa-aaaal-ai5cq-cai"
   },
+  "ekoke-erc20-swap": {
+    "ic": "un25n-wyaaa-aaaal-ams5a-cai"
+  },
+  "ekoke-erc20-swap-frontend": {
+    "ic": "uk33z-3aaaa-aaaal-ams5q-cai"
+  },
   "ekoke-liquidity-pool": {
     "ic": "v2uir-uiaaa-aaaal-ai5ca-cai"
   },

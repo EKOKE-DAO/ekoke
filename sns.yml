@@ -44,7 +44,7 @@ logo: ./assets/images/ekoke-logo.png
 # Url to the dapp controlled by the SNS project.
 # Must be a string of max length = 512.
 #
-url: https://ekoketoken.com
+url: https://dapp.ekoketoken.com
 #
 # Name of the SNS project. This may differ from the name of the associated token name.
 # Must be a string of max length = 255.
@@ -264,23 +264,23 @@ initial_token_distribution:
 
     airdrop_distribution:
       airdrop_neurons:
-        - controller: vtxdn-caaaa-aaaal-ai5dq-cai
+        - controller: vtxdn-caaaa-aaaal-ai5dq-cai # EKOKE REWARD POOL
           stake_e8s: 266_403_000_000_000 # 2_664_030 EKOKE
           memo: 1
           dissolve_delay_seconds: 86400 # 1 day
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: ERC20 swap
+        - controller: un25n-wyaaa-aaaal-ams5a-cai # ERC20 swap
           stake_e8s: 106_561_212_100_000 # 1_065_612.121 EKOKE
           memo: 2
           dissolve_delay_seconds: 86400 # 1 day
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Investor
+        - controller: fafo5-xk4va-sxhrs-6i6oo-vonol-tif2m-ngwnq-zztog-jvgeg-4xznl-6qe # Investor
           stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
           memo: 3
           dissolve_delay_seconds: 86400 # 1 day
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: Token Airdrop
+        - controller: cmg55-ac576-4qdch-mdu42-nt76i-o2odx-7jjzy-g4bcv-zxbn6-wqdjy-eae # Token Airdrop
           stake_e8s: 888_0101_010_000 # 88_801.0101 EKOKE
           memo: 4
           dissolve_delay_seconds: 86400 # 1 day
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe # FIXME: LBP Pool
+        - controller: lnhxr-brsvm-3h5oz-ht6xk-tntzf-mmfb6-nipof-6sboz-yv5p3-c6of7-rqe # LBP Pool
           stake_e8s: 26_640_300_000_000 # 266_403 EKOKE
           memo: 5
           dissolve_delay_seconds: 86400 # 1 day
