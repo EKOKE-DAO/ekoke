@@ -2,6 +2,8 @@
 
 cd "$(dirname "$0")" || exit 1
 
+STOP="${1:-1}"
+
 CANISTER_IDS="../.dfx/local/canister_ids.json"
 DEFERRED_PRINCIPAL="$(cat "$CANISTER_IDS" | jq -r '.deferred.local')"
 EKOKE_ERC20_SWAP_PRINCIPAL=$(cat "$CANISTER_IDS" | jq -r '."ekoke-erc20-swap".local')
@@ -33,6 +35,9 @@ deploy_marketplace "reinstall" "local" "$MARKETPLACE_PRINCIPAL" "$DEFERRED_PRINC
 
 set +e
 
+if [  "$STOP" -eq 0 ]; then
+    exit 0
+fi
 dfx stop
 
 exit 0

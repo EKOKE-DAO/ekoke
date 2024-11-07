@@ -1,0 +1,100 @@
+name: EKOKE DAO
+description: The EKOKE DAO provides a decentralized platform for people to buy real-estate properties using a tokenized system, based on installments and fungible token rewards on a deflationary currency.
+url: https://dapp.ekoketoken.com
+logo: ./assets/images/ekoke-logo.png
+
+Token:
+  name: EKOKE
+  symbol: EKOKE
+  transaction_fee: 1000 e8s # 0.00001 EKOKE
+  logo: ./assets/images/ekoke-logo.png
+
+NnsProposal:
+  title: NNS Proposal to create an SNS named 'EKOKE DAO'
+  url: https://forum.dfinity.org/t/upcoming-ekoke-sns-decentralization/29294/1
+  summary: >
+    NNS Proposal to create an SNS named 'EKOKE DAO'.
+
+    ## Introduction
+
+dapp_canisters:
+  - v5vof-zqaaa-aaaal-ai5cq-cai # deferred
+  - un25n-wyaaa-aaaal-ams5a-cai # erc20 swap
+  - uk33z-3aaaa-aaaal-ams5q-cai # erc20 swap frontend
+  - v2uir-uiaaa-aaaal-ai5ca-cai # liquidity pool
+  - vtxdn-caaaa-aaaal-ai5dq-cai # EKOKE REWARD POOL
+  - vuwfz-pyaaa-aaaal-ai5da-cai # marketplace
+
+Proposals:
+  rejection_fee: 1_280_000 e8s
+  initial_voting_period: 4d
+  maximum_wait_for_quiet_deadline_extension: 1 day
+
+Neurons:
+  minimum_creation_stake: 500_000_000 e8s
+
+Voting:
+  minimum_dissolve_delay: 26 weeks
+
+  MaximumVotingPowerBonuses:
+    DissolveDelay:
+      duration: 8 years
+      bonus: 100%
+
+    Age:
+      duration: 4 years
+      bonus: 25%
+
+  RewardRate:
+    initial: 2.5%
+    final: 2.0%
+    transition_duration: 12 years
+
+fallback_controller_principals:
+  [siur6-vjlpc-yfvqh-t24v2-phx5n-r5mvm-v7kbo-s6ubm-idjky-jgwug-7qe]
+
+Distribution:
+  Neurons:
+    - principal: vtxdn-caaaa-aaaal-ai5dq-cai # EKOKE REWARD POOL (missing: 1_664_030.303)
+      stake: 1_000_000 tokens
+      memo: 0
+      dissolve_delay: 3 years
+      vesting_period: 3 years
+
+    - principal: siur6-vjlpc-yfvqh-t24v2-phx5n-r5mvm-v7kbo-s6ubm-idjky-jgwug-7qe # dev team
+      stake: 1_332_015.152 tokens
+      memo: 0
+      dissolve_delay: 1 month
+      vesting_period: 1 month 1 second
+
+  InitialBalances:
+    governance: 2_131_224.242 tokens
+    swap: 4_416_861.616 tokens
+
+  total: 8_880_101.01 tokens
+
+Swap:
+  minimum_participants: 40
+
+  minimum_direct_participation_icp: 6_000 tokens
+  maximum_direct_participation_icp: 60_000 tokens
+
+  minimum_participant_icp: 10 tokens
+  maximum_participant_icp: 10_000 tokens
+
+  confirmation_text: >
+    I confirm my understanding of the responsibilities and risks
+    associated with participating in this token swap.
+
+  restricted_countries:
+    - US
+    - KP
+
+  VestingSchedule:
+    events: 4
+    interval: 1 months
+
+  start_time: 12:00 UTC
+  duration: 14 days
+
+  neurons_fund_participation: true
