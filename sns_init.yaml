@@ -17,6 +17,28 @@ NnsProposal:
 
     ## Introduction
 
+    Greetings IC fam, it's the EKOKE team! We're thrilled to announce our SNS DAO proposal!
+
+    EKOKE is ready to unveil its SNS DAO and will initiate decentralized real estate operations once key milestones are met. Below are vital aspects of our journey.
+
+    ## What is EKOKE
+
+    EKOKE is an innovative tool that aims to innovate the real estate industry. Here are some key points about EKOKE token:
+
+    1. Tokenization of Real Assets: Ekoke focuses on the tokenization of real assets, allowing digital representation of real estate properties. This enables tokenization, installment sales and self-financing in the real estate market.
+    2. NFT Marketplace: Ekoke token also contributes to creating an Non-Fungible Token market dedicated to real estate. NFTs represent unique digital assets and can be linked to specific properties, providing a new way to trade and invest in real estate.
+    3. Built on ICP Blockchain: Ekoke token is built on the Internet Computer blockchain, which ensures security, efficiency, and reliability for real estate transactions. The ICP blockchain offers velocity and robust document conservation.
+    4. Finite Supply and Deflationary Mechanism:
+
+        - Ekoke Token has a limited quantity of 8.880.101 pieces, designed to resist inflationary pressures.
+        - It employs a deflationary economic model, leading to a decrease in circulating supply over time. This scarcity enhances its potential as a defense mechanism against inflation.
+        - The token's extended 99-year lifespan adds stability, serving as a long-term hedge against inflation trends.
+
+    5. Autonomous Governance by DAO: As Ekoke Token evolves, it transitions into an autonomous phase managed by a Decentralized Autonomous Organization in Wyoming US state. This decentralized governance structure enhances transparency and resiliency.
+    6. Rewards for Digital Property Holders: Ekoke Token serves as a rewarding instrument for holders of digital assets. Investors participating in the Ekoke ecosystem may benefit from its deflationary nature and potential value appreciation over time.
+    7. Real Estate Compliance: The property description from EKOKE is based on official documents such as the title deed, cadastral survey, energy certificate, electrical system certificate, and other pertinent documents as required by local laws. It also includes geolocated and dated photos of the property and the identity documents of both the seller and buyer. EKOKE validates these documents for accuracy before they are included in a property-specific NFT collection, which provides a basic description for prospective buyers. Access to sensitive data is restricted to lenders only. Once the debtor and the seller fully settle their debts, the NFT representing the property is deleted.
+    8. Network of Real Estate Agencies and Lawyers: The identities of both the buyer and seller are verified through local real estate agents and lawyers.
+
 dapp_canisters:
   - v5vof-zqaaa-aaaal-ai5cq-cai # deferred
   - un25n-wyaaa-aaaal-ams5a-cai # erc20 swap
@@ -76,8 +98,8 @@ Distribution:
 Swap:
   minimum_participants: 40
 
-  minimum_direct_participation_icp: 6_000 tokens
-  maximum_direct_participation_icp: 60_000 tokens
+  minimum_direct_participation_icp: 36 tokens
+  maximum_direct_participation_icp: 369_000 tokens
 
   minimum_participant_icp: 10 tokens
   maximum_participant_icp: 10_000 tokens
