@@ -81,6 +81,52 @@ deploy_ekoke_reward_pool() {
 
 }
 
+deploy_ekoke_icrc_index() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  LEDGER_PRINCIPAL="$3"
+
+  echo "deploying ekoke-icrc-index canister"
+
+  ekoke_icrc_index_init_args="(record {
+    ledger_id = principal \"$LEDGER_PRINCIPAL\";
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_icrc_index_init_args" ekoke-icrc-index
+
+}
+
+deploy_ekoke_icrc_ledger() {
+  INSTALL_MODE="$1"
+  NETWORK="$2"
+  INDEX_PRINCIPAL="$3"
+  OWNER="$4"
+
+  echo "deploying ekoke-icrc-ledger canister"
+
+  ekoke_icrc_leger_init_args="(variant {
+    Init = record {
+      minting_account = record { owner = principal \"$OWNER\"; };
+      transfer_fee = 1000;
+      decimals = opt 8;
+      token_name = \"Ekoke\";
+      token_symbol = \"EKOKE\";
+      metadata = vec {};
+      initial_balances = vec {};
+      feature_flags = opt record {
+        icrc2 = true;
+      };
+      archive_options = record {
+        trigger_threshold = 10_000_000;
+          num_blocks_to_archive = 1_000_000;
+          controller_id = principal \"$INDEX_PRINCIPAL\";
+      };
+    }
+  })"
+
+  dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$ekoke_icrc_leger_init_args" ekoke-icrc-ledger
+}
+
 deploy_ekoke_liquidity_pool() {
   INSTALL_MODE="$1"
   NETWORK="$2"

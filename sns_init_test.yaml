@@ -21,6 +21,8 @@ dapp_canisters:
     - DEFERRED # deferred
     - EKOKE_ERC20_SWAP # erc20 swap
     - EKOKE_ERC20_SWAP_FRONTEND # erc20 swap frontend
+    - EKOKE_ICRC_INDEX # icrc index
+    - EKOKE_ICRC_LEDGER # icrc ledger
     - EKOKE_LIQUIDITY_POOL # liquidity pool
     - EKOKE_REWARD_POOL # EKOKE REWARD POOL
     - MARKETPLACE # marketplace

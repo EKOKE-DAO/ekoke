@@ -18,6 +18,16 @@
       "source": ["src/ekoke_erc20_swap_frontend/dist"],
       "type": "assets"
     },
+    "ekoke-icrc-index": {
+      "candid": "docs/did/icrc1-index.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/ekoke-icrc-index.wasm.gz"
+    },
+    "ekoke-icrc-ledger": {
+      "candid": "docs/did/icrc1-ledger.did",
+      "type": "custom",
+      "wasm": "./assets/wasm/ekoke-icrc-ledger.wasm.gz"
+    },
     "ekoke-liquidity-pool": {
       "candid": "src/ekoke_liquidity_pool/ekoke-liquidity-pool.did",
       "package": "ekoke_liquidity_pool",

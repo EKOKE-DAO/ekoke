@@ -18,6 +18,8 @@ if [ -z "$CANISTER" ]; then
   echo "Available canisters:"
   echo "- deferred"
   echo "- ekoke-erc20-swap"
+  echo "- ekoke-erc20-swap-frontend"
+  echo "- ekoke-icrc"
   echo "- ekoke-liquidity-pool"
   echo "- ekoke-reward-pool"
   echo "- marketplace"
@@ -45,6 +47,21 @@ case "$CANISTER" in
   
   "ekoke-erc20-swap-frontend")
     deploy_ekoke_erc20_swap_frontend "reinstall" "ic"
+    ;;
+
+  "ekoke-icrc")
+    echo "Creating ekoke-icrc canister"
+    
+    dfx canister create --ic ekoke-icrc-ledger
+    EKOKE_LEDGER_PRINCIPAL="$(dfx canister id --ic ekoke-icrc-ledger)"
+    echo "Created ekoke-icrc-ledger canister with principal $EKOKE_LEDGER_PRINCIPAL"\
+
+    deploy_ekoke_icrc_index "reinstall" "ic" "$EKOKE_LEDGER_PRINCIPAL"
+    EKOKE_INDEX_PRINCIPAL="$(dfx canister id --ic ekoke-icrc-index)"
+    echo "Deployed ekoke-icrc-index canister with principal $EKOKE_INDEX_PRINCIPAL"
+
+    deploy_ekoke_icrc_ledger "reinstall" "ic" "$EKOKE_INDEX_PRINCIPAL" "$ADMIN_PRINCIPAL"
+    echo "Deployed ekoke-icrc-ledger canister with principal $EKOKE_LEDGER_PRINCIPAL"
     ;;
   
   "ekoke-liquidity-pool")

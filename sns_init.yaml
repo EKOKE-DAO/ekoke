@@ -4,8 +4,8 @@ url: https://dapp.ekoketoken.com
 logo: ./assets/images/ekoke-logo.png
 
 Token:
-  name: EKOKE
-  symbol: EKOKE
+  name: EKOKE Governance Token
+  symbol: EKOGOV
   transaction_fee: 1000 e8s # 0.00001 EKOKE
   logo: ./assets/images/ekoke-logo.png
 
@@ -41,6 +41,8 @@ NnsProposal:
 
 dapp_canisters:
   - v5vof-zqaaa-aaaal-ai5cq-cai # deferred
+  - TODO: index
+  - TODO: ledger
   - un25n-wyaaa-aaaal-ams5a-cai # erc20 swap
   - uk33z-3aaaa-aaaal-ams5q-cai # erc20 swap frontend
   - v2uir-uiaaa-aaaal-ai5ca-cai # liquidity pool
