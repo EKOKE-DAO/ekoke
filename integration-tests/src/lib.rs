@@ -402,9 +402,9 @@ impl TestEnv {
             fee_collector_account: None,
             feature_flags: Some(FeatureFlags { icrc2: true }),
             initial_balances: vec![
-                (actor::alice_account().into(), alice_balance.clone()),
-                (actor::bob_account().into(), alice_balance.clone()),
-                (actor::charlie_account().into(), alice_balance.clone()),
+                (actor::alice_account(), alice_balance.clone()),
+                (actor::bob_account(), alice_balance.clone()),
+                (actor::charlie_account(), alice_balance.clone()),
                 (ekoke_reward_pool_account, reward_pool_balance),
             ],
             transfer_fee: 1_000u64.into(),
