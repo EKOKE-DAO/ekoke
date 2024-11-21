@@ -11,6 +11,9 @@
     "deploy:sepolia": "hardhat run --network sepolia scripts/deploy.ts",
     "deploy:ethereum": "hardhat run --network ethereum scripts/deploy.ts"
   },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
@@ -40,8 +43,5 @@
     "typechain": "^8.3.2",
     "typescript": "^5.3.3",
     "web3": "^4.3.0"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.0.1"
   }
 }
