@@ -13,14 +13,14 @@ jobs:
           node-version: "20.x"
       - run: yarn --ignore-scripts
         shell: bash
-        working-directory: ./ethereum/ekoke
+        working-directory: ./ethereum
       - name: Create local node and deploy
         run: |
           cp .env.github .env &&
           yarn hardhat node &
           sleep 2 &&
           yarn deploy:localhost
-        working-directory: ./ethereum/ekoke
+        working-directory: ./ethereum
       - name: tests
         run: yarn hardhat test
-        working-directory: ./ethereum/ekoke
+        working-directory: ./ethereum
