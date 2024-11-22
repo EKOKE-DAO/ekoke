@@ -102,6 +102,15 @@ contract RewardPool is Ownable {
         emit RewardSent(_to, _amount);
     }
 
+    /// @notice Get the available reward in the reward pool
+    /// @return available the amount of EKOKE tokens available for the reward
+    function availableReward() external view returns (uint256 available) {
+        uint256 mintedAmount = Ekoke(ekoke).rewardPoolMintedSupply();
+        uint256 maximumRewardSupply = Ekoke(ekoke).MAX_REWARD_POOL_MINT();
+
+        return maximumRewardSupply - (mintedAmount + reservedAmount);
+    }
+
     /// @notice Set the address of the marketplace
     /// @param _marketplace The address of the marketplace
     function adminSetMarketplace(address _marketplace) external onlyOwner {

@@ -119,4 +119,28 @@ describe("RewardPool", () => {
       rewardPool.connect(marketplace).sendReward(alice.address, totalReward * 2)
     ).to.be.revertedWith("RewardPool: not enough reserved amount");
   });
+
+  it("Should tell available rewards", async () => {
+    const { rewardPool, deferred, ekoke, alice } = deploy;
+
+    await rewardPool.connect(deferred).reservePool(10_000, 1000);
+    const reserved = await rewardPool.reservedAmount();
+
+    // trick to change temporarily the reward pool address
+    await ekoke.adminSetRewardPoolAddress(alice.address);
+
+    // mint some rewards on ekoke
+    await ekoke.connect(alice).mintRewardTokens(alice.address, 100_000_000);
+
+    // trick to change temporarily the reward pool address
+    await ekoke.adminSetRewardPoolAddress(rewardPool.getAddress());
+
+    const expectedAvailable =
+      (await ekoke.MAX_REWARD_POOL_MINT()) - reserved - BigInt(100_000_000);
+
+    // check available
+    const availableReward = await rewardPool.availableReward();
+
+    expect(availableReward).to.equal(expectedAvailable);
+  });
 });
