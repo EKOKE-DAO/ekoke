@@ -58,6 +58,8 @@ contract Deferred is ERC721, Ownable {
         uint256 tokenFromId;
         /// @dev The last id of a token associated to the contract (lazy minting)
         uint256 tokenToId;
+        /// @dev The contract status
+        bool closed;
     }
 
     /// @dev The sell contracts
@@ -80,6 +82,12 @@ contract Deferred is ERC721, Ownable {
 
     /// @dev The deferred minter address
     address public deferredMinter = address(0);
+
+    /// @dev Event emitted when a contract is created
+    event ContractCreated(uint256 indexed sellContractId);
+
+    /// @dev Event emitted when the contract is closed
+    event ContractClosed(uint256 indexed sellContractId);
 
     modifier onlyMinter() {
         require(
@@ -183,6 +191,7 @@ contract Deferred is ERC721, Ownable {
         sellContract.tokenPriceUsd = _request.tokenPriceUsd;
         sellContract.tokenFromId = tokenFromId;
         sellContract.tokenToId = tokenToId;
+        sellContract.closed = false;
         // push sellers
         delete sellContract.sellers;
         for (uint256 i = 0; i < sellers.length; i++) {
@@ -192,7 +201,27 @@ contract Deferred is ERC721, Ownable {
         nextTokenId += _request.tokensAmount;
         nextSellContractId += 1;
 
+        // emit event and return contract id
+        emit ContractCreated(contractId);
+
         return contractId;
+    }
+
+    /// @notice Close a sell contract
+    /// @param _contractId The id of the contract to close
+    function closeContract(uint256 _contractId) external onlyMinter {
+        require(_contractId > 0, "Deferred: contractId must be greater than 0");
+        require(
+            _contractId < nextSellContractId,
+            "Deferred: contract does not exist"
+        );
+
+        SellContract storage sellContract = sellContracts[_contractId];
+        require(!sellContract.closed, "Deferred: contract is already closed");
+
+        sellContract.closed = true;
+
+        emit ContractClosed(_contractId);
     }
 
     // ERC721 overrides
@@ -424,7 +453,8 @@ contract Deferred is ERC721, Ownable {
             SellContract memory sellContract = sellContracts[i];
             if (
                 sellContract.tokenFromId <= _tokenId &&
-                _tokenId <= sellContract.tokenToId
+                _tokenId <= sellContract.tokenToId &&
+                !sellContract.closed
             ) {
                 return i;
             }

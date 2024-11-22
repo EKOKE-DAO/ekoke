@@ -283,6 +283,38 @@ describe("Deferred", () => {
     ).to.be.revertedWith("Deferred: tokensAmount must be greater than 0");
   });
 
+  it("Should close a contract", async () => {
+    const { token, minter, alice, bob, charlie } = deploy;
+
+    await token.connect(minter).createContract({
+      sellers: [
+        {
+          seller: alice.address,
+          quota: 60,
+        },
+        {
+          seller: bob.address,
+          quota: 40,
+        },
+      ],
+      metadataUri: "metadataUri",
+      buyers: [charlie.address],
+      ekokeReward: 1_000,
+      tokenPriceUsd: 100,
+      tokensAmount: 40_000,
+    });
+
+    // alice should have 24_000 tokens
+    expect(await token.balanceOf(alice.address)).to.equal(24_000);
+    // bob should have 16_000 tokens
+    expect(await token.balanceOf(bob.address)).to.equal(16_000);
+
+    const contractId = 1;
+
+    // close the contract
+    await token.connect(minter).closeContract(contractId);
+  });
+
   it("Should allow marketplace to transfer tokens", async () => {
     const { token, minter, alice, bob, marketplace } = deploy;
 

@@ -18,6 +18,12 @@ contract RewardPool is Ownable {
     /// @notice The amount of EKOKE tokens reserved for the reward pool
     uint256 public reservedAmount;
 
+    /// @notice Event emitted when the reward pool is reserved
+    event PoolReserved(uint256 reward, uint256 tokens);
+
+    /// @notice Event emitted when the reward is sent
+    event RewardSent(address to, uint256 amount);
+
     modifier onlyMarketplace() {
         require(
             msg.sender == marketplace && marketplace != address(0),
@@ -71,6 +77,8 @@ contract RewardPool is Ownable {
         );
 
         reservedAmount += totalAmount;
+
+        emit PoolReserved(_reward, _tokens);
     }
 
     /// @notice send reward to the provided address
@@ -89,6 +97,9 @@ contract RewardPool is Ownable {
 
         // decrease the reserved amount
         reservedAmount -= _amount;
+
+        // emit event
+        emit RewardSent(_to, _amount);
     }
 
     /// @notice Set the address of the marketplace

@@ -30,6 +30,15 @@ contract Marketplace is Ownable {
     /// @notice tokens that has been sold
     mapping(uint256 => bool) public soldTokens;
 
+    /// @notice Event emitted when a token is bought
+    event TokenBought(
+        address indexed buyer,
+        address indexed seller,
+        uint256 tokenId,
+        uint256 price,
+        uint256 paidAmount
+    );
+
     constructor(
         address _owner,
         address _usdt,
@@ -152,6 +161,15 @@ contract Marketplace is Ownable {
 
         // set the token as sold
         soldTokens[_tokenId] = true;
+
+        // emit the event
+        emit TokenBought(
+            tokenBuyer,
+            tokenSeller,
+            _tokenId,
+            sellContract.tokenPriceUsd,
+            requiredAllowance
+        );
     }
 
     /// @notice Get the interests to pay for the token
