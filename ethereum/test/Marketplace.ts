@@ -73,6 +73,7 @@ describe("RewardPool", () => {
 
     // create a sell contract
     await deferred.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: seller.address,

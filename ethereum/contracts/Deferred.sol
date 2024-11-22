@@ -6,7 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {RewardPool} from "./RewardPool.sol";
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 contract Deferred is ERC721, Ownable {
     struct SellerRequest {
@@ -18,6 +18,8 @@ contract Deferred is ERC721, Ownable {
 
     /// @dev Data to create a contract
     struct CreateContractRequest {
+        /// @dev The id of the contract
+        uint256 contractId;
         /// @dev metadata uri pointing to deferred-data canister uri
         string metadataUri;
         /// @dev Contract sellers
@@ -60,6 +62,8 @@ contract Deferred is ERC721, Ownable {
         uint256 tokenToId;
         /// @dev The contract status
         bool closed;
+        /// @dev The contract exists
+        bool created;
     }
 
     /// @dev The sell contracts
@@ -68,8 +72,8 @@ contract Deferred is ERC721, Ownable {
     /// @dev lazy balances
     mapping(address => uint256) private lazyBalances;
 
-    /// @dev The next sell contract id. ZERO is reserved for non-existing contracts
-    uint256 private nextSellContractId = 1;
+    /// @dev list of sell contracts
+    uint256[] private sellContractIds;
 
     /// @dev The next token id
     uint256 private nextTokenId = 0;
@@ -123,10 +127,16 @@ contract Deferred is ERC721, Ownable {
 
     /// @notice Create a sell contract. Only the minter can call this method
     /// @param _request The request to create a contract
-    /// @return sellContractId The id of the created contract
     function createContract(
         CreateContractRequest memory _request
-    ) external onlyMinter returns (uint256 sellContractId) {
+    ) external onlyMinter {
+        // check if the contract is already created
+        uint256 contractId = _request.contractId;
+        require(contractId > 0, "Deferred: contractId must be greater than 0");
+        require(
+            !sellContracts[contractId].created,
+            "Deferred: contract is already created"
+        );
         require(rewardPool != address(0), "Deferred: reward pool is not set");
         require(
             _request.tokensAmount > 0,
@@ -160,7 +170,6 @@ contract Deferred is ERC721, Ownable {
 
         uint256 tokenFromId = nextTokenId;
         uint256 tokenToId = tokenFromId + _request.tokensAmount - 1;
-        uint256 contractId = nextSellContractId;
 
         // make sellers array
         Seller[] memory sellers = new Seller[](_request.sellers.length);
@@ -192,6 +201,7 @@ contract Deferred is ERC721, Ownable {
         sellContract.tokenFromId = tokenFromId;
         sellContract.tokenToId = tokenToId;
         sellContract.closed = false;
+        sellContract.created = true;
         // push sellers
         delete sellContract.sellers;
         for (uint256 i = 0; i < sellers.length; i++) {
@@ -199,12 +209,11 @@ contract Deferred is ERC721, Ownable {
         }
 
         nextTokenId += _request.tokensAmount;
-        nextSellContractId += 1;
+        // add contract id to the list
+        sellContractIds.push(contractId);
 
         // emit event and return contract id
         emit ContractCreated(contractId);
-
-        return contractId;
     }
 
     /// @notice Close a sell contract
@@ -212,7 +221,7 @@ contract Deferred is ERC721, Ownable {
     function closeContract(uint256 _contractId) external onlyMinter {
         require(_contractId > 0, "Deferred: contractId must be greater than 0");
         require(
-            _contractId < nextSellContractId,
+            sellContracts[_contractId].created,
             "Deferred: contract does not exist"
         );
 
@@ -392,7 +401,7 @@ contract Deferred is ERC721, Ownable {
     ) internal view returns (address _initialOwner) {
         require(_contractId > 0, "Deferred: contractId must be greater than 0");
         require(
-            _contractId < nextSellContractId,
+            sellContracts[_contractId].created,
             "Deferred: contract does not exist"
         );
         require(
@@ -449,14 +458,16 @@ contract Deferred is ERC721, Ownable {
         uint256 _tokenId
     ) internal view returns (uint256 contractId) {
         // check if the token is in a sell contract
-        for (uint256 i = 1; i < nextSellContractId; i++) {
-            SellContract memory sellContract = sellContracts[i];
+        for (uint256 i = 0; i < sellContractIds.length; i++) {
+            uint256 thisContractId = sellContractIds[i];
+            SellContract memory sellContract = sellContracts[thisContractId];
             if (
                 sellContract.tokenFromId <= _tokenId &&
                 _tokenId <= sellContract.tokenToId &&
-                !sellContract.closed
+                !sellContract.closed &&
+                sellContract.created
             ) {
-                return i;
+                return thisContractId;
             }
         }
 

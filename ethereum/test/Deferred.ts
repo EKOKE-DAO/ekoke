@@ -67,6 +67,7 @@ describe("Deferred", () => {
       deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -101,6 +102,7 @@ describe("Deferred", () => {
       deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -134,6 +136,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, charlie } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -157,10 +160,55 @@ describe("Deferred", () => {
     expect(await token.balanceOf(bob.address)).to.equal(16_000);
   });
 
+  it("Should not create a contract with a duplicate id", async () => {
+    const { token, minter, alice, bob, charlie } = deploy;
+
+    await token.connect(minter).createContract({
+      contractId: 1,
+      sellers: [
+        {
+          seller: alice.address,
+          quota: 60,
+        },
+        {
+          seller: bob.address,
+          quota: 40,
+        },
+      ],
+      metadataUri: "metadataUri",
+      buyers: [charlie.address],
+      ekokeReward: 1_000,
+      tokenPriceUsd: 100,
+      tokensAmount: 40_000,
+    });
+
+    await expect(
+      token.connect(minter).createContract({
+        contractId: 1,
+        sellers: [
+          {
+            seller: alice.address,
+            quota: 60,
+          },
+          {
+            seller: bob.address,
+            quota: 40,
+          },
+        ],
+        metadataUri: "metadataUri",
+        buyers: [charlie.address],
+        ekokeReward: 1_000,
+        tokenPriceUsd: 100,
+        tokensAmount: 40_000,
+      })
+    ).to.be.revertedWith("Deferred: contract is already created");
+  });
+
   it("Should create a contract with multiple buyers", async () => {
     const { token, minter, alice, bob, charlie } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -180,6 +228,7 @@ describe("Deferred", () => {
 
     await expect(
       token.connect(minter).createContract({
+        contractId: 1,
         sellers: [
           {
             seller: alice.address,
@@ -204,6 +253,7 @@ describe("Deferred", () => {
 
     await expect(
       token.connect(owner).createContract({
+        contractId: 1,
         sellers: [
           {
             seller: alice.address,
@@ -224,6 +274,7 @@ describe("Deferred", () => {
 
     await expect(
       token.connect(minter).createContract({
+        contractId: 1,
         sellers: [
           {
             seller: alice.address,
@@ -248,6 +299,7 @@ describe("Deferred", () => {
 
     await expect(
       token.connect(minter).createContract({
+        contractId: 1,
         sellers: [
           {
             seller: alice.address,
@@ -268,6 +320,7 @@ describe("Deferred", () => {
 
     await expect(
       token.connect(minter).createContract({
+        contractId: 1,
         sellers: [
           {
             seller: alice.address,
@@ -287,6 +340,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, charlie } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -319,6 +373,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, charlie } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -350,6 +405,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, marketplace } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -376,6 +432,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, charlie, marketplace } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -410,6 +467,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, marketplace } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -436,6 +494,7 @@ describe("Deferred", () => {
     const { token, minter, alice, bob, charlie, marketplace } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
@@ -455,9 +514,10 @@ describe("Deferred", () => {
   });
 
   it("Should not allow setApprovalForAll", async () => {
-    const { token, minter, alice, bob, charlie, marketplace } = deploy;
+    const { token, minter, alice, bob, charlie } = deploy;
 
     await token.connect(minter).createContract({
+      contractId: 1,
       sellers: [
         {
           seller: alice.address,
