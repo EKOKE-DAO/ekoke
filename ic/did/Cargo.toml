@@ -1,0 +1,25 @@
+[package]
+name = "did"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+
+[dependencies]
+candid = { workspace = true }
+ethers-core = { workspace = true }
+hex = { workspace = true }
+ic-cdk = { workspace = true }
+ic-stable-structures = { workspace = true }
+num-bigint = { workspace = true }
+serde = { workspace = true }
+serde_bytes = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = "1"
+serde_json = "1"

@@ -9,14 +9,11 @@ repository = { workspace = true }
 [dependencies]
 anyhow = { workspace = true }
 candid = { workspace = true }
-did = { path = "../src/did" }
-dip721-rs = { workspace = true }
-icrc = { path = "../src/icrc" }
-pocket-ic = "4"
+did = { path = "../ic/did" }
+pocket-ic = "5"
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }
-xrc = { path = "../src/xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"

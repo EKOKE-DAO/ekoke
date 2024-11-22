@@ -1,46 +1,18 @@
 {
   "canisters": {
-    "deferred": {
-      "candid": "src/deferred/deferred.did",
-      "package": "deferred",
+    "evm_rpc": {
+      "type": "pull",
+      "id": "7hfb6-caaaa-aaaar-qadga-cai",
+      "candid": "candid/evm_rpc.did"
+    },
+    "deferred_data": {
+      "candid": "ic/deferred_data/deferred_data.did",
+      "package": "deferred_data",
       "type": "rust"
     },
-    "ekoke-erc20-swap": {
-      "candid": "src/ekoke_erc20_swap/ekoke-erc20-swap.did",
-      "package": "ekoke_erc20_swap",
-      "type": "rust"
-    },
-    "ekoke-erc20-swap-frontend": {
-      "dependencies": ["ekoke-erc20-swap"],
-      "frontend": {
-        "entrypoint": "src/ekoke_erc20_swap_frontend/src/index.html"
-      },
-      "source": ["src/ekoke_erc20_swap_frontend/dist"],
-      "type": "assets"
-    },
-    "ekoke-icrc-index": {
-      "candid": "docs/did/icrc1-index.did",
-      "type": "custom",
-      "wasm": "./assets/wasm/ekoke-icrc-index.wasm.gz"
-    },
-    "ekoke-icrc-ledger": {
-      "candid": "docs/did/icrc1-ledger.did",
-      "type": "custom",
-      "wasm": "./assets/wasm/ekoke-icrc-ledger.wasm.gz"
-    },
-    "ekoke-liquidity-pool": {
-      "candid": "src/ekoke_liquidity_pool/ekoke-liquidity-pool.did",
-      "package": "ekoke_liquidity_pool",
-      "type": "rust"
-    },
-    "ekoke-reward-pool": {
-      "candid": "src/ekoke_reward_pool/ekoke-reward-pool.did",
-      "package": "ekoke_reward_pool",
-      "type": "rust"
-    },
-    "marketplace": {
-      "candid": "src/marketplace/marketplace.did",
-      "package": "marketplace",
+    "deferred_minter": {
+      "candid": "ic/deferred_minter/deferred_minter.did",
+      "package": "deferred_minter",
       "type": "rust"
     },
     "sns_governance": {

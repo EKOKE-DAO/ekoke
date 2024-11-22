@@ -1,0 +1,162 @@
+type Agency = record {
+  vat : text;
+  region : text;
+  zip_code : text;
+  country : text;
+  agent : text;
+  owner : principal;
+  city : text;
+  logo : opt text;
+  name : text;
+  continent : Continent;
+  email : text;
+  website : text;
+  address : text;
+  mobile : text;
+};
+type CloseContractError = variant {
+  ContractNotFound : nat;
+  ContractNotExpired : nat;
+};
+type ConfigurationError = variant { CustodialsCantBeEmpty; AnonymousCustodial };
+type ConfigurationError_1 = variant { AnonymousOwner; AnonymousMinter };
+type Continent = variant {
+  Africa;
+  Antarctica;
+  Asia;
+  Europe;
+  SouthAmerica;
+  Oceania;
+  NorthAmerica;
+};
+type ContractError = variant {
+  CurrencyNotAllowed : text;
+  ContractValueIsNotMultipleOfInstallments;
+  ContractSellerQuotaIsNot100;
+  ContractNotFound : nat;
+  CannotCloseContract;
+  ContractHasNoSeller;
+  ContractHasNoBuyer;
+  BadContractExpiration;
+  ContractHasNoTokens;
+  BadContractProperty;
+};
+type ContractError_1 = variant {
+  ContractIsClosed : nat;
+  ContractNotFound : nat;
+  BadContractProperty;
+};
+type ContractRegistration = record {
+  value : nat64;
+  "type" : ContractType;
+  restricted_properties : vec record { text; RestrictedProperty };
+  properties : vec record { text; GenericValue };
+  deposit : nat64;
+  sellers : vec Seller;
+  expiration : text;
+  currency : text;
+  installments : nat64;
+  buyers : vec text;
+};
+type ContractType = variant { Sell; Financing };
+type DeferredDataError = variant {
+  Configuration : ConfigurationError_1;
+  Contract : ContractError_1;
+  InvalidSignature;
+  Unauthorized;
+  StorageError;
+  CanisterCall : record { RejectionCode; text };
+};
+type DeferredMinterError = variant {
+  Configuration : ConfigurationError;
+  Contract : ContractError;
+  CloseContract : CloseContractError;
+  Unauthorized;
+  FailedToDecodeOutput : text;
+  EvmRpc : text;
+  DataCanister : DeferredDataError;
+  StorageError;
+  CanisterCall : record { RejectionCode; text };
+  Ecdsa : EcdsaError;
+};
+type DeferredMinterInitData = record {
+  deferred_erc721 : text;
+  evm_rpc_api : opt text;
+  allowed_currencies : vec text;
+  deferred_data : principal;
+  reward_pool : text;
+  custodians : vec principal;
+  chain_id : nat64;
+  evm_rpc : principal;
+  ecdsa_key : EcdsaKey;
+};
+type EcdsaError = variant {
+  RecoveryIdError;
+  InvalidSignature;
+  InvalidPublicKey;
+};
+type EcdsaKey = variant { Dfx; Production; Test };
+type GenericValue = variant {
+  Nat64Content : nat64;
+  Nat32Content : nat32;
+  BoolContent : bool;
+  Nat8Content : nat8;
+  Int64Content : int64;
+  IntContent : int;
+  NatContent : nat;
+  Nat16Content : nat16;
+  Int32Content : int32;
+  Int8Content : int8;
+  FloatContent : float64;
+  Int16Content : int16;
+  BlobContent : blob;
+  NestedContent : vec record { text; GenericValue };
+  Principal : principal;
+  TextContent : text;
+};
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : blob;
+  headers : vec record { text; text };
+};
+type HttpResponse = record {
+  body : blob;
+  headers : vec record { text; text };
+  upgrade : opt bool;
+  status_code : nat16;
+};
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
+type RestrictedProperty = record {
+  value : GenericValue;
+  access_list : vec RestrictionLevel;
+};
+type RestrictionLevel = variant { Buyer; Seller; Agent };
+type Result = variant { Ok; Err : DeferredMinterError };
+type Result_1 = variant { Ok : nat; Err : DeferredMinterError };
+type Result_2 = variant { Ok : text; Err : DeferredMinterError };
+type Role = variant { Custodian; Agent; GasStation };
+type Seller = record { quota : nat8; address : text };
+service : (DeferredMinterInitData) -> {
+  admin_cycles : () -> (nat) query;
+  admin_register_agency : (principal, Agency) -> ();
+  admin_remove_role : (principal, Role) -> (Result);
+  admin_set_allowed_currencies : (vec text) -> ();
+  admin_set_custodians : (vec principal) -> (Result);
+  admin_set_role : (principal, Role) -> ();
+  close_contract : (nat) -> (Result);
+  create_contract : (ContractRegistration) -> (Result_1);
+  gas_station_set_gas_price : (nat64) -> (Result);
+  get_agencies : () -> (vec Agency) query;
+  get_eth_address : () -> (Result_2);
+  http_request : (HttpRequest) -> (HttpResponse) query;
+  remove_agency : (principal) -> (Result);
+}

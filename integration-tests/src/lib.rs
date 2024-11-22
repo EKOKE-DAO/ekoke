@@ -8,41 +8,23 @@ mod wasm;
 
 use std::io::Read as _;
 use std::path::PathBuf;
-use std::vec;
 
-use candid::{CandidType, Decode, Encode, Nat, Principal};
-use did::deferred::DeferredInitData;
-use did::ekoke::Ekoke;
-use did::ekoke_erc20_swap::{EkokeErc20SwapInitData, EthNetwork};
-use did::ekoke_liquidity_pool::EkokeLiquidityPoolInitData;
-use did::ekoke_reward_pool::EkokeRewardPoolInitData;
-use did::marketplace::MarketplaceInitData;
-use did::H160;
-use icrc::icrc1::account::Account;
+use candid::{CandidType, Decode, Encode, Principal};
+use did::deferred::DeferredDataInitData;
 use pocket_ic::common::rest::SubnetConfigSet;
 use pocket_ic::{PocketIc, WasmResult};
 use serde::de::DeserializeOwned;
-use wasm::{ArchiveOptions, FeatureFlags, IcrcIndexInitArgs, IcrcLedgerArgs, IcrcLedgerInitArgs};
-use xrc::{Asset, AssetClass, ExchangeRate, ExchangeRateMetadata};
 
 use self::wasm::Canister;
-use crate::wasm::Icrc2TemplateInitArgs;
 
 const DEFAULT_CYCLES: u128 = 2_000_000_000_000_000;
 
 /// Test environment
 pub struct TestEnv {
     pub pic: PocketIc,
-    pub cketh_ledger_id: Principal,
-    pub cketh_minter_id: Principal,
-    pub deferred_id: Principal,
-    pub ekoke_erc20_swap_id: Principal,
-    pub ekoke_ledger_id: Principal,
-    pub ekoke_liquidity_pool_id: Principal,
-    pub ekoke_reward_pool_id: Principal,
-    pub icp_ledger_id: Principal,
-    pub marketplace_id: Principal,
-    pub xrc_id: Principal,
+    pub deferred_data: Principal,
+    pub deferred_minter: Principal,
+    pub evm_rpc: Principal,
 }
 
 impl TestEnv {
@@ -104,355 +86,31 @@ impl TestEnv {
         let pic = PocketIc::from_config(config);
 
         // create canisters
-        let icp_ledger_id = pic.create_canister();
-        let cketh_ledger_id = pic.create_canister();
-        let cketh_minter_id = pic.create_canister();
-        let xrc_id = pic.create_canister();
-        let deferred_id = pic.create_canister();
-        let ekoke_erc20_swap_id = pic.create_canister();
-        let ekoke_icrc_index_id = pic.create_canister();
-        let ekoke_icrc_ledger_id = pic.create_canister();
-        let ekoke_liquidity_pool_id = pic.create_canister();
-        let ekoke_reward_pool_id = pic.create_canister();
-        let marketplace_id = pic.create_canister();
+        let deferred_data = pic.create_canister();
+        let deferred_minter = pic.create_canister();
+        let evm_rpc = pic.create_canister();
 
-        // install deferred canister
-        Self::install_icrc2(
-            &pic,
-            icp_ledger_id,
-            "ICP",
-            "Internet Computer",
-            8,
-            vec![(
-                Account::from(ekoke_liquidity_pool_id),
-                1_000_000_000 * 100_000_000,
-            )],
-        );
-        Self::install_icrc2(&pic, cketh_ledger_id, "ckETH", "ckETH", 18, vec![]);
-        Self::install_deferred(
-            &pic,
-            deferred_id,
-            ekoke_reward_pool_id,
-            marketplace_id,
-            icp_ledger_id,
-            ekoke_liquidity_pool_id,
-        );
-        Self::install_xrc(&pic, xrc_id);
-        Self::install_ekoke_erc20_swap(
-            &pic,
-            ekoke_erc20_swap_id,
-            cketh_ledger_id,
-            cketh_minter_id,
-            ekoke_icrc_ledger_id,
-        );
-        Self::install_ekoke_index(&pic, ekoke_icrc_index_id, ekoke_icrc_ledger_id);
-        Self::install_ekoke_ledger(
-            &pic,
-            ekoke_icrc_ledger_id,
-            ekoke_icrc_index_id,
-            ekoke_reward_pool_id,
-        );
-        Self::install_ekoke_liquidity_pool(
-            &pic,
-            ekoke_liquidity_pool_id,
-            icp_ledger_id,
-            deferred_id,
-        );
-        Self::install_ekoke_reward_pool(
-            &pic,
-            ekoke_reward_pool_id,
-            deferred_id,
-            ekoke_icrc_ledger_id,
-            marketplace_id,
-        );
-        Self::install_marketplace(
-            &pic,
-            marketplace_id,
-            deferred_id,
-            ekoke_reward_pool_id,
-            ekoke_liquidity_pool_id,
-            xrc_id,
-            icp_ledger_id,
-        );
+        // install
+        Self::install_deferred_data(&pic, deferred_data, deferred_minter);
 
         TestEnv {
             pic,
-            cketh_ledger_id,
-            cketh_minter_id,
-            deferred_id,
-            icp_ledger_id,
-            ekoke_erc20_swap_id,
-            ekoke_reward_pool_id,
-            ekoke_ledger_id: ekoke_icrc_ledger_id,
-            ekoke_liquidity_pool_id,
-            marketplace_id,
-            xrc_id,
+            deferred_data,
+            deferred_minter,
+            evm_rpc,
         }
     }
 
-    fn install_xrc(pic: &PocketIc, xrc_id: Principal) {
-        pic.add_cycles(xrc_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Xrc);
-        let eur = Asset {
-            symbol: "EUR".to_string(),
-            class: AssetClass::FiatCurrency,
-        };
-        let icp = Asset {
-            symbol: "ICP".to_string(),
-            class: AssetClass::Cryptocurrency,
-        };
-        let btc = Asset {
-            symbol: "BTC".to_string(),
-            class: AssetClass::Cryptocurrency,
-        };
+    fn install_deferred_data(pic: &PocketIc, canister_id: Principal, deferred_minter: Principal) {
+        pic.add_cycles(canister_id, DEFAULT_CYCLES);
+        let wasm_bytes = Self::load_wasm(Canister::DeferredData);
 
-        let eur_icp = ExchangeRate {
-            base_asset: eur,
-            quote_asset: icp.clone(),
-            rate: 813000000,
-            timestamp: 0,
-            metadata: ExchangeRateMetadata {
-                decimals: 8,
-                base_asset_num_queried_sources: 0,
-                base_asset_num_received_rates: 0,
-                quote_asset_num_queried_sources: 0,
-                quote_asset_num_received_rates: 0,
-                standard_deviation: 0,
-                forex_timestamp: None,
-            },
-        };
-        let icp_btc = ExchangeRate {
-            base_asset: icp.clone(),
-            quote_asset: btc,
-            rate: 2162,
-            timestamp: 0,
-            metadata: ExchangeRateMetadata {
-                decimals: 8,
-                base_asset_num_queried_sources: 0,
-                base_asset_num_received_rates: 0,
-                quote_asset_num_queried_sources: 0,
-                quote_asset_num_received_rates: 0,
-                standard_deviation: 0,
-                forex_timestamp: None,
-            },
-        };
-
-        let init_arg = client::XrcxInitArgs {
-            rates: vec![eur_icp, icp_btc],
+        let init_arg = DeferredDataInitData {
+            minter: deferred_minter,
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
-        pic.install_canister(xrc_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_icrc2(
-        pic: &PocketIc,
-        id: Principal,
-        symbol: &str,
-        name: &str,
-        decimals: u8,
-        initial_balances: Vec<(Account, u64)>,
-    ) {
-        let initial_balances = vec![
-            (actor::alice_account(), 1_000_000_000_000_000_u64),
-            (actor::bob_account(), 1_000_000_000_000_000_u64),
-            (actor::charlie_account(), 1_000_000_000_000_000_u64),
-        ]
-        .into_iter()
-        .chain(initial_balances)
-        .map(|(account, balance)| (account, Nat::from(balance)))
-        .collect::<Vec<_>>();
-
-        pic.add_cycles(id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Icrc2Template);
-        let init_arg = Encode!(&Icrc2TemplateInitArgs {
-            name: name.to_string(),
-            symbol: symbol.to_string(),
-            decimals,
-            fee: 10,
-            logo: "https://ic0.app/img/logo.png".to_string(),
-            minting_account: actor::minting_account(),
-            total_supply: Nat::from(1_000_000_000_000_000_000_u64),
-            accounts: initial_balances,
-        })
-        .unwrap();
-
-        pic.install_canister(id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_deferred(
-        pic: &PocketIc,
-        deferred_id: Principal,
-        ekoke_reward_pool_id: Principal,
-        marketplace_id: Principal,
-        icp_ledger_canister: Principal,
-        liquidity_pool_id: Principal,
-    ) {
-        pic.add_cycles(deferred_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Deferred);
-
-        let init_arg = DeferredInitData {
-            allowed_currencies: vec!["USD".to_string(), "EUR".to_string()],
-            custodians: vec![actor::admin()],
-            ekoke_reward_pool_canister: ekoke_reward_pool_id,
-            icp_ledger_canister,
-            liquidity_pool_canister: liquidity_pool_id,
-            marketplace_canister: marketplace_id,
-        };
-        let init_arg = Encode!(&init_arg).unwrap();
-
-        pic.install_canister(deferred_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_ekoke_erc20_swap(
-        pic: &PocketIc,
-        ekoke_erc20_swap_id: Principal,
-        cketh_ledger_canister: Principal,
-        cketh_minter_canister: Principal,
-        ledger_id: Principal,
-    ) {
-        pic.add_cycles(ekoke_erc20_swap_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::EkokeErc20Swap);
-
-        let init_arg = EkokeErc20SwapInitData {
-            admins: vec![actor::admin()],
-            cketh_ledger_canister,
-            cketh_minter_canister,
-            ledger_id,
-            erc20_bridge_address: H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663")
-                .unwrap(),
-            erc20_gas_price: 39_000_000_000_u64, // 39 gwei
-            erc20_network: EthNetwork::Sepolia,
-        };
-
-        let init_arg = Encode!(&init_arg).unwrap();
-
-        pic.install_canister(ekoke_erc20_swap_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_ekoke_liquidity_pool(
-        pic: &PocketIc,
-        ekoke_liquidity_pool_id: Principal,
-        icp_ledger_canister: Principal,
-        deferred_id: Principal,
-    ) {
-        pic.add_cycles(ekoke_liquidity_pool_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::EkokeLiquidityPool);
-
-        let init_arg = EkokeLiquidityPoolInitData {
-            admins: vec![actor::admin()],
-            icp_ledger_canister,
-            deferred_canister: deferred_id,
-        };
-        let init_arg = Encode!(&init_arg).unwrap();
-
-        pic.install_canister(ekoke_liquidity_pool_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_ekoke_reward_pool(
-        pic: &PocketIc,
-        ekoke_reward_pool_id: Principal,
-        deferred_id: Principal,
-        ledger_id: Principal,
-        marketplace_id: Principal,
-    ) {
-        pic.add_cycles(ekoke_reward_pool_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::EkokeRewardPool);
-
-        let init_arg = EkokeRewardPoolInitData {
-            admins: vec![actor::admin()],
-            deferred_canister: deferred_id,
-            ledger_canister: ledger_id,
-            marketplace_canister: marketplace_id,
-        };
-        let init_arg = Encode!(&init_arg).unwrap();
-
-        pic.install_canister(ekoke_reward_pool_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_ekoke_index(pic: &PocketIc, ekoke_index_id: Principal, ekoke_ledger_id: Principal) {
-        pic.add_cycles(ekoke_index_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::EkokeIcrcIndex);
-
-        let init_arg = Encode!(&IcrcIndexInitArgs {
-            ledger_id: ekoke_ledger_id,
-        })
-        .unwrap();
-
-        pic.install_canister(ekoke_index_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_ekoke_ledger(
-        pic: &PocketIc,
-        ekoke_ledger_id: Principal,
-        ekoke_index_id: Principal,
-        ekoke_reward_pool: Principal,
-    ) {
-        let total_supply = 888_010_101_000_000_u64;
-        let alice_balance = ekoke_to_e8s(50_000);
-        let reward_pool_balance =
-            total_supply - alice_balance.clone() - alice_balance.clone() - alice_balance.clone();
-        let ekoke_reward_pool_account = Account::from(ekoke_reward_pool);
-
-        pic.add_cycles(ekoke_ledger_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::EkokeIcrcLedger);
-
-        let init_arg = Encode!(&IcrcLedgerArgs::Init(IcrcLedgerInitArgs {
-            minting_account: actor::admin().into(),
-            fee_collector_account: None,
-            feature_flags: Some(FeatureFlags { icrc2: true }),
-            initial_balances: vec![
-                (actor::alice_account(), alice_balance.clone()),
-                (actor::bob_account(), alice_balance.clone()),
-                (actor::charlie_account(), alice_balance.clone()),
-                (ekoke_reward_pool_account, reward_pool_balance),
-            ],
-            transfer_fee: 1_000u64.into(),
-            decimals: Some(8),
-            token_name: "EKOKE".to_string(),
-            token_symbol: "EKOKE".to_string(),
-            metadata: vec![],
-            archive_options: ArchiveOptions {
-                trigger_threshold: 10_000_000,
-                num_blocks_to_archive: 1_000_000,
-                node_max_memory_size_bytes: None,
-                max_message_size_bytes: None,
-                controller_id: ekoke_index_id,
-                cycles_for_archive_creation: None,
-                max_transactions_per_response: None,
-            },
-            max_memo_length: None,
-            maximum_number_of_accounts: None,
-            accounts_overflow_trim_quantity: None,
-        }))
-        .unwrap();
-
-        pic.install_canister(ekoke_ledger_id, wasm_bytes, init_arg, None);
-    }
-
-    fn install_marketplace(
-        pic: &PocketIc,
-        marketplace_id: Principal,
-        deferred_id: Principal,
-        ekoke_reward_pool_id: Principal,
-        ekoke_liquidity_pool_id: Principal,
-        xrc_canister: Principal,
-        icp_ledger_canister: Principal,
-    ) {
-        pic.add_cycles(marketplace_id, DEFAULT_CYCLES);
-        let wasm_bytes = Self::load_wasm(Canister::Marketplace);
-
-        let init_arg = MarketplaceInitData {
-            admins: vec![actor::admin()],
-            deferred_canister: deferred_id,
-            ekoke_reward_pool_canister: ekoke_reward_pool_id,
-            ekoke_liquidity_pool_canister: ekoke_liquidity_pool_id,
-            xrc_canister,
-            icp_ledger_canister,
-        };
-        let init_arg = Encode!(&init_arg).unwrap();
-
-        pic.install_canister(marketplace_id, wasm_bytes, init_arg, None);
+        pic.install_canister(canister_id, wasm_bytes, init_arg, None);
     }
 
     fn load_wasm(canister: Canister) -> Vec<u8> {
@@ -477,10 +135,4 @@ impl Drop for TestEnv {
             }
         }
     }
-}
-
-pub fn ekoke_to_e8s(amount: u64) -> Ekoke {
-    let amount = Nat::from(amount);
-    let multiplier = Nat::from(100_000_000_u64);
-    amount * multiplier
 }

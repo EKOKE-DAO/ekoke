@@ -1,15 +1,7 @@
-mod deferred;
-mod ekoke_liquidity_pool;
-mod ekoke_reward_pool;
+mod deferred_data;
+mod deferred_minter;
 mod http;
-mod icrc;
-mod marketplace;
-mod xrc;
 
-pub use deferred::DeferredClient;
-pub use ekoke_liquidity_pool::EkokeLiquidityPoolClient;
-pub use ekoke_reward_pool::EkokeRewardPoolClient;
+pub use deferred_data::DeferredDataClient;
+pub use deferred_minter::DeferredMinterClient;
 pub use http::HttpClient;
-pub use icrc::IcrcLedgerClient;
-pub use marketplace::MarketplaceClient;
-pub use xrc::InitArgs as XrcxInitArgs;
