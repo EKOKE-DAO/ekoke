@@ -315,6 +315,37 @@ describe("Deferred", () => {
     await token.connect(minter).closeContract(contractId);
   });
 
+  it("Should not return closed contracts", async () => {
+    const { token, minter, alice, bob, charlie } = deploy;
+
+    await token.connect(minter).createContract({
+      sellers: [
+        {
+          seller: alice.address,
+          quota: 60,
+        },
+        {
+          seller: bob.address,
+          quota: 40,
+        },
+      ],
+      metadataUri: "metadataUri",
+      buyers: [charlie.address],
+      ekokeReward: 1_000,
+      tokenPriceUsd: 100,
+      tokensAmount: 40_000,
+    });
+
+    expect((await token.tokenContract(0)).closed).to.equal(false);
+
+    // close the contract
+    await token.connect(minter).closeContract(1);
+
+    await expect(token.tokenContract(1)).to.be.revertedWith(
+      "Deferred: token does not exist"
+    );
+  });
+
   it("Should allow marketplace to transfer tokens", async () => {
     const { token, minter, alice, bob, marketplace } = deploy;
 
