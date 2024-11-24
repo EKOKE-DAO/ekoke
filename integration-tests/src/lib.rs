@@ -4,6 +4,7 @@
 
 pub mod actor;
 pub mod client;
+mod evm;
 mod wasm;
 
 use std::io::Read as _;

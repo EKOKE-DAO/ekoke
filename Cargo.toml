@@ -1,8 +1,8 @@
 [workspace]
 members = [
-  "ic/deferred_data",
-  "ic/deferred_minter",
-  "ic/did",
+  "src/deferred_data",
+  "src/deferred_minter",
+  "src/did",
   "integration-tests",
 ]
 resolver = "2"

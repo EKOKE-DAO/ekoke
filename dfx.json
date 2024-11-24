@@ -6,12 +6,12 @@
       "candid": "candid/evm_rpc.did"
     },
     "deferred_data": {
-      "candid": "ic/deferred_data/deferred_data.did",
+      "candid": "src/deferred_data/deferred_data.did",
       "package": "deferred_data",
       "type": "rust"
     },
     "deferred_minter": {
-      "candid": "ic/deferred_minter/deferred_minter.did",
+      "candid": "src/deferred_minter/deferred_minter.did",
       "package": "deferred_minter",
       "type": "rust"
     },

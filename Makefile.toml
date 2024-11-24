@@ -66,12 +66,12 @@ workspace = false
 
 [tasks.deferred_data_did]
 description = "Generate did files for deferred"
-script = "cargo run --bin deferred_data_did  --features did > ic/deferred_data/deferred_data.did"
+script = "cargo run --bin deferred_data_did  --features did > src/deferred_data/deferred_data.did"
 workspace = false
 
 [tasks.deferred_minter_did]
 description = "Generate did files for deferred"
-script = "cargo run --bin deferred_minter_did  --features did > ic/deferred_minter/deferred_minter.did"
+script = "cargo run --bin deferred_minter_did  --features did > src/deferred_minter/deferred_minter.did"
 workspace = false
 
 [tasks.dfx-generate]
