@@ -255,7 +255,7 @@ mod test {
             key.clone(),
             RestrictedProperty {
                 value: value.clone(),
-                access_list: vec![RestrictionLevel::Seller],
+                access_list: vec![RestrictionLevel::Seller, RestrictionLevel::Agent],
             },
         )
         .expect("Failed to update property");
