@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "src/abi",
   "src/deferred_data",
   "src/deferred_minter",
   "src/did",

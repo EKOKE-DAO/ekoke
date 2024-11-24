@@ -11,7 +11,6 @@ use did::deferred::{
 use did::{HttpRequest, HttpResponse, ID};
 use ic_cdk_macros::{init, query, update};
 
-mod abi;
 mod app;
 mod http;
 mod inspect;

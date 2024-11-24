@@ -1,3 +1,4 @@
+use abi::{self, CloseContractCall, CreateContractCall, CreateContractRequest, SellerRequest};
 use did::deferred::{Contract, DeferredMinterResult};
 use did::{H160, ID};
 use ethers_core::abi::AbiEncode;
@@ -6,9 +7,6 @@ use num_traits::cast::ToPrimitive;
 
 use super::evm_rpc_client::EvmRpcClient;
 use super::Wallet;
-use crate::abi::{
-    self, CloseContractCall, CreateContractCall, CreateContractRequest, SellerRequest,
-};
 use crate::app::configuration::Configuration;
 
 /// Gas required for `createContract`

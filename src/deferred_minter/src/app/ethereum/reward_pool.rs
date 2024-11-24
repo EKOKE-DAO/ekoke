@@ -1,9 +1,9 @@
+use abi::{self, AvailableRewardCall};
 use did::deferred::{DeferredMinterError, DeferredMinterResult};
 use did::H160;
 use ethers_core::abi::{AbiDecode, AbiEncode};
 
 use super::evm_rpc_client::EvmRpcClient;
-use crate::abi::{self, AvailableRewardCall};
 
 pub struct RewardPool {
     address: H160,

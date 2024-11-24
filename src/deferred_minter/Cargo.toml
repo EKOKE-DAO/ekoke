@@ -18,9 +18,9 @@ default = []
 did = []
 
 [dependencies]
+abi = { path = "../abi" }
 candid = { workspace = true }
 did = { path = "../did" }
-ethers-contract = { workspace = true }
 ethers-core = { workspace = true }
 ethers-signers = { workspace = true }
 getrandom = { workspace = true, features = ["custom"] }
