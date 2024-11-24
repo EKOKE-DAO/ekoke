@@ -12,7 +12,6 @@ describe("RewardPool", () => {
     deferred: Deferred;
     rewardPool: RewardPool;
     ekoke: Ekoke;
-    usdc: Ekoke;
     usdt: Ekoke;
     owner: SignerWithAddress;
     seller: SignerWithAddress;
@@ -36,12 +35,6 @@ describe("RewardPool", () => {
     await usdt.adminMint(buyer.address, 1000);
     await usdt.adminMint(thirdParty.address, 1000);
 
-    const usdcContract = await ethers.deployContract("Ekoke", [owner.address]);
-    const usdc = usdcContract as unknown as Ekoke;
-    // mint 1000 USDC to alice
-    await usdc.adminMint(buyer.address, 1000);
-    await usdc.adminMint(thirdParty.address, 1000);
-
     const deferredContract = await ethers.deployContract("Deferred", [
       owner.address,
     ]);
@@ -57,7 +50,6 @@ describe("RewardPool", () => {
     const marketplaceContract = await ethers.deployContract("Marketplace", [
       owner.address,
       usdt.getAddress(),
-      usdc.getAddress(),
       ekoke.getAddress(),
       deferred.getAddress(),
     ]);
@@ -97,7 +89,6 @@ describe("RewardPool", () => {
       seller,
       minter,
       usdt,
-      usdc,
       thirdParty,
     };
   });
@@ -109,33 +100,12 @@ describe("RewardPool", () => {
     // give allowance to marketplace
     await usdt.connect(thirdParty).approve(marketplace.getAddress(), USD_PRICE);
     // buy
-    await marketplace.connect(thirdParty).buyTokenWithUSDT(tokenId);
+    await marketplace.connect(thirdParty).buyToken(tokenId);
 
     // USDT balance of buyer
     expect(await usdt.balanceOf(thirdParty.address)).to.equal(1000 - USD_PRICE);
     // USDT balance of seller
     expect(await usdt.balanceOf(seller.address)).to.equal(USD_PRICE);
-
-    // check NFT has been transferred
-    expect(await deferred.ownerOf(tokenId)).to.equal(thirdParty.address);
-
-    // check buyer has received the reward
-    expect(await ekoke.balanceOf(thirdParty.address)).to.equal(EKOKE_REWARD);
-  });
-
-  it("Should buy a NFT with USDC as third-party", async () => {
-    const { marketplace, thirdParty, seller, deferred, ekoke, usdc } = deploy;
-
-    const tokenId = 0;
-    // give allowance to marketplace
-    await usdc.connect(thirdParty).approve(marketplace.getAddress(), USD_PRICE);
-    // buy
-    await marketplace.connect(thirdParty).buyTokenWithUSDC(tokenId);
-
-    // USDT balance of buyer
-    expect(await usdc.balanceOf(thirdParty.address)).to.equal(1000 - USD_PRICE);
-    // USDT balance of seller
-    expect(await usdc.balanceOf(seller.address)).to.equal(USD_PRICE);
 
     // check NFT has been transferred
     expect(await deferred.ownerOf(tokenId)).to.equal(thirdParty.address);
@@ -154,7 +124,7 @@ describe("RewardPool", () => {
       .connect(buyer)
       .approve(marketplace.getAddress(), USD_PRICE + interest);
     // buy
-    await marketplace.connect(buyer).buyTokenWithUSDT(tokenId);
+    await marketplace.connect(buyer).buyToken(tokenId);
 
     // USDT balance of buyer
     expect(await usdt.balanceOf(buyer.address)).to.equal(

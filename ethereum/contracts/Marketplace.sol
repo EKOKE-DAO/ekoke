@@ -8,11 +8,8 @@ import {Deferred} from "./Deferred.sol";
 import {RewardPool} from "./RewardPool.sol";
 
 contract Marketplace is Ownable {
-    /// @notice The address of the USDT token
-    address private usdt;
-
-    /// @notice The address of the USDC token
-    address private usdc;
+    /// @notice The address of the USD ERC20 token
+    address public usdErc20;
 
     /// @notice The address of the EKOKE token
     address private ekoke;
@@ -41,20 +38,19 @@ contract Marketplace is Ownable {
 
     constructor(
         address _owner,
-        address _usdt,
-        address _usdc,
+        address _usdErc20,
         address _ekoke,
         address _deferred
     ) Ownable(_owner) {
-        require(_usdt != address(0), "Marketplace: USDT address is zero");
-        require(_usdc != address(0), "Marketplace: USDC address is zero");
-        require(_ekoke != address(0), "Marketplace: EKOKE address is zero");
+        require(
+            _usdErc20 != address(0),
+            "Marketplace: USD ERC20 address is zero"
+        );
         require(
             _deferred != address(0),
             "Marketplace: Deferred address is zero"
         );
-        usdt = _usdt;
-        usdc = _usdc;
+        usdErc20 = _usdErc20;
         ekoke = _ekoke;
         deferred = _deferred;
     }
@@ -79,22 +75,9 @@ contract Marketplace is Ownable {
         interestRate = _interestRate;
     }
 
-    /// @notice Buy a deferred NFT with USDT
-    /// @param _tokenId The ID of the deferred NFT
-    function buyTokenWithUSDT(uint256 _tokenId) external {
-        buyToken(_tokenId, usdt);
-    }
-
-    /// @notice Buy a deferred NFT with USDC
-    /// @param _tokenId The ID of the deferred NFT
-    function buyTokenWithUSDC(uint256 _tokenId) external {
-        buyToken(_tokenId, usdc);
-    }
-
-    /// @notice Buy a deferred NFT with the provided currency
-    /// @param _tokenId The ID of the deferred NFT
-    /// @param _currency The address of the currency
-    function buyToken(uint256 _tokenId, address _currency) internal {
+    /// @notice Buy a deferred NFT with the configured USD ERC20 token
+    /// @param _tokenId The ID of the deferred NFT\
+    function buyToken(uint256 _tokenId) external {
         require(rewardPool != address(0), "Marketplace: Reward pool not set");
 
         // get the contract from deferred
@@ -121,7 +104,7 @@ contract Marketplace is Ownable {
             sellContract.ekokeReward > 0;
 
         // get the currency token
-        ERC20 currency = ERC20(_currency);
+        ERC20 currency = ERC20(usdErc20);
 
         // get the required allowance
         uint256 requiredAllowance = isContractBuyer
