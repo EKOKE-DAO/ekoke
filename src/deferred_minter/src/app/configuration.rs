@@ -16,6 +16,8 @@ use crate::app::memory::{
     EVM_GAS_PRICE_MEMORY_ID, EVM_RPC_MEMORY_ID, MEMORY_MANAGER, REWARD_POOL_CONTRACT_MEMORY_ID,
 };
 
+const DEFAULT_GAS_PRICE: u64 = 20_000_000_000;
+
 thread_local! {
     /// Ekoke Canister principal
     static DEFERRED_DATA_CANISTER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
@@ -58,7 +60,7 @@ thread_local! {
 
     /// gas price
     static GAS_PRICE: RefCell<StableCell<u64, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EVM_GAS_PRICE_MEMORY_ID)), 20_000_000_000).unwrap()
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EVM_GAS_PRICE_MEMORY_ID)), DEFAULT_GAS_PRICE).unwrap()
     );
 
 

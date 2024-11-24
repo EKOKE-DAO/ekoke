@@ -41,8 +41,7 @@ export type ContractError = { 'CurrencyNotAllowed' : string } |
   { 'BadContractExpiration' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'BadContractProperty' : null };
-export type ContractError_1 = { 'ContractIsClosed' : bigint } |
-  { 'ContractNotFound' : bigint } |
+export type ContractError_1 = { 'ContractNotFound' : bigint } |
   { 'BadContractProperty' : null };
 export interface ContractRegistration {
   'value' : bigint,

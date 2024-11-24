@@ -159,7 +159,7 @@ mod test {
     use did::deferred::RestrictionLevel;
     use did::H160;
     use pretty_assertions::assert_eq;
-    use test_utils::{mock_contract, store_mock_contract_with};
+    use test_utils::{mock_contract, store_mock_contract_with, with_mock_contract};
 
     use super::*;
 
@@ -203,7 +203,9 @@ mod test {
     fn test_should_get_contract() {
         init();
 
-        let contract = mock_contract(1, 100);
+        let contract = with_mock_contract(1, 100, |contract| {
+            contract.agency.as_mut().unwrap().owner = caller();
+        });
 
         DeferredData::create_contract(contract.clone()).expect("Failed to create contract");
 
@@ -243,7 +245,9 @@ mod test {
     fn test_should_set_restricted_property() {
         init();
 
-        let contract = mock_contract(1, 100);
+        let contract = with_mock_contract(1, 100, |contract| {
+            contract.agency.as_mut().unwrap().owner = caller();
+        });
 
         DeferredData::create_contract(contract.clone()).expect("Failed to create contract");
 
@@ -264,12 +268,12 @@ mod test {
             ContractStorage::get_contract(&contract.id).expect("Failed to get contract");
 
         let find = stored_contract
-            .properties
+            .restricted_properties
             .iter()
             .find(|(k, _)| k == &key)
             .unwrap();
 
-        assert_eq!(find.1, value);
+        assert_eq!(find.1.value, value);
     }
 
     #[test]
@@ -301,10 +305,10 @@ mod test {
 
     fn signature() -> (H160, SignedMessage) {
         let message = "Hello, Ethereum!".to_string();
-        let signature = H520::from_str("0xa5910b58b6345df00a6b9ed66370880b542e55c95e28ea91e3d7981b0e90e63e62bfb46b59c7a423013e0425939b11d027be8d870fced8997aaef914e27c36071b").unwrap();
+        let signature = H520::from_str("0x0e9293c16d57e3ea35118a52cc7209871d07db4b74183fbd6758306c2475586a2f64a5837cd7b787bff49e9432aab76de43080b9d98675e8890e16ffc669e6cb1b").unwrap();
 
         (
-            H160::from_hex_str("0x5A3b2B9E2056E82fF9f9f7dA3A71053712FaAb50").unwrap(),
+            H160::from_hex_str("0x8fd379246834eac74B8419FfdA202CF8051F7A03").unwrap(),
             SignedMessage { message, signature },
         )
     }

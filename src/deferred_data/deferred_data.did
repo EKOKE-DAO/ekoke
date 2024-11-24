@@ -39,11 +39,7 @@ type Contract = record {
   installments : nat64;
   buyers : vec text;
 };
-type ContractError = variant {
-  ContractIsClosed : nat;
-  ContractNotFound : nat;
-  BadContractProperty;
-};
+type ContractError = variant { ContractNotFound : nat; BadContractProperty };
 type ContractType = variant { Sell; Financing };
 type DeferredDataError = variant {
   Configuration : ConfigurationError;

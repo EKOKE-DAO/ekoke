@@ -71,7 +71,6 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousMinter' : IDL.Null,
   });
   const ContractError_1 = IDL.Variant({
-    'ContractIsClosed' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });

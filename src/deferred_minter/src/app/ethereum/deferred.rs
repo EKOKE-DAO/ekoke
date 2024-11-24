@@ -121,3 +121,49 @@ impl DeferredErc721 {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use did::deferred::EcdsaKey;
+
+    use super::*;
+    use crate::app::test_utils::{alice, mock_contract};
+
+    #[tokio::test]
+    async fn test_should_create_contract() {
+        let wallet = Wallet::new(EcdsaKey::Dfx, 1);
+        let evm_rpc_client = EvmRpcClient::new(alice(), 1, None);
+
+        let contract = mock_contract(1, 10);
+
+        DeferredErc721::from(H160::zero())
+            .create_contract(&wallet, &evm_rpc_client, &contract, Some(500_000), 100)
+            .await
+            .expect("Failed to create contract");
+    }
+
+    #[tokio::test]
+    async fn test_should_create_contract_wno_reward() {
+        let wallet = Wallet::new(EcdsaKey::Dfx, 1);
+        let evm_rpc_client = EvmRpcClient::new(alice(), 1, None);
+
+        let contract = mock_contract(1, 10);
+
+        DeferredErc721::from(H160::zero())
+            .create_contract(&wallet, &evm_rpc_client, &contract, None, 100)
+            .await
+            .expect("Failed to create contract");
+    }
+
+    #[tokio::test]
+    async fn test_should_close_contract() {
+        let wallet = Wallet::new(EcdsaKey::Dfx, 1);
+        let evm_rpc_client = EvmRpcClient::new(alice(), 1, None);
+
+        DeferredErc721::from(H160::zero())
+            .close_contract(&wallet, &evm_rpc_client, 1u64.into())
+            .await
+            .expect("Failed to create contract");
+    }
+}

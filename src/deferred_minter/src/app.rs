@@ -46,6 +46,8 @@ impl DeferredMinter {
         if let Some(api_url) = init_args.evm_rpc_api {
             Configuration::set_evm_rpc_api(api_url).expect("failed to set evm rpc api");
         }
+
+        RolesManager::set_custodians(init_args.custodians).expect("failed to set custodians");
     }
 
     /// Get the Ethereum address of the deferred minter
@@ -265,5 +267,252 @@ impl DeferredMinter {
             expiration: data.expiration,
             closed: false,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use did::deferred::{Continent, EcdsaKey, Seller};
+    use did::H160;
+    use pretty_assertions::assert_eq;
+    use test_utils::{alice, bob};
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_should_init_canister() {
+        init();
+
+        assert_eq!(
+            Configuration::get_allowed_currencies(),
+            vec!["USD".to_string()]
+        );
+        assert_eq!(Configuration::get_chain_id(), 1);
+        assert_eq!(Configuration::get_deferred_data_canister(), alice());
+        assert_eq!(
+            Configuration::get_deferred_erc721_contract(),
+            H160::from_hex_str("0xe57e761aa806c9afe7e06fb0601b17bec310f9c4").unwrap()
+        );
+        assert_eq!(Configuration::get_ecdsa_key(), EcdsaKey::Dfx);
+        assert_eq!(Configuration::get_evm_rpc(), bob());
+        assert_eq!(
+            Configuration::get_reward_pool_contract(),
+            H160::from_hex_str("0x7f4e8e4b4dabf7f5f6e7e7d3f9f5a6e7f6e7f6e7").unwrap()
+        );
+        assert_eq!(Configuration::get_gas_price(), 20_000_000_000);
+
+        assert!(RolesManager::is_custodian(caller()));
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_only_gas_station_should_set_gas_price() {
+        init();
+
+        DeferredMinter::admin_set_custodians(vec![alice()]).unwrap();
+        DeferredMinter::admin_set_role(caller(), Role::GasStation);
+        DeferredMinter::gas_station_set_gas_price(10_000_000_000).unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_should_set_gas_price() {
+        init();
+
+        DeferredMinter::admin_set_role(caller(), Role::GasStation);
+
+        DeferredMinter::gas_station_set_gas_price(10_000_000_000).unwrap();
+
+        assert_eq!(Configuration::get_gas_price(), 10_000_000_000);
+    }
+
+    #[tokio::test]
+    async fn test_should_set_allowed_currencies() {
+        init();
+
+        DeferredMinter::admin_set_allowed_currencies(vec!["EUR".to_string()]);
+
+        assert_eq!(
+            Configuration::get_allowed_currencies(),
+            vec!["EUR".to_string()]
+        );
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_only_custodian_should_set_allowed_currencies() {
+        init();
+
+        DeferredMinter::admin_set_custodians(vec![alice()]).unwrap();
+        DeferredMinter::admin_set_allowed_currencies(vec!["EUR".to_string()]);
+    }
+
+    #[tokio::test]
+    async fn test_should_register_agency() {
+        init();
+
+        DeferredMinter::admin_register_agency(
+            bob(),
+            Agency {
+                name: "Agency".to_string(),
+                owner: bob(),
+
+                address: String::default(),
+                agent: String::default(),
+                city: String::default(),
+                continent: Continent::Antarctica,
+                country: String::default(),
+                email: String::default(),
+                logo: None,
+                mobile: String::default(),
+                region: String::default(),
+                vat: String::default(),
+                website: String::default(),
+                zip_code: String::default(),
+            },
+        );
+
+        let agencies = DeferredMinter::get_agencies();
+        assert_eq!(agencies.len(), 1);
+        assert_eq!(agencies[0].owner, bob());
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_only_custodian_should_register_agency() {
+        init();
+
+        DeferredMinter::admin_set_custodians(vec![alice()]).unwrap();
+        DeferredMinter::admin_register_agency(
+            bob(),
+            Agency {
+                name: "Agency".to_string(),
+                owner: bob(),
+
+                address: String::default(),
+                agent: String::default(),
+                city: String::default(),
+                continent: Continent::Antarctica,
+                country: String::default(),
+                email: String::default(),
+                logo: None,
+                mobile: String::default(),
+                region: String::default(),
+                vat: String::default(),
+                website: String::default(),
+                zip_code: String::default(),
+            },
+        );
+    }
+
+    #[tokio::test]
+    async fn test_should_remove_agency() {
+        init();
+
+        DeferredMinter::admin_register_agency(
+            bob(),
+            Agency {
+                name: "Agency".to_string(),
+                owner: bob(),
+
+                address: String::default(),
+                agent: String::default(),
+                city: String::default(),
+                continent: Continent::Antarctica,
+                country: String::default(),
+                email: String::default(),
+                logo: None,
+                mobile: String::default(),
+                region: String::default(),
+                vat: String::default(),
+                website: String::default(),
+                zip_code: String::default(),
+            },
+        );
+
+        DeferredMinter::remove_agency(bob()).expect("failed to remove agency");
+
+        let agencies = DeferredMinter::get_agencies();
+        assert_eq!(agencies.len(), 0);
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_only_custodian_should_remove_agency() {
+        init();
+
+        DeferredMinter::admin_register_agency(
+            bob(),
+            Agency {
+                name: "Agency".to_string(),
+                owner: bob(),
+
+                address: String::default(),
+                agent: String::default(),
+                city: String::default(),
+                continent: Continent::Antarctica,
+                country: String::default(),
+                email: String::default(),
+                logo: None,
+                mobile: String::default(),
+                region: String::default(),
+                vat: String::default(),
+                website: String::default(),
+                zip_code: String::default(),
+            },
+        );
+
+        DeferredMinter::admin_set_custodians(vec![alice()]).unwrap();
+        DeferredMinter::remove_agency(bob()).expect("failed to remove agency");
+    }
+
+    #[tokio::test]
+    async fn test_should_create_contract() {
+        init();
+
+        let contract = ContractRegistration {
+            value: 400_000,
+            installments: 400_000 / 100,
+            currency: "USD".to_string(),
+            buyers: vec![H160::from_hex_str("0x7f4e8e4b4dabf7f5f6e7e7d3f9f5a6e7f6e7f6e7").unwrap()],
+            sellers: vec![Seller {
+                address: H160::from_hex_str("0x7f4e8e4b4dabf7f5f6e7e7d3f9f5a6e7f6e7f6e7").unwrap(),
+                quota: 100,
+            }],
+            expiration: String::from("2050-01-01"),
+            ..Default::default()
+        };
+
+        let contract_id = DeferredMinter::create_contract(contract)
+            .await
+            .expect("failed to create contract");
+
+        assert_eq!(contract_id, 1u64);
+
+        assert_eq!(ContractId::get_next_contract_id(), 2u64);
+    }
+
+    #[tokio::test]
+    async fn test_should_close_contract() {
+        init();
+
+        DeferredMinter::close_contract(1u64.into())
+            .await
+            .expect("failed to close contract");
+    }
+
+    fn init() {
+        DeferredMinter::init(DeferredMinterInitData {
+            allowed_currencies: vec!["USD".to_string()],
+            chain_id: 1,
+            custodians: vec![caller()],
+            deferred_data: alice(),
+            deferred_erc721: H160::from_hex_str("0xe57e761aa806c9afe7e06fb0601b17bec310f9c4")
+                .unwrap(),
+            ecdsa_key: EcdsaKey::Dfx,
+            evm_rpc: bob(),
+            evm_rpc_api: None,
+            reward_pool: H160::from_hex_str("0x7f4e8e4b4dabf7f5f6e7e7d3f9f5a6e7f6e7f6e7").unwrap(),
+        });
     }
 }

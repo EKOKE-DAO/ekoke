@@ -22,7 +22,7 @@ impl Inspect {
 
     /// Returns whether caller is gas station
     pub fn inspect_is_gas_station(caller: Principal) -> bool {
-        RolesManager::is_gas_station(caller)
+        RolesManager::is_gas_station(caller) || RolesManager::is_custodian(caller)
     }
 
     pub fn inspect_is_agent(caller: Principal) -> bool {
@@ -115,7 +115,7 @@ mod test {
     use did::deferred::{Role, Seller};
 
     use super::*;
-    use crate::app::test_utils::{self, bob};
+    use crate::app::test_utils::{self, alice, bob, charlie};
     #[test]
     fn test_should_inspect_whether_to_remove_agency() {
         let caller = crate::utils::caller();
@@ -454,5 +454,23 @@ mod test {
             }
         )
         .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_admin() {
+        RolesManager::give_role(alice(), Role::Custodian);
+
+        assert!(Inspect::inspect_is_custodian(alice()));
+        assert!(!Inspect::inspect_is_custodian(bob()));
+    }
+
+    #[test]
+    fn test_should_inspect_gas_station() {
+        RolesManager::give_role(alice(), Role::Custodian);
+        RolesManager::give_role(bob(), Role::GasStation);
+
+        assert!(Inspect::inspect_is_gas_station(alice()));
+        assert!(Inspect::inspect_is_gas_station(bob()));
+        assert!(!Inspect::inspect_is_gas_station(charlie()));
     }
 }

@@ -184,14 +184,16 @@ mod test {
     async fn test_should_get_reward_if_pool_doesnt_exist() {
         assert_eq!(
             Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY).unwrap(),
-            372964242_u128
+            2_940_000_000_000
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
 
+        let remaining_supply = DEFAULT_REMAINING_SUPPLY - 2_940_000_000_000;
+
         // next reward should be less
         assert_eq!(
-            Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY).unwrap(),
-            372337662u128
+            Reward::get_contract_reward(4_000, remaining_supply).unwrap(),
+            2_939_998_765_200
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
     }

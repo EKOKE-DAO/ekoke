@@ -42,8 +42,7 @@ export interface Contract {
   'installments' : bigint,
   'buyers' : Array<string>,
 }
-export type ContractError = { 'ContractIsClosed' : bigint } |
-  { 'ContractNotFound' : bigint } |
+export type ContractError = { 'ContractNotFound' : bigint } |
   { 'BadContractProperty' : null };
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };

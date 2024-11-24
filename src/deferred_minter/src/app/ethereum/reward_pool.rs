@@ -32,3 +32,24 @@ impl RewardPool {
         Ok(available.available.as_u64())
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+    use crate::app::test_utils::alice;
+
+    #[tokio::test]
+    async fn test_should_get_available_rewards() {
+        let evm_rpc_client = EvmRpcClient::new(alice(), 1, None);
+
+        let reward_pool = RewardPool::from(
+            H160::from_hex_str("0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663").unwrap(),
+        )
+        .available_rewards(&evm_rpc_client)
+        .await
+        .unwrap();
+
+        assert_eq!(reward_pool, 7_000_000_000_000);
+    }
+}

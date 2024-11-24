@@ -18,6 +18,11 @@ use crate::app::memory::{
     ETH_WALLET_ADDRESS_MEMORY_ID, ETH_WALLET_PUBKEY_MEMORY_ID, MEMORY_MANAGER,
 };
 
+const TEST_PUBKEY: &[u8] = &[
+    2, 188, 154, 236, 25, 44, 213, 11, 11, 35, 194, 25, 117, 116, 204, 145, 150, 27, 17, 248, 179,
+    236, 22, 125, 89, 207, 27, 187, 11, 59, 139, 215, 2,
+];
+
 pub struct Wallet {
     chain_id: u64,
     key: EcdsaKey,
@@ -124,6 +129,10 @@ impl Wallet {
 
     /// Returns the public key of the ETH wallet from the management canister
     async fn get_pubkey_from_management_canister(&self) -> DeferredMinterResult<Vec<u8>> {
+        if cfg!(test) {
+            return Ok(TEST_PUBKEY.to_vec());
+        }
+
         // otherwise get and set it
         let (response,) = ecdsa::ecdsa_public_key(EcdsaPublicKeyArgument {
             canister_id: None,
@@ -198,21 +207,13 @@ mod test {
         );
         assert_eq!(
             WALLET_PUBKEY.with_borrow(|pk| pk.get().clone()),
-            &[
-                2, 188, 154, 236, 25, 44, 213, 11, 11, 35, 194, 25, 117, 116, 204, 145, 150, 27,
-                17, 248, 179, 236, 22, 125, 89, 207, 27, 187, 11, 59, 139, 215, 2,
-            ]
+            TEST_PUBKEY,
         );
     }
 
     #[test]
     fn test_should_derive_address_from_pubkey() {
-        let pubkey = &[
-            2, 188, 154, 236, 25, 44, 213, 11, 11, 35, 194, 25, 117, 116, 204, 145, 150, 27, 17,
-            248, 179, 236, 22, 125, 89, 207, 27, 187, 11, 59, 139, 215, 2,
-        ];
-
-        let address = Wallet::ecdsa_public_key_to_address(pubkey).unwrap();
+        let address = Wallet::ecdsa_public_key_to_address(TEST_PUBKEY).unwrap();
         let expected_address =
             H160::from_hex_str("0xc31db061ddd32ad002a1465fde0c92e2cca9c83d").unwrap();
 
@@ -221,11 +222,6 @@ mod test {
 
     #[tokio::test]
     async fn test_should_compute_recovery_id() {
-        let public_key = &[
-            2, 188, 154, 236, 25, 44, 213, 11, 11, 35, 194, 25, 117, 116, 204, 145, 150, 27, 17,
-            248, 179, 236, 22, 125, 89, 207, 27, 187, 11, 59, 139, 215, 2,
-        ];
-
         let wallet = Wallet::new(EcdsaKey::Dfx, 1);
 
         let from = "d8da5b32506763989a81ec84f9430559ebb71d0bc1e2a6e3879e50ffca7b6127"
@@ -252,13 +248,13 @@ mod test {
         let signed_tx = wallet.sign_transaction(tx.clone().into()).await.unwrap();
         let signed_tx = Transaction::decode(&Rlp::new(&signed_tx)).unwrap();
 
-        let mut signature = vec![];
+        let mut signature = vec![0; 64];
         signed_tx.r.to_big_endian(&mut signature[..32]);
         signed_tx.s.to_big_endian(&mut signature[32..64]);
 
         // now compute recovery id
         let v = Wallet::new(EcdsaKey::Dfx, 1)
-            .compute_eth_recovery_id(public_key, tx.sighash(), &signature.to_vec()[0..64])
+            .compute_eth_recovery_id(TEST_PUBKEY, tx.sighash(), &signature.to_vec()[0..64])
             .unwrap();
 
         assert_eq!(signed_tx.v.as_u64(), v);
