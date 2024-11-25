@@ -56,7 +56,7 @@ impl Wallet {
     /// Returns the address of the ETH wallet
     pub async fn address(&self) -> DeferredMinterResult<H160> {
         // check if address is already set
-        let address = WALLET_ADDRESS.with_borrow(|addr| addr.get().clone());
+        let address = WALLET_ADDRESS.with_borrow(|addr| *addr.get());
         if !address.is_zero() {
             return Ok(address);
         }
@@ -67,7 +67,7 @@ impl Wallet {
 
         // update address
         WALLET_ADDRESS
-            .with_borrow_mut(|addr| addr.set(address.clone()))
+            .with_borrow_mut(|addr| addr.set(address))
             .map_err(|_| DeferredMinterError::StorageError)?;
 
         Ok(address)

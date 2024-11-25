@@ -83,7 +83,7 @@ impl Configuration {
     }
 
     pub fn get_deferred_erc721_contract() -> H160 {
-        DEFERRED_ERC721_CONTRACT.with_borrow(|cell| cell.get().clone())
+        DEFERRED_ERC721_CONTRACT.with_borrow(|cell| *cell.get())
     }
 
     pub fn set_deferred_erc721_contract(address: H160) -> DeferredMinterResult<()> {
@@ -96,7 +96,7 @@ impl Configuration {
     }
 
     pub fn get_reward_pool_contract() -> H160 {
-        REWARD_POOL_CONTRACT.with_borrow(|cell| cell.get().clone())
+        REWARD_POOL_CONTRACT.with_borrow(|cell| *cell.get())
     }
 
     pub fn set_reward_pool_contract(address: H160) -> DeferredMinterResult<()> {

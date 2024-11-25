@@ -100,7 +100,7 @@ impl DeferredErc721 {
         gas: u64,
     ) -> DeferredMinterResult<()> {
         let eth_address = wallet.address().await?;
-        let nonce = evm_rpc_client.get_next_nonce(eth_address.clone()).await?;
+        let nonce = evm_rpc_client.get_next_nonce(eth_address).await?;
 
         let tx = TransactionRequest {
             from: Some(eth_address.0),
