@@ -9,6 +9,7 @@ use did::deferred::{
     Agency, ContractRegistration, DeferredMinterInitData, DeferredMinterResult, Role,
 };
 use did::{HttpRequest, HttpResponse, ID};
+use ic_cdk::post_upgrade;
 use ic_cdk_macros::{init, query, update};
 
 mod app;
@@ -17,10 +18,17 @@ mod inspect;
 mod utils;
 
 use app::DeferredMinter;
+use ic_log::did::Pagination;
+use ic_log::writer::Logs;
 
 #[init]
 pub fn init(init_data: DeferredMinterInitData) {
     DeferredMinter::init(init_data);
+}
+
+#[post_upgrade]
+pub fn post_upgrade() {
+    DeferredMinter::post_upgrade();
 }
 
 #[update]
@@ -81,6 +89,12 @@ pub fn admin_set_custodians(custodians: Vec<Principal>) -> DeferredMinterResult<
 #[candid_method(query)]
 pub fn admin_cycles() -> Nat {
     DeferredMinter::admin_cycles()
+}
+
+#[query]
+#[candid_method(query)]
+pub fn admin_ic_logs(pagination: Pagination) -> Logs {
+    DeferredMinter::admin_ic_logs(pagination)
 }
 
 #[update]

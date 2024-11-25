@@ -2,11 +2,14 @@ use std::cell::RefCell;
 
 use candid::Principal;
 use did::deferred::{DeferredDataError, DeferredDataResult};
-use did::StorablePrincipal;
+use did::{StorableLogSettings, StorablePrincipal};
+use ic_log::LogSettingsV2;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell};
 
-use crate::app::memory::{MEMORY_MANAGER, MINTER_MEMORY_ID, OWNER_MEMORY_ID};
+use crate::app::memory::{
+    LOG_SETTINGS_MEMORY_ID, MEMORY_MANAGER, MINTER_MEMORY_ID, OWNER_MEMORY_ID,
+};
 
 thread_local! {
     /// Deferred minter memory ID
@@ -17,6 +20,11 @@ thread_local! {
     /// Owner memory ID
     static OWNER: RefCell<StableCell<StorablePrincipal, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(OWNER_MEMORY_ID)), Principal::anonymous().into()).unwrap()
+    );
+
+    /// log settings
+    static LOG_SETTINGS: RefCell<StableCell<StorableLogSettings, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(LOG_SETTINGS_MEMORY_ID)), StorableLogSettings::default()).unwrap()
     );
 
 }
@@ -49,6 +57,19 @@ impl Configuration {
 
         Ok(())
     }
+
+    pub fn set_log_settings(settings: LogSettingsV2) -> DeferredDataResult<()> {
+        LOG_SETTINGS.with_borrow_mut(|cell| {
+            cell.set(StorableLogSettings(settings))
+                .map_err(|_| DeferredDataError::StorageError)
+        })?;
+
+        Ok(())
+    }
+
+    pub fn get_log_settings() -> LogSettingsV2 {
+        LOG_SETTINGS.with_borrow(|cell| cell.get().0.clone())
+    }
 }
 
 #[cfg(test)]
@@ -76,5 +97,16 @@ mod test {
         assert_eq!(Configuration::get_owner(), Principal::anonymous());
         assert!(Configuration::set_owner(principal).is_ok());
         assert_eq!(Configuration::get_owner(), principal);
+    }
+
+    #[test]
+    fn test_should_set_and_get_log_settings() {
+        let settings = LogSettingsV2 {
+            enable_console: true,
+            ..Default::default()
+        };
+        assert_eq!(Configuration::get_log_settings(), settings);
+        assert!(Configuration::set_log_settings(settings.clone()).is_ok());
+        assert_eq!(Configuration::get_log_settings(), settings);
     }
 }

@@ -3,6 +3,7 @@ mod error;
 use std::fmt;
 
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use ic_log::LogSettingsV2;
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 
@@ -30,6 +31,8 @@ pub struct DeferredMinterInitData {
     pub evm_rpc: Principal,
     /// Custom evm rpc api
     pub evm_rpc_api: Option<String>,
+    /// Log settings
+    pub log_settings: LogSettingsV2,
     /// Ethereum address of reward pool contract
     pub reward_pool: H160,
 }

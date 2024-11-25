@@ -5,7 +5,7 @@
 use candid::{CandidType, Deserialize};
 use serde::Serialize;
 
-#[derive(CandidType, Serialize, Deserialize)]
+#[derive(Debug, CandidType, Serialize, Deserialize)]
 pub enum EthMainnetService {
     Alchemy,
     Llama,
@@ -15,7 +15,7 @@ pub enum EthMainnetService {
     Ankr,
 }
 
-#[derive(CandidType, Serialize, Deserialize)]
+#[derive(Debug, CandidType, Serialize, Deserialize)]
 pub enum EthSepoliaService {
     Alchemy,
     BlockPi,
@@ -24,13 +24,13 @@ pub enum EthSepoliaService {
     Sepolia,
 }
 
-#[derive(CandidType, Deserialize, Serialize)]
+#[derive(Debug, CandidType, Deserialize, Serialize)]
 pub enum ConsensusStrategy {
     Equality,
     Threshold { min: u8, total: Option<u8> },
 }
 
-#[derive(CandidType, Deserialize, Serialize)]
+#[derive(Debug, CandidType, Deserialize, Serialize)]
 pub struct RpcConfig {
     #[allow(non_snake_case)]
     pub responseConsensus: Option<ConsensusStrategy>,
@@ -38,19 +38,19 @@ pub struct RpcConfig {
     pub responseSizeEstimate: Option<u64>,
 }
 
-#[derive(CandidType, Serialize, Deserialize)]
+#[derive(Debug, CandidType, Serialize, Deserialize)]
 pub struct RpcApi {
     pub url: String,
     pub headers: Option<Vec<HttpHeader>>,
 }
 
-#[derive(CandidType, Serialize, Deserialize)]
+#[derive(Debug, CandidType, Serialize, Deserialize)]
 pub struct HttpHeader {
     pub value: String,
     pub name: String,
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(Debug, CandidType, Serialize)]
 pub enum RpcServices {
     EthSepolia(Option<Vec<EthSepoliaService>>),
     Custom {
@@ -61,7 +61,7 @@ pub enum RpcServices {
     EthMainnet(Option<Vec<EthMainnetService>>),
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum SendRawTransactionStatus {
     Ok(Option<String>),
     NonceTooLow,
@@ -69,19 +69,19 @@ pub enum SendRawTransactionStatus {
     InsufficientFunds,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum SendRawTransactionResult {
     Ok(SendRawTransactionStatus),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub struct JsonRpcError {
     pub code: i64,
     pub message: String,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum ProviderError {
     TooFewCycles {
         expected: candid::Nat,
@@ -93,13 +93,13 @@ pub enum ProviderError {
     NoPermission,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum ValidationError {
     Custom(String),
     InvalidHex(String),
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum RejectionCode {
     NoError,
     CanisterError,
@@ -110,7 +110,7 @@ pub enum RejectionCode {
     CanisterReject,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum RpcError {
     JsonRpcError(JsonRpcError),
     ProviderError(ProviderError),
@@ -118,7 +118,7 @@ pub enum RpcError {
     HttpOutcallError(HttpOutcallError),
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum HttpOutcallError {
     IcError {
         code: RejectionCode,
@@ -132,7 +132,7 @@ pub enum HttpOutcallError {
     },
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum L2MainnetService {
     Alchemy,
     Llama,
@@ -144,7 +144,7 @@ pub enum L2MainnetService {
 pub type ChainId = u64;
 pub type ProviderId = u64;
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum RpcService {
     EthSepolia(EthSepoliaService),
     BaseMainnet(L2MainnetService),
@@ -155,19 +155,19 @@ pub enum RpcService {
     Provider(ProviderId),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum MultiSendRawTransactionResult {
     Consistent(SendRawTransactionResult),
     Inconsistent(Vec<(RpcService, SendRawTransactionResult)>),
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(Debug, CandidType, Serialize)]
 pub struct GetTransactionCountArgs {
     pub address: String,
     pub block: BlockTag,
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(Debug, CandidType, Serialize)]
 pub enum BlockTag {
     Earliest,
     Safe,
@@ -177,26 +177,26 @@ pub enum BlockTag {
     Pending,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum GetTransactionCountResult {
     Ok(candid::Nat),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum MultiGetTransactionCountResult {
     Consistent(GetTransactionCountResult),
     Inconsistent(Vec<(RpcService, GetTransactionCountResult)>),
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(Debug, CandidType, Serialize)]
 pub struct CallArgs {
     pub transaction: TransactionRequest,
     pub block: Option<BlockTag>,
 }
 
 #[allow(non_snake_case)]
-#[derive(Default, CandidType, Serialize)]
+#[derive(Debug, Default, CandidType, Serialize)]
 pub struct TransactionRequest {
     pub to: Option<String>,
     pub gas: Option<candid::Nat>,
@@ -215,20 +215,20 @@ pub struct TransactionRequest {
     pub blobVersionedHashes: Option<Vec<String>>,
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(Debug, CandidType, Serialize)]
 pub struct AccessListEntry {
     #[allow(non_snake_case)]
     pub storageKeys: Vec<String>,
     pub address: String,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum CallResult {
     Ok(String),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(Debug, CandidType, Deserialize)]
 pub enum MultiCallResult {
     Consistent(CallResult),
     Inconsistent(Vec<(RpcService, CallResult)>),

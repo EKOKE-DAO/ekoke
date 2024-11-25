@@ -45,6 +45,7 @@ impl DeferredErc721 {
         );
 
         let contract_id = contract.id.0.to_u64().expect("Contract ID is too large");
+        log::debug!("Metadata URI for contract_id {contract_id}: {metadata_uri}");
 
         let payload = abi::DeferredCalls::CreateContract(CreateContractCall {
             request: CreateContractRequest {
@@ -82,6 +83,7 @@ impl DeferredErc721 {
         }
 
         let contract_id = contract_id.0.to_u64().expect("Contract ID is too large");
+        log::debug!("Closing contract_id {contract_id}");
 
         let payload = abi::DeferredCalls::CloseContract(CloseContractCall {
             contract_id: contract_id.into(),
@@ -112,6 +114,8 @@ impl DeferredErc721 {
             nonce: Some(nonce),
             chain_id: Some(Configuration::get_chain_id().into()),
         };
+
+        log::debug!("Sending tx: {tx:?}");
 
         // sign and send the transaction
         let signed_tx = wallet.sign_transaction(tx).await?;

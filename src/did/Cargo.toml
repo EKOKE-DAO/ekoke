@@ -12,6 +12,7 @@ candid = { workspace = true }
 ethers-core = { workspace = true }
 hex = { workspace = true }
 ic-cdk = { workspace = true }
+ic-log = { workspace = true }
 ic-stable-structures = { workspace = true }
 num-bigint = { workspace = true }
 serde = { workspace = true }

@@ -27,6 +27,8 @@ getrandom = { workspace = true, features = ["custom"] }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
+ic-log = { workspace = true }
+log = { workspace = true }
 num-traits = { workspace = true }
 secp256k1 = { workspace = true }
 serde = { workspace = true }

@@ -5,7 +5,8 @@ use std::str::FromStr as _;
 
 use candid::Principal;
 use did::deferred::{DeferredMinterError, DeferredMinterResult, EcdsaKey};
-use did::{StorablePrincipal, H160};
+use did::{StorableLogSettings, StorablePrincipal, H160};
+use ic_log::LogSettingsV2;
 use ic_stable_structures::memory_manager::VirtualMemory;
 use ic_stable_structures::{DefaultMemoryImpl, StableCell, StableVec};
 
@@ -13,7 +14,8 @@ use self::currency::Currency;
 use crate::app::memory::{
     ALLOWED_CURRENCIES_MEMORY_ID, CHAIN_ID_MEMORY_ID, DEFERRED_DATA_CANISTER_MEMORY_ID,
     DEFERRED_ERC721_CONTRACT_MEMORY_ID, ECDSA_KEY_MEMORY_ID, EVM_CUSTOM_RPC_API_MEMORY_ID,
-    EVM_GAS_PRICE_MEMORY_ID, EVM_RPC_MEMORY_ID, MEMORY_MANAGER, REWARD_POOL_CONTRACT_MEMORY_ID,
+    EVM_GAS_PRICE_MEMORY_ID, EVM_RPC_MEMORY_ID, LOG_SETTINGS_MEMORY_ID, MEMORY_MANAGER,
+    REWARD_POOL_CONTRACT_MEMORY_ID,
 };
 
 const DEFAULT_GAS_PRICE: u64 = 20_000_000_000;
@@ -63,6 +65,10 @@ thread_local! {
         RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(EVM_GAS_PRICE_MEMORY_ID)), DEFAULT_GAS_PRICE).unwrap()
     );
 
+    /// log settings
+    static LOG_SETTINGS: RefCell<StableCell<StorableLogSettings, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(LOG_SETTINGS_MEMORY_ID)), StorableLogSettings::default()).unwrap()
+    );
 
 }
 
@@ -207,6 +213,19 @@ impl Configuration {
     pub fn get_gas_price() -> u64 {
         GAS_PRICE.with_borrow(|cell| *cell.get())
     }
+
+    pub fn set_log_settings(settings: LogSettingsV2) -> DeferredMinterResult<()> {
+        LOG_SETTINGS.with_borrow_mut(|cell| {
+            cell.set(StorableLogSettings(settings))
+                .map_err(|_| DeferredMinterError::StorageError)
+        })?;
+
+        Ok(())
+    }
+
+    pub fn get_log_settings() -> LogSettingsV2 {
+        LOG_SETTINGS.with_borrow(|cell| cell.get().0.clone())
+    }
 }
 
 #[cfg(test)]
@@ -292,5 +311,16 @@ mod test {
         assert_eq!(Configuration::get_gas_price(), 20_000_000_000);
         assert!(Configuration::set_gas_price(10_000_000_000).is_ok());
         assert_eq!(Configuration::get_gas_price(), 10_000_000_000);
+    }
+
+    #[test]
+    fn test_should_set_and_get_log_settings() {
+        let settings = LogSettingsV2 {
+            enable_console: true,
+            ..Default::default()
+        };
+        assert_eq!(Configuration::get_log_settings(), settings);
+        assert!(Configuration::set_log_settings(settings.clone()).is_ok());
+        assert_eq!(Configuration::get_log_settings(), settings);
     }
 }

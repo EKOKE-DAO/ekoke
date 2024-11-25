@@ -12,6 +12,7 @@ pub const CHAIN_ID_MEMORY_ID: MemoryId = MemoryId::new(25);
 pub const EVM_RPC_MEMORY_ID: MemoryId = MemoryId::new(26);
 pub const EVM_CUSTOM_RPC_API_MEMORY_ID: MemoryId = MemoryId::new(27);
 pub const EVM_GAS_PRICE_MEMORY_ID: MemoryId = MemoryId::new(28);
+pub const LOG_SETTINGS_MEMORY_ID: MemoryId = MemoryId::new(29);
 
 pub const ROLES_MEMORY_ID: MemoryId = MemoryId::new(30);
 

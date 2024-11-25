@@ -3,6 +3,7 @@ use did::deferred::{
     Contract, DeferredDataInitData, DeferredDataResult, GenericValue, RestrictedProperty,
 };
 use did::{HttpRequest, HttpResponse, ID};
+use ic_cdk::post_upgrade;
 use ic_cdk_macros::{init, query, update};
 
 mod app;
@@ -11,6 +12,8 @@ mod inspect;
 mod utils;
 
 use app::DeferredData;
+use ic_log::did::Pagination;
+use ic_log::writer::Logs;
 
 #[init]
 #[candid_method(init)]
@@ -18,10 +21,21 @@ pub fn init(data: DeferredDataInitData) {
     DeferredData::init(data);
 }
 
+#[post_upgrade]
+pub fn post_upgrade() {
+    DeferredData::post_upgrade();
+}
+
 #[update]
 #[candid_method(update)]
 pub fn admin_set_minter(minter: Principal) -> DeferredDataResult<()> {
     DeferredData::admin_set_minter(minter)
+}
+
+#[query]
+#[candid_method(query)]
+pub fn admin_ic_logs(pagination: Pagination) -> Logs {
+    DeferredData::admin_ic_logs(pagination)
 }
 
 #[query]

@@ -5,4 +5,6 @@
 mod common;
 pub mod deferred;
 
-pub use common::{HttpRequest, HttpResponse, StorableNat, StorablePrincipal, H160, ID};
+pub use common::{
+    HttpRequest, HttpResponse, StorableLogSettings, StorableNat, StorablePrincipal, H160, ID,
+};

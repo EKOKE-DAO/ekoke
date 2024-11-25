@@ -10,6 +10,12 @@ deploy_deferred_data() {
   echo "deploying deferred data canister"
 
   init_args="(record {
+    log_settings = record {
+      enable_console = false;
+      in_memory_records = 128;
+      max_record_length = 1024;
+      log_filter = \"info\";
+    };
     minter = principal \"$MINTER_ID\";
   })"
 
@@ -39,6 +45,12 @@ deploy_deferred_minter() {
     evm_rpc = principal \"$EVM_RPC_PRINCIPAL\";
     custodians = vec { principal \"$ADMIN_PRINCIPAL\" };
     reward_pool = \"$REWARD_POOL\";
+    log_settings = record {
+      enable_console = false;
+      in_memory_records = 128;
+      max_record_length = 1024;
+      log_filter = \"info\";
+    };
   })"
 
   dfx deploy --mode=$INSTALL_MODE --yes --network="$NETWORK" --argument="$init_args" deferred_minter

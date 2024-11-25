@@ -1,4 +1,4 @@
-mod abi;
+pub mod abi;
 mod builder;
 mod evm_rpc_did;
 mod ganache;
@@ -6,7 +6,7 @@ mod ganache;
 use std::collections::HashMap;
 
 use did::H160;
-use ethers_signers::LocalWallet;
+use ethers_signers::{LocalWallet, Signer};
 use ganache::Ganache;
 use testcontainers::ContainerAsync;
 
@@ -41,7 +41,12 @@ pub struct Evm {
 
 impl Evm {
     /// get wallet by name
-    fn get_wallet(&self, name: WalletName) -> &LocalWallet {
+    pub fn get_wallet(&self, name: WalletName) -> &LocalWallet {
         self.wallets.get(&name).unwrap()
+    }
+
+    /// get eth address by name
+    pub fn get_eth_address(&self, name: WalletName) -> H160 {
+        self.get_wallet(name).address().into()
     }
 }

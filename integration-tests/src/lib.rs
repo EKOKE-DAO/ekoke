@@ -4,6 +4,7 @@
 
 pub mod actor;
 pub mod client;
+pub mod eth_rpc_client;
 mod evm;
 mod wasm;
 
@@ -14,10 +15,13 @@ use actor::admin;
 use candid::{CandidType, Decode, Encode, Principal};
 use did::deferred::{DeferredDataInitData, DeferredMinterInitData, EcdsaKey};
 use evm::{Evm, EvmBuilder};
+use ic_log::LogSettingsV2;
 use pocket_ic::nonblocking::PocketIc;
 use pocket_ic::{PocketIcBuilder, WasmResult};
 use serde::de::DeserializeOwned;
 
+pub use self::eth_rpc_client::EthRpcClient;
+pub use self::evm::{abi, WalletName};
 use self::wasm::Canister;
 
 const DEFAULT_CYCLES: u128 = 2_000_000_000_000_000;
@@ -85,16 +89,21 @@ impl TestEnv {
 
     /// Install the canisters needed for the tests
     pub async fn init() -> TestEnv {
-        let pic = PocketIcBuilder::new()
+        let mut pic = PocketIcBuilder::new()
             .with_ii_subnet() // To have ECDSA keys
             .with_application_subnet()
             .build_async()
             .await;
 
+        //let endpoint = pic.make_live(None).await;
+
         // create canisters
         let deferred_data = pic.create_canister().await;
+        println!("Deferred data: {}", deferred_data);
         let deferred_minter = pic.create_canister().await;
+        println!("Deferred minter: {}", deferred_minter);
         let evm_rpc = pic.create_canister().await;
+        println!("EVM RPC: {}", evm_rpc);
 
         // install
         let evm = EvmBuilder::setup(&pic, evm_rpc)
@@ -123,6 +132,12 @@ impl TestEnv {
         let wasm_bytes = Self::load_wasm(Canister::DeferredData);
 
         let init_arg = DeferredDataInitData {
+            log_settings: LogSettingsV2 {
+                enable_console: true,
+                in_memory_records: 128,
+                max_record_length: 1024,
+                log_filter: "debug".to_string(),
+            },
             minter: deferred_minter,
         };
         let init_arg = Encode!(&init_arg).unwrap();
@@ -149,8 +164,14 @@ impl TestEnv {
             deferred_erc721: evm.deferred,
             ecdsa_key: EcdsaKey::Dfx,
             evm_rpc,
-            evm_rpc_api: Some(evm.url.clone()),
+            evm_rpc_api: Some("http://localhost:3000".to_string()),
             reward_pool: evm.reward_pool,
+            log_settings: LogSettingsV2 {
+                enable_console: true,
+                in_memory_records: 128,
+                max_record_length: 1024,
+                log_filter: "debug".to_string(),
+            },
         };
 
         let init_args = Encode!(&init_args).unwrap();

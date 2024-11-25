@@ -5,9 +5,9 @@ use did::deferred::{DeferredMinterError, DeferredMinterResult};
 use did::H160;
 use ethers_core::types::{Bytes, U256};
 use evm_rpc_did::{
-    BlockTag, CallArgs, CallResult, GetTransactionCountArgs, GetTransactionCountResult,
-    MultiCallResult, MultiGetTransactionCountResult, RpcConfig, RpcError, SendRawTransactionResult,
-    SendRawTransactionStatus, TransactionRequest,
+    BlockTag, CallArgs, CallResult, EthMainnetService, EthSepoliaService, GetTransactionCountArgs,
+    GetTransactionCountResult, MultiCallResult, MultiGetTransactionCountResult, RpcConfig,
+    RpcError, RpcService, SendRawTransactionResult, SendRawTransactionStatus, TransactionRequest,
 };
 use num_traits::cast::ToPrimitive;
 
@@ -46,6 +46,7 @@ impl EvmRpcClient {
         };
 
         let cycles_cost = self.get_request_cost(GET_NEXT_NONCE_SAMPLE_PAYLOAD).await?;
+        log::debug!("estimated cost for get next nonce: {cycles_cost}",);
 
         // send effective request
 
@@ -59,6 +60,8 @@ impl EvmRpcClient {
             .await
             .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?
             .0;
+
+        log::debug!("get next nonce result: {result:?}",);
 
         match result {
             MultiGetTransactionCountResult::Consistent(GetTransactionCountResult::Ok(nonce)) => {
@@ -93,6 +96,7 @@ impl EvmRpcClient {
         );
 
         let cycles_cost = self.get_request_cost(&request_as_str).await?;
+        log::debug!("estimated cost for eth call: {cycles_cost}",);
 
         let (result,) = ic_cdk::api::call::call_with_payment128::<_, (MultiCallResult,)>(
             self.principal,
@@ -113,6 +117,8 @@ impl EvmRpcClient {
         )
         .await
         .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?;
+
+        log::debug!("eth call result: {result:?}",);
 
         match result {
             MultiCallResult::Consistent(call_result) => match call_result {
@@ -144,6 +150,7 @@ impl EvmRpcClient {
         );
 
         let cycles_cost = self.get_request_cost(&request_as_str).await?;
+        log::debug!("estimated cost for send raw transaction: {cycles_cost}",);
 
         let result =
             ic_cdk::api::call::call_with_payment128::<_, (MultiSendRawTransactionResult,)>(
@@ -155,6 +162,8 @@ impl EvmRpcClient {
             .await
             .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?
             .0;
+
+        log::debug!("send raw transaction result: {result:?}",);
 
         match result {
             MultiSendRawTransactionResult::Consistent(SendRawTransactionResult::Ok(
@@ -174,11 +183,12 @@ impl EvmRpcClient {
 
     /// Estimate request cost
     async fn get_request_cost(&self, request: &str) -> DeferredMinterResult<u128> {
-        let services = self.services();
+        log::info!("getting request cost for {request}",);
+        let services = self.service();
         // estimate cycles
         let (cycles_result,) = ic_cdk::api::call::call::<_, (Result<u128, RpcError>,)>(
             self.principal,
-            "estimate_cycles",
+            "requestCost",
             (services, request.to_string(), 1024u64),
         )
         .await
@@ -190,6 +200,22 @@ impl EvmRpcClient {
                 "Failed to estimate cycles: {:?}",
                 err
             ))),
+        }
+    }
+
+    #[inline]
+    fn service(&self) -> RpcService {
+        if let Some(url) = self.custom_rpc.as_deref() {
+            return RpcService::Custom(RpcApi {
+                url: url.to_string(),
+                headers: None,
+            });
+        }
+
+        match self.chain_id {
+            MAINNET_CHAIN_ID => RpcService::EthMainnet(EthMainnetService::Cloudflare),
+            SEPOLIA_CHAIN_ID => RpcService::EthSepolia(EthSepoliaService::Sepolia),
+            _ => ic_cdk::trap("Unsupported chain id"),
         }
     }
 

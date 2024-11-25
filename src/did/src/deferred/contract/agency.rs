@@ -22,6 +22,27 @@ pub struct Agency {
     pub zip_code: String,
 }
 
+impl Default for Agency {
+    fn default() -> Self {
+        Self {
+            region: Default::default(),
+            vat: Default::default(),
+            website: Default::default(),
+            zip_code: Default::default(),
+            address: Default::default(),
+            agent: Default::default(),
+            city: Default::default(),
+            country: Default::default(),
+            email: Default::default(),
+            logo: Default::default(),
+            mobile: Default::default(),
+            name: Default::default(),
+            owner: Principal::anonymous(),
+            continent: Continent::Europe,
+        }
+    }
+}
+
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, Copy, PartialEq, Eq)]
 pub enum Continent {
     Africa,

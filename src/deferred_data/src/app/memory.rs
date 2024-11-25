@@ -5,6 +5,7 @@ pub const CONTRACTS_MEMORY_ID: MemoryId = MemoryId::new(10);
 
 pub const MINTER_MEMORY_ID: MemoryId = MemoryId::new(20);
 pub const OWNER_MEMORY_ID: MemoryId = MemoryId::new(21);
+pub const LOG_SETTINGS_MEMORY_ID: MemoryId = MemoryId::new(22);
 
 thread_local! {
     /// Memory manager

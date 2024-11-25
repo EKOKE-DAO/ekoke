@@ -6,6 +6,9 @@ use did::deferred::{
 };
 use did::ID;
 use ethereum::{DeferredErc721, EvmRpcClient, RewardPool, Wallet};
+use ic_log::did::Pagination;
+use ic_log::writer::Logs;
+use ic_log::{init_log, take_memory_records};
 
 mod agents;
 mod configuration;
@@ -48,6 +51,15 @@ impl DeferredMinter {
         }
 
         RolesManager::set_custodians(init_args.custodians).expect("failed to set custodians");
+
+        // init logger
+        init_log(&init_args.log_settings).expect("failed to init log");
+        Configuration::set_log_settings(init_args.log_settings)
+            .expect("failed to set log settings");
+    }
+
+    pub fn post_upgrade() {
+        init_log(&Configuration::get_log_settings()).expect("failed to init log");
     }
 
     /// Get the Ethereum address of the deferred minter
@@ -73,7 +85,11 @@ impl DeferredMinter {
 
         Agents::remove_agency(wallet);
         // remove role
-        RolesManager::remove_role(wallet, Role::Agent)
+        RolesManager::remove_role(wallet, Role::Agent)?;
+
+        log::info!("Agency removed: {wallet}",);
+
+        Ok(())
     }
 
     /// Create a new contract
@@ -82,10 +98,12 @@ impl DeferredMinter {
         Inspect::inspect_register_contract(caller(), &data)?;
         // get contract id
         let contract_id = ContractId::get_next_contract_id();
+        log::debug!("creating contract with id {contract_id}");
 
         // create contract
         let token_price = data.token_value;
         let contract = Self::contract_from_registration(contract_id.clone(), data);
+        log::debug!("contract data: {contract:?}");
 
         // get evm rpc client
         let evm_rpc_client = Self::evm_rpc_client();
@@ -94,6 +112,7 @@ impl DeferredMinter {
         let reward_available_balance = Self::reward_pool()
             .available_rewards(&evm_rpc_client)
             .await?;
+        log::debug!("reward available balance: {reward_available_balance}");
 
         // get reward for token
         let token_reward = Reward::get_contract_reward(
@@ -101,6 +120,7 @@ impl DeferredMinter {
             reward_available_balance as u128,
             token_price,
         );
+        log::debug!("calculated reward for contract {contract_id}: {token_reward:?}");
 
         // mint contract on erc721
         Self::deferred_erc721()
@@ -112,12 +132,15 @@ impl DeferredMinter {
                 token_price,
             )
             .await?;
+        log::debug!("contract created on Ethereum");
 
         // insert contract into the storage
         Self::deferred_data().create_contract(contract).await?;
+        log::debug!("contract created on data canister");
 
         // increment contract id
         ContractId::incr_next_contract_id()?;
+        log::info!("Contract created with id {contract_id} successfully");
 
         Ok(contract_id)
     }
@@ -129,12 +152,14 @@ impl DeferredMinter {
         }
         // if we are an agent, we need to check whether we are the agency for the contract
         if RolesManager::is_agent(caller()) {
+            log::debug!("caller is an agent");
             let contract = Self::deferred_data().get_contract(&contract_id).await?;
             if contract
                 .agency
                 .map(|agency| agency.owner != caller())
                 .unwrap_or(true)
             {
+                log::debug!("caller is not the agency for the contract");
                 ic_cdk::trap("Unauthorized");
             }
         }
@@ -144,9 +169,15 @@ impl DeferredMinter {
         Self::deferred_erc721()
             .close_contract(&Self::wallet(), &evm_rpc_client, contract_id.clone())
             .await?;
+        log::debug!("closed contract {contract_id} on Ethereum");
 
         // close contract on data canister
-        Self::deferred_data().close_contract(contract_id).await
+        Self::deferred_data()
+            .close_contract(contract_id.clone())
+            .await?;
+        log::info!("Contract {contract_id} closed successfully");
+
+        Ok(())
     }
 
     /// Update allowed currencies
@@ -171,6 +202,8 @@ impl DeferredMinter {
         if !RolesManager::is_custodian(wallet) {
             RolesManager::give_role(wallet, Role::Agent);
         }
+
+        log::info!("Agency registered: {wallet}",);
     }
 
     /// Give role to the provied principal
@@ -179,6 +212,8 @@ impl DeferredMinter {
             ic_cdk::trap("Unauthorized");
         }
         RolesManager::give_role(principal, role);
+
+        log::info!("Role {role:?} given to {principal}",);
     }
 
     /// Remove role from principal.
@@ -189,7 +224,11 @@ impl DeferredMinter {
             ic_cdk::trap("Unauthorized");
         }
 
-        RolesManager::remove_role(principal, role)
+        RolesManager::remove_role(principal, role)?;
+
+        log::info!("Role {role:?} removed from {principal}",);
+
+        Ok(())
     }
 
     /// Set custodians
@@ -198,6 +237,7 @@ impl DeferredMinter {
             ic_cdk::trap("Unauthorized");
         }
 
+        log::info!("Custodians set: {custodians:?}");
         RolesManager::set_custodians(custodians)
     }
 
@@ -209,11 +249,21 @@ impl DeferredMinter {
         utils::cycles()
     }
 
+    pub fn admin_ic_logs(pagination: Pagination) -> Logs {
+        if !Inspect::inspect_is_custodian(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        take_memory_records(pagination.count, pagination.offset)
+    }
+
     /// Set the gas price for the gas station
     pub fn gas_station_set_gas_price(gas_price: u64) -> DeferredMinterResult<()> {
         if !Inspect::inspect_is_gas_station(caller()) {
             ic_cdk::trap("Unauthorized");
         }
+
+        log::info!("Gas price set to {gas_price}");
 
         Configuration::set_gas_price(gas_price)
     }
@@ -278,6 +328,7 @@ mod test {
 
     use did::deferred::{Continent, EcdsaKey, Seller};
     use did::H160;
+    use ic_log::LogSettingsV2;
     use pretty_assertions::assert_eq;
     use test_utils::{alice, bob};
 
@@ -517,6 +568,12 @@ mod test {
             evm_rpc: bob(),
             evm_rpc_api: None,
             reward_pool: H160::from_hex_str("0x7f4e8e4b4dabf7f5f6e7e7d3f9f5a6e7f6e7f6e7").unwrap(),
+            log_settings: LogSettingsV2 {
+                enable_console: true,
+                log_filter: "debug".to_string(),
+                in_memory_records: 128,
+                max_record_length: 1000,
+            },
         });
     }
 }

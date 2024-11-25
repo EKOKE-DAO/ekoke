@@ -36,7 +36,7 @@ impl EvmBuilder {
         let container = Ganache::default().start().await?;
         let host_port = container.get_host_port_ipv4(8545).await?;
         let url = format!("http://localhost:{host_port}");
-        println!("Running parity at {url}");
+        println!("Running evm at {url}");
 
         let chain_id = Self::get_chain_id(&url).await;
         println!("Chain ID: {chain_id}",);

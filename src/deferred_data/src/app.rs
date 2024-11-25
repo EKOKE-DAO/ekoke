@@ -12,6 +12,9 @@ use did::deferred::{
 };
 use did::ID;
 use ethers_core::abi::ethereum_types::H520;
+use ic_log::did::Pagination;
+use ic_log::writer::Logs;
+use ic_log::{init_log, take_memory_records};
 use storage::ContractStorage;
 
 use self::configuration::Configuration;
@@ -27,9 +30,18 @@ pub struct SignedMessage {
 pub struct DeferredData;
 
 impl DeferredData {
-    pub fn init(data: DeferredDataInitData) {
-        Configuration::set_minter(data.minter).expect("Failed to set minter");
+    pub fn init(init_args: DeferredDataInitData) {
+        Configuration::set_minter(init_args.minter).expect("Failed to set minter");
         Configuration::set_owner(caller()).expect("Failed to set owner");
+
+        // init logger
+        init_log(&init_args.log_settings).expect("failed to init log");
+        Configuration::set_log_settings(init_args.log_settings)
+            .expect("failed to set log settings");
+    }
+
+    pub fn post_upgrade() {
+        init_log(&Configuration::get_log_settings()).expect("failed to init log");
     }
 
     /// Set the minter of the deferred data canister.
@@ -37,6 +49,8 @@ impl DeferredData {
         if !Inspect::inspect_is_owner(caller()) {
             return Err(DeferredDataError::Unauthorized);
         }
+
+        log::info!("Set minter to {minter}");
 
         Configuration::set_minter(minter)
     }
@@ -48,13 +62,24 @@ impl DeferredData {
         cycles()
     }
 
+    pub fn admin_ic_logs(pagination: Pagination) -> Logs {
+        if !Inspect::inspect_is_owner(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        take_memory_records(pagination.count, pagination.offset)
+    }
+
     /// Insert a contract into the ledger
     pub fn create_contract(contract: Contract) -> DeferredDataResult<()> {
         if !Inspect::inspect_is_minter(caller()) {
             return Err(DeferredDataError::Unauthorized);
         }
 
+        let contract_id = contract.id.clone();
+        log::debug!("Creating contract {contract_id}");
         ContractStorage::insert_contract(contract);
+        log::info!("Contract {contract_id} created");
 
         Ok(())
     }
@@ -64,6 +89,8 @@ impl DeferredData {
         if !Inspect::inspect_is_minter(caller()) {
             return Err(DeferredDataError::Unauthorized);
         }
+
+        log::info!("Closing contract {id}");
 
         ContractStorage::close_contract(&id)
     }
@@ -158,6 +185,7 @@ mod test {
     use candid::Nat;
     use did::deferred::RestrictionLevel;
     use did::H160;
+    use ic_log::LogSettingsV2;
     use pretty_assertions::assert_eq;
     use test_utils::{mock_contract, store_mock_contract_with, with_mock_contract};
 
@@ -165,7 +193,10 @@ mod test {
 
     #[test]
     fn test_should_init() {
-        let data = DeferredDataInitData { minter: caller() };
+        let data = DeferredDataInitData {
+            minter: caller(),
+            log_settings: Default::default(),
+        };
 
         DeferredData::init(data);
 
@@ -314,6 +345,14 @@ mod test {
     }
 
     fn init() {
-        DeferredData::init(DeferredDataInitData { minter: caller() });
+        DeferredData::init(DeferredDataInitData {
+            minter: caller(),
+            log_settings: LogSettingsV2 {
+                enable_console: true,
+                log_filter: "debug".to_string(),
+                in_memory_records: 128,
+                max_record_length: 1000,
+            },
+        });
     }
 }
