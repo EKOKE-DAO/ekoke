@@ -18,16 +18,16 @@ impl<'a> HttpClient<'a> {
         Self { principal, env }
     }
 
-    pub fn http_request<S>(&self, method: &str, params: serde_json::Value) -> S
+    pub async fn http_request<S>(&self, method: &str, params: serde_json::Value) -> S
     where
         S: serde::de::DeserializeOwned,
     {
-        let response = self.raw_http_request_response(method, params);
+        let response = self.raw_http_request_response(method, params).await;
 
         serde_json::from_slice(&response.body).unwrap()
     }
 
-    pub fn raw_http_request_response(
+    pub async fn raw_http_request_response(
         &self,
         method: &str,
         params: serde_json::Value,
@@ -57,6 +57,7 @@ impl<'a> HttpClient<'a> {
                 "http_request",
                 Encode!(&request).unwrap(),
             )
+            .await
             .unwrap()
     }
 }

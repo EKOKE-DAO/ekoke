@@ -10,10 +10,12 @@ mod wasm;
 use std::io::Read as _;
 use std::path::PathBuf;
 
+use actor::admin;
 use candid::{CandidType, Decode, Encode, Principal};
-use did::deferred::DeferredDataInitData;
-use pocket_ic::common::rest::SubnetConfigSet;
-use pocket_ic::{PocketIc, WasmResult};
+use did::deferred::{DeferredDataInitData, DeferredMinterInitData, EcdsaKey};
+use evm::{Evm, EvmBuilder};
+use pocket_ic::nonblocking::PocketIc;
+use pocket_ic::{PocketIcBuilder, WasmResult};
 use serde::de::DeserializeOwned;
 
 use self::wasm::Canister;
@@ -26,10 +28,11 @@ pub struct TestEnv {
     pub deferred_data: Principal,
     pub deferred_minter: Principal,
     pub evm_rpc: Principal,
+    pub evm: Evm,
 }
 
 impl TestEnv {
-    pub fn query<R>(
+    pub async fn query<R>(
         &self,
         canister: Principal,
         caller: Principal,
@@ -39,7 +42,7 @@ impl TestEnv {
     where
         R: DeserializeOwned + CandidType,
     {
-        let result = match self.pic.query_call(canister, caller, method, payload) {
+        let result = match self.pic.query_call(canister, caller, method, payload).await {
             Ok(result) => result,
             Err(e) => anyhow::bail!("Error calling {}: {:?}", method, e),
         };
@@ -52,7 +55,7 @@ impl TestEnv {
         Ok(ret_type)
     }
 
-    pub fn update<R>(
+    pub async fn update<R>(
         &self,
         canister: Principal,
         caller: Principal,
@@ -62,7 +65,11 @@ impl TestEnv {
     where
         R: DeserializeOwned + CandidType,
     {
-        let result = match self.pic.update_call(canister, caller, method, payload) {
+        let result = match self
+            .pic
+            .update_call(canister, caller, method, payload)
+            .await
+        {
             Ok(result) => result,
             Err(e) => anyhow::bail!("Error calling {}: {:?}", method, e),
         };
@@ -77,33 +84,42 @@ impl TestEnv {
     }
 
     /// Install the canisters needed for the tests
-    pub fn init() -> TestEnv {
-        let config = SubnetConfigSet {
-            nns: true,
-            sns: true,
-            application: 1,
-            ..Default::default()
-        };
-        let pic = PocketIc::from_config(config);
+    pub async fn init() -> TestEnv {
+        let pic = PocketIcBuilder::new()
+            .with_ii_subnet() // To have ECDSA keys
+            .with_application_subnet()
+            .build_async()
+            .await;
 
         // create canisters
-        let deferred_data = pic.create_canister();
-        let deferred_minter = pic.create_canister();
-        let evm_rpc = pic.create_canister();
+        let deferred_data = pic.create_canister().await;
+        let deferred_minter = pic.create_canister().await;
+        let evm_rpc = pic.create_canister().await;
 
         // install
-        Self::install_deferred_data(&pic, deferred_data, deferred_minter);
+        let evm = EvmBuilder::setup(&pic, evm_rpc)
+            .await
+            .expect("Failed to setup EVM");
+
+        // install canisters
+        Self::install_deferred_data(&pic, deferred_data, deferred_minter).await;
+        Self::install_deferred_minter(&pic, deferred_minter, deferred_data, evm_rpc, &evm).await;
 
         TestEnv {
             pic,
             deferred_data,
             deferred_minter,
+            evm,
             evm_rpc,
         }
     }
 
-    fn install_deferred_data(pic: &PocketIc, canister_id: Principal, deferred_minter: Principal) {
-        pic.add_cycles(canister_id, DEFAULT_CYCLES);
+    async fn install_deferred_data(
+        pic: &PocketIc,
+        canister_id: Principal,
+        deferred_minter: Principal,
+    ) {
+        pic.add_cycles(canister_id, DEFAULT_CYCLES).await;
         let wasm_bytes = Self::load_wasm(Canister::DeferredData);
 
         let init_arg = DeferredDataInitData {
@@ -111,10 +127,39 @@ impl TestEnv {
         };
         let init_arg = Encode!(&init_arg).unwrap();
 
-        pic.install_canister(canister_id, wasm_bytes, init_arg, None);
+        pic.install_canister(canister_id, wasm_bytes, init_arg, None)
+            .await;
     }
 
-    fn load_wasm(canister: Canister) -> Vec<u8> {
+    async fn install_deferred_minter(
+        pic: &PocketIc,
+        canister_id: Principal,
+        deferred_data: Principal,
+        evm_rpc: Principal,
+        evm: &Evm,
+    ) {
+        pic.add_cycles(canister_id, DEFAULT_CYCLES).await;
+        let wasm_bytes = Self::load_wasm(Canister::DeferredMinter);
+
+        let init_args = DeferredMinterInitData {
+            allowed_currencies: vec!["USD".to_string()],
+            chain_id: evm.chain_id,
+            custodians: vec![admin()],
+            deferred_data,
+            deferred_erc721: evm.deferred,
+            ecdsa_key: EcdsaKey::Dfx,
+            evm_rpc,
+            evm_rpc_api: Some(evm.url.clone()),
+            reward_pool: evm.reward_pool,
+        };
+
+        let init_args = Encode!(&init_args).unwrap();
+
+        pic.install_canister(canister_id, wasm_bytes, init_args, None)
+            .await;
+    }
+
+    pub fn load_wasm(canister: Canister) -> Vec<u8> {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push(canister.as_path());
 
@@ -123,17 +168,5 @@ impl TestEnv {
         file.read_to_end(&mut wasm_bytes).unwrap();
 
         wasm_bytes
-    }
-}
-
-impl Drop for TestEnv {
-    fn drop(&mut self) {
-        // NOTE: execute test one by one
-        for tempdir in std::fs::read_dir(std::path::Path::new("/tmp")).unwrap() {
-            let tempdir = tempdir.unwrap();
-            if tempdir.file_name().to_string_lossy().starts_with(".tmp") {
-                std::fs::remove_dir_all(tempdir.path()).unwrap();
-            }
-        }
     }
 }

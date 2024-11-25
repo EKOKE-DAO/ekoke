@@ -1,6 +1,6 @@
 #!/bin/bash
 
-POCKET_IC_VERSION=5.0.0
+POCKET_IC_VERSION=7.0.0
 
 SHOULD_REINSTALL_POCKET_IC=0
 if [ -f "./integration-tests/pocket-ic" ]; then

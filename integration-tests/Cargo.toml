@@ -10,10 +10,17 @@ repository = { workspace = true }
 anyhow = { workspace = true }
 candid = { workspace = true }
 did = { path = "../src/did" }
-pocket-ic = "5"
+ethers-core = { workspace = true }
+ethers-contract = { workspace = true, features = ["abigen", "providers"] }
+ethers-middleware = { workspace = true }
+ethers-providers = { workspace = true }
+ethers-signers = { workspace = true }
+pocket-ic = "6"
+reqwest = { workspace = true, features = ["json"] }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }
+testcontainers = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1"

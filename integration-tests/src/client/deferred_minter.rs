@@ -1,6 +1,6 @@
 use candid::{Encode, Principal};
 use did::deferred::{Agency, ContractRegistration, DeferredMinterResult};
-use did::ID;
+use did::{H160, ID};
 
 use crate::actor::admin;
 use crate::TestEnv;
@@ -20,7 +20,26 @@ impl<'a> DeferredMinterClient<'a> {
         Self { env }
     }
 
-    pub fn create_contract(
+    pub async fn get_eth_address(&self) -> DeferredMinterResult<H160> {
+        let res: DeferredMinterResult<String> = self
+            .env
+            .update(
+                self.env.deferred_minter,
+                admin(),
+                "get_eth_address",
+                Encode!(&()).unwrap(),
+            )
+            .await
+            .expect("Failed to get eth address");
+
+        match res.map(|address| H160::from_hex_str(&address)) {
+            Ok(Ok(address)) => Ok(address),
+            Ok(Err(err)) => panic!("Failed to parse address: {}", err),
+            Err(err) => Err(err),
+        }
+    }
+
+    pub async fn create_contract(
         &self,
         caller: Principal,
         data: ContractRegistration,
@@ -33,12 +52,17 @@ impl<'a> DeferredMinterClient<'a> {
                 "create_contract",
                 Encode!(&data).unwrap(),
             )
-            .unwrap();
+            .await
+            .expect("Failed to create contract");
 
         contract_id
     }
 
-    pub fn close_contract(&self, caller: Principal, contract_id: ID) -> DeferredMinterResult<()> {
+    pub async fn close_contract(
+        &self,
+        caller: Principal,
+        contract_id: ID,
+    ) -> DeferredMinterResult<()> {
         let res: DeferredMinterResult<()> = self
             .env
             .update(
@@ -47,12 +71,13 @@ impl<'a> DeferredMinterClient<'a> {
                 "close_contract",
                 Encode!(&contract_id).unwrap(),
             )
-            .unwrap();
+            .await
+            .expect("Failed to close contract");
 
         res
     }
 
-    pub fn set_custodians(&self, principals: Vec<Principal>) {
+    pub async fn set_custodians(&self, principals: Vec<Principal>) {
         self.env
             .update::<()>(
                 self.env.deferred_minter,
@@ -60,10 +85,11 @@ impl<'a> DeferredMinterClient<'a> {
                 "admin_set_custodians",
                 Encode!(&principals).unwrap(),
             )
-            .unwrap();
+            .await
+            .expect("Failed to set custodians");
     }
 
-    pub fn admin_register_agency(&self, wallet: Principal, agency: Agency) {
+    pub async fn admin_register_agency(&self, wallet: Principal, agency: Agency) {
         let _: () = self
             .env
             .update(
@@ -72,10 +98,11 @@ impl<'a> DeferredMinterClient<'a> {
                 "admin_register_agency",
                 Encode!(&wallet, &agency).unwrap(),
             )
-            .unwrap();
+            .await
+            .expect("Failed to register agency");
     }
 
-    pub fn remove_agency(&self, wallet: Principal) -> DeferredMinterResult<()> {
+    pub async fn remove_agency(&self, wallet: Principal) -> DeferredMinterResult<()> {
         self.env
             .update(
                 self.env.deferred_minter,
@@ -83,6 +110,7 @@ impl<'a> DeferredMinterClient<'a> {
                 "remove_agency",
                 Encode!(&wallet).unwrap(),
             )
-            .unwrap()
+            .await
+            .expect("Failed to remove agency")
     }
 }

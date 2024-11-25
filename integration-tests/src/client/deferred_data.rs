@@ -20,7 +20,7 @@ impl<'a> DeferredDataClient<'a> {
         Self { env }
     }
 
-    pub fn update_contract_property(
+    pub async fn update_contract_property(
         &self,
         caller: Principal,
         id: ID,
@@ -34,10 +34,11 @@ impl<'a> DeferredDataClient<'a> {
                 "update_contract_property",
                 Encode!(&id, &key, &property).unwrap(),
             )
+            .await
             .unwrap()
     }
 
-    pub fn get_contracts(&self) -> Vec<ID> {
+    pub async fn get_contracts(&self) -> Vec<ID> {
         let signed_contract: Vec<ID> = self
             .env
             .query(
@@ -46,12 +47,13 @@ impl<'a> DeferredDataClient<'a> {
                 "get_contracts",
                 Encode!(&()).unwrap(),
             )
+            .await
             .unwrap();
 
         signed_contract
     }
 
-    pub fn get_contract(&self, contract_id: &ID) -> Option<Contract> {
+    pub async fn get_contract(&self, contract_id: &ID) -> Option<Contract> {
         self.env
             .query(
                 self.env.deferred_data,
@@ -59,6 +61,7 @@ impl<'a> DeferredDataClient<'a> {
                 "get_contract",
                 Encode!(contract_id).unwrap(),
             )
+            .await
             .unwrap()
     }
 }

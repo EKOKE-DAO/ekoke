@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::fmt;
 use std::rc::Rc;
 
 use candid::types::{Type, TypeInner};
@@ -23,6 +24,12 @@ impl CandidType for H160 {
         S: candid::types::Serializer,
     {
         serializer.serialize_text(&self.to_hex_str())
+    }
+}
+
+impl fmt::Display for H160 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_hex_str())
     }
 }
 
