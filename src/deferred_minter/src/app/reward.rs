@@ -19,6 +19,8 @@ const INITIAL_RMC: f64 = 0.00000042;
 const INITIAL_AVIDITY: f64 = 1.0;
 /// Minimum reward
 const MIN_REWARD: u128 = 1_000;
+/// Base token price
+const BASE_TOKEN_PRICE: u128 = 100;
 
 thread_local! {
     /// RMC
@@ -67,8 +69,14 @@ pub struct Reward;
 impl Reward {
     /// Calculate reward for the provided contract ID and installments.
     ///
+    /// Formula is: (RMC * Avidity * Remaining Supply * Token Price) / 100
+    ///
     /// Returns None if unable to reserve enough tokens.
-    pub fn get_contract_reward(installments: u64, remaining_supply: u128) -> Option<u128> {
+    pub fn get_contract_reward(
+        installments: u64,
+        remaining_supply: u128,
+        token_price: u64,
+    ) -> Option<u128> {
         // check if we need to halve the RMC
         if Self::should_halve_rmc() {
             Self::halve_rmc();
@@ -86,6 +94,11 @@ impl Reward {
             res if res < MIN_REWARD as f64 => MIN_REWARD,
             res => res as u128,
         };
+
+        // calculate the final reward based on the token price
+        // reward : BASE_TOKEN_PRICE = x : token_price
+        let reward = (reward * token_price as u128).div_ceil(BASE_TOKEN_PRICE);
+
         // check if canister has enough tokens to pay the reward
         let pool_value = reward * installments as u128;
         if pool_value > remaining_supply {
@@ -183,8 +196,9 @@ mod test {
     #[tokio::test]
     async fn test_should_get_reward_if_pool_doesnt_exist() {
         assert_eq!(
-            Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY).unwrap(),
-            2_940_000_000_000
+            Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, BASE_TOKEN_PRICE as u64)
+                .unwrap(),
+            2_940_000_000_000,
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
 
@@ -192,10 +206,19 @@ mod test {
 
         // next reward should be less
         assert_eq!(
-            Reward::get_contract_reward(4_000, remaining_supply).unwrap(),
-            2_939_998_765_200
+            Reward::get_contract_reward(4_000, remaining_supply, BASE_TOKEN_PRICE as u64).unwrap(),
+            2_939_998_765_200,
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_less_value_if_token_price_is_lower() {
+        assert_eq!(
+            Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, 1).unwrap(),
+            2_940_000_000_000 / 100,
+        );
+        assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
     }
 
     #[test]

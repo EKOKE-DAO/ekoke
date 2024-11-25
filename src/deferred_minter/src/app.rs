@@ -96,8 +96,11 @@ impl DeferredMinter {
             .await?;
 
         // get reward for token
-        let token_reward =
-            Reward::get_contract_reward(contract.installments, reward_available_balance as u128);
+        let token_reward = Reward::get_contract_reward(
+            contract.installments,
+            reward_available_balance as u128,
+            token_price,
+        );
 
         // mint contract on erc721
         Self::deferred_erc721()
