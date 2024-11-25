@@ -88,11 +88,12 @@ type DeferredMinterInitData = record {
   chain_id : nat64;
   evm_rpc : principal;
   ecdsa_key : EcdsaKey;
+  log_settings : LogSettingsV2;
 };
 type EcdsaError = variant {
-  RecoveryIdError;
-  InvalidSignature;
-  InvalidPublicKey;
+  RecoveryIdError : text;
+  InvalidSignature : text;
+  InvalidPublicKey : text;
 };
 type EcdsaKey = variant { Dfx; Production; Test };
 type GenericValue = variant {
@@ -125,6 +126,15 @@ type HttpResponse = record {
   upgrade : opt bool;
   status_code : nat16;
 };
+type Log = record { log : text; offset : nat64 };
+type LogSettingsV2 = record {
+  log_filter : text;
+  in_memory_records : nat64;
+  enable_console : bool;
+  max_record_length : nat64;
+};
+type Logs = record { logs : vec Log; all_logs_count : nat64 };
+type Pagination = record { count : nat64; offset : nat64 };
 type RejectionCode = variant {
   NoError;
   CanisterError;
@@ -146,6 +156,7 @@ type Role = variant { Custodian; Agent; GasStation };
 type Seller = record { quota : nat8; address : text };
 service : (DeferredMinterInitData) -> {
   admin_cycles : () -> (nat) query;
+  admin_ic_logs : (Pagination) -> (Logs) query;
   admin_register_agency : (principal, Agency) -> ();
   admin_remove_role : (principal, Role) -> (Result);
   admin_set_allowed_currencies : (vec text) -> ();

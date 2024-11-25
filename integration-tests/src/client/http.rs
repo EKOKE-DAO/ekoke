@@ -8,13 +8,19 @@ use serde_bytes::ByteBuf;
 use crate::actor::admin;
 use crate::TestEnv;
 
-pub struct HttpClient<'a> {
+pub struct HttpClient<'a, T>
+where
+    T: TestEnv,
+{
     principal: Principal,
-    env: &'a TestEnv,
+    env: &'a T,
 }
 
-impl<'a> HttpClient<'a> {
-    pub fn new(principal: Principal, env: &'a TestEnv) -> Self {
+impl<'a, T> HttpClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub fn new(principal: Principal, env: &'a T) -> Self {
         Self { principal, env }
     }
 

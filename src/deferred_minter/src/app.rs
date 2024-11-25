@@ -53,7 +53,10 @@ impl DeferredMinter {
         RolesManager::set_custodians(init_args.custodians).expect("failed to set custodians");
 
         // init logger
-        init_log(&init_args.log_settings).expect("failed to init log");
+        if !cfg!(test) {
+            init_log(&init_args.log_settings).expect("failed to init log");
+        }
+        // set the log settings
         Configuration::set_log_settings(init_args.log_settings)
             .expect("failed to set log settings");
     }
@@ -117,7 +120,7 @@ impl DeferredMinter {
         // get reward for token
         let token_reward = Reward::get_contract_reward(
             contract.installments,
-            reward_available_balance as u128,
+            reward_available_balance,
             token_price,
         );
         log::debug!("calculated reward for contract {contract_id}: {token_reward:?}");

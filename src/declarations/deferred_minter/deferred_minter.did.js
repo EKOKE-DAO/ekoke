@@ -5,6 +5,12 @@ export const idlFactory = ({ IDL }) => {
     'Production' : IDL.Null,
     'Test' : IDL.Null,
   });
+  const LogSettingsV2 = IDL.Record({
+    'log_filter' : IDL.Text,
+    'in_memory_records' : IDL.Nat64,
+    'enable_console' : IDL.Bool,
+    'max_record_length' : IDL.Nat64,
+  });
   const DeferredMinterInitData = IDL.Record({
     'deferred_erc721' : IDL.Text,
     'evm_rpc_api' : IDL.Opt(IDL.Text),
@@ -15,6 +21,13 @@ export const idlFactory = ({ IDL }) => {
     'chain_id' : IDL.Nat64,
     'evm_rpc' : IDL.Principal,
     'ecdsa_key' : EcdsaKey,
+    'log_settings' : LogSettingsV2,
+  });
+  const Pagination = IDL.Record({ 'count' : IDL.Nat64, 'offset' : IDL.Nat64 });
+  const Log = IDL.Record({ 'log' : IDL.Text, 'offset' : IDL.Nat64 });
+  const Logs = IDL.Record({
+    'logs' : IDL.Vec(Log),
+    'all_logs_count' : IDL.Nat64,
   });
   const Continent = IDL.Variant({
     'Africa' : IDL.Null,
@@ -94,9 +107,9 @@ export const idlFactory = ({ IDL }) => {
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
   });
   const EcdsaError = IDL.Variant({
-    'RecoveryIdError' : IDL.Null,
-    'InvalidSignature' : IDL.Null,
-    'InvalidPublicKey' : IDL.Null,
+    'RecoveryIdError' : IDL.Text,
+    'InvalidSignature' : IDL.Text,
+    'InvalidPublicKey' : IDL.Text,
   });
   const DeferredMinterError = IDL.Variant({
     'Configuration' : ConfigurationError,
@@ -177,6 +190,7 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'admin_ic_logs' : IDL.Func([Pagination], [Logs], ['query']),
     'admin_register_agency' : IDL.Func([IDL.Principal, Agency], [], []),
     'admin_remove_role' : IDL.Func([IDL.Principal, Role], [Result], []),
     'admin_set_allowed_currencies' : IDL.Func([IDL.Vec(IDL.Text)], [], []),
@@ -197,6 +211,12 @@ export const init = ({ IDL }) => {
     'Production' : IDL.Null,
     'Test' : IDL.Null,
   });
+  const LogSettingsV2 = IDL.Record({
+    'log_filter' : IDL.Text,
+    'in_memory_records' : IDL.Nat64,
+    'enable_console' : IDL.Bool,
+    'max_record_length' : IDL.Nat64,
+  });
   const DeferredMinterInitData = IDL.Record({
     'deferred_erc721' : IDL.Text,
     'evm_rpc_api' : IDL.Opt(IDL.Text),
@@ -207,6 +227,7 @@ export const init = ({ IDL }) => {
     'chain_id' : IDL.Nat64,
     'evm_rpc' : IDL.Principal,
     'ecdsa_key' : EcdsaKey,
+    'log_settings' : LogSettingsV2,
   });
   return [DeferredMinterInitData];
 };

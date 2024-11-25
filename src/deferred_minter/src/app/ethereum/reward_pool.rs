@@ -17,19 +17,22 @@ impl From<H160> for RewardPool {
 
 impl RewardPool {
     /// Get the available amount of reward tokens in the reward pool
-    pub async fn available_rewards(&self, client: &EvmRpcClient) -> DeferredMinterResult<u64> {
+    pub async fn available_rewards(&self, client: &EvmRpcClient) -> DeferredMinterResult<u128> {
         if cfg!(test) {
-            return Ok(7_000_000_000_000);
+            return Ok(700_000_000_000_000);
         }
 
         let call = abi::RewardPoolCalls::AvailableReward(AvailableRewardCall).encode();
 
         let output = client.eth_call(&self.address, call.into()).await?;
+        log::debug!("reward pool available output: {:?}", output);
 
-        let available = abi::AvailableRewardReturn::decode(output)
+        let available = abi::AvailableRewardReturn::decode_hex(output)
             .map_err(|err| DeferredMinterError::FailedToDecodeOutput(err.to_string()))?;
 
-        Ok(available.available.as_u64())
+        log::debug!("reward pool available balance: {}", available.available);
+
+        Ok(available.available.as_u128())
     }
 }
 
@@ -50,6 +53,6 @@ mod test {
         .await
         .unwrap();
 
-        assert_eq!(reward_pool, 7_000_000_000_000);
+        assert_eq!(reward_pool, 700000000000000);
     }
 }

@@ -28,11 +28,14 @@ ethers-providers = "2"
 ethers-signers = "2"
 getrandom = { version = "0.2", features = ["custom"] }
 hex = "0.4"
+ic-agent = "0.39"
 ic-cdk = "0.17"
 ic-cdk-macros = "0.17"
 ic-cdk-timers = "0.11"
 ic-log = { git = "https://github.com/bitfinity-network/canister-sdk", package = "ic-log", tag = "v0.23.x" }
+ic-test-utils = { git = "https://github.com/bitfinity-network/canister-sdk", package = "ic-test-utils", tag = "v0.23.x" }
 ic-stable-structures = "0.6"
+ic-utils = "0.39"
 k256 = { version = "0.13", default-features = false, features = ["ecdsa-core"] }
 log = "0.4"
 num-bigint = "0.4"

@@ -52,7 +52,10 @@ export type DeferredDataError = { 'Configuration' : ConfigurationError } |
   { 'Unauthorized' : null } |
   { 'StorageError' : null } |
   { 'CanisterCall' : [RejectionCode, string] };
-export interface DeferredDataInitData { 'minter' : Principal }
+export interface DeferredDataInitData {
+  'minter' : Principal,
+  'log_settings' : LogSettingsV2,
+}
 export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Nat32Content' : number } |
   { 'BoolContent' : boolean } |
@@ -81,6 +84,15 @@ export interface HttpResponse {
   'upgrade' : [] | [boolean],
   'status_code' : number,
 }
+export interface Log { 'log' : string, 'offset' : bigint }
+export interface LogSettingsV2 {
+  'log_filter' : string,
+  'in_memory_records' : bigint,
+  'enable_console' : boolean,
+  'max_record_length' : bigint,
+}
+export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
+export interface Pagination { 'count' : bigint, 'offset' : bigint }
 export type RejectionCode = { 'NoError' : null } |
   { 'CanisterError' : null } |
   { 'SysTransient' : null } |
@@ -100,6 +112,7 @@ export type Result = { 'Ok' : null } |
 export interface Seller { 'quota' : number, 'address' : string }
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
+  'admin_ic_logs' : ActorMethod<[Pagination], Logs>,
   'admin_set_minter' : ActorMethod<[Principal], Result>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_contracts' : ActorMethod<[], Array<bigint>>,

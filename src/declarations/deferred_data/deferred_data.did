@@ -49,7 +49,10 @@ type DeferredDataError = variant {
   StorageError;
   CanisterCall : record { RejectionCode; text };
 };
-type DeferredDataInitData = record { minter : principal };
+type DeferredDataInitData = record {
+  minter : principal;
+  log_settings : LogSettingsV2;
+};
 type GenericValue = variant {
   Nat64Content : nat64;
   Nat32Content : nat32;
@@ -80,6 +83,15 @@ type HttpResponse = record {
   upgrade : opt bool;
   status_code : nat16;
 };
+type Log = record { log : text; offset : nat64 };
+type LogSettingsV2 = record {
+  log_filter : text;
+  in_memory_records : nat64;
+  enable_console : bool;
+  max_record_length : nat64;
+};
+type Logs = record { logs : vec Log; all_logs_count : nat64 };
+type Pagination = record { count : nat64; offset : nat64 };
 type RejectionCode = variant {
   NoError;
   CanisterError;
@@ -98,6 +110,7 @@ type Result = variant { Ok; Err : DeferredDataError };
 type Seller = record { quota : nat8; address : text };
 service : (DeferredDataInitData) -> {
   admin_cycles : () -> (nat) query;
+  admin_ic_logs : (Pagination) -> (Logs) query;
   admin_set_minter : (principal) -> (Result);
   get_contract : (nat) -> (opt Contract) query;
   get_contracts : () -> (vec nat) query;

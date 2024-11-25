@@ -1,6 +1,21 @@
 export const idlFactory = ({ IDL }) => {
   const GenericValue = IDL.Rec();
-  const DeferredDataInitData = IDL.Record({ 'minter' : IDL.Principal });
+  const LogSettingsV2 = IDL.Record({
+    'log_filter' : IDL.Text,
+    'in_memory_records' : IDL.Nat64,
+    'enable_console' : IDL.Bool,
+    'max_record_length' : IDL.Nat64,
+  });
+  const DeferredDataInitData = IDL.Record({
+    'minter' : IDL.Principal,
+    'log_settings' : LogSettingsV2,
+  });
+  const Pagination = IDL.Record({ 'count' : IDL.Nat64, 'offset' : IDL.Nat64 });
+  const Log = IDL.Record({ 'log' : IDL.Text, 'offset' : IDL.Nat64 });
+  const Logs = IDL.Record({
+    'logs' : IDL.Vec(Log),
+    'all_logs_count' : IDL.Nat64,
+  });
   const ConfigurationError = IDL.Variant({
     'AnonymousOwner' : IDL.Null,
     'AnonymousMinter' : IDL.Null,
@@ -115,6 +130,7 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'admin_ic_logs' : IDL.Func([Pagination], [Logs], ['query']),
     'admin_set_minter' : IDL.Func([IDL.Principal], [Result], []),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
@@ -134,6 +150,15 @@ export const idlFactory = ({ IDL }) => {
   });
 };
 export const init = ({ IDL }) => {
-  const DeferredDataInitData = IDL.Record({ 'minter' : IDL.Principal });
+  const LogSettingsV2 = IDL.Record({
+    'log_filter' : IDL.Text,
+    'in_memory_records' : IDL.Nat64,
+    'enable_console' : IDL.Bool,
+    'max_record_length' : IDL.Nat64,
+  });
+  const DeferredDataInitData = IDL.Record({
+    'minter' : IDL.Principal,
+    'log_settings' : LogSettingsV2,
+  });
   return [DeferredDataInitData];
 };

@@ -5,18 +5,18 @@ use did::{H160, ID};
 use crate::actor::admin;
 use crate::TestEnv;
 
-pub struct DeferredMinterClient<'a> {
-    pub env: &'a TestEnv,
+pub struct DeferredMinterClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub env: &'a T,
 }
 
-impl<'a> From<&'a TestEnv> for DeferredMinterClient<'a> {
-    fn from(env: &'a TestEnv) -> Self {
-        Self::new(env)
-    }
-}
-
-impl<'a> DeferredMinterClient<'a> {
-    pub fn new(env: &'a TestEnv) -> Self {
+impl<'a, T> DeferredMinterClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub fn new(env: &'a T) -> Self {
         Self { env }
     }
 
@@ -24,7 +24,7 @@ impl<'a> DeferredMinterClient<'a> {
         let res: DeferredMinterResult<String> = self
             .env
             .update(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 admin(),
                 "get_eth_address",
                 Encode!(&()).unwrap(),
@@ -47,7 +47,7 @@ impl<'a> DeferredMinterClient<'a> {
         let contract_id: DeferredMinterResult<ID> = self
             .env
             .update(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 caller,
                 "create_contract",
                 Encode!(&data).unwrap(),
@@ -66,7 +66,7 @@ impl<'a> DeferredMinterClient<'a> {
         let res: DeferredMinterResult<()> = self
             .env
             .update(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 caller,
                 "close_contract",
                 Encode!(&contract_id).unwrap(),
@@ -80,7 +80,7 @@ impl<'a> DeferredMinterClient<'a> {
     pub async fn set_custodians(&self, principals: Vec<Principal>) {
         self.env
             .update::<()>(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 admin(),
                 "admin_set_custodians",
                 Encode!(&principals).unwrap(),
@@ -93,7 +93,7 @@ impl<'a> DeferredMinterClient<'a> {
         let _: () = self
             .env
             .update(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 admin(),
                 "admin_register_agency",
                 Encode!(&wallet, &agency).unwrap(),
@@ -105,7 +105,7 @@ impl<'a> DeferredMinterClient<'a> {
     pub async fn remove_agency(&self, wallet: Principal) -> DeferredMinterResult<()> {
         self.env
             .update(
-                self.env.deferred_minter,
+                self.env.deferred_minter(),
                 wallet,
                 "remove_agency",
                 Encode!(&wallet).unwrap(),

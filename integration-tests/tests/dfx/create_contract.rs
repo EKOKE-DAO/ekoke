@@ -1,19 +1,17 @@
 use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, Seller};
 use integration_tests::actor::agent;
 use integration_tests::client::{DeferredDataClient, DeferredMinterClient};
-use integration_tests::eth_rpc_client::DeferredErc721Client;
-use integration_tests::{EthRpcClient, TestEnv, WalletName};
+use integration_tests::eth_rpc_client::{DeferredErc721Client, EthRpcClient};
+use integration_tests::{DfxTestEnv, WalletName};
 
 const ONE_ETH: u64 = 1_000_000_000_000_000_000;
 
 #[tokio::test]
-async fn test_should_create_contract() {
-    let env = TestEnv::init().await;
-
-    let minter = DeferredMinterClient::new(&env);
+async fn test_should_create_and_close_contract() {
+    let env = DfxTestEnv::init().await;
 
     // create agent
-    minter
+    DeferredMinterClient::new(&env)
         .admin_register_agency(
             agent(),
             Agency {
@@ -23,7 +21,7 @@ async fn test_should_create_contract() {
         )
         .await;
 
-    let minter_address = minter
+    let minter_address = DeferredMinterClient::new(&env)
         .get_eth_address()
         .await
         .expect("Failed to get eth address");
@@ -31,7 +29,7 @@ async fn test_should_create_contract() {
     println!("Eth address: {minter_address}",);
 
     // transfer ETH to create the token on Ethereum
-    EthRpcClient::from(&env)
+    EthRpcClient::new(&env)
         .send_eth(WalletName::Owner, minter_address, ONE_ETH)
         .await
         .expect("Failed to send eth");
@@ -58,7 +56,7 @@ async fn test_should_create_contract() {
     };
 
     // send request
-    let contract_id = minter
+    let contract_id = DeferredMinterClient::new(&env)
         .create_contract(agent(), request)
         .await
         .expect("Failed to create contract");
@@ -93,4 +91,12 @@ async fn test_should_create_contract() {
     assert_eq!(contract.closed, false);
     assert_eq!(contract.value, 500_000);
     assert_eq!(contract.id, contract_id);
+
+    // close contract
+    DeferredMinterClient::new(&env)
+        .close_contract(agent(), contract_id.clone())
+        .await
+        .expect("Failed to close contract");
+
+    assert_eq!(data_client.get_contract(&contract_id).await, None);
 }

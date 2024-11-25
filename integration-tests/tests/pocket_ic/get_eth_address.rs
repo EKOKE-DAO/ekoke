@@ -1,11 +1,11 @@
 use did::H160;
 use integration_tests::client::DeferredMinterClient;
-use integration_tests::TestEnv;
+use integration_tests::PocketIcTestEnv;
 use pretty_assertions::assert_ne;
 
 #[tokio::test]
 async fn test_should_get_eth_address() {
-    let env = TestEnv::init().await;
+    let env = PocketIcTestEnv::init().await;
 
     let client = DeferredMinterClient::new(&env);
 

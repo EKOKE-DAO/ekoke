@@ -15,7 +15,10 @@ ethers-contract = { workspace = true, features = ["abigen", "providers"] }
 ethers-middleware = { workspace = true }
 ethers-providers = { workspace = true }
 ethers-signers = { workspace = true }
+ic-agent = { workspace = true }
 ic-log = { workspace = true }
+ic-test-utils = { workspace = true }
+ic-utils = { workspace = true }
 pocket-ic = "6"
 reqwest = { workspace = true, features = ["json"] }
 serde = { workspace = true }
@@ -28,3 +31,8 @@ tokio = { version = "1", features = ["full"] }
 pretty_assertions = "1"
 serial_test = "3"
 time = { workspace = true }
+
+[features]
+default = ["dfx", "pocket-ic"]
+dfx = []
+pocket-ic = []

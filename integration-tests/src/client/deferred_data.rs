@@ -5,18 +5,18 @@ use did::ID;
 use crate::actor::admin;
 use crate::TestEnv;
 
-pub struct DeferredDataClient<'a> {
-    pub env: &'a TestEnv,
+pub struct DeferredDataClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub env: &'a T,
 }
 
-impl<'a> From<&'a TestEnv> for DeferredDataClient<'a> {
-    fn from(env: &'a TestEnv) -> Self {
-        Self::new(env)
-    }
-}
-
-impl<'a> DeferredDataClient<'a> {
-    pub fn new(env: &'a TestEnv) -> Self {
+impl<'a, T> DeferredDataClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub fn new(env: &'a T) -> Self {
         Self { env }
     }
 
@@ -29,7 +29,7 @@ impl<'a> DeferredDataClient<'a> {
     ) -> DeferredDataResult<()> {
         self.env
             .update(
-                self.env.deferred_data,
+                self.env.deferred_data(),
                 caller,
                 "update_contract_property",
                 Encode!(&id, &key, &property).unwrap(),
@@ -42,7 +42,7 @@ impl<'a> DeferredDataClient<'a> {
         let signed_contract: Vec<ID> = self
             .env
             .query(
-                self.env.deferred_data,
+                self.env.deferred_data(),
                 admin(),
                 "get_contracts",
                 Encode!(&()).unwrap(),
@@ -56,7 +56,7 @@ impl<'a> DeferredDataClient<'a> {
     pub async fn get_contract(&self, contract_id: &ID) -> Option<Contract> {
         self.env
             .query(
-                self.env.deferred_data,
+                self.env.deferred_data(),
                 admin(),
                 "get_contract",
                 Encode!(contract_id).unwrap(),

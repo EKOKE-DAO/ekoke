@@ -107,7 +107,7 @@ impl Wallet {
         let (ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse { signature },) =
             ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
                 message_hash: sighash.0.to_vec(),
-                derivation_path: vec![vec![]],
+                derivation_path: vec![],
                 key_id: EcdsaKeyId {
                     curve: EcdsaCurve::Secp256k1,
                     name: self.key.to_string(),
@@ -150,8 +150,10 @@ impl Wallet {
 
     /// Derive the address of the ETH wallet from the public key SEC1 encoded
     fn ecdsa_public_key_to_address(public_key: &[u8]) -> DeferredMinterResult<H160> {
-        let public_key = PublicKey::from_slice(public_key)
-            .map_err(|_| DeferredMinterError::Ecdsa(EcdsaError::InvalidPublicKey))?;
+        let public_key = PublicKey::from_slice(public_key).map_err(|e| {
+            log::error!("failed to parse public key: {e}");
+            DeferredMinterError::Ecdsa(EcdsaError::InvalidPublicKey(e.to_string()))
+        })?;
         let decompressed_key = public_key.serialize_uncompressed();
         let pub_key_wno_prefix = &decompressed_key[1..];
 
@@ -169,19 +171,33 @@ impl Wallet {
         hash: H256,
         signature: &[u8],
     ) -> DeferredMinterResult<u64> {
-        let verifying_key = k256::ecdsa::VerifyingKey::from_sec1_bytes(public_key)
-            .map_err(|_| DeferredMinterError::Ecdsa(EcdsaError::InvalidPublicKey))?;
-        let signature = k256::ecdsa::Signature::from_slice(signature)
-            .map_err(|_| DeferredMinterError::Ecdsa(EcdsaError::InvalidSignature))?;
+        log::debug!("computing recovery id for hash {hash}");
+        log::debug!("pubkey is {public_key:?}");
+        log::debug!("signature is {signature:?}");
+
+        let verifying_key =
+            k256::ecdsa::VerifyingKey::from_sec1_bytes(public_key).map_err(|e| {
+                log::error!("failed to parse public key: {e}");
+                DeferredMinterError::Ecdsa(EcdsaError::InvalidPublicKey(e.to_string()))
+            })?;
+        let signature = k256::ecdsa::Signature::from_slice(signature).map_err(|e| {
+            log::error!("Failed to parse signature: {e}");
+            DeferredMinterError::Ecdsa(EcdsaError::InvalidSignature(e.to_string()))
+        })?;
         let recovery_id = k256::ecdsa::RecoveryId::trial_recovery_from_prehash(
             &verifying_key,
             hash.as_bytes(),
             &signature,
         )
         .map(|recid| RecoveryId::new(recid.is_y_odd(), recid.is_x_reduced()))
-        .map_err(|_| DeferredMinterError::Ecdsa(EcdsaError::RecoveryIdError))?;
+        .map_err(|e| {
+            log::error!("failed to compute recovery id: {:?}", e);
+            DeferredMinterError::Ecdsa(EcdsaError::RecoveryIdError(e.to_string()))
+        })?;
 
         let v = (recovery_id.to_byte() as u64) + (self.chain_id * 2) + 35;
+
+        log::debug!("recovery id is {v}");
 
         Ok(v)
     }

@@ -76,9 +76,9 @@ pub enum CloseContractError {
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
 pub enum EcdsaError {
     #[error("invalid public key")]
-    InvalidPublicKey,
+    InvalidPublicKey(String),
     #[error("invalid signature")]
-    InvalidSignature,
-    #[error("failed to compute recovery id")]
-    RecoveryIdError,
+    InvalidSignature(String),
+    #[error("failed to compute recovery id: {0}")]
+    RecoveryIdError(String),
 }

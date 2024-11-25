@@ -1,6 +1,6 @@
 pub mod abi;
 mod builder;
-mod evm_rpc_did;
+pub mod evm_rpc_did;
 mod ganache;
 
 use std::collections::HashMap;

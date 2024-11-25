@@ -1,19 +1,14 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use candid::{Encode, Principal};
 use did::H160;
 use ethers_middleware::SignerMiddleware;
 use ethers_providers::Provider;
 use ethers_signers::{LocalWallet, Signer};
-use pocket_ic::nonblocking::PocketIc;
 use testcontainers::runners::AsyncRunner as _;
 
-use super::evm_rpc_did::InstallArgs;
 use super::{abi, Evm, WalletName};
 use crate::evm::ganache::Ganache;
-use crate::wasm::Canister;
-use crate::{TestEnv, DEFAULT_CYCLES};
 
 type EthHttpProvider = Provider<ethers_providers::Http>;
 
@@ -31,7 +26,7 @@ impl EvmBuilder {
     /// Init evm test environment.
     ///
     /// Setups a local EVM node and installs the EVM-RPC canister.
-    pub async fn setup(pic: &PocketIc, evm_rpc_canister: Principal) -> anyhow::Result<Evm> {
+    pub async fn setup() -> anyhow::Result<Evm> {
         // start container
         let container = Ganache::default().start().await?;
         let host_port = container.get_host_port_ipv4(8545).await?;
@@ -70,9 +65,6 @@ impl EvmBuilder {
         println!("Ekoke contract: {ekoke}");
         let reward_pool = Self::install_reward_pool(owner, &url, &deferred, &ekoke).await?;
         println!("Reward pool contract: {reward_pool}");
-
-        Self::configure_evm_rpc_canister(pic, evm_rpc_canister).await?;
-        println!("EVM-RPC canister installed");
 
         Ok(Evm {
             chain_id,
@@ -157,27 +149,5 @@ impl EvmBuilder {
                 .address()
                 .into(),
         )
-    }
-
-    async fn configure_evm_rpc_canister(
-        pic: &PocketIc,
-        evm_rpc_canister: Principal,
-    ) -> anyhow::Result<()> {
-        pic.add_cycles(evm_rpc_canister, DEFAULT_CYCLES).await;
-
-        let wasm_bytes = TestEnv::load_wasm(Canister::EvmRpc);
-
-        let init_args = InstallArgs {
-            logFilter: None,
-            demo: Some(true),
-            manageApiKeys: None,
-        };
-
-        let init_arg = Encode!(&init_args).unwrap();
-
-        pic.install_canister(evm_rpc_canister, wasm_bytes, init_arg, None)
-            .await;
-
-        Ok(())
     }
 }

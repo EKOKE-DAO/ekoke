@@ -10,9 +10,9 @@ use super::Wallet;
 use crate::app::configuration::Configuration;
 
 /// Gas required for `createContract`
-const CREATE_CONTRACT_GAS: u64 = 500_000;
+const CREATE_CONTRACT_GAS: u64 = 700_000;
 /// Gas required for `closeContract`
-const CLOSE_CONTRACT_GAS: u64 = 40_000;
+const CLOSE_CONTRACT_GAS: u64 = 80_000;
 
 pub struct DeferredErc721 {
     address: H160,
@@ -47,27 +47,28 @@ impl DeferredErc721 {
         let contract_id = contract.id.0.to_u64().expect("Contract ID is too large");
         log::debug!("Metadata URI for contract_id {contract_id}: {metadata_uri}");
 
-        let payload = abi::DeferredCalls::CreateContract(CreateContractCall {
-            request: CreateContractRequest {
-                contract_id: contract_id.into(),
-                metadata_uri,
-                sellers: contract
-                    .sellers
-                    .iter()
-                    .map(|seller| SellerRequest {
-                        seller: seller.address.0,
-                        quota: seller.quota,
-                    })
-                    .collect(),
-                buyers: contract.buyers.iter().map(|buyer| buyer.0).collect(),
-                ekoke_reward: reward.unwrap_or_default().into(),
-                token_price_usd: token_price_usd.into(),
-                tokens_amount: contract.installments.into(),
-            },
-        })
-        .encode();
+        let request = CreateContractRequest {
+            contract_id: contract_id.into(),
+            metadata_uri,
+            sellers: contract
+                .sellers
+                .iter()
+                .map(|seller| SellerRequest {
+                    seller: seller.address.0,
+                    quota: seller.quota,
+                })
+                .collect(),
+            buyers: contract.buyers.iter().map(|buyer| buyer.0).collect(),
+            ekoke_reward: reward.unwrap_or_default().into(),
+            token_price_usd: token_price_usd.into(),
+            tokens_amount: contract.installments.into(),
+        };
 
-        self.send_tx(wallet, evm_rpc_client, payload, CREATE_CONTRACT_GAS)
+        log::debug!("Create contract request: {request:?}");
+
+        let payload = abi::DeferredCalls::CreateContract(CreateContractCall { request }).encode();
+
+        self.send_tx(wallet, evm_rpc_client, payload.into(), CREATE_CONTRACT_GAS)
             .await
     }
 
@@ -90,7 +91,7 @@ impl DeferredErc721 {
         })
         .encode();
 
-        self.send_tx(wallet, evm_rpc_client, payload, CLOSE_CONTRACT_GAS)
+        self.send_tx(wallet, evm_rpc_client, payload.into(), CLOSE_CONTRACT_GAS)
             .await
     }
 
@@ -98,11 +99,13 @@ impl DeferredErc721 {
         &self,
         wallet: &Wallet,
         evm_rpc_client: &EvmRpcClient,
-        payload: Vec<u8>,
+        payload: Bytes,
         gas: u64,
     ) -> DeferredMinterResult<()> {
         let eth_address = wallet.address().await?;
+        log::debug!("Sending tx from {eth_address}");
         let nonce = evm_rpc_client.get_next_nonce(eth_address).await?;
+        log::debug!("Nonce: {nonce}");
 
         let tx = TransactionRequest {
             from: Some(eth_address.0),
@@ -110,16 +113,17 @@ impl DeferredErc721 {
             value: None,
             gas: Some(gas.into()),
             gas_price: Some(Configuration::get_gas_price().into()),
-            data: Some(Bytes::from(payload.encode())),
+            data: Some(payload),
             nonce: Some(nonce),
             chain_id: Some(Configuration::get_chain_id().into()),
         };
 
-        log::debug!("Sending tx: {tx:?}");
-
         // sign and send the transaction
+        log::debug!("Signing tx");
         let signed_tx = wallet.sign_transaction(tx).await?;
+        log::debug!("Signed tx: {signed_tx}");
 
+        log::debug!("Sending out tx");
         evm_rpc_client.eth_send_raw_transaction(signed_tx).await?;
 
         Ok(())

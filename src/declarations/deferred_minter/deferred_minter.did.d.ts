@@ -86,10 +86,11 @@ export interface DeferredMinterInitData {
   'chain_id' : bigint,
   'evm_rpc' : Principal,
   'ecdsa_key' : EcdsaKey,
+  'log_settings' : LogSettingsV2,
 }
-export type EcdsaError = { 'RecoveryIdError' : null } |
-  { 'InvalidSignature' : null } |
-  { 'InvalidPublicKey' : null };
+export type EcdsaError = { 'RecoveryIdError' : string } |
+  { 'InvalidSignature' : string } |
+  { 'InvalidPublicKey' : string };
 export type EcdsaKey = { 'Dfx' : null } |
   { 'Production' : null } |
   { 'Test' : null };
@@ -121,6 +122,15 @@ export interface HttpResponse {
   'upgrade' : [] | [boolean],
   'status_code' : number,
 }
+export interface Log { 'log' : string, 'offset' : bigint }
+export interface LogSettingsV2 {
+  'log_filter' : string,
+  'in_memory_records' : bigint,
+  'enable_console' : boolean,
+  'max_record_length' : bigint,
+}
+export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
+export interface Pagination { 'count' : bigint, 'offset' : bigint }
 export type RejectionCode = { 'NoError' : null } |
   { 'CanisterError' : null } |
   { 'SysTransient' : null } |
@@ -147,6 +157,7 @@ export type Role = { 'Custodian' : null } |
 export interface Seller { 'quota' : number, 'address' : string }
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
+  'admin_ic_logs' : ActorMethod<[Pagination], Logs>,
   'admin_register_agency' : ActorMethod<[Principal, Agency], undefined>,
   'admin_remove_role' : ActorMethod<[Principal, Role], Result>,
   'admin_set_allowed_currencies' : ActorMethod<[Array<string>], undefined>,

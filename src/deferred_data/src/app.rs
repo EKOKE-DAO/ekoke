@@ -35,7 +35,10 @@ impl DeferredData {
         Configuration::set_owner(caller()).expect("Failed to set owner");
 
         // init logger
-        init_log(&init_args.log_settings).expect("failed to init log");
+        if !cfg!(test) {
+            init_log(&init_args.log_settings).expect("failed to init log");
+        }
+        // set the log settings
         Configuration::set_log_settings(init_args.log_settings)
             .expect("failed to set log settings");
     }
