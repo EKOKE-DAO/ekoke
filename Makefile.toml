@@ -84,3 +84,4 @@ workspace = false
 description = "setup dfx"
 script = "./scripts/dfx-setup.sh"
 workspace = false
+dependencies = ["dfx-pull"]
