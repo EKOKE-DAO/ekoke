@@ -33,6 +33,8 @@ type ContractError = variant {
   CurrencyNotAllowed : text;
   ContractValueIsNotMultipleOfInstallments;
   ContractSellerQuotaIsNot100;
+  ContractPriceMismatch;
+  TokenValueIsZero;
   ContractNotFound : nat;
   CannotCloseContract;
   ContractHasNoSeller;
@@ -49,6 +51,7 @@ type ContractRegistration = record {
   properties : vec record { text; GenericValue };
   deposit : nat64;
   sellers : vec Seller;
+  token_value : nat64;
   expiration : text;
   currency : text;
   installments : nat64;

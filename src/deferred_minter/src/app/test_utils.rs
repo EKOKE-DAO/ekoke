@@ -51,15 +51,6 @@ pub fn mock_agency() -> Agency {
     }
 }
 
-pub fn with_mock_contract<F>(id: u64, installments: u64, f: F) -> Contract
-where
-    F: FnOnce(&mut Contract),
-{
-    let mut contract = mock_contract(id, installments);
-    f(&mut contract);
-    contract
-}
-
 pub fn alice() -> Principal {
     Principal::from_text("be2us-64aaa-aaaaa-qaabq-cai").unwrap()
 }
@@ -70,8 +61,4 @@ pub fn bob() -> Principal {
 
 pub fn charlie() -> Principal {
     Principal::from_text("vuwfz-pyaaa-aaaal-ai5da-cai").unwrap()
-}
-
-pub fn dylan() -> Principal {
-    Principal::from_text("vtxdn-caaaa-aaaal-ai5dq-cai").unwrap()
 }

@@ -34,6 +34,8 @@ export type Continent = { 'Africa' : null } |
 export type ContractError = { 'CurrencyNotAllowed' : string } |
   { 'ContractValueIsNotMultipleOfInstallments' : null } |
   { 'ContractSellerQuotaIsNot100' : null } |
+  { 'ContractPriceMismatch' : null } |
+  { 'TokenValueIsZero' : null } |
   { 'ContractNotFound' : bigint } |
   { 'CannotCloseContract' : null } |
   { 'ContractHasNoSeller' : null } |
@@ -50,6 +52,7 @@ export interface ContractRegistration {
   'properties' : Array<[string, GenericValue]>,
   'deposit' : bigint,
   'sellers' : Array<Seller>,
+  'token_value' : bigint,
   'expiration' : string,
   'currency' : string,
   'installments' : bigint,

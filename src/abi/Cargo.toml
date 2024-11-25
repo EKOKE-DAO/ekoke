@@ -10,5 +10,8 @@ repository = { workspace = true }
 default = []
 
 [dependencies]
-ethers-contract = { workspace = true }
+ethers-contract = { workspace = true, default-features = false, features = [
+  "abigen",
+] }
 ethers-core = { workspace = true }
+ethers-providers = { workspace = true }

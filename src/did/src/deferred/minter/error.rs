@@ -39,6 +39,10 @@ pub enum ContractError {
     ContractNotFound(ID),
     #[error("the contract provided has no tokens")]
     ContractHasNoTokens,
+    #[error("the provided contract price doesn't match the sum of the tokens' prices")]
+    ContractPriceMismatch,
+    #[error("the provided contract token value is zero")]
+    TokenValueIsZero,
     #[error("the provided contract value is not a multiple of the number of installments")]
     ContractValueIsNotMultipleOfInstallments,
     #[error("the provided contract has no seller")]

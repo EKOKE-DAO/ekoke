@@ -7,7 +7,9 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::Serialize;
 
-#[derive(Debug, Default, Clone, PartialOrd, Ord, Eq, PartialEq, Serialize, Deserialize, Hash)]
+#[derive(
+    Debug, Default, Clone, Copy, PartialOrd, Ord, Eq, PartialEq, Serialize, Deserialize, Hash,
+)]
 #[serde(transparent)]
 pub struct H160(pub ethers_core::types::H160);
 

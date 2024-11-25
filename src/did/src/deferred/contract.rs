@@ -27,7 +27,7 @@ pub struct Contract {
     pub buyers: Vec<H160>,
     /// Number of installments
     pub installments: u64,
-    /// Current Fiat value of the contract (to pay)
+    /// Token value
     pub value: u64,
     /// Deposit fiat value (already paid)
     pub deposit: u64,
@@ -130,12 +130,15 @@ pub struct ContractRegistration {
     pub sellers: Vec<Seller>,
     /// Contract buyers. Those who must pay
     pub buyers: Vec<H160>,
-    /// Total value of the contract.
+    /// Total Fiat value of the contract (to pay) (`instalments` * `token_value` must be equal to `value`)
     pub value: u64,
+    /// Token value
+    pub token_value: u64,
+    /// Current Fiat value of the contract (to pay) (`instalments` * `token_value` must be equal to `value`)
     pub currency: String,
     /// Deposit value in fiat
     pub deposit: u64,
-    /// Must be a divisor of `value - deposit_value_fiat`
+    /// Must be a divisor of `value`
     pub installments: u64,
     /// Contract expiration date YYYY-MM-DD
     pub expiration: String,
@@ -150,6 +153,7 @@ impl Default for ContractRegistration {
             sellers: Vec::new(),
             buyers: Vec::new(),
             value: 0,
+            token_value: 0,
             currency: String::new(),
             deposit: 0,
             installments: 1,

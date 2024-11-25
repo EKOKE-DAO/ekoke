@@ -84,6 +84,7 @@ impl DeferredMinter {
         let contract_id = ContractId::get_next_contract_id();
 
         // create contract
+        let token_price = data.token_value;
         let contract = Self::contract_from_registration(contract_id.clone(), data);
 
         // get evm rpc client
@@ -99,7 +100,6 @@ impl DeferredMinter {
             Reward::get_contract_reward(contract.installments, reward_available_balance as u128);
 
         // mint contract on erc721
-        let token_price = contract.value / contract.installments;
         Self::deferred_erc721()
             .create_contract(
                 &Self::wallet(),
@@ -480,6 +480,7 @@ mod test {
                 quota: 100,
             }],
             expiration: String::from("2050-01-01"),
+            token_value: 100,
             ..Default::default()
         };
 

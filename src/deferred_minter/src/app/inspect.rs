@@ -68,6 +68,20 @@ impl Inspect {
             ));
         }
 
+        // verify data.value = data.installments * data.token_value
+        if data.value != data.installments * data.token_value {
+            return Err(DeferredMinterError::Contract(
+                ContractError::ContractPriceMismatch,
+            ));
+        }
+
+        // verify token value is not zero
+        if data.token_value == 0 {
+            return Err(DeferredMinterError::Contract(
+                ContractError::TokenValueIsZero,
+            ));
+        }
+
         let total_quota = data.sellers.iter().map(|seller| seller.quota).sum::<u8>();
         if total_quota != 100 {
             return Err(DeferredMinterError::Contract(
@@ -150,6 +164,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -177,6 +192,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -204,6 +220,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -231,6 +248,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -259,6 +277,61 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_token_value_is_zero() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &ContractRegistration {
+                value: 100,
+                sellers: vec![Seller {
+                    address: H160::zero(),
+                    quota: 100,
+                }],
+                deposit: 50,
+                buyers: vec![
+                    H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
+                ],
+                installments: 25,
+                token_value: 0,
+                expiration: "2078-01-01".to_string(),
+                currency: "USD".to_string(),
+                ..Default::default()
+            }
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn test_should_inspect_contract_register_if_token_value_mismatch() {
+        Configuration::set_allowed_currencies(vec![String::from("USD")]);
+        let caller = crate::utils::caller();
+        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
+        assert!(Inspect::inspect_register_contract(
+            caller,
+            &ContractRegistration {
+                value: 100,
+                sellers: vec![Seller {
+                    address: H160::zero(),
+                    quota: 100,
+                }],
+                deposit: 50,
+                buyers: vec![
+                    H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
+                ],
+                installments: 25,
+                token_value: 10, // 100 != 25 * 10
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -282,6 +355,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -307,6 +381,7 @@ mod test {
                 }],
                 buyers: vec![H160::zero()],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -332,6 +407,7 @@ mod test {
                 }],
                 buyers: vec![],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -366,6 +442,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -393,6 +470,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -421,6 +499,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2018-01-01".to_string(),
                 currency: "USD".to_string(),
                 ..Default::default()
@@ -448,6 +527,7 @@ mod test {
                     H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
                 ],
                 installments: 25,
+                token_value: 4,
                 expiration: "2078-01-01".to_string(),
                 currency: "EUR".to_string(),
                 ..Default::default()
