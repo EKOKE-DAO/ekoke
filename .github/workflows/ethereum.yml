@@ -15,7 +15,10 @@ jobs:
         shell: bash
         working-directory: ./ethereum
       - name: tests
-        run: yarn hardhat test
+        run: |
+          cp .env.github .env
+          yarn compile
+          yarn test
         working-directory: ./ethereum
       - name: Create local node and deploy
         run: |
