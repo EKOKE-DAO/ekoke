@@ -5,11 +5,11 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "typechain": "hardhat typechain",
-    "verify": "hardhat verify --network goerli",
-    "deploy:localhost": "hardhat run --network localhost scripts/deploy.ts",
-    "deploy:goerli": "hardhat run --network goerli scripts/deploy.ts",
-    "deploy:sepolia": "hardhat run --network sepolia scripts/deploy.ts",
-    "deploy:ethereum": "hardhat run --network ethereum scripts/deploy.ts"
+    "verify:sepolia": "hardhat verify --network sepolia",
+    "verify:ethereum": "hardhat verify --network ethereum",
+    "deploy:localhost": "hardhat deploy --network localhost",
+    "deploy:sepolia": "hardhat deploy --network sepolia",
+    "deploy:ethereum": "hardhat deploy --network ethereum"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.1"
@@ -23,7 +23,7 @@
     "@nomicfoundation/hardhat-ignition": "^0.15.7",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
-    "@nomicfoundation/hardhat-toolbox": "^5",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.3",
     "@nomicfoundation/ignition-core": "^0.15.7",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -34,6 +34,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.8",
     "chai": "^4",
+    "commander": "^12.1.0",
     "dotenv": "^16.3.1",
     "ethers": "^6",
     "hardhat": "^2.19.4",
