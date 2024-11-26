@@ -85,7 +85,6 @@ const MetamaskConnect = () => {
         )}
         <option value={ChainId.Mainnet}>Mainnet</option>
         <option value={ChainId.Sepolia}>Sepolia</option>
-        <option value={ChainId.Goerli}>Goerli</option>
         <option value={ChainId.Hardhat}>Hardhat</option>
       </Select>
       <Button.Alternative

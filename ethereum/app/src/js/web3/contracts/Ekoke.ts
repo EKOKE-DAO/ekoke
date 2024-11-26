@@ -151,14 +151,8 @@ export const ABI = [
       {
         indexed: true,
         internalType: 'address',
-        name: '_from',
+        name: '_to',
         type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'bytes32',
-        name: '_principal',
-        type: 'bytes32',
       },
       {
         indexed: false,
@@ -167,7 +161,7 @@ export const ABI = [
         type: 'uint256',
       },
     ],
-    name: 'EkokeSwapped',
+    name: 'OwnerMinted',
     type: 'event',
   },
   {
@@ -195,6 +189,25 @@ export const ABI = [
       {
         indexed: true,
         internalType: 'address',
+        name: '_to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'RewardMinted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'from',
         type: 'address',
       },
@@ -213,6 +226,76 @@ export const ABI = [
     ],
     name: 'Transfer',
     type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'MAX_OWNER_MINT',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MAX_REWARD_POOL_MINT',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MAX_SUPPLY',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_recipient',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'adminMint',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_reward_pool_address',
+        type: 'address',
+      },
+    ],
+    name: 'adminSetRewardPoolAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
@@ -295,23 +378,10 @@ export const ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'getEkokeLedgerCanisterAddress',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'address',
-        name: '_recipient',
+        name: '_to',
         type: 'address',
       },
       {
@@ -320,7 +390,7 @@ export const ABI = [
         type: 'uint256',
       },
     ],
-    name: 'mintTestnetTokens',
+    name: 'mintRewardTokens',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -353,45 +423,40 @@ export const ABI = [
   },
   {
     inputs: [],
+    name: 'ownerMintedSupply',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [
+    inputs: [],
+    name: 'rewardPool',
+    outputs: [
       {
         internalType: 'address',
-        name: '_ekoke_canister_address',
+        name: '',
         type: 'address',
       },
     ],
-    name: 'setEkokeLedgerCanisterAddress',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '_recipient',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'swap',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'swappedSupply',
+    name: 'rewardPoolMintedSupply',
     outputs: [
       {
         internalType: 'uint256',
@@ -426,24 +491,6 @@ export const ABI = [
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'transcribeSwap',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -525,11 +572,11 @@ interface ContractAddress {
 }
 
 export const CONTRACT_ADDRESS: ContractAddress = {
-  [ChainId.Goerli]: '0x2CE04Fd64DB0372F6fb4B7a542f0F9196feE5663',
+  [ChainId.Goerli]: '',
   [ChainId.Kovan]: '',
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '0x30eBEE43A1f7Ba89C78Eb4Adde3ada425DAA473d',
-  [ChainId.Hardhat]: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+  [ChainId.Sepolia]: '0x6600Ee09D15a9967101e01C967E0F1b05656D2e0',
+  [ChainId.Hardhat]: '',
 };

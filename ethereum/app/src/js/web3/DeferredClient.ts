@@ -1,9 +1,9 @@
 import Web3 from 'web3';
 
-import { ABI, CONTRACT_ADDRESS } from './contracts/Ekoke';
+import { ABI, CONTRACT_ADDRESS } from './contracts/Deferred';
 import { ChainId } from '../components/MetamaskConnect';
 
-export default class Web3Client {
+export default class DeferredClient {
   private address: string;
   private web3: Web3;
   private chainId: ChainId;
@@ -21,50 +21,40 @@ export default class Web3Client {
       .send({ from: this.address });
   }
 
-  async setEkokeLedgerCanisterAddress(newAddress: string) {
+  async adminSetDeferredMinter(newAddress: string) {
     const contract = this.getContract();
     return contract.methods
-      .setEkokeLedgerCanisterAddress(newAddress)
+      .adminSetDeferredMinter(newAddress)
       .send({ from: this.address });
   }
 
-  async getEkokeLedgerCanisterAddress(): Promise<string> {
-    const contract = this.getContract();
-    return contract.methods.getEkokeLedgerCanisterAddress().call();
-  }
-
-  async renounceOwnership() {
-    const contract = this.getContract();
-    return contract.methods.renounceOwnership().send({ from: this.address });
-  }
-
-  async transfer(recipient: string, amount: number) {
+  async adminSetMarketplace(newAddress: string) {
     const contract = this.getContract();
     return contract.methods
-      .transfer(recipient, amount)
+      .adminSetMarketplace(newAddress)
       .send({ from: this.address });
   }
 
-  async mintTestnetTokens(recipient: string, amount: number) {
+  async adminSetRewardPool(newAddress: string) {
     const contract = this.getContract();
     return contract.methods
-      .mintTestnetTokens(recipient, amount)
+      .adminSetRewardPool(newAddress)
       .send({ from: this.address });
   }
 
-  async balanceOf(address: string): Promise<BigInt> {
+  async deferredMinter(): Promise<string> {
     const contract = this.getContract();
-    return contract.methods.balanceOf(address).call();
+    return contract.methods.deferredMinter().call();
   }
 
-  async decimals(): Promise<BigInt> {
+  async marketplace(): Promise<string> {
     const contract = this.getContract();
-    return contract.methods.decimals().call();
+    return contract.methods.marketplace().call();
   }
 
-  async swappedSupply(): Promise<BigInt> {
+  async rewardPool(): Promise<string> {
     const contract = this.getContract();
-    return contract.methods.swappedSupply().call();
+    return contract.methods.rewardPool().call();
   }
 
   private getContract() {

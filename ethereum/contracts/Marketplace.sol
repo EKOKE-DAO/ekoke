@@ -25,7 +25,7 @@ contract Marketplace is Ownable {
     uint8 public interestRate = 10;
 
     /// @notice tokens that has been sold
-    mapping(uint256 => bool) public soldTokens;
+    mapping(uint256 => bool) private soldTokens;
 
     /// @notice Event emitted when a token is bought
     event TokenBought(

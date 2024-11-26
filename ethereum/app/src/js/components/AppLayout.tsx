@@ -1,18 +1,18 @@
 import * as React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
 import Container from './reusable/Container';
 import Page from './reusable/Page';
-import MetamaskConnect from './MetamaskConnect';
-import Form from './Form/Form';
+import AppRouter from './App/Routes';
+import Header from './Header';
 
 const AppLayout = () => (
   <Page.BlankPage>
-    <Container.FlexRow className="justify-between items-center py-4 bg-brand px-4">
-      <span className="text-xl text-white">ERC20 WebUI</span>
-      <MetamaskConnect />
-    </Container.FlexRow>
+    <Header />
     <Container.PageContent className="py-8">
-      <Form />
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
     </Container.PageContent>
   </Page.BlankPage>
 );

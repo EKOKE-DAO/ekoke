@@ -19,7 +19,7 @@
   "scripts": {
     "build": "yarn clean && parcel build src/index.html --reporter @parcel/reporter-bundle-analyzer && cp sitemap.xml dist/sitemap.xml && cp robots.txt dist/robots.txt",
     "clean": "rm -rf dist/* .parcel-cache/",
-    "dev": "parcel src/index.html",
+    "dev": "mkdir -p node_modules/web3/dist/ && wget -O node_modules/web3/dist/web3.min.js 'https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js' && parcel src/index.html",
     "lint": "eslint . --ext .ts --ext .tsx --max-warnings=0",
     "prettier": "prettier --config .prettierrc --write src/",
     "prettier:check": "prettier --config .prettierrc --check src/"
@@ -30,10 +30,12 @@
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
     "react-helmet": "^6.1.0",
+    "react-router-dom": "6",
     "web3": "^4.3.0"
   },
   "devDependencies": {
-    "@parcel/reporter-bundle-analyzer": "^2.11.0",
+    "@parcel/reporter-bundle-analyzer": "^2",
+    "@parcel/transformer-typescript-tsc": "^2",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@types/react-helmet": "^6.1.11",
@@ -41,7 +43,7 @@
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
-    "parcel": "^2.11.0",
+    "parcel": "^2",
     "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "process": "^0.11.10",
