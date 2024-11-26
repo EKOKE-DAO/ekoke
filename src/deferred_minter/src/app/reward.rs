@@ -14,7 +14,7 @@ use crate::app::memory::{
 use crate::utils::time;
 
 /// Initial "reward multiplier coefficient" value
-const INITIAL_RMC: f64 = 0.00000042;
+const INITIAL_RMC: f64 = 0.0000042;
 /// Initial "avidity" value
 const INITIAL_AVIDITY: f64 = 1.0;
 /// Minimum reward
@@ -191,23 +191,23 @@ mod test {
 
     use super::*;
 
-    const DEFAULT_REMAINING_SUPPLY: u128 = 7_000_000_000_000_000_000;
+    const DEFAULT_REMAINING_SUPPLY: u128 = 700_000_000_000_000;
 
     #[tokio::test]
     async fn test_should_get_reward_if_pool_doesnt_exist() {
         assert_eq!(
             Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, BASE_TOKEN_PRICE as u64)
                 .unwrap(),
-            2_940_000_000_000,
+            2_939_999_999, // 29 ekoke
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
 
-        let remaining_supply = DEFAULT_REMAINING_SUPPLY - 2_940_000_000_000;
+        let remaining_supply = DEFAULT_REMAINING_SUPPLY - 29_400_000_000;
 
         // next reward should be less
         assert_eq!(
             Reward::get_contract_reward(4_000, remaining_supply, BASE_TOKEN_PRICE as u64).unwrap(),
-            2_939_998_765_200,
+            2939876519,
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
     }
@@ -216,7 +216,7 @@ mod test {
     async fn test_should_get_less_value_if_token_price_is_lower() {
         assert_eq!(
             Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, 1).unwrap(),
-            2_940_000_000_000 / 100,
+            2_940_000_000 / 100, // 0.29 ekoke
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
     }

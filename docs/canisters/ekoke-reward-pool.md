@@ -12,6 +12,7 @@
   - [Reward Deflationary Algorithm](#reward-deflationary-algorithm)
     - [Reward Multiplier Coefficient](#reward-multiplier-coefficient)
     - [Avidity](#avidity)
+    - [Token Price](#token-price)
     - [Reward Analysis](#reward-analysis)
       - [Fast growhth scenario](#fast-growhth-scenario)
       - [Slow growth scenario](#slow-growth-scenario)
@@ -78,6 +79,7 @@ Where:
 
 - RMC is the "reward multiplier coefficient"
 - avidity is the "preservation pool coefficient"
+- token value: the price of a token for the contract
 
 The reward will never be lower than ICRC_FEE * 10 though.
 
@@ -85,9 +87,9 @@ The reward will never be lower than ICRC_FEE * 10 though.
 
 The RMC is a coefficient which is used to establish the reward for a contract, trough the multiplication of the pool liquidity.
 
-The initial value of the RMC will be `0.00000042` and the value will be halved each 4 years.
+The initial value of the RMC will be `0.0000042` and the value will be halved each 4 years.
 
-Its value will never reach a value under `1e-12`.
+Its value will never reach a value under `2e-8`.
 
 ### Avidity
 
@@ -102,6 +104,10 @@ The avidity value follows this schema.
    1. If CPM2 is greater than CPM1, then I decrease the avidity by 0.1
    2. Otherwise I increment avidity by 0.1
 5. Avidity becomes `avidity = max(0.1, min(0.1, new_avidity))`
+
+### Token Price
+
+TODO:
 
 ### Reward Analysis
 
