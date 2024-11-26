@@ -18,8 +18,11 @@ jobs:
         run: |
           cp .env.github .env &&
           yarn hardhat node &
-          sleep 2 &&
-          yarn deploy:localhost
+          sleep 2
+          yarn deploy:localhost ekoke
+          yarn deploy:localhost deferred
+          yarn deploy:localhost --ekoke 0x0000000000000000000000000000000000000000 --deferred 0x0000000000000000000000000000000000000000 reward-pool
+          yarn deploy:localhost --ekoke 0x0000000000000000000000000000000000000000 --deferred 0x0000000000000000000000000000000000000000 --usderc20 0x0000000000000000000000000000000000000000 marketplace
         working-directory: ./ethereum
       - name: tests
         run: yarn hardhat test
