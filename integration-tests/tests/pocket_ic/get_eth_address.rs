@@ -14,6 +14,6 @@ async fn test_should_get_eth_address() {
         .await
         .expect("Failed to get eth address");
 
-    println!("Eth address: {:?}", address);
+    println!("Minter address: {:?}", address);
     assert_ne!(address, H160::zero());
 }
