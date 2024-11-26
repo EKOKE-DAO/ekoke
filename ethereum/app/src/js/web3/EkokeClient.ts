@@ -33,6 +33,16 @@ export default class EkokeClient {
     return contract.methods.rewardPool().call();
   }
 
+  async ownerMintedSupply(): Promise<BigInt> {
+    const contract = this.getContract();
+    return contract.methods.ownerMintedSupply().call();
+  }
+
+  async maxOwnerMintedSupply(): Promise<BigInt> {
+    const contract = this.getContract();
+    return contract.methods.MAX_OWNER_MINT().call();
+  }
+
   async rewardPoolMintedSupply(): Promise<BigInt> {
     const contract = this.getContract();
     return contract.methods.rewardPoolMintedSupply().call();
