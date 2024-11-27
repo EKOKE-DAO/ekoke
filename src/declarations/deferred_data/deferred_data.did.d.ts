@@ -30,6 +30,7 @@ export type Continent = { 'Africa' : null } |
 export interface Contract {
   'id' : bigint,
   'closed' : boolean,
+  'documents' : Array<[bigint, ContractDocument]>,
   'value' : bigint,
   'type' : ContractType,
   'agency' : [] | [Agency],
@@ -42,7 +43,16 @@ export interface Contract {
   'installments' : bigint,
   'buyers' : Array<string>,
 }
-export type ContractError = { 'ContractNotFound' : bigint } |
+export interface ContractDocument {
+  'mime_type' : string,
+  'access_list' : Array<RestrictionLevel>,
+}
+export interface ContractDocumentData {
+  'data' : Uint8Array | number[],
+  'mime_type' : string,
+}
+export type ContractError = { 'DocumentNotFound' : bigint } |
+  { 'ContractNotFound' : bigint } |
   { 'BadContractProperty' : null };
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
@@ -68,8 +78,6 @@ export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Int8Content' : number } |
   { 'FloatContent' : number } |
   { 'Int16Content' : number } |
-  { 'BlobContent' : Uint8Array | number[] } |
-  { 'NestedContent' : Array<[string, GenericValue]> } |
   { 'Principal' : Principal } |
   { 'TextContent' : string };
 export interface HttpRequest {
@@ -109,12 +117,17 @@ export type RestrictionLevel = { 'Buyer' : null } |
   { 'Agent' : null };
 export type Result = { 'Ok' : null } |
   { 'Err' : DeferredDataError };
+export type Result_1 = { 'Ok' : ContractDocumentData } |
+  { 'Err' : DeferredDataError };
+export type Result_2 = { 'Ok' : bigint } |
+  { 'Err' : DeferredDataError };
 export interface Seller { 'quota' : number, 'address' : string }
 export interface _SERVICE {
   'admin_cycles' : ActorMethod<[], bigint>,
   'admin_ic_logs' : ActorMethod<[Pagination], Logs>,
   'admin_set_minter' : ActorMethod<[Principal], Result>,
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
+  'get_contract_document' : ActorMethod<[bigint, bigint], Result_1>,
   'get_contracts' : ActorMethod<[], Array<bigint>>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'minter_close_contract' : ActorMethod<[bigint], Result>,
@@ -126,6 +139,10 @@ export interface _SERVICE {
   'update_restricted_contract_property' : ActorMethod<
     [bigint, string, RestrictedProperty],
     Result
+  >,
+  'upload_contract_document' : ActorMethod<
+    [bigint, ContractDocument, Uint8Array | number[]],
+    Result_2
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

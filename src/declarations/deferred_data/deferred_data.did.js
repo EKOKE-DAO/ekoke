@@ -1,5 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const GenericValue = IDL.Rec();
   const LogSettingsV2 = IDL.Record({
     'log_filter' : IDL.Text,
     'in_memory_records' : IDL.Nat64,
@@ -21,6 +20,7 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousMinter' : IDL.Null,
   });
   const ContractError = IDL.Variant({
+    'DocumentNotFound' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });
@@ -42,6 +42,15 @@ export const idlFactory = ({ IDL }) => {
     'CanisterCall' : IDL.Tuple(RejectionCode, IDL.Text),
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeferredDataError });
+  const RestrictionLevel = IDL.Variant({
+    'Buyer' : IDL.Null,
+    'Seller' : IDL.Null,
+    'Agent' : IDL.Null,
+  });
+  const ContractDocument = IDL.Record({
+    'mime_type' : IDL.Text,
+    'access_list' : IDL.Vec(RestrictionLevel),
+  });
   const ContractType = IDL.Variant({
     'Sell' : IDL.Null,
     'Financing' : IDL.Null,
@@ -71,30 +80,21 @@ export const idlFactory = ({ IDL }) => {
     'address' : IDL.Text,
     'mobile' : IDL.Text,
   });
-  GenericValue.fill(
-    IDL.Variant({
-      'Nat64Content' : IDL.Nat64,
-      'Nat32Content' : IDL.Nat32,
-      'BoolContent' : IDL.Bool,
-      'Nat8Content' : IDL.Nat8,
-      'Int64Content' : IDL.Int64,
-      'IntContent' : IDL.Int,
-      'NatContent' : IDL.Nat,
-      'Nat16Content' : IDL.Nat16,
-      'Int32Content' : IDL.Int32,
-      'Int8Content' : IDL.Int8,
-      'FloatContent' : IDL.Float64,
-      'Int16Content' : IDL.Int16,
-      'BlobContent' : IDL.Vec(IDL.Nat8),
-      'NestedContent' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
-      'Principal' : IDL.Principal,
-      'TextContent' : IDL.Text,
-    })
-  );
-  const RestrictionLevel = IDL.Variant({
-    'Buyer' : IDL.Null,
-    'Seller' : IDL.Null,
-    'Agent' : IDL.Null,
+  const GenericValue = IDL.Variant({
+    'Nat64Content' : IDL.Nat64,
+    'Nat32Content' : IDL.Nat32,
+    'BoolContent' : IDL.Bool,
+    'Nat8Content' : IDL.Nat8,
+    'Int64Content' : IDL.Int64,
+    'IntContent' : IDL.Int,
+    'NatContent' : IDL.Nat,
+    'Nat16Content' : IDL.Nat16,
+    'Int32Content' : IDL.Int32,
+    'Int8Content' : IDL.Int8,
+    'FloatContent' : IDL.Float64,
+    'Int16Content' : IDL.Int16,
+    'Principal' : IDL.Principal,
+    'TextContent' : IDL.Text,
   });
   const RestrictedProperty = IDL.Record({
     'value' : GenericValue,
@@ -104,6 +104,7 @@ export const idlFactory = ({ IDL }) => {
   const Contract = IDL.Record({
     'id' : IDL.Nat,
     'closed' : IDL.Bool,
+    'documents' : IDL.Vec(IDL.Tuple(IDL.Nat, ContractDocument)),
     'value' : IDL.Nat64,
     'type' : ContractType,
     'agency' : IDL.Opt(Agency),
@@ -115,6 +116,14 @@ export const idlFactory = ({ IDL }) => {
     'currency' : IDL.Text,
     'installments' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Text),
+  });
+  const ContractDocumentData = IDL.Record({
+    'data' : IDL.Vec(IDL.Nat8),
+    'mime_type' : IDL.Text,
+  });
+  const Result_1 = IDL.Variant({
+    'Ok' : ContractDocumentData,
+    'Err' : DeferredDataError,
   });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
@@ -128,11 +137,17 @@ export const idlFactory = ({ IDL }) => {
     'upgrade' : IDL.Opt(IDL.Bool),
     'status_code' : IDL.Nat16,
   });
+  const Result_2 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DeferredDataError });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_ic_logs' : IDL.Func([Pagination], [Logs], ['query']),
     'admin_set_minter' : IDL.Func([IDL.Principal], [Result], []),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
+    'get_contract_document' : IDL.Func(
+        [IDL.Nat, IDL.Nat],
+        [Result_1],
+        ['query'],
+      ),
     'get_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'minter_close_contract' : IDL.Func([IDL.Nat], [Result], []),
@@ -145,6 +160,11 @@ export const idlFactory = ({ IDL }) => {
     'update_restricted_contract_property' : IDL.Func(
         [IDL.Nat, IDL.Text, RestrictedProperty],
         [Result],
+        [],
+      ),
+    'upload_contract_document' : IDL.Func(
+        [IDL.Nat, ContractDocument, IDL.Vec(IDL.Nat8)],
+        [Result_2],
         [],
       ),
   });

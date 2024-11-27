@@ -27,6 +27,7 @@ type Continent = variant {
 type Contract = record {
   id : nat;
   closed : bool;
+  documents : vec record { nat; ContractDocument };
   value : nat64;
   "type" : ContractType;
   agency : opt Agency;
@@ -39,7 +40,16 @@ type Contract = record {
   installments : nat64;
   buyers : vec text;
 };
-type ContractError = variant { ContractNotFound : nat; BadContractProperty };
+type ContractDocument = record {
+  mime_type : text;
+  access_list : vec RestrictionLevel;
+};
+type ContractDocumentData = record { data : blob; mime_type : text };
+type ContractError = variant {
+  DocumentNotFound : nat;
+  ContractNotFound : nat;
+  BadContractProperty;
+};
 type ContractType = variant { Sell; Financing };
 type DeferredDataError = variant {
   Configuration : ConfigurationError;
@@ -66,8 +76,6 @@ type GenericValue = variant {
   Int8Content : int8;
   FloatContent : float64;
   Int16Content : int16;
-  BlobContent : blob;
-  NestedContent : vec record { text; GenericValue };
   Principal : principal;
   TextContent : text;
 };
@@ -107,12 +115,15 @@ type RestrictedProperty = record {
 };
 type RestrictionLevel = variant { Buyer; Seller; Agent };
 type Result = variant { Ok; Err : DeferredDataError };
+type Result_1 = variant { Ok : ContractDocumentData; Err : DeferredDataError };
+type Result_2 = variant { Ok : nat; Err : DeferredDataError };
 type Seller = record { quota : nat8; address : text };
 service : (DeferredDataInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_ic_logs : (Pagination) -> (Logs) query;
   admin_set_minter : (principal) -> (Result);
   get_contract : (nat) -> (opt Contract) query;
+  get_contract_document : (nat, nat) -> (Result_1) query;
   get_contracts : () -> (vec nat) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
   minter_close_contract : (nat) -> (Result);
@@ -121,4 +132,5 @@ service : (DeferredDataInitData) -> {
   update_restricted_contract_property : (nat, text, RestrictedProperty) -> (
       Result,
     );
+  upload_contract_document : (nat, ContractDocument, blob) -> (Result_2);
 }

@@ -8,8 +8,9 @@ pub type DeferredMinterResult<T> = Result<T, DeferredMinterError>;
 pub type DeferredDataResult<T> = Result<T, DeferredDataError>;
 
 pub use self::contract::{
-    Agency, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
-    GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Seller, ID,
+    Agency, Continent, Contract, ContractDocument, ContractDocumentData, ContractDocuments,
+    ContractProperties, ContractRegistration, ContractType, GenericValue,
+    RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Seller, ID,
 };
 pub use self::data::{
     ConfigurationError as DataConfigurationError, ContractError as DataContractError,
@@ -22,6 +23,8 @@ pub use self::minter::{
 
 #[cfg(test)]
 mod test {
+
+    use std::collections::HashMap;
 
     use candid::{Decode, Encode, Principal};
     use ic_stable_structures::Storable as _;
@@ -55,6 +58,7 @@ mod test {
             value: 250_000,
             deposit: 50_000,
             currency: "EUR".to_string(),
+            documents: HashMap::default(),
             properties: vec![(
                 "Rome".to_string(),
                 GenericValue::TextContent("Rome".to_string()),

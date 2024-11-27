@@ -1,5 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const GenericValue = IDL.Rec();
   const EcdsaKey = IDL.Variant({
     'Dfx' : IDL.Null,
     'Production' : IDL.Null,
@@ -86,6 +85,7 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousMinter' : IDL.Null,
   });
   const ContractError_1 = IDL.Variant({
+    'DocumentNotFound' : IDL.Nat,
     'ContractNotFound' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });
@@ -128,26 +128,22 @@ export const idlFactory = ({ IDL }) => {
     'Sell' : IDL.Null,
     'Financing' : IDL.Null,
   });
-  GenericValue.fill(
-    IDL.Variant({
-      'Nat64Content' : IDL.Nat64,
-      'Nat32Content' : IDL.Nat32,
-      'BoolContent' : IDL.Bool,
-      'Nat8Content' : IDL.Nat8,
-      'Int64Content' : IDL.Int64,
-      'IntContent' : IDL.Int,
-      'NatContent' : IDL.Nat,
-      'Nat16Content' : IDL.Nat16,
-      'Int32Content' : IDL.Int32,
-      'Int8Content' : IDL.Int8,
-      'FloatContent' : IDL.Float64,
-      'Int16Content' : IDL.Int16,
-      'BlobContent' : IDL.Vec(IDL.Nat8),
-      'NestedContent' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
-      'Principal' : IDL.Principal,
-      'TextContent' : IDL.Text,
-    })
-  );
+  const GenericValue = IDL.Variant({
+    'Nat64Content' : IDL.Nat64,
+    'Nat32Content' : IDL.Nat32,
+    'BoolContent' : IDL.Bool,
+    'Nat8Content' : IDL.Nat8,
+    'Int64Content' : IDL.Int64,
+    'IntContent' : IDL.Int,
+    'NatContent' : IDL.Nat,
+    'Nat16Content' : IDL.Nat16,
+    'Int32Content' : IDL.Int32,
+    'Int8Content' : IDL.Int8,
+    'FloatContent' : IDL.Float64,
+    'Int16Content' : IDL.Int16,
+    'Principal' : IDL.Principal,
+    'TextContent' : IDL.Text,
+  });
   const RestrictionLevel = IDL.Variant({
     'Buyer' : IDL.Null,
     'Seller' : IDL.Null,

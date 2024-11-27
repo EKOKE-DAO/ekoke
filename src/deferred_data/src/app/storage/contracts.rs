@@ -1,7 +1,12 @@
-use did::deferred::{Contract, DeferredDataResult, GenericValue, RestrictedProperty};
+use did::deferred::{
+    Contract, ContractDocument, ContractDocumentData, DataContractError, DeferredDataError,
+    DeferredDataResult, GenericValue, RestrictedProperty,
+};
 use did::ID;
 
-use super::{with_contract, with_contract_mut, with_contracts, with_contracts_mut};
+use super::{
+    with_contract, with_contract_mut, with_contracts, with_contracts_mut, DocumentStorage,
+};
 
 pub struct ContractStorage;
 
@@ -85,6 +90,57 @@ impl ContractStorage {
                 contract.restricted_properties.push((key, value));
             }
             Ok(())
+        })
+    }
+
+    /// Upload contract document
+    pub fn upload_contract_document(
+        contract_id: &ID,
+        document: ContractDocument,
+        data: Vec<u8>,
+    ) -> DeferredDataResult<ID> {
+        // check if contract exists
+        if Self::get_contract(contract_id).is_none() {
+            return Err(DeferredDataError::Contract(
+                DataContractError::ContractNotFound(contract_id.clone()),
+            ));
+        }
+        // insert document into document storage
+        let document_id = DocumentStorage::upload_document(data)?;
+
+        // update contract with document id
+        with_contract_mut(contract_id, |contract| {
+            contract.documents.insert(document_id.clone(), document);
+
+            Ok(())
+        })?;
+
+        Ok(document_id)
+    }
+
+    /// Get contract document
+    pub fn get_contract_document(
+        contract_id: &ID,
+        document_id: &ID,
+    ) -> DeferredDataResult<ContractDocumentData> {
+        // check if contract exists
+        let contract = Self::get_contract(contract_id).ok_or_else(|| {
+            DeferredDataError::Contract(DataContractError::ContractNotFound(contract_id.clone()))
+        })?;
+
+        // check if `document_id` belongs to `contract_id`
+        let Some(document_properties) = contract.documents.get(document_id) else {
+            return Err(DeferredDataError::Contract(
+                DataContractError::DocumentNotFound(document_id.clone()),
+            ));
+        };
+
+        // get document from the storage
+        let document_data = DocumentStorage::get_document(document_id)?;
+
+        Ok(ContractDocumentData {
+            data: document_data,
+            mime_type: document_properties.mime_type.clone(),
         })
     }
 }
@@ -251,5 +307,27 @@ mod test {
         assert!(ContractStorage::get_contract(&contract.id).is_some());
         assert!(ContractStorage::close_contract(&contract.id).is_ok());
         assert!(ContractStorage::get_contract(&contract.id).is_none());
+    }
+
+    #[test]
+    fn test_should_upload_contract_document() {
+        let contract = with_mock_contract(1, 1, |_| {});
+        ContractStorage::insert_contract(contract.clone());
+
+        let document = ContractDocument {
+            mime_type: "application/pdf".to_string(),
+            access_list: vec![RestrictionLevel::Seller],
+        };
+
+        let document_id =
+            ContractStorage::upload_contract_document(&1_u64.into(), document, vec![1, 2, 3, 4])
+                .expect("Failed to upload document");
+
+        // get contract document
+        let contract_document = ContractStorage::get_contract_document(&1_u64.into(), &document_id)
+            .expect("Failed to get contract document");
+
+        assert_eq!(contract_document.mime_type, "application/pdf");
+        assert_eq!(contract_document.data, vec![1, 2, 3, 4]);
     }
 }

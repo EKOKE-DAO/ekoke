@@ -6,7 +6,6 @@ use serde::Serialize;
 pub enum GenericValue {
     BoolContent(bool),
     TextContent(String),
-    BlobContent(Vec<u8>),
     Principal(Principal),
     Nat8Content(u8),
     Nat16Content(u16),
@@ -19,5 +18,4 @@ pub enum GenericValue {
     Int64Content(i64),
     IntContent(Int),
     FloatContent(f64), // motoko only support f64
-    NestedContent(Vec<(String, GenericValue)>),
 }

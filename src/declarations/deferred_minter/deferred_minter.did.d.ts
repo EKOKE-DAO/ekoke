@@ -43,7 +43,8 @@ export type ContractError = { 'CurrencyNotAllowed' : string } |
   { 'BadContractExpiration' : null } |
   { 'ContractHasNoTokens' : null } |
   { 'BadContractProperty' : null };
-export type ContractError_1 = { 'ContractNotFound' : bigint } |
+export type ContractError_1 = { 'DocumentNotFound' : bigint } |
+  { 'ContractNotFound' : bigint } |
   { 'BadContractProperty' : null };
 export interface ContractRegistration {
   'value' : bigint,
@@ -106,8 +107,6 @@ export type GenericValue = { 'Nat64Content' : bigint } |
   { 'Int8Content' : number } |
   { 'FloatContent' : number } |
   { 'Int16Content' : number } |
-  { 'BlobContent' : Uint8Array | number[] } |
-  { 'NestedContent' : Array<[string, GenericValue]> } |
   { 'Principal' : Principal } |
   { 'TextContent' : string };
 export interface HttpRequest {

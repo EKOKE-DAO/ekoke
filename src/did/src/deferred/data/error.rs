@@ -26,6 +26,8 @@ pub enum ContractError {
     BadContractProperty,
     #[error("the provided contract ID ({0}) doesn't exist in the canister storage")]
     ContractNotFound(ID),
+    #[error("document {0} not found")]
+    DocumentNotFound(ID),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

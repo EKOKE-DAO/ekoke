@@ -1,6 +1,7 @@
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
-    Contract, DeferredDataInitData, DeferredDataResult, GenericValue, RestrictedProperty,
+    Contract, ContractDocument, ContractDocumentData, DeferredDataInitData, DeferredDataResult,
+    GenericValue, RestrictedProperty,
 };
 use did::{HttpRequest, HttpResponse, ID};
 use ic_cdk::post_upgrade;
@@ -66,6 +67,25 @@ pub fn get_contract(id: ID) -> Option<Contract> {
 #[candid_method(query)]
 pub fn get_contracts() -> Vec<ID> {
     DeferredData::get_contracts()
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_contract_document(
+    contract_id: ID,
+    document_id: ID,
+) -> DeferredDataResult<ContractDocumentData> {
+    DeferredData::get_contract_document(contract_id, document_id, None)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn upload_contract_document(
+    contract_id: ID,
+    document: ContractDocument,
+    data: Vec<u8>,
+) -> DeferredDataResult<ID> {
+    DeferredData::upload_contract_document(contract_id, document, data)
 }
 
 #[update]

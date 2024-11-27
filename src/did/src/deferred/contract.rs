@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
@@ -37,6 +39,8 @@ pub struct Contract {
     pub properties: ContractProperties,
     /// Restricted data associated to the contract
     pub restricted_properties: RestrictedContractProperties,
+    /// Documents associated to the contract
+    pub documents: ContractDocuments,
     /// Agency data
     pub agency: Option<Agency>,
     /// Contract expiration date YYYY-MM-DD
@@ -86,6 +90,24 @@ pub type ContractProperties = Vec<(String, GenericValue)>;
 
 /// A list of restricted properties associated to a contract
 pub type RestrictedContractProperties = Vec<(String, RestrictedProperty)>;
+
+pub type ContractDocuments = HashMap<ID, ContractDocument>;
+
+/// A struct which defines a document associated to a contract
+///
+/// The id must be used to access the document
+#[derive(Clone, Debug, CandidType, PartialEq, Serialize, Deserialize)]
+pub struct ContractDocument {
+    pub access_list: Vec<RestrictionLevel>,
+    pub mime_type: String,
+}
+
+/// A struct which defines a document data
+#[derive(Clone, Debug, CandidType, PartialEq, Serialize, Deserialize)]
+pub struct ContractDocumentData {
+    pub data: Vec<u8>,
+    pub mime_type: String,
+}
 
 /// A restricted property, which defines the access level to the property and its value
 #[derive(Clone, Debug, CandidType, PartialEq, Serialize, Deserialize)]

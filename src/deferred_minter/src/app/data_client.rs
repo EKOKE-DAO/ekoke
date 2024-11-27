@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use candid::Principal;
 use did::deferred::{
     Agency, Contract, ContractError, DeferredDataResult, DeferredMinterError, DeferredMinterResult,
@@ -40,6 +42,7 @@ impl DeferredDataClient {
                     GenericValue::TextContent("Rome".to_string()),
                 )],
                 restricted_properties: vec![],
+                documents: HashMap::default(),
                 agency: Some(Agency {
                     name: "Dummy Real estate".to_string(),
                     address: "Via Delle Botteghe Scure".to_string(),

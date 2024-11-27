@@ -43,7 +43,11 @@ type ContractError = variant {
   ContractHasNoTokens;
   BadContractProperty;
 };
-type ContractError_1 = variant { ContractNotFound : nat; BadContractProperty };
+type ContractError_1 = variant {
+  DocumentNotFound : nat;
+  ContractNotFound : nat;
+  BadContractProperty;
+};
 type ContractRegistration = record {
   value : nat64;
   "type" : ContractType;
@@ -109,8 +113,6 @@ type GenericValue = variant {
   Int8Content : int8;
   FloatContent : float64;
   Int16Content : int16;
-  BlobContent : blob;
-  NestedContent : vec record { text; GenericValue };
   Principal : principal;
   TextContent : text;
 };

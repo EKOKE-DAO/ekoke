@@ -7,8 +7,8 @@ mod test_utils;
 
 use candid::{Nat, Principal};
 use did::deferred::{
-    Contract, DeferredDataError, DeferredDataInitData, DeferredDataResult, GenericValue,
-    RestrictedProperty, RestrictionLevel,
+    Contract, ContractDocument, ContractDocumentData, DataContractError, DeferredDataError,
+    DeferredDataInitData, DeferredDataResult, GenericValue, RestrictedProperty, RestrictionLevel,
 };
 use did::ID;
 use ethers_core::abi::ethereum_types::H520;
@@ -138,6 +138,58 @@ impl DeferredData {
         Inspect::inspect_modify_contract(caller(), &contract_id)?;
 
         ContractStorage::update_restricted_contract_property(&contract_id, key, value)
+    }
+
+    /// Upload a contract document
+    pub fn upload_contract_document(
+        contract_id: ID,
+        document: ContractDocument,
+        data: Vec<u8>,
+    ) -> DeferredDataResult<ID> {
+        Inspect::inspect_modify_contract(caller(), &contract_id)?;
+
+        ContractStorage::upload_contract_document(&contract_id, document, data)
+    }
+
+    /// Get a contract document
+    pub fn get_contract_document(
+        contract_id: ID,
+        document_id: ID,
+        signature: Option<SignedMessage>,
+    ) -> DeferredDataResult<ContractDocumentData> {
+        // check if we can access document
+        let contract = ContractStorage::get_contract(&contract_id).ok_or(
+            DeferredDataError::Contract(DataContractError::ContractNotFound(contract_id.clone())),
+        )?;
+
+        let document_props =
+            contract
+                .documents
+                .get(&document_id)
+                .ok_or(DeferredDataError::Contract(
+                    DataContractError::DocumentNotFound(document_id.clone()),
+                ))?;
+
+        // get caller access level
+        let access_level = if contract
+            .agency
+            .as_ref()
+            .map(|agency| agency.owner == caller())
+            .unwrap_or_default()
+        {
+            RestrictionLevel::Agent
+        } else if let Some(signature) = signature {
+            Inspect::inspect_signature(&contract.id, signature.signature, signature.message)?
+        } else {
+            return Err(DeferredDataError::Unauthorized);
+        };
+
+        // check if we have access
+        if document_props.access_list.contains(&access_level) {
+            ContractStorage::get_contract_document(&contract_id, &document_id)
+        } else {
+            Err(DeferredDataError::Unauthorized)
+        }
     }
 
     /// Redact restricted properties from contract based on access level

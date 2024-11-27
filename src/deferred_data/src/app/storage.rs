@@ -1,21 +1,36 @@
 use std::cell::RefCell;
 
+use candid::Nat;
 use did::deferred::{Contract, DataContractError, DeferredDataError, DeferredDataResult};
 use did::{StorableNat, ID};
 use ic_stable_structures::memory_manager::VirtualMemory;
-use ic_stable_structures::{BTreeMap, DefaultMemoryImpl};
+use ic_stable_structures::{BTreeMap, DefaultMemoryImpl, StableCell};
 
-use crate::app::memory::{CONTRACTS_MEMORY_ID, MEMORY_MANAGER};
+use crate::app::memory::{
+    CONTRACTS_MEMORY_ID, DOCUMENTS_MEMORY_ID, MEMORY_MANAGER, NEXT_DOCUMENT_ID_MEMORY_ID,
+};
 
 mod contracts;
+mod documents;
 
 pub use contracts::ContractStorage;
+use documents::DocumentStorage;
 
 thread_local! {
 
     /// ContractStorage storage (1 contract has many tokens)
     static CONTRACTS: RefCell<BTreeMap<StorableNat, Contract, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));
+
+    /// Documents storage storage (assoc between ID and document data)
+    static DOCUMENTS: RefCell<BTreeMap<StorableNat, Vec<u8>, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(DOCUMENTS_MEMORY_ID))));
+
+    /// Next document ID
+    static NEXT_DOCUMENT_ID: RefCell<StableCell<StorableNat, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(NEXT_DOCUMENT_ID_MEMORY_ID)), Nat::from(0u64).into()).unwrap()
+    );
+
 }
 
 fn with_contract<T, F>(id: &ID, f: F) -> DeferredDataResult<T>
