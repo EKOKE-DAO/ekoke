@@ -10,28 +10,29 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract Ekoke is ERC20, Ownable {
     /// @notice The address of the reward pool contract.
     address public rewardPool;
-    /// @notice token decimals
-    uint8 private _decimals;
 
     /// @notice The maximum supply of the token. (8 Millions and more)
     uint256 public constant MAX_SUPPLY = 888_010_101_000_000;
-    /// @notice The maximum amount of tokens mintable by the reward pool. (7 Millions)
-    uint256 public constant MAX_REWARD_POOL_MINT = 700_000_000_000_000;
-    /// @notice The maximum amount of tokens mintable by the owner. (~1 Million)
+    /// @notice The maximum amount of tokens mintable by the reward pool. (66%)
+    uint256 public constant MAX_REWARD_POOL_MINT = 592_006_734_000_000;
+    /// @notice The maximum amount of tokens mintable by the owner. (33%)
     uint256 public constant MAX_OWNER_MINT = MAX_SUPPLY - MAX_REWARD_POOL_MINT;
+    /// @notice contract decimals
+    uint8 private DECIMALS = 8;
 
     /// @notice The amount of tokens minted by the reward pool.
     uint256 public rewardPoolMintedSupply = 0;
     /// @notice The amount of tokens minted by the owner.
     uint256 public ownerMintedSupply = 0;
 
+    /// @notice Event emitted when tokens are minted by the reward pool.
     event RewardMinted(address indexed _to, uint256 _amount);
+    /// @notice Event emitted when tokens are minted by the owner.
     event OwnerMinted(address indexed _to, uint256 _amount);
 
     constructor(
         address _initialOwner
     ) ERC20("Ekoke", "EKOKE") Ownable(_initialOwner) {
-        _decimals = 8;
         rewardPool = address(0);
     }
 
@@ -44,7 +45,7 @@ contract Ekoke is ERC20, Ownable {
     }
 
     function decimals() public view virtual override returns (uint8) {
-        return _decimals;
+        return DECIMALS;
     }
 
     /// @notice Mint the provided amount of tokens to the recipient. Only the reward pool can call this function.

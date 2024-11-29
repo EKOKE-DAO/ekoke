@@ -19,7 +19,7 @@ impl RewardPool {
     /// Get the available amount of reward tokens in the reward pool
     pub async fn available_rewards(&self, client: &EvmRpcClient) -> DeferredMinterResult<u128> {
         if cfg!(test) {
-            return Ok(700_000_000_000_000);
+            return Ok(592_006_734_000_000);
         }
 
         let call = abi::RewardPoolCalls::AvailableReward(AvailableRewardCall).encode();
@@ -53,6 +53,6 @@ mod test {
         .await
         .unwrap();
 
-        assert_eq!(reward_pool, 700000000000000);
+        assert_eq!(reward_pool, 592006734000000);
     }
 }

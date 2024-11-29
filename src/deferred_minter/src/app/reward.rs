@@ -191,14 +191,14 @@ mod test {
 
     use super::*;
 
-    const DEFAULT_REMAINING_SUPPLY: u128 = 700_000_000_000_000;
+    const DEFAULT_REMAINING_SUPPLY: u128 = 592_006_734_000_000;
 
     #[tokio::test]
     async fn test_should_get_reward_if_pool_doesnt_exist() {
         assert_eq!(
             Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, BASE_TOKEN_PRICE as u64)
                 .unwrap(),
-            2_939_999_999, // 29 ekoke
+            2486428282, // 29 ekoke
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
 
@@ -207,7 +207,7 @@ mod test {
         // next reward should be less
         assert_eq!(
             Reward::get_contract_reward(4_000, remaining_supply, BASE_TOKEN_PRICE as u64).unwrap(),
-            2939876519,
+            2486304802,
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 2);
     }
@@ -216,7 +216,7 @@ mod test {
     async fn test_should_get_less_value_if_token_price_is_lower() {
         assert_eq!(
             Reward::get_contract_reward(4_000, DEFAULT_REMAINING_SUPPLY, 1).unwrap(),
-            2_940_000_000 / 100, // 0.29 ekoke
+            24864283, // 0.29 ekoke
         );
         assert_eq!(CPM.with_borrow(|cpm| *cpm.get()), 1);
     }
