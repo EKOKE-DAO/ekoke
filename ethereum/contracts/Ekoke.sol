@@ -48,6 +48,21 @@ contract Ekoke is ERC20, Ownable {
         return DECIMALS;
     }
 
+    /// @notice Burn the provided amount of tokens. Burned tokens are returned to the reward pool.
+    /// @param amount the amount of tokens to burn.
+    function burn(uint256 amount) public {
+        // check if amount is less or equal than `rewardPoolMintedSupply`
+        require(
+            amount <= rewardPoolMintedSupply,
+            "Ekoke: amount exceeds the reward pool minted supply"
+        );
+
+        // burn the tokens
+        _burn(msg.sender, amount);
+        // decrement the amount of tokens minted by the reward pool
+        rewardPoolMintedSupply -= amount;
+    }
+
     /// @notice Mint the provided amount of tokens to the recipient. Only the reward pool can call this function.
     /// @param _to the address that will receive the ETH Ekoke tokens.
     /// @param _amount the amount of tokens to mint.

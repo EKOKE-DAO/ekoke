@@ -137,4 +137,42 @@ describe("Ekoke", () => {
     await token.transferOwnership(rewardPool.address);
     expect(await token.owner()).to.equal(rewardPool.address);
   });
+
+  it("should burn tokens to allow more minting by the reward pool", async () => {
+    const { token, rewardPool, owner } = deploy;
+    const maxRewardSupply = await token.MAX_REWARD_POOL_MINT();
+
+    await token.adminSetRewardPoolAddress(rewardPool.address);
+    await token
+      .connect(rewardPool)
+      .mintRewardTokens(owner.address, maxRewardSupply);
+
+    expect(await token.balanceOf(owner.address)).to.equal(maxRewardSupply);
+    expect(await token.rewardPoolMintedSupply()).to.equal(maxRewardSupply);
+
+    // burn some tokens
+    const amount = 100_000;
+    await token.burn(amount);
+
+    // mint more tokens
+    expect(await token.rewardPoolMintedSupply()).to.equal(
+      maxRewardSupply - BigInt(amount)
+    );
+    expect(await token.balanceOf(owner.address)).to.equal(
+      maxRewardSupply - BigInt(amount)
+    );
+
+    // should mint more tokens
+    await token.connect(rewardPool).mintRewardTokens(owner.address, 100_000);
+  });
+
+  it("should not allowing burning if reward pool has not mint so much", async () => {
+    const { token, owner } = deploy;
+
+    await token.adminMint(owner.address, 1_000);
+
+    await expect(token.burn(1000)).to.be.revertedWith(
+      "Ekoke: amount exceeds the reward pool minted supply"
+    );
+  });
 });
