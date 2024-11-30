@@ -89,13 +89,7 @@ contract Marketplace is Ownable {
         // get token buyer
         address tokenBuyer = msg.sender;
         // get whether the buyer is a contract buyer
-        bool isContractBuyer = false;
-        for (uint256 i = 0; i < sellContract.buyers.length; i++) {
-            if (sellContract.buyers[i] == tokenBuyer) {
-                isContractBuyer = true;
-                break;
-            }
-        }
+        bool _isContractBuyer = isContractBuyer(sellContract);
         // get token seller
         address tokenSeller = deferredContract.ownerOf(_tokenId);
         // check whether we need to send reward
@@ -107,9 +101,10 @@ contract Marketplace is Ownable {
         ERC20 currency = ERC20(usdErc20);
 
         // get the required allowance
-        uint256 requiredAllowance = isContractBuyer
-            ? sellContract.tokenPriceUsd + interests(sellContract.tokenPriceUsd)
-            : sellContract.tokenPriceUsd;
+        uint256 requiredAllowance = calcTokenPriceWithInterests(
+            sellContract,
+            _isContractBuyer
+        );
         // check allowance on the currency token
         require(
             currency.allowance(msg.sender, address(this)) >= requiredAllowance,
@@ -122,7 +117,7 @@ contract Marketplace is Ownable {
             sellContract.tokenPriceUsd
         );
         // if the buyer is a contract buyer, transfer the interests to the marketplace
-        if (isContractBuyer) {
+        if (_isContractBuyer) {
             currency.transferFrom(
                 tokenBuyer,
                 address(this),
@@ -153,6 +148,50 @@ contract Marketplace is Ownable {
             sellContract.tokenPriceUsd,
             requiredAllowance
         );
+    }
+
+    /// @notice Get the price of the token for the caller with the interests if the caller is a contract buyer
+    /// @param _tokenId The ID of the deferred NFT
+    /// @return _price The price of the token
+    function tokenPriceForCaller(
+        uint256 _tokenId
+    ) external view returns (uint256) {
+        Deferred deferredContract = Deferred(deferred);
+        Deferred.SellContract memory sellContract = deferredContract
+            .tokenContract(_tokenId);
+
+        bool _isContractBuyer = isContractBuyer(sellContract);
+
+        return calcTokenPriceWithInterests(sellContract, _isContractBuyer);
+    }
+
+    /// @notice Get whether the caller is a contract buyer
+    /// @param _contract The contract to check
+    /// @return _isContractBuyer Whether the caller is a contract buyer
+    function isContractBuyer(
+        Deferred.SellContract memory _contract
+    ) internal view returns (bool) {
+        for (uint256 i = 0; i < _contract.buyers.length; i++) {
+            if (_contract.buyers[i] == msg.sender) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// @notice Calculate the price of the token with the interests if the buyer is a contract buyer
+    /// @param _contract The contract to calculate the price for
+    /// @param _isContractBuyer Whether the buyer is a contract buyer
+    /// @return _price The price of the token
+    function calcTokenPriceWithInterests(
+        Deferred.SellContract memory _contract,
+        bool _isContractBuyer
+    ) internal view returns (uint256) {
+        return
+            _isContractBuyer
+                ? _contract.tokenPriceUsd + interests(_contract.tokenPriceUsd)
+                : _contract.tokenPriceUsd;
     }
 
     /// @notice Get the interests to pay for the token

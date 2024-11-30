@@ -142,6 +142,27 @@ describe("RewardPool", () => {
     expect(await ekoke.balanceOf(buyer.address)).to.equal(EKOKE_REWARD);
   });
 
+  it("Should get token price as contract buyer", async () => {
+    const { buyer, marketplace } = deploy;
+
+    const tokenId = 0;
+    const interest = 10;
+    // give allowance to marketplace
+    expect(
+      await marketplace.connect(buyer).tokenPriceForCaller(tokenId)
+    ).to.equal(USD_PRICE + (USD_PRICE * interest) / 100);
+  });
+
+  it("Should get token price as third-party", async () => {
+    const { marketplace, thirdParty } = deploy;
+
+    const tokenId = 0;
+    // give allowance to marketplace
+    expect(
+      await marketplace.connect(thirdParty).tokenPriceForCaller(tokenId)
+    ).to.equal(USD_PRICE);
+  });
+
   it("Should set interest rate", async () => {
     const { marketplace } = deploy;
 
