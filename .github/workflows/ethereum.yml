@@ -28,6 +28,7 @@ jobs:
           sleep 2
           yarn deploy:localhost ekoke
           yarn deploy:localhost deferred
+          yarn deploy:localhost --ekoke 0x92fBA9067844A419A1C394197aE406768555F71b ekoke-presale
           yarn deploy:localhost --ekoke 0x92fBA9067844A419A1C394197aE406768555F71b --deferred 0x92fBA9067844A419A1C394197aE406768555F71b reward-pool
           yarn deploy:localhost --ekoke 0x92fBA9067844A419A1C394197aE406768555F71b --deferred 0x92fBA9067844A419A1C394197aE406768555F71b --usderc20 0x92fBA9067844A419A1C394197aE406768555F71b marketplace
         working-directory: ./ethereum

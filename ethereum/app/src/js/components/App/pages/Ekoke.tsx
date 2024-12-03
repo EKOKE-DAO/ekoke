@@ -6,17 +6,7 @@ import { ChainId } from '../../MetamaskConnect';
 import Container from '../../reusable/Container';
 import AdminMint from './Ekoke/AdminMint';
 import AdminRewardPool from './Ekoke/AdminRewardPool';
-
-const DECIMALS = 8;
-
-const convertToHumanReadable = (value: BigInt) => {
-  // put comma in `decimals` position
-  const balanceStr = value.toString();
-  const balanceArr = balanceStr.split('');
-  balanceArr.splice(balanceArr.length - DECIMALS, 0, ',');
-  console.log(balanceArr);
-  return balanceArr.join('');
-};
+import { convertToHumanReadable } from '../../../utils/format';
 
 const Ekoke = () => {
   const { account, ethereum, chainId } = useConnectedMetaMask();

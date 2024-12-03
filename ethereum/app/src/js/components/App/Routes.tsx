@@ -8,6 +8,7 @@ import Ekoke from './pages/Ekoke';
 import Marketplace from './pages/Marketplace';
 import RewardPool from './pages/RewardPool';
 import WaitForMetamask from './pages/WaitForMetamask';
+import EkokePresale from './pages/EkokePresale';
 
 const AppRouter = () => (
   <>
@@ -27,6 +28,14 @@ const AppRouter = () => (
           element={
             <WaitForMetamask>
               <Ekoke />
+            </WaitForMetamask>
+          }
+        />
+        <RouterRoute
+          path={Route.url(Route.EKOKE_PRESALE)}
+          element={
+            <WaitForMetamask>
+              <EkokePresale />
             </WaitForMetamask>
           }
         />

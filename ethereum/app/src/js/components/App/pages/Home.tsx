@@ -13,6 +13,9 @@ const Home = () => (
       <Link.Default href={Route.EKOKE}>EKOKE</Link.Default>
     </Container.Container>
     <Container.Container>
+      <Link.Default href={Route.EKOKE_PRESALE}>EKOKE Presale</Link.Default>
+    </Container.Container>
+    <Container.Container>
       <Link.Default href={Route.MARKETPLACE}>Marketplace</Link.Default>
     </Container.Container>
     <Container.Container>

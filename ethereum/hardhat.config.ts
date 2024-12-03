@@ -67,13 +67,14 @@ interface RewardPoolArgs {
 
 const CONTRACT_DEFERRED = "deferred";
 const CONTRACT_EKOKE = "ekoke";
+const CONTRACT_EKOKE_PRESALE = "ekoke-presale";
 const CONTRACT_MARKETPLACE = "marketplace";
 const CONTRACT_REWARD_POOL = "reward-pool";
 
 task("deploy", "Deploy contracts")
   .addPositionalParam(
     "contract",
-    "Contract to deploy (marketplace, deferred, ekoke, reward-pool)"
+    "Contract to deploy (marketplace, deferred, ekoke, ekoke-presale, reward-pool)"
   )
   .addOptionalParam("deferred", "Deferred contract address")
   .addOptionalParam("ekoke", "Ekoke contract address")
@@ -89,6 +90,10 @@ task("deploy", "Deploy contracts")
 
       case CONTRACT_EKOKE:
         await deployEkoke();
+        break;
+
+      case CONTRACT_EKOKE_PRESALE:
+        await deployEkokePresale(taskArgs.ekoke);
         break;
 
       case CONTRACT_MARKETPLACE:
@@ -128,6 +133,15 @@ async function deployEkoke() {
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   console.log(`EKOKE deployed to ${address}`);
+}
+
+async function deployEkokePresale(ekoke: string) {
+  const hardhat = require("hardhat");
+  const Contract = await hardhat.ethers.getContractFactory("EkokePresale");
+  const contract = await Contract.deploy(OWNER_ADDRESS!, ekoke);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  console.log(`EKOKE-presale deployed to ${address}`);
 }
 
 async function deployMarketplace(args: MarketplaceArgs) {
