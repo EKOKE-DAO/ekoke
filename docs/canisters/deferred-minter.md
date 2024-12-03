@@ -8,6 +8,8 @@
     - [Close a sell contract](#close-a-sell-contract)
       - [close contract requirements](#close-contract-requirements)
       - [Close contract](#close-contract)
+  - [HTTP Endpoint](#http-endpoint)
+    - [Agents](#agents)
 
 ## Introduction
 
@@ -29,7 +31,7 @@ A party involved in the sell process (buyer/seller/agency) must send Ethereum to
 
 #### Create contract
 
-At this point the agency can send the `ContractRegistration` data and call the `create_contract` endpoint on the canister.
+At this point the **agency** can send the `ContractRegistration` data and call the `create_contract` endpoint on the canister.
 
 This endpoint will call `create_contract` on the **Deferred** Ethereum ERC721 which will mint the tokens and after that it will call `create_contract` on **deferred_data** to store the contract on the ledger.
 
@@ -46,10 +48,41 @@ A party involved in the sell process (buyer/seller/agency) must send Ethereum to
 
 #### Close contract
 
-At this point the agency can close the contract by calling `close_contract` on the canister.
+The **agency** can close the contract by calling `close_contract` on the canister.
 
 This will mark the contract as closed both on the ledger and on the ERC721.
 
 Once the contract is closed tokens can't be traded anymore and the sell contract is completed.
 
 > ❗ The agency must ensure before closing the contract that the buyer owns all the tokens
+
+## HTTP Endpoint
+
+### Agents
+
+```txt
+GET /agents
+```
+
+Returns all the agents registered.
+
+The response has the following syntax:
+
+```json
+[
+  {
+    "address": "Via roma 12",
+    "city": "Milan",
+    "continent": "Europe",
+    "country": "Italy",
+    "email": "test@example.com",
+    "mobile": "3661677509",
+    "name": "MilanHouses",
+    "owner": "principal",
+    "region": "...",
+    "vat": "",
+    "website": "",
+    "zipCode": "33100"
+  }
+]
+```

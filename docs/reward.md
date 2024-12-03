@@ -1,14 +1,10 @@
-# EKOKE Reward Pool
+# EKOKE Rewards
 
-- [EKOKE Reward Pool](#ekoke-reward-pool)
+- [EKOKE Rewards](#ekoke-rewards)
   - [Introduction](#introduction)
-  - [Supply](#supply)
-  - [API](#api)
-    - [reserve\_pool](#reserve_pool)
-    - [get\_contract\_reward](#get_contract_reward)
-    - [send\_reward](#send_reward)
-    - [available\_liquidity](#available_liquidity)
+  - [When are rewards distributed](#when-are-rewards-distributed)
   - [Reward Pool](#reward-pool)
+    - [How to reserve a manual pool](#how-to-reserve-a-manual-pool)
   - [Reward Deflationary Algorithm](#reward-deflationary-algorithm)
     - [Reward Multiplier Coefficient](#reward-multiplier-coefficient)
     - [Avidity](#avidity)
@@ -20,46 +16,22 @@
 
 ## Introduction
 
-The EKOKE Reward Pool canister takes care of managing the rewards for user buying Deferred NFTs on the Marketplace.
+This document describes how EKOKE manages the EKOKE token rewards.
 
-For each contract registered on Deferred a **Reward pool** is reserved and each time a user buys an NFT from the marketplace, if it's the first time that NFT is sold, the reward for the pool is sent to the user who has bought the NFT.
+## When are rewards distributed
 
-## Supply
-
-At the creation of the SNS Ledger Canister for EKOKE, the following initial supply will be given to the EKOKE reward canister out of the total EKOKE Supply
-
-**xxxxx** on **8880101.01000000** tokens
-
-## API
-
-The full DID can be found [HERE](../../src/ekoke_reward_pool/ekoke-reward-pool.did)
-
-### reserve_pool
-
-Given an ID and a certain EKOKE amount, it reserves a pool for the given contract, transferring the EKOKE amount from the caller's account to the reward pool.
-
-Before calling this method, the caller must have given allowance to the reward-pool canister for at least `amount + ICRC_fee` .
-
-### get_contract_reward
-
-This method can only be called by the deferred canister and it is used to get the reward to set for a token associated to a new contract.
-
-### send_reward
-
-This method can only be called by the marketplace canister and it is used to send the reward after a token is sold.
-
-### available_liquidity
-
-Get the available liquidity in the reward pool
+Rewards are automatically given to the buyer of a **Deferred ERC721** when he buys a token on the [Marketplace contract](./contracts/marketplace.md).
 
 ## Reward Pool
 
 The reward pool can work in two different modes:
 
-- Automatic Mode: If there is still available liquidity in the reward pool, then this mode should be preferred. Basically when a contract is created, the deferred canister will query the reward pool to check whether there is already a pool associated to that contract. If there's not a certain liquidity will be reserved as reward for token buyers following the Reward Pool Algorithm, which you can read about in the next chapter.
-- Manual Mode: A user can opt to reserve a EKOKE pool using its EKOKE tokens for a contract before is created. This mode could be preferred to promote the sell of his real-estate or is mandatory in the case the liquidity pool of the reward canister is empty.
+- **Automatic Mode:** If there is still available liquidity in the reward pool, then this mode should be preferred. Basically when a contract is created, the deferred canister will query the reward pool to check whether there is already a pool associated to that contract. If there's not a certain liquidity will be reserved as reward for token buyers following the Reward Pool Algorithm, which you can read about in the next chapter.
+- **Manual Mode**: A user can opt to reserve a EKOKE pool using its EKOKE tokens for a contract before is created. This mode becomes mandatory in the case the liquidity pool of the reward canister is empty.
 
-Note that once the reward pool is empty, it basically can never be refilled, unless someone deliberately sends tokens to the canister account.
+### How to reserve a manual pool
+
+In order to reserve a manual pool, the user must burn a certain amount of their tokens. Once their tokens are burned, the reward pool can mint those tokens again as rewards.
 
 ## Reward Deflationary Algorithm
 
@@ -70,7 +42,7 @@ Once a contract is registered on Deferred, Deferred will call the reward pool ca
 The reward, if a pool is still not reserved for the contract will be calculated using the following formula:
 
 ```txt
-reward = rewardPoolLiquidity * RMC * avidity
+reward = (rewardPoolLiquidity * RMC * avidity * tokenPrice) / 100
 ```
 
 ![reward-formula](../../assets/images/reward-formula.png)
@@ -107,7 +79,10 @@ The avidity value follows this schema.
 
 ### Token Price
 
-TODO:
+The token price is used to proportionate the amount of reward tokens based on the NFT price. The reason behind this is to prevent tokens with for instance value of 1$ to have the same reward as tokens with value of 100$.
+
+The base reward is set for token price of 100$. So it will be `1000%` if the token price is `1000$` or it will be
+10% with a token price of 10$ etc.
 
 ### Reward Analysis
 
