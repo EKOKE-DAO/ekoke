@@ -1,65 +1,37 @@
 //! Types associated to the "Deferred" canister
 
-mod canister;
 mod contract;
-mod error;
+mod data;
+mod minter;
 
-pub type DeferredResult<T> = Result<T, DeferredError>;
+pub type DeferredMinterResult<T> = Result<T, DeferredMinterError>;
+pub type DeferredDataResult<T> = Result<T, DeferredDataError>;
 
-pub use self::canister::{DeferredInitData, Role, Roles, StorableTxEvent};
 pub use self::contract::{
-    Agency, Buyers, Continent, Contract, ContractProperties, ContractRegistration, ContractType,
-    Deposit, GenericValue, RestrictedContractProperties, RestrictedProperty, RestrictionLevel,
-    Seller, Token, TokenIdentifier, TokenInfo, ID,
+    Agency, Continent, Contract, ContractDocument, ContractDocumentData, ContractDocuments,
+    ContractProperties, ContractRegistration, ContractType, GenericValue,
+    RestrictedContractProperties, RestrictedProperty, RestrictionLevel, Seller, ID,
 };
-pub use self::error::{
-    CloseContractError, ConfigurationError, DeferredError, DepositError, TokenError, WithdrawError,
+pub use self::data::{
+    ConfigurationError as DataConfigurationError, ContractError as DataContractError,
+    DeferredDataError, DeferredDataInitData,
+};
+pub use self::minter::{
+    CloseContractError, ConfigurationError, ContractError, DeferredMinterError,
+    DeferredMinterInitData, EcdsaError, EcdsaKey, Role, Roles,
 };
 
 #[cfg(test)]
 mod test {
 
+    use std::collections::HashMap;
+
     use candid::{Decode, Encode, Principal};
-    use dip721_rs::{GenericValue, TokenIdentifier, TxEvent};
     use ic_stable_structures::Storable as _;
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::ID;
-
-    #[test]
-    fn test_should_encode_token() {
-        let token = Token {
-            id: TokenIdentifier::from(1_u64),
-            contract_id: ID::from(1_u64),
-            owner: Some(
-                Principal::from_text(
-                    "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-                )
-                .unwrap(),
-            ),
-            ekoke_reward: 4_000_u64.into(),
-            transferred_at: None,
-            transferred_by: None,
-            approved_at: None,
-            approved_by: None,
-            burned_at: None,
-            burned_by: None,
-            minted_at: 0,
-            minted_by: Principal::anonymous(),
-            operator: None,
-            value: 100,
-            is_burned: false,
-        };
-        let data = Encode!(&token).unwrap();
-        let decoded_token = Decode!(&data, Token).unwrap();
-
-        assert_eq!(token.id, decoded_token.id);
-        assert_eq!(token.contract_id, decoded_token.contract_id);
-        assert_eq!(token.owner, decoded_token.owner);
-        assert_eq!(token.value, decoded_token.value);
-        assert_eq!(token.ekoke_reward, decoded_token.ekoke_reward);
-    }
+    use crate::{H160, ID};
 
     #[test]
     fn test_should_encode_contract() {
@@ -68,34 +40,25 @@ mod test {
             r#type: ContractType::Sell,
             sellers: vec![
                 Seller {
-                    principal: Principal::from_text(
-                        "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-                    )
-                    .unwrap(),
+                    address: H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A")
+                        .unwrap(),
                     quota: 51,
                 },
                 Seller {
-                    principal: Principal::management_canister(),
+                    address: H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A")
+                        .unwrap(),
                     quota: 49,
                 },
             ],
             buyers: vec![
-                Principal::anonymous(),
-                Principal::from_text(
-                    "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-                )
-                .unwrap(),
+                H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A").unwrap(),
+                H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A").unwrap(),
             ],
             installments: 2,
-            is_signed: true,
-            tokens: vec![TokenIdentifier::from(1_u64), TokenIdentifier::from(2_u64)],
-            initial_value: 250_000,
             value: 250_000,
-            deposit: Deposit {
-                value_fiat: 50_000,
-                value_icp: 100,
-            },
+            deposit: 50_000,
             currency: "EUR".to_string(),
+            documents: HashMap::default(),
             properties: vec![(
                 "Rome".to_string(),
                 GenericValue::TextContent("Rome".to_string()),
@@ -121,8 +84,10 @@ mod test {
                 vat: "VAT".to_string(),
                 agent: "Agent".to_string(),
                 logo: None,
+                owner: Principal::anonymous(),
             }),
             expiration: "2040-01-01".to_string(),
+            closed: false,
         };
         let data = Encode!(&contract).unwrap();
         let decoded_contract = Decode!(&data, Contract).unwrap();
@@ -130,32 +95,11 @@ mod test {
         assert_eq!(contract.id, decoded_contract.id);
         assert_eq!(contract.sellers, decoded_contract.sellers);
         assert_eq!(contract.buyers, decoded_contract.buyers);
-        assert_eq!(contract.tokens, decoded_contract.tokens);
         assert_eq!(contract.properties, decoded_contract.properties);
         assert_eq!(contract.value, decoded_contract.value);
-        assert_eq!(contract.initial_value, decoded_contract.initial_value);
         assert_eq!(contract.currency, decoded_contract.currency);
         assert_eq!(contract.installments, decoded_contract.installments);
-        assert_eq!(contract.is_signed, decoded_contract.is_signed);
         assert_eq!(contract.agency, decoded_contract.agency);
-    }
-
-    #[test]
-    fn test_should_encode_tx_event() {
-        let tx_event: StorableTxEvent = TxEvent {
-            caller: Principal::from_text(
-                "zrrb4-gyxmq-nx67d-wmbky-k6xyt-byhmw-tr5ct-vsxu4-nuv2g-6rr65-aae",
-            )
-            .unwrap(),
-            details: vec![],
-            operation: "mint".to_string(),
-            time: 0,
-        }
-        .into();
-
-        let data = tx_event.to_bytes();
-        let decoded_tx_event = StorableTxEvent::from_bytes(data);
-        assert_eq!(tx_event.0, decoded_tx_event.0);
     }
 
     #[test]

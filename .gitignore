@@ -27,3 +27,5 @@ target/
 integration-tests/pocket-ic
 
 sns_init_test.run.yaml
+
+deps/

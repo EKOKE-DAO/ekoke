@@ -2,14 +2,10 @@
 
 dfx stop
 dfx start --background --clean
-dfx canister create deferred
-dfx canister create ekoke-erc20-swap
-dfx canister create ekoke-erc20-swap-frontend
-dfx canister create ekoke-icrc-index
-dfx canister create ekoke-icrc-ledger
-dfx canister create ekoke-liquidity-pool
-dfx canister create ekoke-reward-pool
-dfx canister create marketplace
+dfx canister create deferred_data
+dfx canister create deferred_minter
+
+# sns
 dfx canister create sns_governance
 dfx canister create sns_index
 dfx canister create sns_ledger

@@ -20,6 +20,7 @@ Powered by **Internet Computer**
     - [Main advantages](#main-advantages)
   - [Documentation](#documentation)
   - [Whitepaper](#whitepaper)
+  - [Ethereum Contracts](#ethereum-contracts)
   - [Canisters](#canisters)
   - [Get started](#get-started)
     - [Dependencies](#dependencies)
@@ -32,19 +33,19 @@ Powered by **Internet Computer**
 
 ## Introduction
 
-The Ekoketoken project emerges as the evolutionary response to the traditional real estate landscape, originating from a Milan-based agency's immersion into the realms of blockchain and cryptocurrencies. This innovative venture aspires to redefine real estate transactions by embracing the potential of the Internet Computer (ICP) blockchain.
+The EKOKE DAO project emerges as the evolutionary response to the traditional real estate landscape, originating from a Milan-based agency's immersion into the realms of blockchain and cryptocurrencies. This innovative venture aspires to redefine real estate transactions by embracing the potential of the blockchain.
 
 ### Objectives and Vision
 
-Our primary goal is to introduce a novel approach to real estate transactions by enabling the sale of houses in installments on the ICP blockchain. The vision driving this project is rooted in the desire to streamline and optimize the real estate transaction process. By leveraging blockchain technology, we aim to simplify, economize, and democratize the way properties are bought and sold.
+Our primary goal is to introduce a novel approach to real estate transactions by enabling the sale of houses in installments on the Ethereum blockchain and the Internet Computer blockchain as the database for sell contract data. The vision driving this project is rooted in the desire to streamline and optimize the real estate transaction process. By leveraging blockchain technology, we aim to simplify, economize, and democratize the way properties are bought and sold.
 
 ### Revolutionizing Real Estate
 
-Ekoketoken stands as a catalyst in revolutionizing the dynamics of real estate transactions. Key features include unprecedented speed, cost-effectiveness, decentralization, security, and confidentiality. By intertwining blockchain and cryptocurrencies with real estate, we embark on a journey to create a paradigm shift, making property transactions more accessible and efficient.
+EKOKE DAO stands as a catalyst in revolutionizing the dynamics of real estate transactions. Key features include unprecedented speed, cost-effectiveness, decentralization, security, and confidentiality. By intertwining blockchain and cryptocurrencies with real estate, we embark on a journey to create a paradigm shift, making property transactions more accessible and efficient.
 
 ### Main advantages
 
-The advantages offered by Ekoketoken are multifaceted. Real estate transactions conducted on our platform are designed to be faster, more cost-efficient, decentralized to eliminate intermediaries, secure through blockchain's immutable ledger, and confidential to safeguard sensitive information. These transformative elements collectively contribute to a more inclusive and innovative real estate ecosystem.
+The advantages offered by EKOKE DAO are multifaceted. Real estate transactions conducted on our platform are designed to be faster, more cost-efficient, decentralized to eliminate intermediaries, secure through blockchain's immutable ledger, and confidential to safeguard sensitive information. These transformative elements collectively contribute to a more inclusive and innovative real estate ecosystem.
 
 ## Documentation
 
@@ -54,14 +55,17 @@ Read the [Project Documentation](./docs/README.md)
 
 You can find the whitepaper on our website <https://www.ekoketoken.com/whitepaper>
 
+## Ethereum Contracts
+
+- **Deferred**: `TBD`
+- **EKOKE**: `TBD`
+- **Marketplace**: `TBD`
+- **RewardPool**: `TBD`
+
 ## Canisters
 
-- **Deferred**: `v5vof-zqaaa-aaaal-ai5cq-cai`
-- **EKOKE ERC20 Swap**: `un25n-wyaaa-aaaal-ams5a-cai`
-- **EKOKE ERC20 Swap frontend**: `uk33z-3aaaa-aaaal-ams5q-cai`
-- **EKOKE Liquidity Pool**: `v2uir-uiaaa-aaaal-ai5ca-cai`
-- **EKOKE Reward Pool**: `vtxdn-caaaa-aaaal-ai5dq-cai`
-- **Marketplace**: `vuwfz-pyaaa-aaaal-ai5da-cai`
+- **deferred-data**: `TBD`
+- **deferred-minter**: `TBD`
 
 ## Get started
 

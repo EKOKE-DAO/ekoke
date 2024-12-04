@@ -8,26 +8,32 @@ use serde_bytes::ByteBuf;
 use crate::actor::admin;
 use crate::TestEnv;
 
-pub struct HttpClient<'a> {
+pub struct HttpClient<'a, T>
+where
+    T: TestEnv,
+{
     principal: Principal,
-    env: &'a TestEnv,
+    env: &'a T,
 }
 
-impl<'a> HttpClient<'a> {
-    pub fn new(principal: Principal, env: &'a TestEnv) -> Self {
+impl<'a, T> HttpClient<'a, T>
+where
+    T: TestEnv,
+{
+    pub fn new(principal: Principal, env: &'a T) -> Self {
         Self { principal, env }
     }
 
-    pub fn http_request<S>(&self, method: &str, params: serde_json::Value) -> S
+    pub async fn http_request<S>(&self, method: &str, params: serde_json::Value) -> S
     where
         S: serde::de::DeserializeOwned,
     {
-        let response = self.raw_http_request_response(method, params);
+        let response = self.raw_http_request_response(method, params).await;
 
         serde_json::from_slice(&response.body).unwrap()
     }
 
-    pub fn raw_http_request_response(
+    pub async fn raw_http_request_response(
         &self,
         method: &str,
         params: serde_json::Value,
@@ -57,6 +63,7 @@ impl<'a> HttpClient<'a> {
                 "http_request",
                 Encode!(&request).unwrap(),
             )
+            .await
             .unwrap()
     }
 }

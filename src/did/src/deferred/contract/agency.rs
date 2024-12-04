@@ -1,4 +1,4 @@
-use candid::{CandidType, Decode, Encode};
+use candid::{CandidType, Decode, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::{Deserialize, Serialize};
@@ -6,19 +6,41 @@ use serde::{Deserialize, Serialize};
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
 pub struct Agency {
-    pub name: String,
     pub address: String,
-    pub city: String,
-    pub region: String,
-    pub zip_code: String,
-    pub country: String,
-    pub continent: Continent,
-    pub email: String,
-    pub website: String,
-    pub mobile: String,
-    pub vat: String,
     pub agent: String,
+    pub city: String,
+    pub continent: Continent,
+    pub country: String,
+    pub email: String,
     pub logo: Option<String>,
+    pub mobile: String,
+    pub name: String,
+    pub owner: Principal,
+    pub region: String,
+    pub vat: String,
+    pub website: String,
+    pub zip_code: String,
+}
+
+impl Default for Agency {
+    fn default() -> Self {
+        Self {
+            region: Default::default(),
+            vat: Default::default(),
+            website: Default::default(),
+            zip_code: Default::default(),
+            address: Default::default(),
+            agent: Default::default(),
+            city: Default::default(),
+            country: Default::default(),
+            email: Default::default(),
+            logo: Default::default(),
+            mobile: Default::default(),
+            name: Default::default(),
+            owner: Principal::anonymous(),
+            continent: Continent::Europe,
+        }
+    }
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, Copy, PartialEq, Eq)]

@@ -1,0 +1,17 @@
+[package]
+name = "abi"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[features]
+default = []
+
+[dependencies]
+ethers-contract = { workspace = true, default-features = false, features = [
+  "abigen",
+] }
+ethers-core = { workspace = true }
+ethers-providers = { workspace = true }

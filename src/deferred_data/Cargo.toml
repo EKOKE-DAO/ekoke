@@ -1,0 +1,38 @@
+[package]
+name = "deferred_data"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[[bin]]
+name = "deferred_data_did"
+path = "src/lib.rs"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = []
+did = []
+
+[dependencies]
+candid = { workspace = true }
+did = { path = "../did" }
+ethers-core = { workspace = true }
+getrandom = { workspace = true, features = ["custom"] }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-log = { workspace = true }
+ic-stable-structures = { workspace = true }
+log = { workspace = true }
+route-recognizer = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = "1"
+tokio = { version = "1", features = ["full"] }

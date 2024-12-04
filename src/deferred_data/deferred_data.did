@@ -1,0 +1,136 @@
+type Agency = record {
+  vat : text;
+  region : text;
+  zip_code : text;
+  country : text;
+  agent : text;
+  owner : principal;
+  city : text;
+  logo : opt text;
+  name : text;
+  continent : Continent;
+  email : text;
+  website : text;
+  address : text;
+  mobile : text;
+};
+type ConfigurationError = variant { AnonymousOwner; AnonymousMinter };
+type Continent = variant {
+  Africa;
+  Antarctica;
+  Asia;
+  Europe;
+  SouthAmerica;
+  Oceania;
+  NorthAmerica;
+};
+type Contract = record {
+  id : nat;
+  closed : bool;
+  documents : vec record { nat; ContractDocument };
+  value : nat64;
+  "type" : ContractType;
+  agency : opt Agency;
+  restricted_properties : vec record { text; RestrictedProperty };
+  properties : vec record { text; GenericValue };
+  deposit : nat64;
+  sellers : vec Seller;
+  expiration : text;
+  currency : text;
+  installments : nat64;
+  buyers : vec text;
+};
+type ContractDocument = record {
+  mime_type : text;
+  access_list : vec RestrictionLevel;
+};
+type ContractDocumentData = record { data : blob; mime_type : text };
+type ContractError = variant {
+  DocumentNotFound : nat;
+  ContractNotFound : nat;
+  BadContractProperty;
+};
+type ContractType = variant { Sell; Financing };
+type DeferredDataError = variant {
+  Configuration : ConfigurationError;
+  Contract : ContractError;
+  InvalidSignature;
+  Unauthorized;
+  StorageError;
+  CanisterCall : record { RejectionCode; text };
+};
+type DeferredDataInitData = record {
+  minter : principal;
+  log_settings : LogSettingsV2;
+};
+type GenericValue = variant {
+  Nat64Content : nat64;
+  Nat32Content : nat32;
+  BoolContent : bool;
+  Nat8Content : nat8;
+  Int64Content : int64;
+  IntContent : int;
+  NatContent : nat;
+  Nat16Content : nat16;
+  Int32Content : int32;
+  Int8Content : int8;
+  FloatContent : float64;
+  Int16Content : int16;
+  Principal : principal;
+  TextContent : text;
+};
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : blob;
+  headers : vec record { text; text };
+};
+type HttpResponse = record {
+  body : blob;
+  headers : vec record { text; text };
+  upgrade : opt bool;
+  status_code : nat16;
+};
+type Log = record { log : text; offset : nat64 };
+type LogSettingsV2 = record {
+  log_filter : text;
+  in_memory_records : nat64;
+  enable_console : bool;
+  max_record_length : nat64;
+};
+type Logs = record { logs : vec Log; all_logs_count : nat64 };
+type Pagination = record { count : nat64; offset : nat64 };
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
+type RestrictedProperty = record {
+  value : GenericValue;
+  access_list : vec RestrictionLevel;
+};
+type RestrictionLevel = variant { Buyer; Seller; Agent };
+type Result = variant { Ok; Err : DeferredDataError };
+type Result_1 = variant { Ok : ContractDocumentData; Err : DeferredDataError };
+type Result_2 = variant { Ok : nat; Err : DeferredDataError };
+type Seller = record { quota : nat8; address : text };
+service : (DeferredDataInitData) -> {
+  admin_cycles : () -> (nat) query;
+  admin_ic_logs : (Pagination) -> (Logs) query;
+  admin_set_minter : (principal) -> (Result);
+  get_contract : (nat) -> (opt Contract) query;
+  get_contract_document : (nat, nat) -> (Result_1) query;
+  get_contracts : () -> (vec nat) query;
+  http_request : (HttpRequest) -> (HttpResponse) query;
+  minter_close_contract : (nat) -> (Result);
+  minter_create_contract : (Contract) -> (Result);
+  update_contract_property : (nat, text, GenericValue) -> (Result);
+  update_restricted_contract_property : (nat, text, RestrictedProperty) -> (
+      Result,
+    );
+  upload_contract_document : (nat, ContractDocument, blob) -> (Result_2);
+}

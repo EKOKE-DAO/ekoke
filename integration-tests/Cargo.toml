@@ -10,16 +10,29 @@ repository = { workspace = true }
 anyhow = { workspace = true }
 candid = { workspace = true }
 did = { path = "../src/did" }
-dip721-rs = { workspace = true }
-icrc = { path = "../src/icrc" }
-pocket-ic = "4"
+ethers-core = { workspace = true }
+ethers-contract = { workspace = true, features = ["abigen", "providers"] }
+ethers-middleware = { workspace = true }
+ethers-providers = { workspace = true }
+ethers-signers = { workspace = true }
+ic-agent = { workspace = true }
+ic-log = { workspace = true }
+ic-test-utils = { workspace = true }
+ic-utils = { workspace = true }
+pocket-ic = "6"
+reqwest = { workspace = true, features = ["json"] }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }
-xrc = { path = "../src/xrc" }
+testcontainers = { workspace = true }
+tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]
 pretty_assertions = "1"
 serial_test = "3"
 time = { workspace = true }
-tokio = { version = "1", features = ["full"] }
+
+[features]
+default = ["dfx", "pocket-ic"]
+dfx = []
+pocket-ic = []

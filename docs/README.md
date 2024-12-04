@@ -1,17 +1,24 @@
 # Documentation
 
-## Canisters
-
-- [Deferred](./canisters/deferred.md)
-- [EKOKE-ERC20-swap](./canisters/ekoke-erc20-swap.md)
-- [EKOKE-ERC20-swap-frontend](./canisters/ekoke-erc20-swap-frontend.md)
-- [EKOKE-liquidity-pool](./canisters/ekoke-liquidity-pool.md)
-- [EKOKE-reward-pool](./canisters/ekoke-reward-pool.md)
-- [Marketplace](./canisters/marketplace.md)
-
-## Canisters architecture
+## Project Architecture
 
 ![arch](./canisters/arch.drawio.png)
+
+## Canisters
+
+- [Deferred data](./canisters/deferred-data.md)
+- [Deferred minter](./canisters/deferred-minter.md)
+
+## Smart contracts
+
+- [Deferred ERC721](./contracts/Deferred.md)
+- [EKOKE ERC20](./contracts/Ekoke.md)
+- [Marketplace](./contracts/Marketplace.md)
+- [Reward Pool](./contracts/RewardPool.md)
+
+## EKOKE rewards
+
+- [Rewards](./reward.md)
 
 ## EKOKE DAO
 

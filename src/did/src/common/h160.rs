@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::fmt;
 use std::rc::Rc;
 
 use candid::types::{Type, TypeInner};
@@ -7,7 +8,9 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::Serialize;
 
-#[derive(Debug, Default, Clone, PartialOrd, Ord, Eq, PartialEq, Serialize, Deserialize, Hash)]
+#[derive(
+    Debug, Default, Clone, Copy, PartialOrd, Ord, Eq, PartialEq, Serialize, Deserialize, Hash,
+)]
 #[serde(transparent)]
 pub struct H160(pub ethers_core::types::H160);
 
@@ -21,6 +24,12 @@ impl CandidType for H160 {
         S: candid::types::Serializer,
     {
         serializer.serialize_text(&self.to_hex_str())
+    }
+}
+
+impl fmt::Display for H160 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_hex_str())
     }
 }
 

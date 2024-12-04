@@ -131,31 +131,4 @@ impl HttpRequest {
             body: ByteBuf::from(data),
         }
     }
-
-    pub fn decode_body<S>(&self) -> Result<S, HttpResponse>
-    where
-        S: serde::de::DeserializeOwned,
-    {
-        serde_json::from_slice::<HttpApiRequest<S>>(&self.body)
-            .map_err(|_| HttpResponse::bad_request("Invalid request body".to_string()))
-            .map(|m| m.params)
-    }
-
-    pub fn decode_method(&self) -> Result<String, HttpResponse> {
-        serde_json::from_slice::<HttpApiMethod>(&self.body)
-            .map_err(|_| HttpResponse::bad_request("Invalid request body".to_string()))
-            .map(|m| m.method)
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-struct HttpApiMethod {
-    pub method: String,
-}
-
-/// The important components of an HTTP request.
-#[derive(Clone, Debug, Deserialize)]
-pub struct HttpApiRequest<S> {
-    pub method: String,
-    pub params: S,
 }

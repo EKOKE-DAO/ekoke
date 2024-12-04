@@ -1,14 +1,10 @@
 [workspace]
 members = [
-  "integration-tests",
+  "src/abi",
+  "src/deferred_data",
+  "src/deferred_minter",
   "src/did",
-  "src/deferred",
-  "src/ekoke_erc20_swap",
-  "src/ekoke_liquidity_pool",
-  "src/ekoke_reward_pool",
-  "src/icrc",
-  "src/marketplace",
-  "src/xrc",
+  "integration-tests",
 ]
 resolver = "2"
 
@@ -18,39 +14,44 @@ edition = "2021"
 license = "SEE LICENSE IN LICENSE"
 readme = "README.md"
 repository = "https://github.com/EKOKEtoken/ekoke"
-version = "0.1.0"
+version = "0.2.0"
 
 [workspace.dependencies]
 anyhow = "1"
-async-trait = "0.1"
 candid = "0.10"
 ethers-contract = { version = "2", default-features = false, features = [
   "abigen",
 ] }
 ethers-core = "2"
+ethers-middleware = "2"
+ethers-providers = "2"
 ethers-signers = "2"
-ethnum = "1"
-dip721-rs = "0.2"
 getrandom = { version = "0.2", features = ["custom"] }
 hex = "0.4"
+ic-agent = "0.39"
 ic-cdk = "0.17"
 ic-cdk-macros = "0.17"
 ic-cdk-timers = "0.11"
+ic-log = { git = "https://github.com/bitfinity-network/canister-sdk", package = "ic-log", tag = "v0.23.x" }
+ic-test-utils = { git = "https://github.com/bitfinity-network/canister-sdk", package = "ic-test-utils", tag = "v0.23.x" }
 ic-stable-structures = "0.6"
-ic-xrc-types = "1.2"
-icrc-ledger-types = "0.1"
-itertools = "0.13"
+ic-utils = "0.39"
 k256 = { version = "0.13", default-features = false, features = ["ecdsa-core"] }
+log = "0.4"
 num-bigint = "0.4"
 num-traits = "0.2"
+reqwest = "0.12"
+route-recognizer = "0.3"
 secp256k1 = "0.30"
 serde = { version = "1", features = ["derive"] }
 serde_bytes = "0.11"
 serde_json = "1"
 sha2 = "0.10"
 sha3 = "0.10"
+testcontainers = "0.23"
 thiserror = "2"
 time = { version = "0.3.36", features = ["macros", "parsing"] }
+url = "2"
 
 [profile.dev]
 debug = false

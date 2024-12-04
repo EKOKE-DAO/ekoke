@@ -9,19 +9,17 @@ repository = { workspace = true }
 
 [dependencies]
 candid = { workspace = true }
-dip721-rs = { workspace = true }
 ethers-core = { workspace = true }
 hex = { workspace = true }
 ic-cdk = { workspace = true }
+ic-log = { workspace = true }
 ic-stable-structures = { workspace = true }
-icrc = { path = "../icrc" }
 num-bigint = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true }
-xrc = { path = "../xrc" }
 
 [dev-dependencies]
 pretty_assertions = "1"
