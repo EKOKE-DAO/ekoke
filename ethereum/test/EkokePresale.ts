@@ -1,16 +1,23 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Ekoke, EkokePresale } from "../typechain-types";
+import { Ekoke, EkokePresale, TestERC20 } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const PRESALE_CAP = 10_000_000_000_000; // 100_000 EKOKE
 const STEP_TOKENS = 100_000_000_000;
-const BASE_TOKEN_PRICE = 1_000_000_000;
+const STEP_TOKENS_WNO_DECIMALS = 1_000;
+const BASE_TOKEN_PRICE = 1_000_000; // 1USDT
 const SOFT_CAP = 2_000_000_000_000; // 20_000 EKOKE
+const SOFT_CAP_WNO_DECIMALS = 20_000;
+const USDT_DECIMALS = 6;
+
+const usdToUsdt = (usd: number) => usd * 10 ** USDT_DECIMALS;
+const ekokeToE8s = (ekoke: number) => ekoke * 10 ** 8;
 
 describe("EkokePresale", () => {
   interface Contract {
     ekoke: Ekoke;
+    usdt: TestERC20;
     presale: EkokePresale;
     owner: SignerWithAddress;
     alice: SignerWithAddress;
@@ -25,9 +32,22 @@ describe("EkokePresale", () => {
     // send `PRESALE_CAP` to the presale contract
     const ekoke = ekokeContract as unknown as Ekoke;
 
+    const usdtContract = await ethers.deployContract("TestERC20", [
+      "USDT",
+      "USDT",
+      6,
+    ]);
+
+    const usdt = usdtContract as unknown as TestERC20;
+
+    // mint 100_000 USDT to alice and owner
+    await usdt.mint(owner.address, usdToUsdt(100_000));
+    await usdt.mint(otherAccount.address, usdToUsdt(100_000));
+
     const ekokePresaleContract = await ethers.deployContract("EkokePresale", [
       owner.address,
       ekokeContract.getAddress(),
+      usdtContract.getAddress(),
     ]);
 
     // mint cap to token and set presale cap
@@ -37,6 +57,7 @@ describe("EkokePresale", () => {
 
     deploy = {
       ekoke,
+      usdt,
       presale,
       owner,
       alice: otherAccount,
@@ -50,71 +71,85 @@ describe("EkokePresale", () => {
   });
 
   it("Should buy tokens", async () => {
-    const { presale, owner } = deploy;
+    const { presale, owner, usdt } = deploy;
 
     const tokenPrice = await presale.tokenPrice();
     const totalPrice = tokenPrice * BigInt(1_000);
 
+    // approve USDT
+    await usdt.approve(presale.getAddress(), totalPrice);
     // call with value
-    await presale.buyTokens(1_000, { value: totalPrice });
+    await presale.buyTokens(1_000);
 
     // verify balances
-    expect(await presale.balanceOf(owner.address)).to.equal(1_000);
+    expect(await presale.balanceOf(owner.address)).to.equal(ekokeToE8s(1_000));
+    expect(await presale.usdInvested(owner.address)).to.equal(totalPrice);
+
+    // check USDT balance
+    expect(await usdt.balanceOf(owner.address)).to.equal(
+      BigInt(usdToUsdt(100_000)) - totalPrice
+    );
   });
 
-  it("Should not buy tokens if we don't have eth", async () => {
+  it("Should not buy tokens if we don't have USDT", async () => {
     const { presale, owner } = deploy;
 
-    const tokenPrice = await presale.tokenPrice();
-
     // call with value
-    await expect(
-      presale.buyTokens(1_000, { value: tokenPrice })
-    ).to.be.revertedWith("EkokePresale: Not enough ETH to buy tokens");
+    await expect(presale.buyTokens(1_000)).to.be.rejectedWith(Error);
 
     // verify balances
     expect(await presale.balanceOf(owner.address)).to.equal(0);
   });
 
   it("Should buy tokens twice", async () => {
-    const { presale, owner } = deploy;
+    const { presale, owner, usdt } = deploy;
 
     const tokenPrice = await presale.tokenPrice();
-    const totalPrice = tokenPrice * BigInt(1_000);
+    const totalPrice = tokenPrice * BigInt(100);
+
+    // approve twice
+    await usdt.approve(presale.getAddress(), totalPrice);
 
     // call with value
-    await presale.buyTokens(1_000, { value: totalPrice });
-    await presale.buyTokens(1_000, { value: totalPrice });
+    await presale.buyTokens(100);
+    await usdt.approve(presale.getAddress(), totalPrice);
+    await presale.buyTokens(100);
 
     // verify balances
-    expect(await presale.balanceOf(owner.address)).to.equal(2_000);
+    expect(await presale.balanceOf(owner.address)).to.equal(ekokeToE8s(200));
+    expect(await presale.usdInvested(owner.address)).to.equal(
+      totalPrice * BigInt(2)
+    );
   });
 
   it("Should get token price after step", async () => {
-    const { presale } = deploy;
+    const { presale, usdt } = deploy;
 
     const tokenPrice = await presale.tokenPrice();
     expect(tokenPrice).to.equal(BASE_TOKEN_PRICE);
 
     // buy tokens to reach the step
-    const tokensToBuy = STEP_TOKENS;
+    const tokensToBuy = STEP_TOKENS_WNO_DECIMALS;
     const totalPrice = tokenPrice * BigInt(tokensToBuy);
-    await presale.buyTokens(tokensToBuy, { value: totalPrice });
+    await usdt.approve(presale.getAddress(), totalPrice);
+    await presale.buyTokens(tokensToBuy);
 
     // check new price
     const newTokenPrice = await presale.tokenPrice();
+    await usdt.approve(presale.getAddress(), newTokenPrice);
     expect(newTokenPrice).to.equal(BASE_TOKEN_PRICE * 2);
   });
 
   it("Should claim tokens after presale is closed", async () => {
-    const { presale, ekoke, owner, alice } = deploy;
+    const { presale, ekoke, usdt, alice } = deploy;
 
     // buy soft cap tokens, so we succeed
     const tokenPrice = await presale.tokenPrice();
-    const tokensToBuy = SOFT_CAP;
+    const tokensToBuy = SOFT_CAP_WNO_DECIMALS;
     const totalPrice = tokenPrice * BigInt(tokensToBuy);
 
-    await presale.connect(alice).buyTokens(tokensToBuy, { value: totalPrice });
+    await usdt.connect(alice).approve(presale.getAddress(), totalPrice);
+    await presale.connect(alice).buyTokens(tokensToBuy);
 
     // close presale
     await presale.adminClosePresale();
@@ -126,7 +161,7 @@ describe("EkokePresale", () => {
     const balance = await ekoke.balanceOf(alice.address);
 
     // verify balances
-    expect(balance).to.equal(tokensToBuy);
+    expect(balance).to.equal(SOFT_CAP);
 
     // verify presale balance is 0
     expect(await presale.balanceOf(alice.address)).to.equal(0);
@@ -142,25 +177,26 @@ describe("EkokePresale", () => {
     );
   });
 
-  it("Should send ETH raised to owner after close", async () => {
-    const { presale, ekoke, owner, alice } = deploy;
+  it("Should send USDT raised to owner after close", async () => {
+    const { presale, ekoke, owner, alice, usdt } = deploy;
 
     // buy soft cap tokens, so we succeed
     const tokenPrice = await presale.tokenPrice();
-    const tokensToBuy = SOFT_CAP;
+    const tokensToBuy = SOFT_CAP_WNO_DECIMALS;
     const totalPrice = tokenPrice * BigInt(tokensToBuy);
 
-    await presale.connect(alice).buyTokens(tokensToBuy, { value: totalPrice });
+    await usdt.connect(alice).approve(presale.getAddress(), totalPrice);
+    await presale.connect(alice).buyTokens(tokensToBuy);
 
     // close presale
-    const previousBalance = await ethers.provider.getBalance(owner.address);
+    const previousBalance = await usdt.balanceOf(owner.address);
     await presale.adminClosePresale();
     expect(await presale.isOpen()).to.be.false;
 
     // check owner ETH balance
     const ownerBalanceDiff =
-      (await ethers.provider.getBalance(owner.address)) - previousBalance;
-    expect(ownerBalanceDiff).to.be.gt(0);
+      (await usdt.balanceOf(owner.address)) - previousBalance;
+    expect(ownerBalanceDiff).to.be.equal(totalPrice);
 
     // check owner got the remaining tokens
     const remainingEkoke = PRESALE_CAP - SOFT_CAP;
@@ -169,14 +205,15 @@ describe("EkokePresale", () => {
   });
 
   it("Should refund tokens after presale is failed", async () => {
-    const { presale, alice } = deploy;
+    const { presale, alice, usdt } = deploy;
 
     // buy soft cap tokens, so we succeed
     const tokenPrice = await presale.tokenPrice();
-    const tokensToBuy = 100_000;
+    const tokensToBuy = 100;
     const totalPrice = tokenPrice * BigInt(tokensToBuy);
 
-    await presale.connect(alice).buyTokens(tokensToBuy, { value: totalPrice });
+    await usdt.connect(alice).approve(presale.getAddress(), totalPrice);
+    await presale.connect(alice).buyTokens(tokensToBuy);
 
     // close presale
     await presale.adminClosePresale();
@@ -188,19 +225,19 @@ describe("EkokePresale", () => {
       "EkokePresale: Presale failed"
     );
 
-    const ethBalanceBefore = await ethers.provider.getBalance(alice.address);
+    const usdtBalanceBefore = await usdt.balanceOf(alice.address);
 
     // refund
     await presale.connect(alice).refund();
 
     // check alice ETH balance
-    const ethBalanceDiff =
-      (await ethers.provider.getBalance(alice.address)) - ethBalanceBefore;
-    expect(ethBalanceDiff).to.be.gt(0);
+    const usdBalanceDiff =
+      (await usdt.balanceOf(alice.address)) - usdtBalanceBefore;
+    expect(usdBalanceDiff).to.be.equal(totalPrice);
 
     // should not allow to buy
-    await expect(
-      presale.buyTokens(1_000, { value: totalPrice })
-    ).to.be.revertedWith("EkokePresale: Presale is closed");
+    await expect(presale.buyTokens(1_000)).to.be.revertedWith(
+      "EkokePresale: Presale is closed"
+    );
   });
 });

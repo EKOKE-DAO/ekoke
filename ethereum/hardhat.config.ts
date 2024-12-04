@@ -70,6 +70,7 @@ const CONTRACT_EKOKE = "ekoke";
 const CONTRACT_EKOKE_PRESALE = "ekoke-presale";
 const CONTRACT_MARKETPLACE = "marketplace";
 const CONTRACT_REWARD_POOL = "reward-pool";
+const CONTRAT_USD_ERC20 = "usdt";
 
 task("deploy", "Deploy contracts")
   .addPositionalParam(
@@ -93,7 +94,7 @@ task("deploy", "Deploy contracts")
         break;
 
       case CONTRACT_EKOKE_PRESALE:
-        await deployEkokePresale(taskArgs.ekoke);
+        await deployEkokePresale(taskArgs.ekoke, taskArgs.usderc20);
         break;
 
       case CONTRACT_MARKETPLACE:
@@ -109,6 +110,10 @@ task("deploy", "Deploy contracts")
           deferred: taskArgs.deferred,
           ekoke: taskArgs.ekoke,
         });
+        break;
+
+      case CONTRAT_USD_ERC20:
+        await deployUsdErc20();
         break;
 
       default:
@@ -135,10 +140,10 @@ async function deployEkoke() {
   console.log(`EKOKE deployed to ${address}`);
 }
 
-async function deployEkokePresale(ekoke: string) {
+async function deployEkokePresale(ekoke: string, usdErc20: string) {
   const hardhat = require("hardhat");
   const Contract = await hardhat.ethers.getContractFactory("EkokePresale");
-  const contract = await Contract.deploy(OWNER_ADDRESS!, ekoke);
+  const contract = await Contract.deploy(OWNER_ADDRESS!, ekoke, usdErc20);
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   console.log(`EKOKE-presale deployed to ${address}`);
@@ -169,4 +174,13 @@ async function deployRewardPool(args: RewardPoolArgs) {
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   console.log(`Reward pool deployed to ${address}`);
+}
+
+async function deployUsdErc20() {
+  const hardhat = require("hardhat");
+  const Contract = await hardhat.ethers.getContractFactory("TestERC20");
+  const contract = await Contract.deploy("USDT", "USDT", 6);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  console.log(`USDT deployed to ${address}`);
 }

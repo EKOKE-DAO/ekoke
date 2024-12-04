@@ -8,21 +8,21 @@ import Button from '../../../reusable/Button';
 import EkokePresaleClient from '../../../../web3/EkokePresaleClient';
 import { convertToHumanReadable } from '../../../../utils/format';
 
-const ETH_DECIMALS = 18;
+const USDT_DECIMALS = 6;
 
 const Buy = () => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
   const [pendingTx, setPendingTx] = React.useState<boolean>(false);
   const [amount, setAmount] = React.useState<string>('');
   const [tokenPrice, setTokenPrice] = React.useState<bigint>();
-  const [ethPrice, setEthPrice] = React.useState<bigint>();
+  const [usdPrice, setUsdPrice] = React.useState<bigint>();
 
   const onAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const amount = event.target.value;
     setAmount(amount);
     if (tokenPrice) {
-      const ethPrice = BigInt(amount) * tokenPrice;
-      setEthPrice(ethPrice);
+      const currentUsdPrice = BigInt(amount) * tokenPrice;
+      setUsdPrice(currentUsdPrice);
     }
   };
 
@@ -40,16 +40,19 @@ const Buy = () => {
 
     setPendingTx(true);
 
-    const amoutNumber = Number(amount);
+    const amoutNumber: number = Number(amount);
     const tokenPriceNumber: number = Number(tokenPrice);
-    const ethPriceNumber = amoutNumber * tokenPriceNumber;
 
     client
-      .buyTokens(amoutNumber, ethPriceNumber)
+      .buyTokens(amoutNumber)
       .then(() => {
-        alert(`Bought ${amoutNumber} tokens for ${ethPriceNumber} ETH`);
+        alert(
+          `Bought ${amoutNumber} tokens for ${
+            amoutNumber * tokenPriceNumber
+          } USD`,
+        );
         setAmount('');
-        setEthPrice(undefined);
+        setUsdPrice(undefined);
         setPendingTx(false);
       })
       .catch((error) => {
@@ -75,11 +78,15 @@ const Buy = () => {
     <Container.FlexCols>
       <span className="text-text">
         Current token price:{' '}
-        {tokenPrice && convertToHumanReadable(tokenPrice, ETH_DECIMALS)} ETH
+        {tokenPrice !== undefined &&
+          convertToHumanReadable(tokenPrice, USDT_DECIMALS, true)}{' '}
+        USDT
       </span>
       <span className="text-text">
-        You pay: {ethPrice && convertToHumanReadable(ethPrice, ETH_DECIMALS)}{' '}
-        ETH
+        You pay:{' '}
+        {usdPrice !== undefined &&
+          convertToHumanReadable(usdPrice, USDT_DECIMALS, true)}{' '}
+        USDT
       </span>
       <Input.Input
         id="admin-mint-amount"
@@ -89,7 +96,7 @@ const Buy = () => {
         type="number"
       />
       <Button.Primary disabled={pendingTx} onClick={onBuy}>
-        Mint tokens
+        Buy tokens
       </Button.Primary>
     </Container.FlexCols>
   );

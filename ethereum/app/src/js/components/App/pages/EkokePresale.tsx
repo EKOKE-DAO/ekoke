@@ -27,28 +27,30 @@ const EkokePresale = () => {
 
     client.presaleCap().then((value) => {
       setPresaleCapValue(value);
-      setPresaleCap(convertToHumanReadable(value));
+      setPresaleCap(convertToHumanReadable(value, 8, true));
     });
 
     client.tokensSold().then((value) => {
-      setTokensSold(convertToHumanReadable(value));
+      setTokensSold(convertToHumanReadable(value, 8, true));
     });
 
     client.balanceOf(account).then((accountBalance) => {
-      setBalance(convertToHumanReadable(accountBalance));
+      setBalance(convertToHumanReadable(accountBalance, 8, true));
     });
 
     client.softCap().then((value) => {
-      setSoftCap(convertToHumanReadable(value));
+      setSoftCap(convertToHumanReadable(value, 8, true));
     });
   }, []);
 
   return (
     <Container.FlexCols className="gap-4">
       <Container.Container>
-        <span className="block">Presale cap: {presaleCap?.toString()}</span>
         <span className="block">
-          Tokens Sold: {tokensSold}/{softCap?.toString()}
+          Presale Maximum cap: {presaleCap?.toString()}
+        </span>
+        <span className="block">
+          Tokens Sold: {tokensSold}/{softCap?.toString()} (soft cap)
         </span>
         <span className="block">
           Balance: <strong>{balance?.toString()}</strong> EKOKE

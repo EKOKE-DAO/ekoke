@@ -24,11 +24,9 @@ export default class EkokePresaleClient {
     return contract.methods.adminClosePresale().send({ from: this.address });
   }
 
-  async buyTokens(amount: number, ethValue: number) {
+  async buyTokens(amount: number) {
     const contract = this.getContract();
-    return contract.methods
-      .buyTokens(amount)
-      .send({ from: this.address, value: ethValue.toString() });
+    return contract.methods.buyTokens(amount).send({ from: this.address });
   }
 
   async claimTokens() {
@@ -56,9 +54,9 @@ export default class EkokePresaleClient {
     return contract.methods.balanceOf(address).call();
   }
 
-  async ethInvested(address: string): Promise<bigint> {
+  async usdInvested(address: string): Promise<bigint> {
     const contract = this.getContract();
-    return contract.methods.ethInvested(address).call();
+    return contract.methods.usdInvested(address).call();
   }
 
   async tokenPrice(): Promise<bigint> {

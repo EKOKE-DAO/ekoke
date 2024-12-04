@@ -5,8 +5,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract EkokePresale is Ownable {
-    /// @notice Base price of 1 EKOKE token in gwei
-    uint256 private baseTokenPrice = 1 gwei;
+    /// @notice Base price of 1 EKOKE token in USDT (6 decimals)
+    uint256 private baseTokenPrice = 1_000_000; // 1 USDT
 
     /// @notice The soft cap of the presale in EKOKE tokens
     uint256 public constant SOFT_CAP = 2_000_000_000_000; // 20_000 EKOKE
@@ -18,11 +18,14 @@ contract EkokePresale is Ownable {
     /// @notice The address of the EKOKE token
     address public ekoke;
 
+    /// @notice The address of the USDT token
+    address public usdt;
+
     /// @notice The amount of EKOKE tokens reserved for the presale
     mapping(address => uint256) private presaleAmounts;
 
-    /// @notice The amount of ETH paid by an account (used for refunds)
-    mapping(address => uint256) private ethPaid;
+    /// @notice The amount of USD paid by an account (used for refunds)
+    mapping(address => uint256) private usdPaid;
 
     /// @notice The amount of EKOKE tokens sold in the presale
     uint256 public tokensSold = 0;
@@ -66,9 +69,11 @@ contract EkokePresale is Ownable {
         _;
     }
 
-    constructor(address _owner, address _ekoke) Ownable(_owner) {
+    constructor(address _owner, address _ekoke, address _usdt) Ownable(_owner) {
         require(_ekoke != address(0), "EkokePresale: EKOKE address is zero");
+        require(_usdt != address(0), "EkokePresale: USDT address is zero");
         ekoke = _ekoke;
+        usdt = _usdt;
     }
 
     /// @notice Get whether the presale is open
@@ -83,7 +88,7 @@ contract EkokePresale is Ownable {
         return presaleFailed;
     }
 
-    /// @notice Get the current token price
+    /// @notice Get the current token price for 1$EKOKE in USDT. 1 token = 100_000_000 EKOKE with decimals
     /// @dev token price is baseTokenPrice * steps, where a step is TOKEN_PRICE_STEP tokens sold
     function tokenPrice() public view returns (uint256) {
         // get steps
@@ -100,39 +105,39 @@ contract EkokePresale is Ownable {
         return presaleAmounts[_account];
     }
 
-    /// @notice Get the amount of ETH invested by an account
+    /// @notice Get the amount of USD invested by an account
     /// @param _account The account to get the balance of
-    /// @return invested The amount of ETH invested by the account
-    function ethInvested(
+    /// @return invested The amount of USD invested by the account
+    function usdInvested(
         address _account
     ) public view returns (uint256 invested) {
-        return ethPaid[_account];
+        return usdPaid[_account];
     }
 
-    /// @notice Buy presale tokens
+    /// @notice Buy presale tokens. The amount of tokens is 100_000_000 EKOKE with decimals, because you can't buy less than 1 token
     /// @param _amount The amount of tokens to buy
-    function buyTokens(uint256 _amount) external payable onlyPresaleOpen {
+    function buyTokens(uint256 _amount) external onlyPresaleOpen {
+        uint256 realAmount = _amount * 100_000_000;
+
         uint256 remainingPresaleBalance = presaleBalance();
         require(
-            remainingPresaleBalance >= _amount,
+            remainingPresaleBalance >= realAmount,
             "EkokePresale: Not enough tokens in the presale"
         );
 
         uint256 currentTokenPrice = tokenPrice();
-        uint256 ethToPay = _amount * currentTokenPrice;
+        uint256 usdToPay = _amount * currentTokenPrice; // NOTE: price must be calculated against the integer amount
 
-        require(
-            msg.value >= ethToPay,
-            "EkokePresale: Not enough ETH to buy tokens"
-        );
+        // check allowance and transfer USDT
+        IERC20(usdt).transferFrom(msg.sender, address(this), usdToPay);
 
         // set the amount of tokens bought by the account and increase the total amount of tokens sold
-        presaleAmounts[msg.sender] += _amount;
-        tokensSold += _amount;
-        // increase the amount of ETH paid by the account
-        ethPaid[msg.sender] += msg.value;
+        presaleAmounts[msg.sender] += realAmount;
+        tokensSold += realAmount;
+        // increase the amount of USD paid by the account
+        usdPaid[msg.sender] += usdToPay;
 
-        emit TokensSold(msg.sender, _amount);
+        emit TokensSold(msg.sender, realAmount);
     }
 
     /// @notice Claims the EKOKE tokens bought in the presale
@@ -150,12 +155,12 @@ contract EkokePresale is Ownable {
     function refund() external onlyPresaleFailed {
         uint256 amount = presaleAmounts[msg.sender];
         require(amount > 0, "EkokePresale: No tokens to refund");
-        uint256 refundAmount = ethPaid[msg.sender];
-        require(refundAmount > 0, "EkokePresale: No ETH to refund");
+        uint256 refundAmount = usdPaid[msg.sender];
+        require(refundAmount > 0, "EkokePresale: No USD to refund");
 
         presaleAmounts[msg.sender] = 0;
-        ethPaid[msg.sender] = 0;
-        payable(msg.sender).transfer(refundAmount);
+        usdPaid[msg.sender] = 0;
+        IERC20(usdt).transfer(msg.sender, refundAmount);
 
         emit TokensRefunded(msg.sender, refundAmount);
     }
@@ -167,8 +172,11 @@ contract EkokePresale is Ownable {
             presaleFailed = true;
         } else {
             presaleFailed = false;
-            // in case of success, transfer ETH balance to the owner
-            payable(owner()).transfer(address(this).balance);
+            // in case of success, transfer USDT balance to the owner
+            uint256 usdtBalance = IERC20(usdt).balanceOf(address(this));
+            if (usdtBalance > 0) {
+                IERC20(usdt).transfer(owner(), usdtBalance);
+            }
             // send also unsold tokens to the owner
             uint256 remainingPresaleBalance = presaleCap - tokensSold;
             if (remainingPresaleBalance > 0) {

@@ -7,6 +7,7 @@ import Container from '../../reusable/Container';
 import AdminMint from './Ekoke/AdminMint';
 import AdminRewardPool from './Ekoke/AdminRewardPool';
 import { convertToHumanReadable } from '../../../utils/format';
+import BalanceOf from './Ekoke/BalanceOf';
 
 const Ekoke = () => {
   const { account, ethereum, chainId } = useConnectedMetaMask();
@@ -59,6 +60,7 @@ const Ekoke = () => {
       <Container.FlexCols className="gap-8 w-3/6">
         <AdminMint />
         <AdminRewardPool />
+        <BalanceOf />
       </Container.FlexCols>
     </Container.FlexCols>
   );
