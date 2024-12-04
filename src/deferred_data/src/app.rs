@@ -145,7 +145,7 @@ impl DeferredData {
         contract_id: ID,
         document: ContractDocument,
         data: Vec<u8>,
-    ) -> DeferredDataResult<ID> {
+    ) -> DeferredDataResult<u64> {
         Inspect::inspect_modify_contract(caller(), &contract_id)?;
 
         ContractStorage::upload_contract_document(&contract_id, document, data)
@@ -154,7 +154,7 @@ impl DeferredData {
     /// Get a contract document
     pub fn get_contract_document(
         contract_id: ID,
-        document_id: ID,
+        document_id: u64,
         signature: Option<SignedMessage>,
     ) -> DeferredDataResult<ContractDocumentData> {
         // check if we can access document
@@ -162,13 +162,14 @@ impl DeferredData {
             DeferredDataError::Contract(DataContractError::ContractNotFound(contract_id.clone())),
         )?;
 
-        let document_props =
-            contract
-                .documents
-                .get(&document_id)
-                .ok_or(DeferredDataError::Contract(
-                    DataContractError::DocumentNotFound(document_id.clone()),
-                ))?;
+        let document_props = contract
+            .documents
+            .iter()
+            .find(|(id, _)| id == &document_id)
+            .map(|(_, props)| props)
+            .ok_or(DeferredDataError::Contract(
+                DataContractError::DocumentNotFound(document_id),
+            ))?;
 
         // get caller access level
         let access_level = if contract
@@ -186,7 +187,7 @@ impl DeferredData {
 
         // check if we have access
         if document_props.access_list.contains(&access_level) {
-            ContractStorage::get_contract_document(&contract_id, &document_id)
+            ContractStorage::get_contract_document(&contract_id, document_id)
         } else {
             Err(DeferredDataError::Unauthorized)
         }

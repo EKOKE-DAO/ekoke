@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 
-use candid::Nat;
 use did::deferred::{Contract, DataContractError, DeferredDataError, DeferredDataResult};
 use did::{StorableNat, ID};
 use ic_stable_structures::memory_manager::VirtualMemory;
@@ -23,12 +22,12 @@ thread_local! {
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(CONTRACTS_MEMORY_ID))));
 
     /// Documents storage storage (assoc between ID and document data)
-    static DOCUMENTS: RefCell<BTreeMap<StorableNat, Vec<u8>, VirtualMemory<DefaultMemoryImpl>>> =
+    static DOCUMENTS: RefCell<BTreeMap<u64, Vec<u8>, VirtualMemory<DefaultMemoryImpl>>> =
         RefCell::new(BTreeMap::new(MEMORY_MANAGER.with(|mm| mm.get(DOCUMENTS_MEMORY_ID))));
 
     /// Next document ID
-    static NEXT_DOCUMENT_ID: RefCell<StableCell<StorableNat, VirtualMemory<DefaultMemoryImpl>>> =
-        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(NEXT_DOCUMENT_ID_MEMORY_ID)), Nat::from(0u64).into()).unwrap()
+    static NEXT_DOCUMENT_ID: RefCell<StableCell<u64, VirtualMemory<DefaultMemoryImpl>>> =
+        RefCell::new(StableCell::new(MEMORY_MANAGER.with(|mm| mm.get(NEXT_DOCUMENT_ID_MEMORY_ID)), 0u64).unwrap()
     );
 
 }

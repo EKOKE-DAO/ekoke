@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use candid::Principal;
 use did::deferred::{Agency, Contract, GenericValue, RestrictedProperty, RestrictionLevel, Seller};
 use did::H160;
@@ -28,7 +26,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
                 value: GenericValue::TextContent("Via Roma 123".to_string()),
             },
         )],
-        documents: HashMap::default(),
+        documents: vec![],
         agency: Some(mock_agency()),
         expiration: "2078-01-01".to_string(),
         closed: false,

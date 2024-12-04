@@ -88,7 +88,7 @@ impl HttpApi {
     fn get_contract_document(url: Url, contract_id: u64, document_id: u64) -> HttpResponse {
         let signed_message = Self::signed_message(url);
 
-        DeferredData::get_contract_document(contract_id.into(), document_id.into(), signed_message)
+        DeferredData::get_contract_document(contract_id.into(), document_id, signed_message)
             .map(HttpResponse::ok)
             .unwrap_or_else(|_| HttpResponse::not_found())
     }

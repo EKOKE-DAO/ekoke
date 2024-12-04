@@ -73,7 +73,7 @@ pub fn get_contracts() -> Vec<ID> {
 #[candid_method(query)]
 pub fn get_contract_document(
     contract_id: ID,
-    document_id: ID,
+    document_id: u64,
 ) -> DeferredDataResult<ContractDocumentData> {
     DeferredData::get_contract_document(contract_id, document_id, None)
 }
@@ -84,7 +84,7 @@ pub fn upload_contract_document(
     contract_id: ID,
     document: ContractDocument,
     data: Vec<u8>,
-) -> DeferredDataResult<ID> {
+) -> DeferredDataResult<u64> {
     DeferredData::upload_contract_document(contract_id, document, data)
 }
 

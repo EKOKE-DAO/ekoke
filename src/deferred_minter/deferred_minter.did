@@ -44,7 +44,7 @@ type ContractError = variant {
   BadContractProperty;
 };
 type ContractError_1 = variant {
-  DocumentNotFound : nat;
+  DocumentNotFound : nat64;
   ContractNotFound : nat;
   BadContractProperty;
 };
