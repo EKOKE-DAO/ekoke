@@ -1,10 +1,21 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { RewardPool, Ekoke, Deferred, Marketplace } from "../typechain-types";
+import {
+  RewardPool,
+  Ekoke,
+  Deferred,
+  Marketplace,
+  TestERC20,
+} from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const EKOKE_REWARD = 1000;
 const USD_PRICE = 100;
+const USDT_DECIMALS = 6;
+
+const usdToUsdt = (usd: number) => usd * 10 ** USDT_DECIMALS;
+
+const INITIAL_USDT_BALANCE = usdToUsdt(1000);
 
 describe("RewardPool", () => {
   interface Contract {
@@ -12,7 +23,7 @@ describe("RewardPool", () => {
     deferred: Deferred;
     rewardPool: RewardPool;
     ekoke: Ekoke;
-    usdt: Ekoke;
+    usdt: TestERC20;
     owner: SignerWithAddress;
     seller: SignerWithAddress;
     buyer: SignerWithAddress;
@@ -29,11 +40,15 @@ describe("RewardPool", () => {
     const ekokeContract = await ethers.deployContract("Ekoke", [owner.address]);
     const ekoke = ekokeContract as unknown as Ekoke;
 
-    const usdtContract = await ethers.deployContract("Ekoke", [owner.address]);
-    const usdt = usdtContract as unknown as Ekoke;
+    const usdtContract = await ethers.deployContract("TestERC20", [
+      "USDT",
+      "USDT",
+      USDT_DECIMALS,
+    ]);
+    const usdt = usdtContract as unknown as TestERC20;
     // mint 1000 USDT to alice
-    await usdt.adminMint(buyer.address, 1000);
-    await usdt.adminMint(thirdParty.address, 1000);
+    await usdt.mint(buyer.address, INITIAL_USDT_BALANCE);
+    await usdt.mint(thirdParty.address, INITIAL_USDT_BALANCE);
 
     const deferredContract = await ethers.deployContract("Deferred", [
       owner.address,
@@ -98,14 +113,18 @@ describe("RewardPool", () => {
 
     const tokenId = 0;
     // give allowance to marketplace
-    await usdt.connect(thirdParty).approve(marketplace.getAddress(), USD_PRICE);
+    await usdt
+      .connect(thirdParty)
+      .approve(marketplace.getAddress(), usdToUsdt(USD_PRICE));
     // buy
     await marketplace.connect(thirdParty).buyToken(tokenId);
 
     // USDT balance of buyer
-    expect(await usdt.balanceOf(thirdParty.address)).to.equal(1000 - USD_PRICE);
+    expect(await usdt.balanceOf(thirdParty.address)).to.equal(
+      INITIAL_USDT_BALANCE - usdToUsdt(USD_PRICE)
+    );
     // USDT balance of seller
-    expect(await usdt.balanceOf(seller.address)).to.equal(USD_PRICE);
+    expect(await usdt.balanceOf(seller.address)).to.equal(usdToUsdt(USD_PRICE));
 
     // check NFT has been transferred
     expect(await deferred.ownerOf(tokenId)).to.equal(thirdParty.address);
@@ -115,25 +134,30 @@ describe("RewardPool", () => {
   });
 
   it("Should buy a NFT with USDT as contract buyer", async () => {
-    const { marketplace, buyer, seller, deferred, ekoke, usdt } = deploy;
+    const { marketplace, buyer, usdt, seller, deferred, ekoke } = deploy;
 
     const tokenId = 0;
     const interest = 10;
     // give allowance to marketplace
     await usdt
       .connect(buyer)
-      .approve(marketplace.getAddress(), USD_PRICE + interest);
+      .approve(
+        marketplace.getAddress(),
+        usdToUsdt(USD_PRICE) + usdToUsdt(interest)
+      );
     // buy
     await marketplace.connect(buyer).buyToken(tokenId);
 
     // USDT balance of buyer
     expect(await usdt.balanceOf(buyer.address)).to.equal(
-      1000 - USD_PRICE - interest
+      INITIAL_USDT_BALANCE - usdToUsdt(USD_PRICE) - usdToUsdt(interest)
     );
     // USDT balance of seller
-    expect(await usdt.balanceOf(seller.address)).to.equal(USD_PRICE);
+    expect(await usdt.balanceOf(seller.address)).to.equal(usdToUsdt(USD_PRICE));
     // USDT balance of marketplace
-    expect(await usdt.balanceOf(marketplace.getAddress())).to.equal(interest);
+    expect(await usdt.balanceOf(marketplace.getAddress())).to.equal(
+      usdToUsdt(interest)
+    );
 
     // check NFT has been transferred
     expect(await deferred.ownerOf(tokenId)).to.equal(buyer.address);
@@ -150,7 +174,7 @@ describe("RewardPool", () => {
     // give allowance to marketplace
     expect(
       await marketplace.connect(buyer).tokenPriceForCaller(tokenId)
-    ).to.equal(USD_PRICE + (USD_PRICE * interest) / 100);
+    ).to.equal(usdToUsdt(USD_PRICE) + (usdToUsdt(USD_PRICE) * interest) / 100);
   });
 
   it("Should get token price as third-party", async () => {
@@ -160,7 +184,7 @@ describe("RewardPool", () => {
     // give allowance to marketplace
     expect(
       await marketplace.connect(thirdParty).tokenPriceForCaller(tokenId)
-    ).to.equal(USD_PRICE);
+    ).to.equal(usdToUsdt(USD_PRICE));
   });
 
   it("Should set interest rate", async () => {
