@@ -11,6 +11,9 @@ contract Marketplace is Ownable {
     /// @notice The address of the USD ERC20 token
     address public usdErc20;
 
+    /// @notice The decimals of the USD ERC20 token
+    uint8 private usdErc20Decimals;
+
     /// @notice The address of the EKOKE token
     address private ekoke;
 
@@ -53,6 +56,9 @@ contract Marketplace is Ownable {
         usdErc20 = _usdErc20;
         ekoke = _ekoke;
         deferred = _deferred;
+
+        // get decimals of the USD ERC20 token
+        usdErc20Decimals = ERC20(usdErc20).decimals();
     }
 
     /// @notice Set the address of the reward pool
@@ -105,23 +111,22 @@ contract Marketplace is Ownable {
             sellContract,
             _isContractBuyer
         );
+        uint256 tokenPriceUsdErc20 = toValueWithDecimals(
+            sellContract.tokenPriceUsd
+        );
         // check allowance on the currency token
         require(
             currency.allowance(msg.sender, address(this)) >= requiredAllowance,
             "Marketplace: Insufficient allowance"
         );
         // transfer USD from the `tokenBuyer` to the `tokenSeller`
-        currency.transferFrom(
-            tokenBuyer,
-            tokenSeller,
-            sellContract.tokenPriceUsd
-        );
+        currency.transferFrom(tokenBuyer, tokenSeller, tokenPriceUsdErc20);
         // if the buyer is a contract buyer, transfer the interests to the marketplace
         if (_isContractBuyer) {
             currency.transferFrom(
                 tokenBuyer,
                 address(this),
-                interests(sellContract.tokenPriceUsd)
+                interests(tokenPriceUsdErc20)
             );
         }
 
@@ -145,7 +150,7 @@ contract Marketplace is Ownable {
             tokenBuyer,
             tokenSeller,
             _tokenId,
-            sellContract.tokenPriceUsd,
+            tokenPriceUsdErc20,
             requiredAllowance
         );
     }
@@ -188,10 +193,24 @@ contract Marketplace is Ownable {
         Deferred.SellContract memory _contract,
         bool _isContractBuyer
     ) internal view returns (uint256) {
+        // get USD price with decimals (NOTE: `tokenPriceUsd` is integer part of USD, not in decimals)
+        uint256 tokenPriceUsdERC20 = toValueWithDecimals(
+            _contract.tokenPriceUsd
+        );
+
         return
             _isContractBuyer
-                ? _contract.tokenPriceUsd + interests(_contract.tokenPriceUsd)
-                : _contract.tokenPriceUsd;
+                ? tokenPriceUsdERC20 + interests(tokenPriceUsdERC20)
+                : tokenPriceUsdERC20;
+    }
+
+    /// @notice Convert the value to the value with decimals
+    /// @param _value The value to convert
+    /// @return _valueWithDecimals The value with decimals
+    function toValueWithDecimals(
+        uint256 _value
+    ) internal view returns (uint256 _valueWithDecimals) {
+        return _value * (10 ** usdErc20Decimals);
     }
 
     /// @notice Get the interests to pay for the token
