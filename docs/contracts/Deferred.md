@@ -55,4 +55,11 @@ The tokens are eventually phyisically minted when they are first bought. So when
 
 It's important to know that **Deferred ERC721 can't be transferred by the token owner**, but only by the [Marketplace](./Marketplace.md). The marketplace is always allowed to transfer tokens, while the user is never allowed to. It's neither allowed to call `approve` on the contract.
 
+The Marketplace calls the `transferToken` which will transfer the next `token` for the provided contract id for the buyer to get. This means that:
+
+1. If the buyer is the contract buyer, this will get the next token id owned by the first third-party investor, or if none the contract seller.
+2. If the buyer is a third-party investor, this will get the next token id owned by the contract seller.
+
+Others methods like `transferFrom` or `safeTransferFrom` are disabled
+
 This is of course done to prevent users from selling the tokens breaking their intrisic price, defined at the contract creation. The **token price will never change**.

@@ -368,6 +368,44 @@ export const ABI = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+    ],
+    name: 'contractCompleted',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'completed',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+    ],
+    name: 'contractProgress',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '_progress',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: 'uint256',
@@ -462,6 +500,89 @@ export const ABI = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getContract',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'string',
+            name: 'metadataUri',
+            type: 'string',
+          },
+          {
+            components: [
+              {
+                internalType: 'address',
+                name: 'seller',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'tokenFromId',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'tokenToId',
+                type: 'uint256',
+              },
+            ],
+            internalType: 'struct Deferred.Seller[]',
+            name: 'sellers',
+            type: 'tuple[]',
+          },
+          {
+            internalType: 'address[]',
+            name: 'buyers',
+            type: 'address[]',
+          },
+          {
+            internalType: 'uint256',
+            name: 'ekokeReward',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'tokenPriceUsd',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'tokenFromId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'tokenToId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'closed',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'created',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct Deferred.SellContract',
+        name: '_sellContract',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'owner',
         type: 'address',
@@ -504,6 +625,49 @@ export const ABI = [
         internalType: 'string',
         name: '',
         type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+    ],
+    name: 'nextTokenIdToBuy',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '_nextTokenId',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_caller',
+        type: 'address',
+      },
+    ],
+    name: 'nextTokenIdToBuyFor',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -588,28 +752,28 @@ export const ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'from',
+        name: '',
         type: 'address',
       },
       {
         internalType: 'address',
-        name: 'to',
+        name: '',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: 'tokenId',
+        name: '',
         type: 'uint256',
       },
       {
         internalType: 'bytes',
-        name: 'data',
+        name: '',
         type: 'bytes',
       },
     ],
     name: 'safeTransferFrom',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'pure',
     type: 'function',
   },
   {
@@ -787,23 +951,23 @@ export const ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'from',
+        name: '',
         type: 'address',
       },
       {
         internalType: 'address',
-        name: 'to',
+        name: '',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: 'tokenId',
+        name: '',
         type: 'uint256',
       },
     ],
     name: 'transferFrom',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'pure',
     type: 'function',
   },
   {
@@ -816,6 +980,35 @@ export const ABI = [
     ],
     name: 'transferOwnership',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'transferToken',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },

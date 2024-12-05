@@ -6,7 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {RewardPool} from "./RewardPool.sol";
 
 // Uncomment this line to use console.log
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 contract Deferred is ERC721, Ownable {
     struct SellerRequest {
@@ -72,6 +72,15 @@ contract Deferred is ERC721, Ownable {
     /// @dev lazy balances
     mapping(address => uint256) private lazyBalances;
 
+    /// @dev Next token id to buy for buyer for a sell contract
+    mapping(uint256 => uint256) private nextTokenIdForBuyer;
+
+    /// @dev Next token id to buy for a third party for a sell contract
+    mapping(uint256 => uint256) private nextTokenIdForThirdParty;
+
+    /// @dev Tokens for a contract already bought by a buyer
+    mapping(uint256 => uint256) private tokensBoughtByBuyer;
+
     /// @dev list of sell contracts
     uint256[] private sellContractIds;
 
@@ -97,6 +106,14 @@ contract Deferred is ERC721, Ownable {
         require(
             msg.sender == deferredMinter && deferredMinter != address(0),
             "Deferred: caller is not the minter"
+        );
+        _;
+    }
+
+    modifier onlyMarketplace() {
+        require(
+            msg.sender == marketplace && marketplace != address(0),
+            "Deferred: caller is not the marketplace"
         );
         _;
     }
@@ -208,6 +225,13 @@ contract Deferred is ERC721, Ownable {
             sellContract.sellers.push(sellers[i]);
         }
 
+        // insert next token id for buyers
+        nextTokenIdForBuyer[contractId] = tokenFromId;
+        // insert next token id for third party
+        nextTokenIdForThirdParty[contractId] = tokenFromId;
+        // init tokensBoughtByBuyer
+        tokensBoughtByBuyer[contractId] = 0;
+
         nextTokenId += _request.tokensAmount;
         // add contract id to the list
         sellContractIds.push(contractId);
@@ -233,6 +257,77 @@ contract Deferred is ERC721, Ownable {
         emit ContractClosed(_contractId);
     }
 
+    /// @notice Get the next token id to buy for a sell contract for the caller
+    /// @param _contractId The id of the contract
+    /// @param _caller The address of the caller
+    /// @return _nextTokenId The next token id to buy
+    function nextTokenIdToBuyFor(
+        uint256 _contractId,
+        address _caller
+    ) public view returns (uint256) {
+        // get contract
+        SellContract memory sellContract = sellContracts[_contractId];
+        require(sellContract.created, "Deferred: contract does not exist");
+
+        uint256 _nextTokenId = 0;
+        bool isBuyer = false;
+
+        // check if caller is a buyer
+        for (uint256 i = 0; i < sellContract.buyers.length; i++) {
+            if (_caller == sellContract.buyers[i]) {
+                isBuyer = true;
+                break;
+            }
+        }
+
+        if (isBuyer) {
+            // return next token id for buyer
+            _nextTokenId = nextTokenIdForBuyer[_contractId];
+        } else {
+            // return next token id for third party
+            _nextTokenId = nextTokenIdForThirdParty[_contractId];
+        }
+
+        // if next token id is greater than the last token id, return 0
+        if (_nextTokenId > sellContract.tokenToId) {
+            revert("Deferred: no more tokens to buy");
+        }
+
+        return _nextTokenId;
+    }
+
+    /// @notice Get the next token id to buy for a sell contract for the caller
+    /// @param _contractId The id of the contract
+    /// @return _nextTokenId The next token id to buy
+    function nextTokenIdToBuy(
+        uint256 _contractId
+    ) public view returns (uint256 _nextTokenId) {
+        return nextTokenIdToBuyFor(_contractId, msg.sender);
+    }
+
+    /// @notice tells whether all contract tokens have been bought by the buyers
+    /// @param _contractId The id of the contract
+    /// @return completed True if all tokens have been bought
+    function contractCompleted(
+        uint256 _contractId
+    ) public view returns (bool completed) {
+        SellContract memory sellContract = sellContracts[_contractId];
+        require(sellContract.created, "Deferred: contract does not exist");
+
+        return
+            tokensBoughtByBuyer[_contractId] ==
+            sellContract.tokenToId - sellContract.tokenFromId + 1;
+    }
+
+    /// @notice Get the progress of a contract
+    /// @param _contractId The id of the contract
+    /// @return _progress The progress of the contract
+    function contractProgress(
+        uint256 _contractId
+    ) public view returns (uint256 _progress) {
+        return tokensBoughtByBuyer[_contractId];
+    }
+
     // ERC721 overrides
 
     /// @notice Get balance of a token owner
@@ -256,32 +351,76 @@ contract Deferred is ERC721, Ownable {
         return super.ownerOf(tokenId);
     }
 
-    /// @notice Transfer a token from an address to another
-    /// @dev This method is called by the marketplace
-    /// @param from The address of the token owner
-    /// @param to The address of the token receiver
-    /// @param tokenId The id of the token
-    /// @param data idk
-    function safeTransferFrom(
+    /// @notice Get the contract by id
+    /// @param _contractId The id of the contract
+    /// @return _sellContract The contract
+    function getContract(
+        uint256 _contractId
+    ) public view returns (SellContract memory _sellContract) {
+        SellContract memory sellContract = sellContracts[_contractId];
+        require(sellContract.created, "Deferred: contract does not exist");
+
+        return sellContract;
+    }
+
+    /// @notice Transfer the next token for a contract from the caller to another address
+    /// @dev Only the marketplace can call this method
+    /// @param _contractId The id of the contract
+    /// @param from The address of the sender
+    /// @param to The address of the receiver
+    /// @return _tokenId The id of the token
+    function transferToken(
+        uint256 _contractId,
         address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public override {
+        address to
+    ) public onlyMarketplace returns (uint256 _tokenId) {
+        // check caller is actually buying the next token
+        SellContract memory sellContract = sellContracts[_contractId];
+        // get next token id
+        uint256 tokenId = nextTokenIdToBuyFor(_contractId, to);
+
+        // check if from is the owner of the token
         require(
-            msg.sender == marketplace && marketplace != address(0),
-            "Deferred: caller is not the marketplace"
+            ownerOf(tokenId) == from,
+            "Deferred: from is not the owner of the token"
         );
+
+        bool isBuyer = false;
+        for (uint256 i = 0; i < sellContract.buyers.length; i++) {
+            if (to == sellContract.buyers[i]) {
+                isBuyer = true;
+                break;
+            }
+        }
+
+        // increment next token id based on the buyer
+        if (isBuyer) {
+            nextTokenIdForBuyer[_contractId] += 1;
+            tokensBoughtByBuyer[_contractId] += 1;
+            // increment third party if less or equal than buyer
+            if (
+                nextTokenIdForThirdParty[_contractId] <=
+                nextTokenIdForBuyer[_contractId]
+            ) {
+                nextTokenIdForThirdParty[_contractId] = nextTokenIdForBuyer[
+                    _contractId
+                ];
+            }
+        } else {
+            nextTokenIdForThirdParty[_contractId] += 1;
+        }
 
         // if is lazy minting, mint the token
         if (_isLazy(tokenId)) {
             _lazyMint(tokenId, to);
-            lazyBalances[from] -= 1;
+            if (lazyBalances[from] > 0) {
+                lazyBalances[from] -= 1;
+            }
 
             // approve the marketplace to transfer the token
             super.approve(marketplace, tokenId);
 
-            return;
+            return tokenId;
         }
 
         // if the token is not allowed to marketplace, approve it first
@@ -289,7 +428,10 @@ contract Deferred is ERC721, Ownable {
             super.approve(marketplace, tokenId);
         }
 
-        return super.safeTransferFrom(from, to, tokenId, data);
+        // transfer the token
+        super.transferFrom(from, to, tokenId);
+
+        return tokenId;
     }
 
     /// @notice Get the token uri
@@ -321,37 +463,20 @@ contract Deferred is ERC721, Ownable {
     }
 
     /// @notice Transfer a token from an address to another
-    /// @dev This method is called by the marketplace
-    /// @param from The address of the token owner
-    /// @param to The address of the token receiver
-    /// @param tokenId The id of the token
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override {
-        require(
-            msg.sender == marketplace && marketplace != address(0),
-            "Deferred: caller is not the marketplace"
-        );
+    /// @dev This method is not allowed. Only the marketplace can transfer a token using `transferToken`
+    function safeTransferFrom(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public pure override {
+        revert("Deferred: safeTransferFrom is not allowed");
+    }
 
-        // if is lazy minting, mint the token
-        if (_isLazy(tokenId)) {
-            _lazyMint(tokenId, to);
-            lazyBalances[from] -= 1;
-
-            // approve the marketplace to transfer the token
-            super.approve(marketplace, tokenId);
-
-            return;
-        }
-
-        // if the token is not allowed to marketplace, approve it first
-        if (super.getApproved(tokenId) != marketplace) {
-            super.approve(marketplace, tokenId);
-        }
-
-        super.transferFrom(from, to, tokenId);
+    /// @notice Transfer a token from an address to another
+    /// @dev This method is not allowed. Only the marketplace can transfer a token using `transferToken`
+    function transferFrom(address, address, uint256) public pure override {
+        revert("Deferred: transferFrom is not allowed");
     }
 
     /// @notice Approve a token to be transferred to another address
