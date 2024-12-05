@@ -1030,6 +1030,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '',
+  [ChainId.Sepolia]: '0xa5fF566D68E3521929F47447b975C4683618C35f',
   [ChainId.Hardhat]: '',
 };

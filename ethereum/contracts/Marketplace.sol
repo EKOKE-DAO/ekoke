@@ -15,13 +15,13 @@ contract Marketplace is Ownable {
     uint8 private usdErc20Decimals;
 
     /// @notice The address of the EKOKE token
-    address private ekoke;
+    address public ekoke;
 
     /// @notice The address of the Deferred ERC721 token
-    address private deferred;
+    address public deferred;
 
     /// @notice Reward pool address
-    address private rewardPool;
+    address public rewardPool;
 
     /// @notice The interest rate for the contract buyers. So buyers pay 10% more than the token price
     /// the extra 10% will be locked in the marketplace contract
