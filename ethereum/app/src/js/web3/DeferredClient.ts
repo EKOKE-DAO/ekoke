@@ -3,6 +3,16 @@ import Web3 from 'web3';
 import { ABI, CONTRACT_ADDRESS } from './contracts/Deferred';
 import { ChainId } from '../components/MetamaskConnect';
 
+interface CreateContractArgs {
+  contractId: bigint;
+  sellers: { seller: string; quota: number }[];
+  metadataUri: string;
+  buyers: string[];
+  ekokeReward: bigint;
+  tokenPriceUsd: bigint;
+  tokensAmount: bigint;
+}
+
 export default class DeferredClient {
   private address: string;
   private web3: Web3;
@@ -42,6 +52,11 @@ export default class DeferredClient {
       .send({ from: this.address });
   }
 
+  async createContract(args: CreateContractArgs) {
+    const contract = this.getContract();
+    return contract.methods.createContract(args).send({ from: this.address });
+  }
+
   async deferredMinter(): Promise<string> {
     const contract = this.getContract();
     return contract.methods.deferredMinter().call();
@@ -55,6 +70,11 @@ export default class DeferredClient {
   async rewardPool(): Promise<string> {
     const contract = this.getContract();
     return contract.methods.rewardPool().call();
+  }
+
+  async ownerOf(tokenId: number): Promise<string> {
+    const contract = this.getContract();
+    return contract.methods.ownerOf(tokenId).call();
   }
 
   private getContract() {

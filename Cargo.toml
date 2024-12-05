@@ -4,6 +4,7 @@ members = [
   "src/deferred_data",
   "src/deferred_minter",
   "src/did",
+  "src/repr",
   "integration-tests",
 ]
 resolver = "2"

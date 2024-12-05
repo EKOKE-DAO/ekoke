@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use candid::{Nat, Principal};
 use contract_id::ContractId;
 use data_client::DeferredDataClient;
@@ -321,7 +319,7 @@ impl DeferredMinter {
             currency: data.currency,
             properties: data.properties,
             restricted_properties: data.restricted_properties,
-            documents: HashMap::default(),
+            documents: vec![],
             agency,
             expiration: data.expiration,
             closed: false,

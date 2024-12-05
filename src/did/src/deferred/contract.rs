@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
@@ -91,7 +89,7 @@ pub type ContractProperties = Vec<(String, GenericValue)>;
 /// A list of restricted properties associated to a contract
 pub type RestrictedContractProperties = Vec<(String, RestrictedProperty)>;
 
-pub type ContractDocuments = HashMap<ID, ContractDocument>;
+pub type ContractDocuments = Vec<(u64, ContractDocument)>;
 
 /// A struct which defines a document associated to a contract
 ///

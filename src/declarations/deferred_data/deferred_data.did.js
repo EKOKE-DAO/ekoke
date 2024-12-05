@@ -20,7 +20,7 @@ export const idlFactory = ({ IDL }) => {
     'AnonymousMinter' : IDL.Null,
   });
   const ContractError = IDL.Variant({
-    'DocumentNotFound' : IDL.Nat,
+    'DocumentNotFound' : IDL.Nat64,
     'ContractNotFound' : IDL.Nat,
     'BadContractProperty' : IDL.Null,
   });
@@ -104,7 +104,7 @@ export const idlFactory = ({ IDL }) => {
   const Contract = IDL.Record({
     'id' : IDL.Nat,
     'closed' : IDL.Bool,
-    'documents' : IDL.Vec(IDL.Tuple(IDL.Nat, ContractDocument)),
+    'documents' : IDL.Vec(IDL.Tuple(IDL.Nat64, ContractDocument)),
     'value' : IDL.Nat64,
     'type' : ContractType,
     'agency' : IDL.Opt(Agency),
@@ -137,14 +137,14 @@ export const idlFactory = ({ IDL }) => {
     'upgrade' : IDL.Opt(IDL.Bool),
     'status_code' : IDL.Nat16,
   });
-  const Result_2 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DeferredDataError });
+  const Result_2 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : DeferredDataError });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_ic_logs' : IDL.Func([Pagination], [Logs], ['query']),
     'admin_set_minter' : IDL.Func([IDL.Principal], [Result], []),
     'get_contract' : IDL.Func([IDL.Nat], [IDL.Opt(Contract)], ['query']),
     'get_contract_document' : IDL.Func(
-        [IDL.Nat, IDL.Nat],
+        [IDL.Nat, IDL.Nat64],
         [Result_1],
         ['query'],
       ),

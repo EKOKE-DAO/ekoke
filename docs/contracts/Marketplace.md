@@ -20,16 +20,18 @@ If the Buyer of the contract buys the token, he will pay the token price plus th
 
 ## Buy process
 
-The Marketplace contract provides two functions useful to buy a process, the `buyToken` method and the `tokenPriceForCaller` view method.
+The Marketplace contract provides two functions useful to buy a process, the `buyNextToken` method and the `tokenPriceForCaller` view method.
+
+`buyNextToken` will always buy the next token available to be bought for the contract.
 
 ```solidity
 function tokenPriceForCaller(
-    uint256 _tokenId
+    uint256 _contractId
 ) external view returns (uint256) {}
 ```
 
 ```solidity
-function buyToken(uint256 _tokenId) external {}
+function buyNextToken(uint256 _contractId) external {}
 ```
 
 So the buy process is divided in two parts.

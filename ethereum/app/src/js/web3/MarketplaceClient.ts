@@ -35,7 +35,12 @@ export default class MarketplaceClient {
       .send({ from: this.address });
   }
 
-  async interestRate(): Promise<number> {
+  async tokenPriceForCaller(contractId: bigint): Promise<bigint> {
+    const contract = this.getContract();
+    return contract.methods.tokenPriceForCaller(contractId).call();
+  }
+
+  async interestRate(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.interestRate().call();
   }
@@ -43,6 +48,11 @@ export default class MarketplaceClient {
   async usdErc20(): Promise<string> {
     const contract = this.getContract();
     return contract.methods.usdErc20().call();
+  }
+
+  async rewardPool(): Promise<string> {
+    const contract = this.getContract();
+    return contract.methods.rewardPool().call();
   }
 
   private getContract() {

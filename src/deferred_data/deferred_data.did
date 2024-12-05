@@ -27,7 +27,7 @@ type Continent = variant {
 type Contract = record {
   id : nat;
   closed : bool;
-  documents : vec record { nat; ContractDocument };
+  documents : vec record { nat64; ContractDocument };
   value : nat64;
   "type" : ContractType;
   agency : opt Agency;
@@ -46,7 +46,7 @@ type ContractDocument = record {
 };
 type ContractDocumentData = record { data : blob; mime_type : text };
 type ContractError = variant {
-  DocumentNotFound : nat;
+  DocumentNotFound : nat64;
   ContractNotFound : nat;
   BadContractProperty;
 };
@@ -116,14 +116,14 @@ type RestrictedProperty = record {
 type RestrictionLevel = variant { Buyer; Seller; Agent };
 type Result = variant { Ok; Err : DeferredDataError };
 type Result_1 = variant { Ok : ContractDocumentData; Err : DeferredDataError };
-type Result_2 = variant { Ok : nat; Err : DeferredDataError };
+type Result_2 = variant { Ok : nat64; Err : DeferredDataError };
 type Seller = record { quota : nat8; address : text };
 service : (DeferredDataInitData) -> {
   admin_cycles : () -> (nat) query;
   admin_ic_logs : (Pagination) -> (Logs) query;
   admin_set_minter : (principal) -> (Result);
   get_contract : (nat) -> (opt Contract) query;
-  get_contract_document : (nat, nat) -> (Result_1) query;
+  get_contract_document : (nat, nat64) -> (Result_1) query;
   get_contracts : () -> (vec nat) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
   minter_close_contract : (nat) -> (Result);

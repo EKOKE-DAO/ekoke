@@ -7,13 +7,13 @@ import {Ekoke} from "./Ekoke.sol";
 
 contract RewardPool is Ownable {
     /// @notice The address of the EKOKE token
-    address private ekoke;
+    address public ekoke;
 
     /// @notice The address of the Deferred ERC721 token
-    address private deferred;
+    address public deferred;
 
     /// @notice The address of marketplace
-    address private marketplace;
+    address public marketplace;
 
     /// @notice The amount of EKOKE tokens reserved for the reward pool
     uint256 public reservedAmount;

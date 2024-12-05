@@ -1,0 +1,18 @@
+[package]
+name = "repr"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[[bin]]
+name = "repr"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+candid = { workspace = true }
+did = { path = "../did" }
+serde = { workspace = true }
+serde_json = { workspace = true }

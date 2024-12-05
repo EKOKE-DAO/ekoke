@@ -98,7 +98,7 @@ impl ContractStorage {
         contract_id: &ID,
         document: ContractDocument,
         data: Vec<u8>,
-    ) -> DeferredDataResult<ID> {
+    ) -> DeferredDataResult<u64> {
         // check if contract exists
         if Self::get_contract(contract_id).is_none() {
             return Err(DeferredDataError::Contract(
@@ -110,7 +110,7 @@ impl ContractStorage {
 
         // update contract with document id
         with_contract_mut(contract_id, |contract| {
-            contract.documents.insert(document_id.clone(), document);
+            contract.documents.push((document_id, document));
 
             Ok(())
         })?;
@@ -121,7 +121,7 @@ impl ContractStorage {
     /// Get contract document
     pub fn get_contract_document(
         contract_id: &ID,
-        document_id: &ID,
+        document_id: u64,
     ) -> DeferredDataResult<ContractDocumentData> {
         // check if contract exists
         let contract = Self::get_contract(contract_id).ok_or_else(|| {
@@ -129,9 +129,14 @@ impl ContractStorage {
         })?;
 
         // check if `document_id` belongs to `contract_id`
-        let Some(document_properties) = contract.documents.get(document_id) else {
+        let Some(document_properties) = contract
+            .documents
+            .iter()
+            .find(|(id, _)| *id == document_id)
+            .map(|(_, properties)| properties)
+        else {
             return Err(DeferredDataError::Contract(
-                DataContractError::DocumentNotFound(document_id.clone()),
+                DataContractError::DocumentNotFound(document_id),
             ));
         };
 
@@ -324,7 +329,7 @@ mod test {
                 .expect("Failed to upload document");
 
         // get contract document
-        let contract_document = ContractStorage::get_contract_document(&1_u64.into(), &document_id)
+        let contract_document = ContractStorage::get_contract_document(&1_u64.into(), document_id)
             .expect("Failed to get contract document");
 
         assert_eq!(contract_document.mime_type, "application/pdf");

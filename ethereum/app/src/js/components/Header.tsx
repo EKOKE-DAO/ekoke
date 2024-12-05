@@ -7,7 +7,7 @@ import TopbarLink from './Header/TopbarLink';
 import MetamaskConnect from './MetamaskConnect';
 
 const Header = () => (
-  <div className="fixed block left-0 top-0 h-[100px] w-full bg-page z-40 shadow-sm">
+  <div className="fixed bg-white block left-0 top-0 h-[100px] w-full bg-page z-40 shadow-sm">
     <Container.FlexRow className="justify-center items-center py-4 px-4">
       <Container.FlexRow className="items-center gap-8">
         <TopbarLink name={'Home'} href={Route.HOME} />

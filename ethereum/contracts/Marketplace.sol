@@ -15,13 +15,13 @@ contract Marketplace is Ownable {
     uint8 private usdErc20Decimals;
 
     /// @notice The address of the EKOKE token
-    address private ekoke;
+    address public ekoke;
 
     /// @notice The address of the Deferred ERC721 token
-    address private deferred;
+    address public deferred;
 
     /// @notice Reward pool address
-    address private rewardPool;
+    address public rewardPool;
 
     /// @notice The interest rate for the contract buyers. So buyers pay 10% more than the token price
     /// the extra 10% will be locked in the marketplace contract
@@ -34,6 +34,7 @@ contract Marketplace is Ownable {
     event TokenBought(
         address indexed buyer,
         address indexed seller,
+        uint256 contractId,
         uint256 tokenId,
         uint256 price,
         uint256 paidAmount
@@ -81,16 +82,25 @@ contract Marketplace is Ownable {
         interestRate = _interestRate;
     }
 
-    /// @notice Buy a deferred NFT with the configured USD ERC20 token
-    /// @param _tokenId The ID of the deferred NFT\
-    function buyToken(uint256 _tokenId) external {
+    /// @notice Buy the next token for a deferred contractt with the configured USD ERC20 token
+    /// @param _contractId The ID of the contract to buy the token for
+    /// @return tokenId The ID of the bought token
+    function buyNextToken(
+        uint256 _contractId
+    ) external returns (uint256 tokenId) {
         require(rewardPool != address(0), "Marketplace: Reward pool not set");
 
         // get the contract from deferred
         Deferred deferredContract = Deferred(deferred);
         // get the contract for token
         Deferred.SellContract memory sellContract = deferredContract
-            .tokenContract(_tokenId);
+            .getContract(_contractId);
+
+        // get next token id to buy
+        uint256 _tokenId = deferredContract.nextTokenIdToBuyFor(
+            _contractId,
+            msg.sender
+        );
 
         // get token buyer
         address tokenBuyer = msg.sender;
@@ -132,7 +142,11 @@ contract Marketplace is Ownable {
 
         // if the buyer is a contract buyer, transfer the interest to the marketplace
         // transfer the NFT from the `tokenSeller` to the `tokenBuyer`
-        ERC721(deferred).transferFrom(tokenSeller, tokenBuyer, _tokenId);
+        uint256 boughtTokenId = Deferred(deferred).transferToken(
+            _contractId,
+            tokenSeller,
+            tokenBuyer
+        );
 
         // if we need to send reward, send the reward to the `tokenBuyer`
         if (willSendReward) {
@@ -143,27 +157,30 @@ contract Marketplace is Ownable {
         }
 
         // set the token as sold
-        soldTokens[_tokenId] = true;
+        soldTokens[boughtTokenId] = true;
 
         // emit the event
         emit TokenBought(
             tokenBuyer,
             tokenSeller,
-            _tokenId,
+            _contractId,
+            boughtTokenId,
             tokenPriceUsdErc20,
             requiredAllowance
         );
+
+        return boughtTokenId;
     }
 
     /// @notice Get the price of the token for the caller with the interests if the caller is a contract buyer
-    /// @param _tokenId The ID of the deferred NFT
+    /// @param _contractId The ID of the contract for the token
     /// @return _price The price of the token
     function tokenPriceForCaller(
-        uint256 _tokenId
+        uint256 _contractId
     ) external view returns (uint256) {
         Deferred deferredContract = Deferred(deferred);
         Deferred.SellContract memory sellContract = deferredContract
-            .tokenContract(_tokenId);
+            .getContract(_contractId);
 
         bool _isContractBuyer = isContractBuyer(sellContract);
 

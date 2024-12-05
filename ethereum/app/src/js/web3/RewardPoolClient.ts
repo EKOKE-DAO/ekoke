@@ -21,13 +21,6 @@ export default class RewardPoolClient {
       .send({ from: this.address });
   }
 
-  async adminSetInterestRate(rate: number) {
-    const contract = this.getContract();
-    return contract.methods
-      .adminSetInterestRate(rate)
-      .send({ from: this.address });
-  }
-
   async adminSetMarketplace(newAddress: string) {
     const contract = this.getContract();
     return contract.methods

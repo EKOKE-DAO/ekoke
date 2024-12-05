@@ -86,6 +86,12 @@ export const ABI = [
       {
         indexed: false,
         internalType: 'uint256',
+        name: 'contractId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
         name: 'tokenId',
         type: 'uint256',
       },
@@ -135,13 +141,45 @@ export const ABI = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_tokenId',
+        name: '_contractId',
         type: 'uint256',
       },
     ],
-    name: 'buyToken',
-    outputs: [],
+    name: 'buyNextToken',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'deferred',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'ekoke',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -175,6 +213,38 @@ export const ABI = [
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'rewardPool',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_contractId',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenPriceForCaller',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -221,6 +291,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '',
+  [ChainId.Sepolia]: '0x9BDF7DdB6b24e554e2b58D6f32241b9b1C000674',
   [ChainId.Hardhat]: '',
 };

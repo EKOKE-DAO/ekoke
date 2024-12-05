@@ -24,8 +24,6 @@ pub use self::minter::{
 #[cfg(test)]
 mod test {
 
-    use std::collections::HashMap;
-
     use candid::{Decode, Encode, Principal};
     use ic_stable_structures::Storable as _;
     use pretty_assertions::assert_eq;
@@ -58,7 +56,7 @@ mod test {
             value: 250_000,
             deposit: 50_000,
             currency: "EUR".to_string(),
-            documents: HashMap::default(),
+            documents: vec![],
             properties: vec![(
                 "Rome".to_string(),
                 GenericValue::TextContent("Rome".to_string()),
