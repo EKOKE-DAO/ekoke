@@ -9,7 +9,7 @@ contract EkokePresale is Ownable {
     uint256 private baseTokenPrice = 1_000_000; // 1 USDT
 
     /// @notice The soft cap of the presale in EKOKE tokens
-    uint256 public constant SOFT_CAP = 2_000_000_000_000; // 20_000 EKOKE
+    uint256 public constant SOFT_CAP_USDT = 20_000 * 1_000_000; // 20_000 $
 
     /// @notice The step at which the token price is increased.
     /// @dev The token price is summed to baseTokenPrice every TOKEN_PRICE_STEP tokens sold
@@ -25,10 +25,13 @@ contract EkokePresale is Ownable {
     mapping(address => uint256) private presaleAmounts;
 
     /// @notice The amount of USD paid by an account (used for refunds)
-    mapping(address => uint256) private usdPaid;
+    mapping(address => uint256) private usdtPaid;
 
     /// @notice The amount of EKOKE tokens sold in the presale
     uint256 public tokensSold = 0;
+
+    /// @notice The amount of USDT raised in the presale
+    uint256 public usdtRaised = 0;
 
     /// @notice The cap of the presale in EKOKE tokens
     uint256 public presaleCap = 0;
@@ -108,10 +111,10 @@ contract EkokePresale is Ownable {
     /// @notice Get the amount of USD invested by an account
     /// @param _account The account to get the balance of
     /// @return invested The amount of USD invested by the account
-    function usdInvested(
+    function usdtInvested(
         address _account
     ) public view returns (uint256 invested) {
-        return usdPaid[_account];
+        return usdtPaid[_account];
     }
 
     /// @notice Buy presale tokens. The amount of tokens is 100_000_000 EKOKE with decimals, because you can't buy less than 1 token
@@ -126,16 +129,18 @@ contract EkokePresale is Ownable {
         );
 
         uint256 currentTokenPrice = tokenPrice();
-        uint256 usdToPay = _amount * currentTokenPrice; // NOTE: price must be calculated against the integer amount
+        uint256 usdtToPay = _amount * currentTokenPrice; // NOTE: price must be calculated against the integer amount
 
         // check allowance and transfer USDT
-        IERC20(usdt).transferFrom(msg.sender, address(this), usdToPay);
+        IERC20(usdt).transferFrom(msg.sender, address(this), usdtToPay);
 
         // set the amount of tokens bought by the account and increase the total amount of tokens sold
         presaleAmounts[msg.sender] += realAmount;
         tokensSold += realAmount;
         // increase the amount of USD paid by the account
-        usdPaid[msg.sender] += usdToPay;
+        usdtPaid[msg.sender] += usdtToPay;
+        // increase the amount of USD raised
+        usdtRaised += usdtToPay;
 
         emit TokensSold(msg.sender, realAmount);
     }
@@ -155,11 +160,11 @@ contract EkokePresale is Ownable {
     function refund() external onlyPresaleFailed {
         uint256 amount = presaleAmounts[msg.sender];
         require(amount > 0, "EkokePresale: No tokens to refund");
-        uint256 refundAmount = usdPaid[msg.sender];
+        uint256 refundAmount = usdtPaid[msg.sender];
         require(refundAmount > 0, "EkokePresale: No USD to refund");
 
         presaleAmounts[msg.sender] = 0;
-        usdPaid[msg.sender] = 0;
+        usdtPaid[msg.sender] = 0;
         IERC20(usdt).transfer(msg.sender, refundAmount);
 
         emit TokensRefunded(msg.sender, refundAmount);
@@ -168,7 +173,7 @@ contract EkokePresale is Ownable {
     /// @notice Close the presale. From now on, no more tokens can be bought. If the soft cap is not reached, the presale is considered failed
     function adminClosePresale() external onlyOwner onlyPresaleOpen {
         presaleOpen = false;
-        if (tokensSold < SOFT_CAP) {
+        if (usdtRaised < SOFT_CAP_USDT) {
             presaleFailed = true;
         } else {
             presaleFailed = false;

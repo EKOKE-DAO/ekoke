@@ -83,7 +83,7 @@ describe("EkokePresale", () => {
 
     // verify balances
     expect(await presale.balanceOf(owner.address)).to.equal(ekokeToE8s(1_000));
-    expect(await presale.usdInvested(owner.address)).to.equal(totalPrice);
+    expect(await presale.usdtInvested(owner.address)).to.equal(totalPrice);
 
     // check USDT balance
     expect(await usdt.balanceOf(owner.address)).to.equal(
@@ -117,7 +117,7 @@ describe("EkokePresale", () => {
 
     // verify balances
     expect(await presale.balanceOf(owner.address)).to.equal(ekokeToE8s(200));
-    expect(await presale.usdInvested(owner.address)).to.equal(
+    expect(await presale.usdtInvested(owner.address)).to.equal(
       totalPrice * BigInt(2)
     );
   });
@@ -162,6 +162,7 @@ describe("EkokePresale", () => {
 
     // verify balances
     expect(balance).to.equal(SOFT_CAP);
+    expect(await presale.usdtRaised()).to.equal(20_000 * 1_000_000);
 
     // verify presale balance is 0
     expect(await presale.balanceOf(alice.address)).to.equal(0);
