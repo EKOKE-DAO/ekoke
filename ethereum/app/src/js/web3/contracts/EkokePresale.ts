@@ -128,7 +128,7 @@ export const ABI = [
   },
   {
     inputs: [],
-    name: 'SOFT_CAP',
+    name: 'SOFT_CAP_USDT',
     outputs: [
       {
         internalType: 'uint256',
@@ -311,6 +311,19 @@ export const ABI = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'usdt',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'address',
@@ -318,7 +331,7 @@ export const ABI = [
         type: 'address',
       },
     ],
-    name: 'usdInvested',
+    name: 'usdtInvested',
     outputs: [
       {
         internalType: 'uint256',
@@ -331,12 +344,12 @@ export const ABI = [
   },
   {
     inputs: [],
-    name: 'usdt',
+    name: 'usdtRaised',
     outputs: [
       {
-        internalType: 'address',
+        internalType: 'uint256',
         name: '',
-        type: 'address',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -360,6 +373,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '0x52127FB7507E987087D4aEfC42fbA60e372f8e97',
+  [ChainId.Sepolia]: '0x10B6bDB762aE3bAB9C6A097455252171b7F80457',
   [ChainId.Hardhat]: '',
 };

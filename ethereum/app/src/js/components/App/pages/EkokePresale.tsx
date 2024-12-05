@@ -39,7 +39,7 @@ const EkokePresale = () => {
     });
 
     client.softCap().then((value) => {
-      setSoftCap(convertToHumanReadable(value, 8, true));
+      setSoftCap(convertToHumanReadable(value, 6, true));
     });
   }, []);
 

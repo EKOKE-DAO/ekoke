@@ -71,7 +71,7 @@ export default class EkokePresaleClient {
 
   async softCap(): Promise<bigint> {
     const contract = this.getContract();
-    return contract.methods.SOFT_CAP().call();
+    return contract.methods.SOFT_CAP_USDT().call();
   }
 
   async tokensSold(): Promise<bigint> {
