@@ -9,11 +9,11 @@ contract EkokePresale is Ownable {
     uint256 private baseTokenPrice = 1_000_000; // 1 USDT
 
     /// @notice The soft cap of the presale in EKOKE tokens
-    uint256 public constant SOFT_CAP_USDT = 20_000 * 1_000_000; // 20_000 $
+    uint256 public constant SOFT_CAP_USDT = 50_000 * 1_000_000; // 50_000 $
 
     /// @notice The step at which the token price is increased.
     /// @dev The token price is summed to baseTokenPrice every TOKEN_PRICE_STEP tokens sold
-    uint256 private constant TOKEN_PRICE_STEP = 100_000_000_000; // 1_000 EKOKE
+    uint256 private constant TOKEN_PRICE_STEP = 5_000_000_000_000; // 5_000 EKOKE
 
     /// @notice The address of the EKOKE token
     address public ekoke;
@@ -117,10 +117,10 @@ contract EkokePresale is Ownable {
         return usdtPaid[_account];
     }
 
-    /// @notice Buy presale tokens. The amount of tokens is 100_000_000 EKOKE with decimals, because you can't buy less than 1 token
+    /// @notice Buy presale tokens. The amount of tokens is 1_000_000_000 EKOKE with decimals, because you can't buy less than 1 token
     /// @param _amount The amount of tokens to buy
     function buyTokens(uint256 _amount) external onlyPresaleOpen {
-        uint256 realAmount = _amount * 100_000_000;
+        uint256 realAmount = _amount * 1_000_000_000;
 
         uint256 remainingPresaleBalance = presaleBalance();
         require(

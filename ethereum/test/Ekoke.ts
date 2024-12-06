@@ -5,7 +5,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const NAME = "Ekoke";
 const SYMBOL = "EKOKE";
-const DECIMALS = 8;
+const DECIMALS = 9;
 
 describe("Ekoke", () => {
   interface Contract {

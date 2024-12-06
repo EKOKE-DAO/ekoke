@@ -122,9 +122,9 @@ impl Reward {
     }
 
     /// Check if it is time to halve the RMC.
-    /// If RMC value is below 2e-8, it will never halve.
+    /// If RMC value is below 2e-9, it will never halve.
     fn should_halve_rmc() -> bool {
-        // check if RMC value less than 2e-8
+        // check if RMC value less than 2e-9
         if RMC.with_borrow(|rmc| *rmc.get() < 2e-12) {
             return false;
         }

@@ -27,15 +27,15 @@ const EkokePresale = () => {
 
     client.presaleCap().then((value) => {
       setPresaleCapValue(value);
-      setPresaleCap(convertToHumanReadable(value, 8, true));
+      setPresaleCap(convertToHumanReadable(value, 9, true));
     });
 
     client.tokensSold().then((value) => {
-      setTokensSold(convertToHumanReadable(value, 8, true));
+      setTokensSold(convertToHumanReadable(value, 9, true));
     });
 
     client.balanceOf(account).then((accountBalance) => {
-      setBalance(convertToHumanReadable(accountBalance, 8, true));
+      setBalance(convertToHumanReadable(accountBalance, 9, true));
     });
 
     client.softCap().then((value) => {

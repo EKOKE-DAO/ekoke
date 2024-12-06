@@ -18,7 +18,7 @@ contract Ekoke is ERC20, Ownable {
     /// @notice The maximum amount of tokens mintable by the owner. (33%)
     uint256 public constant MAX_OWNER_MINT = MAX_SUPPLY - MAX_REWARD_POOL_MINT;
     /// @notice contract decimals
-    uint8 private DECIMALS = 8;
+    uint8 private DECIMALS = 9;
 
     /// @notice The amount of tokens minted by the reward pool.
     uint256 public rewardPoolMintedSupply = 0;

@@ -61,7 +61,7 @@ The RMC is a coefficient which is used to establish the reward for a contract, t
 
 The initial value of the RMC will be `0.0000042` and the value will be halved each 4 years.
 
-Its value will never reach a value under `2e-8`.
+Its value will never reach a value under `2e-9`.
 
 ### Avidity
 

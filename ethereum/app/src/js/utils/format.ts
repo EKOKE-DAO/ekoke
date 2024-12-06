@@ -1,4 +1,4 @@
-const DECIMALS = 8;
+const DECIMALS = 9;
 
 export const convertToHumanReadable = (
   value: bigint,
