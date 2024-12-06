@@ -30,6 +30,18 @@ contract Marketplace is Ownable {
     /// @notice tokens that has been sold
     mapping(uint256 => bool) private soldTokens;
 
+    /// @notice The number of blocks per day
+    uint256 private constant BLOCKS_PER_DAY = 7200;
+
+    /// @notice The number of USDT that can be withdrawn per day
+    uint256 private constant WITHDRAWABLE_USDT_PER_DAY = 100;
+
+    /// @notice The maximum amount of USDT that can be withdrawn
+    uint256 private constant MAX_WITHDRAWABLE_USDT = 10_000;
+
+    /// @notice Last withdrawal block number
+    uint256 public lastWithdrawalBlock;
+
     /// @notice Event emitted when a token is bought
     event TokenBought(
         address indexed buyer,
@@ -39,6 +51,9 @@ contract Marketplace is Ownable {
         uint256 price,
         uint256 paidAmount
     );
+
+    /// @notice Event emitted when liquidity is withdrawn
+    event LiquidityWithdrawn(uint256 amount);
 
     constructor(
         address _owner,
@@ -60,6 +75,9 @@ contract Marketplace is Ownable {
 
         // get decimals of the USD ERC20 token
         usdErc20Decimals = ERC20(usdErc20).decimals();
+
+        // set the last withdrawal block
+        lastWithdrawalBlock = block.number;
     }
 
     /// @notice Set the address of the reward pool
@@ -80,6 +98,57 @@ contract Marketplace is Ownable {
             "Marketplace: Interest rate must be less than 100"
         );
         interestRate = _interestRate;
+    }
+
+    /// @notice Get the liquidity that can be withdrawn
+    /// @return _withdrawable The amount of USDT that can be withdrawn
+    function liquidityWithdrawable()
+        public
+        view
+        returns (uint256 _withdrawable)
+    {
+        // calculate the number of blocks since the last withdrawal
+        uint256 blocksSinceLastWithdrawal = block.number - lastWithdrawalBlock;
+        // calculate the number of days since the last withdrawal
+        uint256 daysSinceLastWithdrawal = blocksSinceLastWithdrawal /
+            BLOCKS_PER_DAY;
+        // calculate the withdrawable amount
+        uint256 withdrawableAmount = daysSinceLastWithdrawal *
+            WITHDRAWABLE_USDT_PER_DAY;
+
+        // if the withdrawable amount is greater than the maximum withdrawable amount, set it to the maximum withdrawable amount
+        if (withdrawableAmount > MAX_WITHDRAWABLE_USDT) {
+            withdrawableAmount = MAX_WITHDRAWABLE_USDT;
+        }
+
+        // set withdrawable to the balance if the balance is less than the withdrawable amount
+        ERC20 currency = ERC20(usdErc20);
+        uint256 balance = currency.balanceOf(address(this));
+
+        if (balance < withdrawableAmount) {
+            withdrawableAmount = balance;
+        }
+
+        return withdrawableAmount;
+    }
+
+    /// @notice Withdraw USDT from the marketplace
+    /// @dev Only the owner can call this function
+    /// @param _amount The amount of USDT to withdraw
+    function adminWithdraw(uint256 _amount) external onlyOwner {
+        uint256 withdrawableAmount = liquidityWithdrawable();
+
+        require(
+            withdrawableAmount >= _amount,
+            "Marketplace: Not enough withdrawal funds"
+        );
+
+        ERC20 currency = ERC20(usdErc20);
+        currency.transfer(owner(), _amount);
+
+        lastWithdrawalBlock = block.number;
+
+        emit LiquidityWithdrawn(_amount);
     }
 
     /// @notice Buy the next token for a deferred contractt with the configured USD ERC20 token

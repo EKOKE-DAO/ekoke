@@ -53,6 +53,19 @@ export const ABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'LiquidityWithdrawn',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: 'address',
         name: 'previousOwner',
@@ -141,6 +154,19 @@ export const ABI = [
     inputs: [
       {
         internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'adminWithdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
         name: '_contractId',
         type: 'uint256',
       },
@@ -190,6 +216,32 @@ export const ABI = [
         internalType: 'uint8',
         name: '',
         type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'lastWithdrawalBlock',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'liquidityWithdrawable',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '_withdrawable',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -291,6 +343,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '0x9BDF7DdB6b24e554e2b58D6f32241b9b1C000674',
+  [ChainId.Sepolia]: '0x09BE22BBB90E5A0752B859d863cB8BC40898D234',
   [ChainId.Hardhat]: '',
 };

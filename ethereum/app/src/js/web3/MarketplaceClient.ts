@@ -28,6 +28,16 @@ export default class MarketplaceClient {
       .send({ from: this.address });
   }
 
+  async adminWithdraw(amount: bigint) {
+    const contract = this.getContract();
+    return contract.methods.adminWithdraw(amount).send({ from: this.address });
+  }
+
+  async liquidityWithdrawable(): Promise<bigint> {
+    const contract = this.getContract();
+    return contract.methods.liquidityWithdrawable().call();
+  }
+
   async adminSetRewardPool(newAddress: string) {
     const contract = this.getContract();
     return contract.methods
