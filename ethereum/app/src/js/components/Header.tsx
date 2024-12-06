@@ -13,6 +13,7 @@ const Header = () => (
         <TopbarLink name={'Home'} href={Route.HOME} />
         <TopbarLink name={'Deferred'} href={Route.DEFERRED} />
         <TopbarLink name={'EKOKE'} href={Route.EKOKE} />
+        <TopbarLink name={'Presale'} href={Route.EKOKE_PRESALE} />
         <TopbarLink name={'Marketplace'} href={Route.MARKETPLACE} />
         <TopbarLink name={'Reward Pool'} href={Route.REWARD_POOL} />
         <MetamaskConnect />

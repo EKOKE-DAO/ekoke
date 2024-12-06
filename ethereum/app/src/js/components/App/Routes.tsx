@@ -8,6 +8,8 @@ import Ekoke from './pages/Ekoke';
 import Marketplace from './pages/Marketplace';
 import RewardPool from './pages/RewardPool';
 import WaitForMetamask from './pages/WaitForMetamask';
+import EkokePresale from './pages/EkokePresale';
+import TestERC20 from './pages/TestErc20';
 
 const AppRouter = () => (
   <>
@@ -31,6 +33,14 @@ const AppRouter = () => (
           }
         />
         <RouterRoute
+          path={Route.url(Route.EKOKE_PRESALE)}
+          element={
+            <WaitForMetamask>
+              <EkokePresale />
+            </WaitForMetamask>
+          }
+        />
+        <RouterRoute
           path={Route.url(Route.MARKETPLACE)}
           element={
             <WaitForMetamask>
@@ -43,6 +53,14 @@ const AppRouter = () => (
           element={
             <WaitForMetamask>
               <RewardPool />
+            </WaitForMetamask>
+          }
+        />
+        <RouterRoute
+          path={Route.url(Route.TEST_ERC20)}
+          element={
+            <WaitForMetamask>
+              <TestERC20 />
             </WaitForMetamask>
           }
         />

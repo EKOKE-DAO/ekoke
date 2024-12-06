@@ -33,17 +33,17 @@ export default class EkokeClient {
     return contract.methods.rewardPool().call();
   }
 
-  async ownerMintedSupply(): Promise<BigInt> {
+  async ownerMintedSupply(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.ownerMintedSupply().call();
   }
 
-  async maxOwnerMintedSupply(): Promise<BigInt> {
+  async maxOwnerMintedSupply(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.MAX_OWNER_MINT().call();
   }
 
-  async rewardPoolMintedSupply(): Promise<BigInt> {
+  async rewardPoolMintedSupply(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.rewardPoolMintedSupply().call();
   }
@@ -62,17 +62,17 @@ export default class EkokeClient {
       .send({ from: this.address });
   }
 
-  async balanceOf(address: string): Promise<BigInt> {
+  async balanceOf(address: string): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.balanceOf(address).call();
   }
 
-  async decimals(): Promise<BigInt> {
+  async decimals(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.decimals().call();
   }
 
-  async totalSupply(): Promise<BigInt> {
+  async totalSupply(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.totalSupply().call();
   }

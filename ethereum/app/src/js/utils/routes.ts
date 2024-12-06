@@ -2,8 +2,10 @@ export enum Route {
   HOME = 'home',
   DEFERRED = 'deferred',
   EKOKE = 'ekoke',
+  EKOKE_PRESALE = 'ekoke-presale',
   MARKETPLACE = 'marketplace',
   REWARD_POOL = 'reward-pool',
+  TEST_ERC20 = 'test-erc20',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -67,13 +67,15 @@ interface RewardPoolArgs {
 
 const CONTRACT_DEFERRED = "deferred";
 const CONTRACT_EKOKE = "ekoke";
+const CONTRACT_EKOKE_PRESALE = "ekoke-presale";
 const CONTRACT_MARKETPLACE = "marketplace";
 const CONTRACT_REWARD_POOL = "reward-pool";
+const CONTRAT_USD_ERC20 = "usdt";
 
 task("deploy", "Deploy contracts")
   .addPositionalParam(
     "contract",
-    "Contract to deploy (marketplace, deferred, ekoke, reward-pool)"
+    "Contract to deploy (marketplace, deferred, ekoke, ekoke-presale, reward-pool)"
   )
   .addOptionalParam("deferred", "Deferred contract address")
   .addOptionalParam("ekoke", "Ekoke contract address")
@@ -91,6 +93,10 @@ task("deploy", "Deploy contracts")
         await deployEkoke();
         break;
 
+      case CONTRACT_EKOKE_PRESALE:
+        await deployEkokePresale(taskArgs.ekoke, taskArgs.usderc20);
+        break;
+
       case CONTRACT_MARKETPLACE:
         await deployMarketplace({
           deferred: taskArgs.deferred,
@@ -104,6 +110,10 @@ task("deploy", "Deploy contracts")
           deferred: taskArgs.deferred,
           ekoke: taskArgs.ekoke,
         });
+        break;
+
+      case CONTRAT_USD_ERC20:
+        await deployUsdErc20();
         break;
 
       default:
@@ -128,6 +138,15 @@ async function deployEkoke() {
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   console.log(`EKOKE deployed to ${address}`);
+}
+
+async function deployEkokePresale(ekoke: string, usdErc20: string) {
+  const hardhat = require("hardhat");
+  const Contract = await hardhat.ethers.getContractFactory("EkokePresale");
+  const contract = await Contract.deploy(OWNER_ADDRESS!, ekoke, usdErc20);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  console.log(`EKOKE-presale deployed to ${address}`);
 }
 
 async function deployMarketplace(args: MarketplaceArgs) {
@@ -155,4 +174,13 @@ async function deployRewardPool(args: RewardPoolArgs) {
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   console.log(`Reward pool deployed to ${address}`);
+}
+
+async function deployUsdErc20() {
+  const hardhat = require("hardhat");
+  const Contract = await hardhat.ethers.getContractFactory("TestERC20");
+  const contract = await Contract.deploy("USDT", "USDT", 6);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  console.log(`USDT deployed to ${address}`);
 }

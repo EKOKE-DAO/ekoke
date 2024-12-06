@@ -13,10 +13,16 @@ const Home = () => (
       <Link.Default href={Route.EKOKE}>EKOKE</Link.Default>
     </Container.Container>
     <Container.Container>
+      <Link.Default href={Route.EKOKE_PRESALE}>EKOKE Presale</Link.Default>
+    </Container.Container>
+    <Container.Container>
       <Link.Default href={Route.MARKETPLACE}>Marketplace</Link.Default>
     </Container.Container>
     <Container.Container>
       <Link.Default href={Route.REWARD_POOL}>RewardPool</Link.Default>
+    </Container.Container>
+    <Container.Container>
+      <Link.Default href={Route.TEST_ERC20}>Test ERC20</Link.Default>
     </Container.Container>
   </Container.FlexCols>
 );
