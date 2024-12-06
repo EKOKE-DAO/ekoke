@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useConnectedMetaMask } from 'metamask-react';
 
-import RewardPoolClient from '../../../../web3/RewardPoolClient';
+import DeferredClient from '../../../../web3/DeferredClient';
 import { ChainId } from '../../../MetamaskConnect';
 import Container from '../../../reusable/Container';
 import Input from '../../../reusable/Input';
@@ -17,7 +17,7 @@ const AdminSetMarketplace = () => {
   };
 
   const onSubmit = () => {
-    const client = new RewardPoolClient(account, ethereum, chainId as ChainId);
+    const client = new DeferredClient(account, ethereum, chainId as ChainId);
 
     if (!address) {
       alert('Address is required');
