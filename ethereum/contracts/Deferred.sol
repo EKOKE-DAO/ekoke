@@ -336,6 +336,12 @@ contract Deferred is ERC721, Ownable {
         return tokensBoughtByBuyer[_contractId];
     }
 
+    /// @notice Get the total supply of tokens
+    /// @return totalSupply The total supply of tokens
+    function totalSupply() public view returns (uint256) {
+        return nextTokenId;
+    }
+
     // ERC721 overrides
 
     /// @notice Get balance of a token owner
