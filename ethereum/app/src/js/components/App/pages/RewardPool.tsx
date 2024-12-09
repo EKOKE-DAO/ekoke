@@ -4,7 +4,7 @@ import { useConnectedMetaMask } from 'metamask-react';
 import { ChainId } from '../../MetamaskConnect';
 import Container from '../../reusable/Container';
 import RewardPoolClient from '../../../web3/RewardPoolClient';
-import AdminSetMarketplace from './Deferred/AdminSetMarketplace';
+import AdminSetMarketplace from './RewardPool/AdminSetMarketplace';
 import { convertToHumanReadable } from '../../../utils/format';
 
 const RewardPool = () => {
