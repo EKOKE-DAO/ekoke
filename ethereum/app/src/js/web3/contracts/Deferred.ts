@@ -237,6 +237,37 @@ export const ABI = [
     inputs: [
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'sellContractId',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'TokenTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: 'address',
         name: 'from',
         type: 'address',
@@ -509,6 +540,11 @@ export const ABI = [
     outputs: [
       {
         components: [
+          {
+            internalType: 'uint256',
+            name: 'contractId',
+            type: 'uint256',
+          },
           {
             internalType: 'string',
             name: 'metadataUri',
@@ -839,6 +875,11 @@ export const ABI = [
       {
         components: [
           {
+            internalType: 'uint256',
+            name: 'contractId',
+            type: 'uint256',
+          },
+          {
             internalType: 'string',
             name: 'metadataUri',
             type: 'string',
@@ -948,6 +989,19 @@ export const ABI = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'address',
@@ -1030,6 +1084,6 @@ export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Mainnet]: '',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
-  [ChainId.Sepolia]: '0xa5fF566D68E3521929F47447b975C4683618C35f',
+  [ChainId.Sepolia]: '0xD02CBa8b39d83c2985F439548F8eB18be350CB18',
   [ChainId.Hardhat]: '',
 };

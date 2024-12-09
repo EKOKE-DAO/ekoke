@@ -46,6 +46,8 @@ contract Deferred is ERC721, Ownable {
 
     /// @dev Sell contract of a real estate token
     struct SellContract {
+        /// @dev The id of the contract
+        uint256 contractId;
         /// @dev metadata uri pointing to deferred-data canister uri
         string metadataUri;
         /// @dev Contract sellers
@@ -219,6 +221,7 @@ contract Deferred is ERC721, Ownable {
         }
 
         SellContract storage sellContract = sellContracts[contractId];
+        sellContract.contractId = contractId;
         sellContract.metadataUri = _request.metadataUri;
         sellContract.buyers = _request.buyers;
         sellContract.ekokeReward = _request.ekokeReward;
