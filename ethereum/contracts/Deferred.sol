@@ -102,6 +102,14 @@ contract Deferred is ERC721, Ownable {
     /// @dev Event emitted when the contract is closed
     event ContractClosed(uint256 indexed sellContractId);
 
+    /// @dev Event emitted when a token is transferred
+    event TokenTransferred(
+        uint256 indexed sellContractId,
+        address indexed from,
+        address indexed to,
+        uint256 tokenId
+    );
+
     modifier onlyMinter() {
         require(
             msg.sender == deferredMinter && deferredMinter != address(0),
@@ -420,6 +428,8 @@ contract Deferred is ERC721, Ownable {
             // approve the marketplace to transfer the token
             super.approve(marketplace, tokenId);
 
+            emit TokenTransferred(_contractId, from, to, tokenId);
+
             return tokenId;
         }
 
@@ -430,6 +440,8 @@ contract Deferred is ERC721, Ownable {
 
         // transfer the token
         super.transferFrom(from, to, tokenId);
+
+        emit TokenTransferred(_contractId, from, to, tokenId);
 
         return tokenId;
     }
