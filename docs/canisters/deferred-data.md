@@ -81,7 +81,8 @@ Response:
   "documents": {
     "1": {
       "accessList": ["agent"],
-      "mimeType": "application/pdf"
+      "mimeType": "application/pdf",
+      "name": "Document-1"
     }
   },
   "agency": {
