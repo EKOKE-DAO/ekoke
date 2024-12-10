@@ -46,6 +46,7 @@ type ContractError = variant {
 type ContractError_1 = variant {
   DocumentNotFound : nat64;
   ContractNotFound : nat;
+  DocumentSizeMismatch : record { nat64; nat64 };
   BadContractProperty;
 };
 type ContractRegistration = record {

@@ -45,6 +45,7 @@ export type ContractError = { 'CurrencyNotAllowed' : string } |
   { 'BadContractProperty' : null };
 export type ContractError_1 = { 'DocumentNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
+  { 'DocumentSizeMismatch' : [bigint, bigint] } |
   { 'BadContractProperty' : null };
 export interface ContractRegistration {
   'value' : bigint,

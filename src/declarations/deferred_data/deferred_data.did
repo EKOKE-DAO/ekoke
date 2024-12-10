@@ -42,6 +42,7 @@ type Contract = record {
 };
 type ContractDocument = record {
   name : text;
+  size : nat64;
   mime_type : text;
   access_list : vec RestrictionLevel;
 };
@@ -53,6 +54,7 @@ type ContractDocumentData = record {
 type ContractError = variant {
   DocumentNotFound : nat64;
   ContractNotFound : nat;
+  DocumentSizeMismatch : record { nat64; nat64 };
   BadContractProperty;
 };
 type ContractType = variant { Sell; Financing };

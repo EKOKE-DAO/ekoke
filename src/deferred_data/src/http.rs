@@ -181,6 +181,7 @@ mod test {
                 access_list: vec![RestrictionLevel::Public],
                 mime_type: "application/pdf".to_string(),
                 name: "document".to_string(),
+                size: 4,
             },
             vec![0x01, 0x02, 0x03, 0x04],
         )

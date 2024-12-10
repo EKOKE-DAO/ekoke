@@ -116,6 +116,14 @@ impl ContractStorage {
                 DataContractError::ContractNotFound(contract_id.clone()),
             ));
         }
+
+        // check if document size matches data size
+        if document.size != data.len() as u64 {
+            return Err(DeferredDataError::Contract(
+                DataContractError::DocumentSizeMismatch(document.size, data.len() as u64),
+            ));
+        }
+
         // insert document into document storage
         let document_id = DocumentStorage::upload_document(data)?;
 
@@ -374,6 +382,7 @@ mod test {
             mime_type: "application/pdf".to_string(),
             access_list: vec![RestrictionLevel::Seller],
             name: "contract.pdf".to_string(),
+            size: 4,
         };
 
         let document_id =
@@ -386,5 +395,26 @@ mod test {
 
         assert_eq!(contract_document.mime_type, "application/pdf");
         assert_eq!(contract_document.data, vec![1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_should_not_upload_contract_document_if_size_is_wrong() {
+        let contract = with_mock_contract(1, 1, |_| {});
+        ContractStorage::insert_contract(contract.clone());
+
+        let document = ContractDocument {
+            mime_type: "application/pdf".to_string(),
+            access_list: vec![RestrictionLevel::Seller],
+            name: "contract.pdf".to_string(),
+            size: 100,
+        };
+
+        let result =
+            ContractStorage::upload_contract_document(&1_u64.into(), document, vec![1, 2, 3, 4]);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            DeferredDataError::Contract(DataContractError::DocumentSizeMismatch(100, 4))
+        );
     }
 }

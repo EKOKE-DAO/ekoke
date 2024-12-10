@@ -28,6 +28,8 @@ pub enum ContractError {
     ContractNotFound(ID),
     #[error("document {0} not found")]
     DocumentNotFound(u64),
+    #[error("document size mismatch provided size: {0}, actual size: {1}")]
+    DocumentSizeMismatch(u64, u64),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

@@ -45,6 +45,7 @@ export interface Contract {
 }
 export interface ContractDocument {
   'name' : string,
+  'size' : bigint,
   'mime_type' : string,
   'access_list' : Array<RestrictionLevel>,
 }
@@ -55,6 +56,7 @@ export interface ContractDocumentData {
 }
 export type ContractError = { 'DocumentNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
+  { 'DocumentSizeMismatch' : [bigint, bigint] } |
   { 'BadContractProperty' : null };
 export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };

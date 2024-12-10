@@ -99,6 +99,7 @@ pub struct ContractDocument {
     pub access_list: Vec<RestrictionLevel>,
     pub mime_type: String,
     pub name: String,
+    pub size: u64,
 }
 
 /// A struct which defines a document data

@@ -22,6 +22,7 @@ export const idlFactory = ({ IDL }) => {
   const ContractError = IDL.Variant({
     'DocumentNotFound' : IDL.Nat64,
     'ContractNotFound' : IDL.Nat,
+    'DocumentSizeMismatch' : IDL.Tuple(IDL.Nat64, IDL.Nat64),
     'BadContractProperty' : IDL.Null,
   });
   const RejectionCode = IDL.Variant({
@@ -50,6 +51,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const ContractDocument = IDL.Record({
     'name' : IDL.Text,
+    'size' : IDL.Nat64,
     'mime_type' : IDL.Text,
     'access_list' : IDL.Vec(RestrictionLevel),
   });
