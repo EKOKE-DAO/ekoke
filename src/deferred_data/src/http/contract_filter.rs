@@ -7,6 +7,9 @@ const FILTER_SELLER: &str = "seller";
 const FILTER_BUYER: &str = "buyer";
 const FILTER_AGENT: &str = "agent";
 
+const FILTER_MIN_PRICE: &str = "minPrice";
+const FILTER_MAX_PRICE: &str = "maxPrice";
+
 const FILTER_PROPERTY_NAME: &str = "name";
 const FILTER_PROPERTY_DESCRIPTION: &str = "description";
 const FILTER_PROPERTY_IMAGE: &str = "image";
@@ -43,6 +46,10 @@ enum ContractFilter {
     Buyer(H160),
     /// Agent
     Agent(Principal),
+    /// Min price
+    MinPrice(u64),
+    /// Max price
+    MaxPrice(u64),
 }
 
 impl ContractFilter {
@@ -67,6 +74,8 @@ impl ContractFilter {
                 .as_ref()
                 .map(|agency| agency.owner == *agent)
                 .unwrap_or_default(),
+            ContractFilter::MinPrice(min_price) => contract.value >= *min_price,
+            ContractFilter::MaxPrice(max_price) => contract.value <= *max_price,
         }
     }
 }
@@ -94,6 +103,16 @@ impl From<&Url> for Filters {
                 FILTER_SELLER => {
                     if let Ok(addr) = H160::from_hex_str(value.as_ref()) {
                         filters.push(ContractFilter::Seller(addr));
+                    }
+                }
+                FILTER_MIN_PRICE => {
+                    if let Ok(min_price) = value.parse() {
+                        filters.push(ContractFilter::MinPrice(min_price));
+                    }
+                }
+                FILTER_MAX_PRICE => {
+                    if let Ok(max_price) = value.parse() {
+                        filters.push(ContractFilter::MaxPrice(max_price));
                     }
                 }
                 FILTER_PROPERTY_NAME

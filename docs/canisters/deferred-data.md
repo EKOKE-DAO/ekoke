@@ -43,7 +43,9 @@ It is also possible to filter contracts using query params:
 
 - seller: seller ETH address
 - buyer: buyer ETH address
-- agency: agency principal
+- agent: agency principal
+- minPrice: minimum price
+- maxPrice: maximum price (price is)
 - contract_property: name of the contract property followed by the value (e.g. `contract:garden` => `garden=true`).
 
 ### Get contract by id

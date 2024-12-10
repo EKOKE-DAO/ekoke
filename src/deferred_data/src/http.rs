@@ -226,8 +226,13 @@ mod test {
 
     #[tokio::test]
     async fn test_should_filter_contract() {
+        // total price is 100 * 100
+        let min_price = 100 * 50u64;
+        let max_price = 100 * 150u64;
+
         store_mock_contract_with(1u64, 100, |contract| {
             // insert all properties
+            contract.value = 100 * 100;
             contract.buyers =
                 vec![H160::from_hex_str("0x0b24F78CF0033FAbf1977D9aA61f583fBF7586D9").unwrap()];
             contract.sellers = vec![Seller {
@@ -333,7 +338,9 @@ mod test {
 
         // build url with filters
         let url = Url::parse(
-            "http://localhost/contracts?latitude=123&longitude=456&zone=zone&city=city&squareMeters=123&rooms=4&bathrooms=8&floors=10&balconies=2&garden=true&pool=true&garage=true&parking=true&energyClass=A&youtubeUrl=https://www.youtube.com/watch?v=IOuTVyaNSrU",
+            &format!(
+                "http://localhost/contracts?latitude=123&longitude=456&zone=zone&city=city&squareMeters=123&rooms=4&bathrooms=8&floors=10&balconies=2&garden=true&pool=true&garage=true&parking=true&energyClass=A&youtubeUrl=https://www.youtube.com/watch?v=IOuTVyaNSrU&minPrice={min_price}&maxPrice={max_price}",
+            )
         )
         .expect("Failed to parse URL");
 

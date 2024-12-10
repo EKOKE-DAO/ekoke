@@ -27,7 +27,7 @@ pub struct Contract {
     pub buyers: Vec<H160>,
     /// Number of installments
     pub installments: u64,
-    /// Token value
+    /// Contract value value
     pub value: u64,
     /// Deposit fiat value (already paid)
     pub deposit: u64,
