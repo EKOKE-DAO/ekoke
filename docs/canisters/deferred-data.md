@@ -5,6 +5,7 @@
   - [HTTP Endpoint](#http-endpoint)
     - [Get contracts](#get-contracts)
     - [Get contract by id](#get-contract-by-id)
+  - [Contract Properties](#contract-properties)
 
 ## Introduction
 
@@ -37,6 +38,13 @@ Response:
   3
 ]
 ```
+
+It is also possible to filter contracts using query params:
+
+- seller: seller ETH address
+- buyer: buyer ETH address
+- agency: agency principal
+- contract_property: name of the contract property followed by the value (e.g. `contract:garden` => `garden=true`).
 
 ### Get contract by id
 
@@ -83,3 +91,33 @@ Response:
 ```
 
 > Restricted properties are redacted based on your permissions
+
+## Contract Properties
+
+These are the Properties that may be inserted into the Contract.
+
+| Property              | Type         | Description |
+|-----------------------|--------------|------------------------------------------------|
+| contract:name         | TextContent  | A title for the property                       |
+| contract:description  | TextContent  | A description for the property                 |
+| contract:image        | TextContent  | URL or base64 encoded image                    |
+| contract:address      | TextContent  | Address where the property is located          |
+| contract:country      | TextContent  | Country where the property is located          |
+| contract:continent    | TextContent  | Continent where the property is located        |
+| contract:region       | TextContent  | Region where the property is located           |
+| contract:zipCode      | TextContent  | Zip code where the property is located         |
+| contract:latitude     | TextContent  | Latitude where the property is located         |
+| contract:longitude    | TextContent  | Longitude where the property is located        |
+| contract:zone         | TextContent  | Zone of the city where the property is located |
+| contract:city         | TextContent  | City where the property is located             |
+| contract:squareMeters | Nat64Content | Property square meters                         |
+| contract:rooms        | Nat64Content | Amount of rooms                                |
+| contract:bathrooms    | Nat64Content | Amount of Bathrooms                            |
+| contract:floors       | Nat64Content | Floors                                         |
+| contract:balconies    | Nat64Content | Amount of balconies                            |
+| contract:garden       | BoolContent  | Has garden                                     |
+| contract:pool         | BoolContent  | Has pool                                       |
+| contract:garage       | BoolContent  | Has garage                                     |
+| contract:parking      | BoolContent  | Has a private parking                          |
+| contract:energyClass  | TextContent  | Optional energy class                          |
+| contract:youtubeUrl   | TextContent  | URL to a YouTube video showcasing the property |

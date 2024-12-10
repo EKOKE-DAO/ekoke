@@ -769,6 +769,7 @@ dependencies = [
  "pretty_assertions",
  "route-recognizer",
  "serde",
+ "serde_json",
  "thiserror 2.0.3",
  "time",
  "tokio",

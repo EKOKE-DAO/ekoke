@@ -146,6 +146,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const RestrictionLevel = IDL.Variant({
     'Buyer' : IDL.Null,
+    'Public' : IDL.Null,
     'Seller' : IDL.Null,
     'Agent' : IDL.Null,
   });

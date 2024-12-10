@@ -49,6 +49,17 @@ impl ContractStorage {
         })
     }
 
+    /// get contracts by filter
+    pub fn get_contracts_filter(filter: impl Fn(&Contract) -> bool) -> Vec<ID> {
+        with_contracts(|contracts| {
+            contracts
+                .iter()
+                .filter(|(_, contract)| !contract.closed && filter(contract))
+                .map(|(key, _)| key.0.clone())
+                .collect()
+        })
+    }
+
     /// Update contract property
     pub fn update_contract_property(
         contract_id: &ID,
@@ -153,6 +164,7 @@ impl ContractStorage {
 #[cfg(test)]
 mod test {
 
+    use candid::Nat;
     use did::deferred::{RestrictionLevel, Seller};
     use did::H160;
     use pretty_assertions::assert_eq;
@@ -193,6 +205,44 @@ mod test {
         ContractStorage::insert_contract(contract.clone());
         assert!(ContractStorage::get_contract(&contract.id).is_some());
         assert_eq!(ContractStorage::get_contracts(), vec![contract.id]);
+    }
+
+    #[test]
+    fn test_should_filter_contracts() {
+        let seller = vec![Seller {
+            address: H160::zero(),
+            quota: 100,
+        }];
+
+        let contract = with_mock_contract(1, 2, |contract| {
+            contract.sellers = seller.clone();
+            contract.buyers = vec![];
+        });
+        // store
+        ContractStorage::insert_contract(contract.clone());
+
+        // other contract
+        let contract = with_mock_contract(2, 2, |contract| {
+            contract.sellers = seller;
+            contract.buyers = vec![];
+
+            contract.properties.push((
+                "contract:cryptomadonne".to_string(),
+                GenericValue::TextContent("Yes".to_string()),
+            ));
+        });
+
+        // store
+        ContractStorage::insert_contract(contract.clone());
+
+        // filter
+        let contracts = ContractStorage::get_contracts_filter(|contract| {
+            contract
+                .properties
+                .iter()
+                .any(|(k, _)| k == "contract:cryptomadonne")
+        });
+        assert_eq!(contracts, vec![Nat::from(2u64)]);
     }
 
     #[test]

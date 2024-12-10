@@ -113,6 +113,7 @@ export interface RestrictedProperty {
   'access_list' : Array<RestrictionLevel>,
 }
 export type RestrictionLevel = { 'Buyer' : null } |
+  { 'Public' : null } |
   { 'Seller' : null } |
   { 'Agent' : null };
 export type Result = { 'Ok' : null } |

@@ -44,6 +44,7 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeferredDataError });
   const RestrictionLevel = IDL.Variant({
     'Buyer' : IDL.Null,
+    'Public' : IDL.Null,
     'Seller' : IDL.Null,
     'Agent' : IDL.Null,
   });

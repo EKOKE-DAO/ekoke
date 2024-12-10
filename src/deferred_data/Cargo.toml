@@ -35,4 +35,5 @@ url = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1"
+serde_json = { workspace = true }
 tokio = { version = "1", features = ["full"] }

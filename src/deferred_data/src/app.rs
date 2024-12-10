@@ -3,7 +3,7 @@ mod inspect;
 mod memory;
 mod storage;
 #[cfg(test)]
-mod test_utils;
+pub mod test_utils;
 
 use candid::{Nat, Principal};
 use did::deferred::{
@@ -15,10 +15,10 @@ use ethers_core::abi::ethereum_types::H520;
 use ic_log::did::Pagination;
 use ic_log::writer::Logs;
 use ic_log::{init_log, take_memory_records};
-use storage::ContractStorage;
 
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
+pub use self::storage::ContractStorage;
 use crate::utils::{caller, cycles};
 
 /// A message used to verify the ownership of a contract (seller or buyer)
@@ -182,7 +182,7 @@ impl DeferredData {
         } else if let Some(signature) = signature {
             Inspect::inspect_signature(&contract.id, signature.signature, signature.message)?
         } else {
-            return Err(DeferredDataError::Unauthorized);
+            RestrictionLevel::Public
         };
 
         // check if we have access
@@ -212,7 +212,7 @@ impl DeferredData {
         } else if let Some(signature) = signature {
             Inspect::inspect_signature(&contract.id, signature.signature, signature.message).ok()
         } else {
-            None
+            Some(RestrictionLevel::Public)
         };
 
         // if no access level, redact all

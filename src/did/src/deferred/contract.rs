@@ -123,6 +123,8 @@ pub enum RestrictionLevel {
     Buyer,
     /// Agent can access the property
     Agent,
+    /// Public can access the property
+    Public,
 }
 
 /// A variant which defines the contract type

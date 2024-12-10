@@ -150,7 +150,7 @@ type RestrictedProperty = record {
   value : GenericValue;
   access_list : vec RestrictionLevel;
 };
-type RestrictionLevel = variant { Buyer; Seller; Agent };
+type RestrictionLevel = variant { Buyer; Public; Seller; Agent };
 type Result = variant { Ok; Err : DeferredMinterError };
 type Result_1 = variant { Ok : nat; Err : DeferredMinterError };
 type Result_2 = variant { Ok : text; Err : DeferredMinterError };
