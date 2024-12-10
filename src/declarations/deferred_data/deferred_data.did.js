@@ -49,6 +49,7 @@ export const idlFactory = ({ IDL }) => {
     'Agent' : IDL.Null,
   });
   const ContractDocument = IDL.Record({
+    'name' : IDL.Text,
     'mime_type' : IDL.Text,
     'access_list' : IDL.Vec(RestrictionLevel),
   });
@@ -120,6 +121,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const ContractDocumentData = IDL.Record({
     'data' : IDL.Vec(IDL.Nat8),
+    'name' : IDL.Text,
     'mime_type' : IDL.Text,
   });
   const Result_1 = IDL.Variant({

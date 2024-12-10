@@ -41,10 +41,15 @@ type Contract = record {
   buyers : vec text;
 };
 type ContractDocument = record {
+  name : text;
   mime_type : text;
   access_list : vec RestrictionLevel;
 };
-type ContractDocumentData = record { data : blob; mime_type : text };
+type ContractDocumentData = record {
+  data : blob;
+  name : text;
+  mime_type : text;
+};
 type ContractError = variant {
   DocumentNotFound : nat64;
   ContractNotFound : nat;

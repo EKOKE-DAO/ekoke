@@ -88,6 +88,7 @@ fn repr_contract() -> anyhow::Result<()> {
         ContractDocument {
             access_list: vec![RestrictionLevel::Agent, RestrictionLevel::Seller],
             mime_type: "application/pdf".to_string(),
+            name: "Contract".to_string(),
         },
     )];
 

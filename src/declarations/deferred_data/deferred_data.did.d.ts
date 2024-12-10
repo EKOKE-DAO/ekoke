@@ -44,11 +44,13 @@ export interface Contract {
   'buyers' : Array<string>,
 }
 export interface ContractDocument {
+  'name' : string,
   'mime_type' : string,
   'access_list' : Array<RestrictionLevel>,
 }
 export interface ContractDocumentData {
   'data' : Uint8Array | number[],
+  'name' : string,
   'mime_type' : string,
 }
 export type ContractError = { 'DocumentNotFound' : bigint } |

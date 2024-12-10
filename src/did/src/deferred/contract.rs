@@ -98,6 +98,7 @@ pub type ContractDocuments = Vec<(u64, ContractDocument)>;
 pub struct ContractDocument {
     pub access_list: Vec<RestrictionLevel>,
     pub mime_type: String,
+    pub name: String,
 }
 
 /// A struct which defines a document data
@@ -105,6 +106,7 @@ pub struct ContractDocument {
 pub struct ContractDocumentData {
     pub data: Vec<u8>,
     pub mime_type: String,
+    pub name: String,
 }
 
 /// A restricted property, which defines the access level to the property and its value

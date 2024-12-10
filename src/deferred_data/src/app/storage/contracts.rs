@@ -157,6 +157,7 @@ impl ContractStorage {
         Ok(ContractDocumentData {
             data: document_data,
             mime_type: document_properties.mime_type.clone(),
+            name: document_properties.name.clone(),
         })
     }
 }
@@ -372,6 +373,7 @@ mod test {
         let document = ContractDocument {
             mime_type: "application/pdf".to_string(),
             access_list: vec![RestrictionLevel::Seller],
+            name: "contract.pdf".to_string(),
         };
 
         let document_id =
