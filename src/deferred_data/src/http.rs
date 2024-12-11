@@ -281,11 +281,11 @@ mod test {
                 ),
                 (
                     "contract:latitude".to_string(),
-                    GenericValue::TextContent("123".to_string()),
+                    GenericValue::TextContent("45.4642".to_string()),
                 ),
                 (
                     "contract:longitude".to_string(),
-                    GenericValue::TextContent("456".to_string()),
+                    GenericValue::TextContent("9.19".to_string()),
                 ),
                 (
                     "contract:zone".to_string(),
@@ -341,7 +341,7 @@ mod test {
         // build url with filters
         let url = Url::parse(
             &format!(
-                "http://localhost/contracts?latitude=123&longitude=456&zone=zone&city=city&squareMeters=123&rooms=4&bathrooms=8&floors=10&balconies=2&garden=true&pool=true&garage=true&parking=true&energyClass=A&youtubeUrl=https://www.youtube.com/watch?v=IOuTVyaNSrU&minPrice={min_price}&maxPrice={max_price}",
+                "http://localhost/contracts?latitude=45.0&longitude=9&radius=70&zone=zone&city=city&squareMeters=123&rooms=4&bathrooms=8&floors=10&balconies=2&garden=true&pool=true&garage=true&parking=true&energyClass=A&youtubeUrl=https://www.youtube.com/watch?v=IOuTVyaNSrU&minPrice={min_price}&maxPrice={max_price}",
             )
         )
         .expect("Failed to parse URL");

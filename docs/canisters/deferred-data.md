@@ -46,7 +46,17 @@ It is also possible to filter contracts using query params:
 - agent: agency principal
 - minPrice: minimum price
 - maxPrice: maximum price (price is)
+- position: check if contract property is in a certain range. The following keys are required
+  - `latitude`
+  - `longitude`
+  - `radius` (Km)
 - contract_property: name of the contract property followed by the value (e.g. `contract:garden` => `garden=true`).
+
+URL with query params
+
+```txt
+GET /contracts?latitude=45.04&longitude=9.89&radius=20&minPrice=10000&maxPrice=2100000&seller=0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A&buyer=0x0b24F78CF0033FAbf1977D9aA61f583fBF7586D9&garden&city=london
+```
 
 ### Get contract by id
 
