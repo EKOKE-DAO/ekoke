@@ -20,9 +20,9 @@ mod memory;
 mod reward;
 mod roles;
 #[cfg(test)]
-mod test_utils;
+pub mod test_utils;
 
-use self::agents::Agents;
+pub(crate) use self::agents::Agents;
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
 use self::reward::Reward;
@@ -76,6 +76,11 @@ impl DeferredMinter {
     /// get agencies
     pub fn get_agencies() -> Vec<Agency> {
         Agents::get_agencies()
+    }
+
+    /// Get agency by wallet
+    pub fn get_agent(id: Principal) -> Option<Agency> {
+        Agents::get_agency_by_wallet(id)
     }
 
     /// Remove agency by wallet.

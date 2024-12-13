@@ -169,6 +169,7 @@ service : (DeferredMinterInitData) -> {
   create_contract : (ContractRegistration) -> (Result_1);
   gas_station_set_gas_price : (nat64) -> (Result);
   get_agencies : () -> (vec Agency) query;
+  get_agency : (principal) -> (opt Agency) query;
   get_eth_address : () -> (Result_2);
   http_request : (HttpRequest) -> (HttpResponse) query;
   remove_agency : (principal) -> (Result);

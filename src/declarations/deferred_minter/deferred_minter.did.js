@@ -198,6 +198,7 @@ export const idlFactory = ({ IDL }) => {
     'create_contract' : IDL.Func([ContractRegistration], [Result_1], []),
     'gas_station_set_gas_price' : IDL.Func([IDL.Nat64], [Result], []),
     'get_agencies' : IDL.Func([], [IDL.Vec(Agency)], ['query']),
+    'get_agency' : IDL.Func([IDL.Principal], [IDL.Opt(Agency)], ['query']),
     'get_eth_address' : IDL.Func([], [Result_2], []),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'remove_agency' : IDL.Func([IDL.Principal], [Result], []),

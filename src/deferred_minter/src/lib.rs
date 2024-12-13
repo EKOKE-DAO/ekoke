@@ -55,6 +55,12 @@ pub fn get_agencies() -> Vec<Agency> {
     DeferredMinter::get_agencies()
 }
 
+#[query]
+#[candid_method(query)]
+pub fn get_agency(id: Principal) -> Option<Agency> {
+    DeferredMinter::get_agent(id)
+}
+
 #[update]
 #[candid_method(update)]
 pub fn remove_agency(wallet: Principal) -> DeferredMinterResult<()> {

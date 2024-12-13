@@ -793,13 +793,16 @@ dependencies = [
  "log",
  "num-traits",
  "pretty_assertions",
+ "route-recognizer",
  "secp256k1",
  "serde",
+ "serde_json",
  "sha2 0.10.8",
  "sha3",
  "thiserror 2.0.3",
  "time",
  "tokio",
+ "url",
 ]
 
 [[package]]

@@ -168,6 +168,7 @@ export interface _SERVICE {
   'create_contract' : ActorMethod<[ContractRegistration], Result_1>,
   'gas_station_set_gas_price' : ActorMethod<[bigint], Result>,
   'get_agencies' : ActorMethod<[], Array<Agency>>,
+  'get_agency' : ActorMethod<[Principal], [] | [Agency]>,
   'get_eth_address' : ActorMethod<[], Result_2>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'remove_agency' : ActorMethod<[Principal], Result>,

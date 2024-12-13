@@ -10,6 +10,7 @@
       - [Close contract](#close-contract)
   - [HTTP Endpoint](#http-endpoint)
     - [Agents](#agents)
+    - [Agent by ID](#agent-by-id)
 
 ## Introduction
 
@@ -85,4 +86,29 @@ The response has the following syntax:
     "zipCode": "33100"
   }
 ]
+```
+
+### Agent by ID
+
+```txt
+GET /agent/:principal
+```
+
+The response has the following syntax:
+
+```json
+{
+  "address": "Via roma 12",
+  "city": "Milan",
+  "continent": "Europe",
+  "country": "Italy",
+  "email": "test@example.com",
+  "mobile": "3661677509",
+  "name": "MilanHouses",
+  "owner": "principal",
+  "region": "...",
+  "vat": "",
+  "website": "",
+  "zipCode": "33100"
+}
 ```
