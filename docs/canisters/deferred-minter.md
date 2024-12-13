@@ -12,6 +12,8 @@
     - [Agents](#agents)
     - [Agent by ID](#agent-by-id)
 
+Principal: `2f5ik-ciaaa-aaaal-aruna-cai`
+
 ## Introduction
 
 Deferred **Minter** canister takes care of these two use cases:

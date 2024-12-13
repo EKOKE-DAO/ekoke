@@ -7,6 +7,8 @@
     - [Get contract by id](#get-contract-by-id)
   - [Contract Properties](#contract-properties)
 
+Principal: `2m6dw-uaaaa-aaaal-arumq-cai`
+
 ## Introduction
 
 Deferred **Data** canister takes care of storing sell contracts and provides the following functionalities:

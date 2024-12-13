@@ -67,6 +67,7 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 
 - **deferred-data**: `2m6dw-uaaaa-aaaal-arumq-cai`
 - **deferred-minter**: `2f5ik-ciaaa-aaaal-aruna-cai`
+- **dapp**: `ygihe-dyaaa-aaaal-ai4la-cai`
 
 ## Get started
 

@@ -8,6 +8,8 @@
 
 ## Introduction
 
+`0x92fBA9067844A419A1C394197aE406768555F71b`
+
 The EKOKE ERC20 token is the main token of the DAO and it's used both as a reward for third party investors for buying the Deferred NFTs and as a store of value.
 
 It's capability of being a store of value is given by the fact that EKOKE tokens are scarce and the amount of minted tokens will decrease quickly in the range of a decade.
