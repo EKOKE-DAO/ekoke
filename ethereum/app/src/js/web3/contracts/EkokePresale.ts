@@ -370,7 +370,7 @@ interface ContractAddress {
 export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Goerli]: '',
   [ChainId.Kovan]: '',
-  [ChainId.Mainnet]: '',
+  [ChainId.Mainnet]: '0x0AA24850527dAC93EFA962E9D8a8E08f8DC083DF',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
   [ChainId.Sepolia]: '0x10B6bDB762aE3bAB9C6A097455252171b7F80457',

@@ -70,7 +70,7 @@ const CONTRACT_EKOKE = "ekoke";
 const CONTRACT_EKOKE_PRESALE = "ekoke-presale";
 const CONTRACT_MARKETPLACE = "marketplace";
 const CONTRACT_REWARD_POOL = "reward-pool";
-const CONTRAT_USD_ERC20 = "usdt";
+const CONTRACT_USD_ERC20 = "usdt";
 
 task("deploy", "Deploy contracts")
   .addPositionalParam(
@@ -112,7 +112,7 @@ task("deploy", "Deploy contracts")
         });
         break;
 
-      case CONTRAT_USD_ERC20:
+      case CONTRACT_USD_ERC20:
         await deployUsdErc20();
         break;
 

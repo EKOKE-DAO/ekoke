@@ -58,7 +58,8 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 ## Ethereum Contracts
 
 - **Deferred**: `TBD`
-- **EKOKE**: `TBD`
+- **EKOKE**: `0x92fBA9067844A419A1C394197aE406768555F71b`
+- **EKOKE-presale**: `0x0AA24850527dAC93EFA962E9D8a8E08f8DC083DF`
 - **Marketplace**: `TBD`
 - **RewardPool**: `TBD`
 
