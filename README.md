@@ -65,8 +65,8 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 
 ## Canisters
 
-- **deferred-data**: `TBD`
-- **deferred-minter**: `TBD`
+- **deferred-data**: `2m6dw-uaaaa-aaaal-arumq-cai`
+- **deferred-minter**: `2f5ik-ciaaa-aaaal-aruna-cai`
 
 ## Get started
 
