@@ -27,10 +27,25 @@ pub struct HttpResponse {
 impl HttpResponse {
     pub fn new(
         status_code: u16,
-        headers: HashMap<Cow<'static, str>, Cow<'static, str>>,
+        mut headers: HashMap<Cow<'static, str>, Cow<'static, str>>,
         body: ByteBuf,
         upgrade: Option<bool>,
     ) -> Self {
+        // Imposta le intestazioni per consentire CORS
+        let cors_headers = [
+            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+            (
+                "Access-Control-Allow-Headers",
+                "Content-Type, Authorization",
+            ),
+        ];
+
+        // insert CORS headers
+        for (k, v) in cors_headers.iter() {
+            headers.insert(Cow::Borrowed(*k), Cow::Borrowed(*v));
+        }
+
         Self {
             status_code,
             headers,

@@ -19,6 +19,11 @@ pub struct HttpApi;
 impl HttpApi {
     /// Handles an HTTP request
     pub async fn handle_http_request(req: HttpRequest) -> HttpResponse {
+        // handle CORS preflight request
+        if req.method == "OPTIONS" {
+            return HttpResponse::ok("".to_string());
+        }
+
         // must be a GET request
         if req.method != "GET" {
             return HttpResponse::bad_request("expected GET method".to_string());
