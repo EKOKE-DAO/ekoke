@@ -129,6 +129,45 @@ export const ABI = [
   },
   {
     inputs: [],
+    name: 'deferred',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'ekoke',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'marketplace',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'owner',
     outputs: [
       {
@@ -224,7 +263,7 @@ interface ContractAddress {
 export const CONTRACT_ADDRESS: ContractAddress = {
   [ChainId.Goerli]: '',
   [ChainId.Kovan]: '',
-  [ChainId.Mainnet]: '',
+  [ChainId.Mainnet]: '0x161b3061b67C77bb866ECbA67Fa29936A51011F0',
   [ChainId.Rinkeby]: '',
   [ChainId.Ropsten]: '',
   [ChainId.Sepolia]: '0x56d0bc3B1d0e1b218EDF29CDD004F6a5B95b1b46',

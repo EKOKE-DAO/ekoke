@@ -12,6 +12,7 @@ const RewardPool = () => {
 
   const [availableReward, setAvailableReward] = React.useState<string>();
   const [reservedAmount, setReservedAmount] = React.useState<string>();
+  const [Marketplace, setMarketplace] = React.useState<string>();
 
   React.useEffect(() => {
     const client = new RewardPoolClient(account, ethereum, chainId as ChainId);
@@ -22,6 +23,7 @@ const RewardPool = () => {
     client
       .reservedAmount()
       .then((reserved) => setReservedAmount(convertToHumanReadable(reserved)));
+    client.marketplace().then(setMarketplace);
   }, []);
 
   return (
@@ -29,6 +31,7 @@ const RewardPool = () => {
       <Container.Container>
         <span className="block">Available reward: {availableReward}</span>
         <span className="block">Reserved amount: {reservedAmount}</span>
+        <span className="block">Marketplace: {Marketplace}</span>
       </Container.Container>
       <Container.FlexCols className="gap-8 w-3/6">
         <AdminSetMarketplace />

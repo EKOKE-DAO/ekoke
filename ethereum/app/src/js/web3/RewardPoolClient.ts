@@ -28,6 +28,11 @@ export default class RewardPoolClient {
       .send({ from: this.address });
   }
 
+  async marketplace(): Promise<string> {
+    const contract = this.getContract();
+    return contract.methods.marketplace().call();
+  }
+
   async availableReward(): Promise<bigint> {
     const contract = this.getContract();
     return contract.methods.availableReward().call();

@@ -57,16 +57,17 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 
 ## Ethereum Contracts
 
-- **Deferred**: `TBD`
-- **EKOKE**: `0x92fBA9067844A419A1C394197aE406768555F71b`
-- **EKOKE-presale**: `0x0AA24850527dAC93EFA962E9D8a8E08f8DC083DF`
-- **Marketplace**: `TBD`
-- **RewardPool**: `TBD`
+- **Deferred**: [0xA0939B965AE2683DA136cFF37FC856Ca46c66Cd6](https://etherscan.io/address/0xA0939B965AE2683DA136cFF37FC856Ca46c66Cd6)
+- **EKOKE**: [0x92fBA9067844A419A1C394197aE406768555F71b](https://etherscan.io/address/0x92fBA9067844A419A1C394197aE406768555F71b)
+- **EKOKE-presale**: [0x0AA24850527dAC93EFA962E9D8a8E08f8DC083DF](https://etherscan.io/address/0x0AA24850527dAC93EFA962E9D8a8E08f8DC083DF)
+- **Marketplace**: [0x70414531075AC3ca41a1Fca6217a977AF908a7E2](https://etherscan.io/address/0x70414531075AC3ca41a1Fca6217a977AF908a7E2)
+- **RewardPool**: [0x161b3061b67C77bb866ECbA67Fa29936A51011F0](https://etherscan.io/address/0x161b3061b67C77bb866ECbA67Fa29936A51011F0)
 
 ## Canisters
 
 - **deferred-data**: `2m6dw-uaaaa-aaaal-arumq-cai`
 - **deferred-minter**: `2f5ik-ciaaa-aaaal-aruna-cai`
+  - Ethereum Minter Address: [0x1b22db91529cefbd793e34e2f75d33ac744b1bcd](https://etherscan.io/address/0x1b22db91529cefbd793e34e2f75d33ac744b1bcd)
 - **dapp**: `ygihe-dyaaa-aaaal-ai4la-cai`
 
 ## Get started
