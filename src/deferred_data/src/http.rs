@@ -24,9 +24,15 @@ impl HttpApi {
             return HttpResponse::bad_request("expected GET method".to_string());
         }
 
+        // convert URL to valid URL
+        let url = if req.url.starts_with("/") {
+            format!("http://localhost{}", req.url)
+        } else {
+            req.url.clone()
+        };
         // parse url
-        let Ok(url) = Url::parse(&req.url) else {
-            return HttpResponse::bad_request("invalid URL".to_string());
+        let Ok(url) = Url::parse(&url) else {
+            return HttpResponse::bad_request(format!("Invalid URL: {url}"));
         };
 
         let mut router = Router::new();
