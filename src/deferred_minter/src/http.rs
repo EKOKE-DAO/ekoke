@@ -1,6 +1,6 @@
 mod agents;
 
-use agents::Filters;
+use agents::{Filters, FILTER_PAGINATION_LIMIT, FILTER_PAGINATION_OFFSET};
 use candid::Principal;
 use did::{HttpRequest, HttpResponse};
 use route_recognizer::Router;
@@ -10,6 +10,11 @@ use crate::app::DeferredMinter;
 
 const ROUTE_AGENTS: &str = "Agents";
 const ROUTE_AGENT: &str = "Agent";
+
+struct Pagination {
+    offset: usize,
+    limit: usize,
+}
 
 pub struct HttpApi;
 
@@ -60,12 +65,26 @@ impl HttpApi {
 
     fn get_agencies(url: &Url) -> HttpResponse {
         let filters = Filters::from(url);
-        println!("Filters {:?}", filters);
+
+        // get pagination
+        let pagination = Self::get_pagination(url);
 
         HttpResponse::ok(
             DeferredMinter::get_agencies()
                 .into_iter()
                 .filter(|agency| filters.check(agency))
+                .skip(
+                    pagination
+                        .as_ref()
+                        .map(|page| page.offset)
+                        .unwrap_or_default(),
+                )
+                .take(
+                    pagination
+                        .as_ref()
+                        .map(|page| page.limit)
+                        .unwrap_or(usize::MAX),
+                )
                 .collect::<Vec<_>>(),
         )
     }
@@ -76,6 +95,23 @@ impl HttpApi {
         };
 
         HttpResponse::ok(agent)
+    }
+
+    /// Extracts pagination from URL
+    fn get_pagination(url: &Url) -> Option<Pagination> {
+        let offset = url
+            .query_pairs()
+            .find(|(key, _)| key == FILTER_PAGINATION_OFFSET)
+            .map(|(_, value)| value)?;
+        let limit = url
+            .query_pairs()
+            .find(|(key, _)| key == FILTER_PAGINATION_LIMIT)
+            .map(|(_, value)| value)?;
+
+        let offset = offset.parse().ok()?;
+        let limit = limit.parse().ok()?;
+
+        Some(Pagination { offset, limit })
     }
 }
 
@@ -176,5 +212,15 @@ mod test {
 
         let res = HttpApi::handle_http_request(req).await;
         assert_eq!(res.status_code, 404);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_pagination_from_url() {
+        let url = Url::parse("http://localhost/agents?offset=10&limit=20").unwrap();
+
+        let pagination = HttpApi::get_pagination(&url).unwrap();
+
+        assert_eq!(pagination.offset, 10);
+        assert_eq!(pagination.limit, 20);
     }
 }

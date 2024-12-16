@@ -72,9 +72,12 @@ Returns all the agents registered.
 It is also possible to filter agencies by parameters with query parameters.
 
 - position (filter by position; requires 3 keys):
-  - lat
-  - lng
+  - latitude
+  - longitude
   - radius (km)
+- pagination:
+  - offset
+  - limit
 - name
 - city
 - vat
@@ -87,7 +90,7 @@ It is also possible to filter agencies by parameters with query parameters.
 e.g.
 
 ```txt
-GET /agents?lat=45&lng=9&radius=100&city=London
+GET /agents?latitude=45&longitude=9&radius=100&city=London
 ```
 
 The response has the following syntax:

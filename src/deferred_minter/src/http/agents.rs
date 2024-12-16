@@ -7,6 +7,9 @@ const FILTER_POSITION_LATITUDE: &str = "latitude";
 const FILTER_POSITION_LONGITUDE: &str = "longitude";
 const FILTER_POSITION_RADIUS: &str = "radius";
 
+pub(super) const FILTER_PAGINATION_OFFSET: &str = "offset";
+pub(super) const FILTER_PAGINATION_LIMIT: &str = "limit";
+
 const FILTER_NAME: &str = "name";
 const FILTER_ADDRESS: &str = "address";
 const FILTER_COUNTRY: &str = "country";
@@ -152,7 +155,6 @@ impl From<&Url> for Filters {
 impl Filters {
     /// Check if the [`Agency`] satisfies the filters.
     pub fn check(&self, agency: &Agency) -> bool {
-        println!("Filters checking {:?}", self.filters);
         self.filters.iter().all(|filter| filter.check(agency))
     }
 }
