@@ -32,7 +32,7 @@ enum AgencyFilter {
 }
 
 impl AgencyFilter {
-    fn agency_property<'a>(prop: &str, agency: &'a Agency) -> Option<String> {
+    fn agency_property(prop: &str, agency: &Agency) -> Option<String> {
         match prop {
             FILTER_NAME => Some(&agency.name).cloned(),
             FILTER_ADDRESS => Some(&agency.address).cloned(),
