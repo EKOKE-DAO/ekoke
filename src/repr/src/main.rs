@@ -21,6 +21,8 @@ fn repr_contract() -> anyhow::Result<()> {
         email: "miriamlagente@gmail.com".to_string(),
         logo: Some("logo.png".to_string()),
         mobile: "+39 333 1234567".to_string(),
+        lat: Some("45.12".to_string()),
+        lng: Some("9.12".to_string()),
         owner: Principal::from_text("v5vof-zqaaa-aaaal-ai5cq-cai")?,
         region: "Lombardia".to_string(),
         vat: "IT12345678901".to_string(),

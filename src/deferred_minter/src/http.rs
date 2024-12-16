@@ -1,3 +1,6 @@
+mod agents;
+
+use agents::Filters;
 use candid::Principal;
 use did::{HttpRequest, HttpResponse};
 use route_recognizer::Router;
@@ -40,7 +43,7 @@ impl HttpApi {
         let handler = **route_match.handler();
         let params = route_match.params();
         match handler {
-            ROUTE_AGENTS => Self::get_agencies(),
+            ROUTE_AGENTS => Self::get_agencies(&url),
             ROUTE_AGENT => {
                 let Some(id) = params.find("id") else {
                     return HttpResponse::bad_request("missing agent id".to_string());
@@ -55,8 +58,16 @@ impl HttpApi {
         }
     }
 
-    fn get_agencies() -> HttpResponse {
-        HttpResponse::ok(DeferredMinter::get_agencies())
+    fn get_agencies(url: &Url) -> HttpResponse {
+        let filters = Filters::from(url);
+        println!("Filters {:?}", filters);
+
+        HttpResponse::ok(
+            DeferredMinter::get_agencies()
+                .into_iter()
+                .filter(|agency| filters.check(agency))
+                .collect::<Vec<_>>(),
+        )
     }
 
     fn get_agent(id: Principal) -> HttpResponse {
@@ -71,13 +82,14 @@ impl HttpApi {
 #[cfg(test)]
 mod test {
 
-    use std::{borrow::Cow, collections::HashMap};
-
-    use crate::app::{test_utils::mock_agency, Agents};
-
-    use super::*;
+    use std::borrow::Cow;
+    use std::collections::HashMap;
 
     use pretty_assertions::assert_eq;
+
+    use super::*;
+    use crate::app::test_utils::{mock_agency, with_mock_agency};
+    use crate::app::Agents;
 
     #[tokio::test]
     async fn test_should_get_agencies() {
@@ -96,6 +108,33 @@ mod test {
         let res = HttpApi::handle_http_request(req).await;
         assert_eq!(res.status_code, 200);
 
+        let got_agents: Vec<did::deferred::Agency> = serde_json::from_slice(&res.body).unwrap();
+
+        assert_eq!(got_agents.len(), 1);
+        assert_eq!(got_agents[0], agent);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_agencies_with_filters() {
+        let agent = with_mock_agency(|agent| {
+            agent.name = "Dummy Real estate".to_string();
+            agent.city = "Rome".to_string();
+            agent.continent = did::deferred::Continent::Europe;
+        });
+        Agents::insert_agency(agent.owner, agent.clone());
+
+        let url =
+            Url::parse("http://localhost/agents?name=Dummy&city=Rome&continent=Europe").unwrap();
+
+        let req = HttpRequest {
+            method: Cow::from("GET".to_string()),
+            url: url.to_string(),
+            headers: HashMap::default(),
+            body: Default::default(),
+        };
+
+        let res = HttpApi::handle_http_request(req).await;
+        assert_eq!(res.status_code, 200);
         let got_agents: Vec<did::deferred::Agency> = serde_json::from_slice(&res.body).unwrap();
 
         assert_eq!(got_agents.len(), 1);

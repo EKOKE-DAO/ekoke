@@ -1,4 +1,6 @@
 type Agency = record {
+  lat : opt text;
+  lng : opt text;
   vat : text;
   region : text;
   zip_code : text;

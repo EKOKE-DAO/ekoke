@@ -43,6 +43,8 @@ impl DeferredDataClient {
                 documents: vec![],
                 agency: Some(Agency {
                     name: "Dummy Real estate".to_string(),
+                    lat: None,
+                    lng: None,
                     address: "Via Delle Botteghe Scure".to_string(),
                     city: "Rome".to_string(),
                     region: "Lazio".to_string(),

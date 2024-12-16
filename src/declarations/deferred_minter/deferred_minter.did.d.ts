@@ -3,6 +3,8 @@ import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
 export interface Agency {
+  'lat' : [] | [string],
+  'lng' : [] | [string],
   'vat' : string,
   'region' : string,
   'zip_code' : string,

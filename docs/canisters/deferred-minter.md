@@ -69,6 +69,27 @@ GET /agents
 
 Returns all the agents registered.
 
+It is also possible to filter agencies by parameters with query parameters.
+
+- position (filter by position; requires 3 keys):
+  - lat
+  - lng
+  - radius (km)
+- name
+- city
+- vat
+- zip_code
+- region
+- continent
+- address
+- country
+
+e.g.
+
+```txt
+GET /agents?lat=45&lng=9&radius=100&city=London
+```
+
 The response has the following syntax:
 
 ```json

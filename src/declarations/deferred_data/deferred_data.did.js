@@ -69,6 +69,8 @@ export const idlFactory = ({ IDL }) => {
     'NorthAmerica' : IDL.Null,
   });
   const Agency = IDL.Record({
+    'lat' : IDL.Opt(IDL.Text),
+    'lng' : IDL.Opt(IDL.Text),
     'vat' : IDL.Text,
     'region' : IDL.Text,
     'zip_code' : IDL.Text,

@@ -46,6 +46,8 @@ pub fn mock_agency() -> Agency {
         continent: did::deferred::Continent::Europe,
         email: "email".to_string(),
         website: "website".to_string(),
+        lat: None,
+        lng: None,
         mobile: "mobile".to_string(),
         vat: "vat".to_string(),
         agent: "agent".to_string(),

@@ -76,6 +76,8 @@ mod test {
                 zip_code: "Zip".to_string(),
                 country: "Country".to_string(),
                 continent: Continent::Europe,
+                lat: None,
+                lng: None,
                 email: "Email".to_string(),
                 website: "Website".to_string(),
                 mobile: "Mobile".to_string(),

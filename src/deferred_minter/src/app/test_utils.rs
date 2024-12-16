@@ -46,10 +46,22 @@ pub fn mock_agency() -> Agency {
         website: "website".to_string(),
         mobile: "mobile".to_string(),
         vat: "vat".to_string(),
+        lat: None,
+        lng: None,
         agent: "agent".to_string(),
         logo: None,
         owner: alice(),
     }
+}
+
+pub fn with_mock_agency<F>(f: F) -> Agency
+where
+    F: FnOnce(&mut Agency),
+{
+    let mut agency = mock_agency();
+    f(&mut agency);
+
+    agency
 }
 
 pub fn alice() -> Principal {

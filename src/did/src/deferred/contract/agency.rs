@@ -1,3 +1,5 @@
+use std::fmt;
+
 use candid::{CandidType, Decode, Encode, Principal};
 use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
@@ -12,6 +14,8 @@ pub struct Agency {
     pub continent: Continent,
     pub country: String,
     pub email: String,
+    pub lat: Option<String>,
+    pub lng: Option<String>,
     pub logo: Option<String>,
     pub mobile: String,
     pub name: String,
@@ -35,6 +39,8 @@ impl Default for Agency {
             country: Default::default(),
             email: Default::default(),
             logo: Default::default(),
+            lat: Default::default(),
+            lng: Default::default(),
             mobile: Default::default(),
             name: Default::default(),
             owner: Principal::anonymous(),
@@ -52,6 +58,21 @@ pub enum Continent {
     NorthAmerica,
     Oceania,
     SouthAmerica,
+}
+
+impl fmt::Display for Continent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            Continent::Africa => "Africa",
+            Continent::Antarctica => "Antarctica",
+            Continent::Asia => "Asia",
+            Continent::Europe => "Europe",
+            Continent::NorthAmerica => "North America",
+            Continent::Oceania => "Oceania",
+            Continent::SouthAmerica => "South America",
+        };
+        write!(f, "{s}",)
+    }
 }
 
 impl Storable for Agency {

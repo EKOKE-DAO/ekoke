@@ -419,7 +419,8 @@ mod test {
             Agency {
                 name: "Agency".to_string(),
                 owner: bob(),
-
+                lat: None,
+                lng: None,
                 address: String::default(),
                 agent: String::default(),
                 city: String::default(),
@@ -451,7 +452,8 @@ mod test {
             Agency {
                 name: "Agency".to_string(),
                 owner: bob(),
-
+                lat: None,
+                lng: None,
                 address: String::default(),
                 agent: String::default(),
                 city: String::default(),
@@ -477,7 +479,8 @@ mod test {
             Agency {
                 name: "Agency".to_string(),
                 owner: bob(),
-
+                lat: None,
+                lng: None,
                 address: String::default(),
                 agent: String::default(),
                 city: String::default(),
@@ -509,7 +512,8 @@ mod test {
             Agency {
                 name: "Agency".to_string(),
                 owner: bob(),
-
+                lat: None,
+                lng: None,
                 address: String::default(),
                 agent: String::default(),
                 city: String::default(),
