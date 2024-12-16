@@ -4,8 +4,8 @@ import { Ekoke, EkokePresale, TestERC20 } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const PRESALE_CAP = 100_000_000_000_000; // 100_000 EKOKE
-const STEP_TOKENS = 5_000_000_000_000;
-const STEP_TOKENS_WNO_DECIMALS = 5_000;
+const STEP_TOKENS = 20_000_000_000_000;
+const STEP_TOKENS_WNO_DECIMALS = 20_000;
 const BASE_TOKEN_PRICE = 1_000_000; // 1USDT
 const SOFT_CAP = 50_000_000_000_000; // 50_000 EKOKE
 const SOFT_CAP_WNO_DECIMALS = 50_000;

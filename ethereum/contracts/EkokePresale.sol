@@ -13,7 +13,7 @@ contract EkokePresale is Ownable {
 
     /// @notice The step at which the token price is increased.
     /// @dev The token price is summed to baseTokenPrice every TOKEN_PRICE_STEP tokens sold
-    uint256 private constant TOKEN_PRICE_STEP = 5_000_000_000_000; // 5_000 EKOKE
+    uint256 private constant TOKEN_PRICE_STEP = 20_000_000_000_000; // 20_000 EKOKE
 
     /// @notice The address of the EKOKE token
     address public ekoke;
