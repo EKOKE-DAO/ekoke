@@ -63,6 +63,12 @@ pub fn get_agency(id: Principal) -> Option<Agency> {
 
 #[update]
 #[candid_method(update)]
+pub fn admin_register_agency(wallet: Principal, agency: Agency) {
+    DeferredMinter::admin_register_agency(wallet, agency)
+}
+
+#[update]
+#[candid_method(update)]
 pub fn remove_agency(wallet: Principal) -> DeferredMinterResult<()> {
     DeferredMinter::remove_agency(wallet)
 }
@@ -107,12 +113,6 @@ pub fn admin_ic_logs(pagination: Pagination) -> Logs {
 #[candid_method(update)]
 pub fn gas_station_set_gas_price(gas_price: u64) -> DeferredMinterResult<()> {
     DeferredMinter::gas_station_set_gas_price(gas_price)
-}
-
-#[update]
-#[candid_method(update)]
-pub fn admin_register_agency(wallet: Principal, agency: Agency) {
-    DeferredMinter::admin_register_agency(wallet, agency)
 }
 
 // HTTP endpoint
