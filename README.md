@@ -15,9 +15,6 @@ Powered by **Internet Computer**
 
 - [EKOKE](#ekoke)
   - [Introduction](#introduction)
-    - [Objectives and Vision](#objectives-and-vision)
-    - [Revolutionizing Real Estate](#revolutionizing-real-estate)
-    - [Main advantages](#main-advantages)
   - [Documentation](#documentation)
   - [Whitepaper](#whitepaper)
   - [Ethereum Contracts](#ethereum-contracts)
@@ -25,7 +22,6 @@ Powered by **Internet Computer**
   - [Get started](#get-started)
     - [Dependencies](#dependencies)
     - [Build canisters](#build-canisters)
-  - [Project structure](#project-structure)
   - [Changelog](#changelog)
   - [License](#license)
 
@@ -33,23 +29,11 @@ Powered by **Internet Computer**
 
 ## Introduction
 
-The EKOKE DAO project emerges as the evolutionary response to the traditional real estate landscape, originating from a Milan-based agency's immersion into the realms of blockchain and cryptocurrencies. This innovative venture aspires to redefine real estate transactions by embracing the potential of the blockchain.
-
-### Objectives and Vision
-
-Our primary goal is to introduce a novel approach to real estate transactions by enabling the sale of houses in installments on the Ethereum blockchain and the Internet Computer blockchain as the database for sell contract data. The vision driving this project is rooted in the desire to streamline and optimize the real estate transaction process. By leveraging blockchain technology, we aim to simplify, economize, and democratize the way properties are bought and sold.
-
-### Revolutionizing Real Estate
-
-EKOKE DAO stands as a catalyst in revolutionizing the dynamics of real estate transactions. Key features include unprecedented speed, cost-effectiveness, decentralization, security, and confidentiality. By intertwining blockchain and cryptocurrencies with real estate, we embark on a journey to create a paradigm shift, making property transactions more accessible and efficient.
-
-### Main advantages
-
-The advantages offered by EKOKE DAO are multifaceted. Real estate transactions conducted on our platform are designed to be faster, more cost-efficient, decentralized to eliminate intermediaries, secure through blockchain's immutable ledger, and confidential to safeguard sensitive information. These transformative elements collectively contribute to a more inclusive and innovative real estate ecosystem.
+This repository contains the codebase for the deferred_data and deferred_minter canisters and the Ethereum contracts for the EKOKE DAO.
 
 ## Documentation
 
-Read the [Project Documentation](./docs/README.md)
+Read the on the DAO website: <https://ekokedao.com/documentation>.
 
 ## Whitepaper
 
@@ -82,10 +66,10 @@ Before getting started with ekoke, you need to install these dependencies:
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     ```
 
-- Dfx >= 0.16
+- Dfx >= 0.24.1
 
     ```sh
-    sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)
+    sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
     dfx extension install sns
     ```
 
@@ -109,20 +93,6 @@ In order to build canister you need to setup the dfx environment and then build 
 cargo make dfx-setup
 cargo make dfx-build
 ```
-
----
-
-## Project structure
-
-The project is composed by the following components:
-
-- **deferred**: A DIP721 ICP canister which represents the Deferred NFTs.
-- **EKOKE**: A ICRC-2 token ICP canister which represents the fungible token $EKOKE.
-  - **ekoke-erc20-swap**: Canister to swap EKOKE between ICRC and ERC20
-  - **ekoke-erc20-swap-frontend**: Frontend for erc20-swap canister
-  - **ekoke-liquidity-pool**: Canister which manages the EKOKE liquidity pool
-  - **ekoke-reward-pool**: Canister which handles the reward pool for EKOKE
-- **marketplace**: A canister which manages the Deferred tokens sell and $EKOKE rewards giveaway.
 
 ## Changelog
 
