@@ -2,6 +2,7 @@
 
 - [EKOKE Rewards](#ekoke-rewards)
   - [Introduction](#introduction)
+  - [Supply](#supply)
   - [When are rewards distributed](#when-are-rewards-distributed)
   - [Reward Pool](#reward-pool)
     - [How to reserve a manual pool](#how-to-reserve-a-manual-pool)
@@ -18,6 +19,14 @@
 
 This document describes how EKOKE manages the EKOKE token rewards.
 
+## Supply
+
+There will be a total of **5,920,067.34** EKOKE tokens in rewards, which is the 66% of the entire EKOKE supply.
+
+This supply will never be changed as implemented in the ERC20 contract.
+
+The contract can be viewed on Etherscan at [0x92fBA9067844A419A1C394197aE406768555F71b](https://etherscan.io/address/0x92fBA9067844A419A1C394197aE406768555F71b).
+
 ## When are rewards distributed
 
 Rewards are automatically given to the buyer of a **Deferred ERC721** when he buys a token on the [Marketplace contract](./contracts/marketplace.md).
@@ -28,6 +37,8 @@ The reward pool can work in two different modes:
 
 - **Automatic Mode:** If there is still available liquidity in the reward pool, then this mode should be preferred. Basically when a contract is created, the deferred canister will query the reward pool to check whether there is already a pool associated to that contract. If there's not a certain liquidity will be reserved as reward for token buyers following the Reward Pool Algorithm, which you can read about in the next chapter.
 - **Manual Mode**: A user can opt to reserve a EKOKE pool using its EKOKE tokens for a contract before is created. This mode becomes mandatory in the case the liquidity pool of the reward canister is empty.
+
+The reward pool can be seen at [0x161b3061b67C77bb866ECbA67Fa29936A51011F0](https://etherscan.io/address/0x161b3061b67C77bb866ECbA67Fa29936A51011F0).
 
 ### How to reserve a manual pool
 
