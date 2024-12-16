@@ -65,10 +65,10 @@ You can find the whitepaper on our website <https://www.ekoketoken.com/whitepape
 
 ## Canisters
 
-- **deferred-data**: `2m6dw-uaaaa-aaaal-arumq-cai`
-- **deferred-minter**: `2f5ik-ciaaa-aaaal-aruna-cai`
+- **deferred-data**: [2m6dw-uaaaa-aaaal-arumq-cai](https://dashboard.internetcomputer.org/canister/2m6dw-uaaaa-aaaal-arumq-cai)
+- **deferred-minter**: [2f5ik-ciaaa-aaaal-aruna-cai](https://dashboard.internetcomputer.org/canister/2f5ik-ciaaa-aaaal-aruna-cai)
   - Ethereum Minter Address: [0x1b22db91529cefbd793e34e2f75d33ac744b1bcd](https://etherscan.io/address/0x1b22db91529cefbd793e34e2f75d33ac744b1bcd)
-- **dapp**: `ygihe-dyaaa-aaaal-ai4la-cai`
+- **dapp**: [ygihe-dyaaa-aaaal-ai4la-cai](https://dashboard.internetcomputer.org/canister/ygihe-dyaaa-aaaal-ai4la-cai)
 
 ## Get started
 
