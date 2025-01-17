@@ -195,7 +195,10 @@ impl EvmRpcClient {
         .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?;
 
         match cycles_result {
-            Ok(cycles) => Ok(cycles),
+            Ok(cycles) => {
+                // multiply by 2 to be on the safe side
+                Ok(cycles * 2)
+            }
             Err(err) => Err(DeferredMinterError::EvmRpc(format!(
                 "Failed to estimate cycles: {:?}",
                 err
