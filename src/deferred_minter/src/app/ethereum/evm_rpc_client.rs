@@ -49,13 +49,15 @@ impl EvmRpcClient {
         log::debug!("estimated cost for get next nonce: {cycles_cost}",);
 
         // send effective request
-        let (result,) = ic_cdk::api::call::call::<_, (MultiGetTransactionCountResult,)>(
-            self.principal,
-            "eth_getTransactionCount",
-            (services, rpc_config, args),
-        )
-        .await
-        .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?;
+        let (result,) =
+            ic_cdk::api::call::call_with_payment128::<_, (MultiGetTransactionCountResult,)>(
+                self.principal,
+                "eth_getTransactionCount",
+                (services, rpc_config, args),
+                cycles_cost,
+            )
+            .await
+            .map_err(|(code, msg)| DeferredMinterError::CanisterCall(code, msg))?;
 
         log::debug!("get next nonce result: {result:?}",);
 
