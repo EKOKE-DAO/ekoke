@@ -6,11 +6,10 @@ use time::Date;
 
 pub use crate::ID;
 
-mod agency;
 mod generic_value;
 
-pub use self::agency::{Agency, Continent};
 pub use self::generic_value::GenericValue;
+use super::agency::AgencyId;
 use super::{ContractError, DeferredMinterError, DeferredMinterResult};
 use crate::H160;
 
@@ -39,8 +38,8 @@ pub struct Contract {
     pub restricted_properties: RestrictedContractProperties,
     /// Documents associated to the contract
     pub documents: ContractDocuments,
-    /// Agency data
-    pub agency: Option<Agency>,
+    /// Agency id
+    pub agency: AgencyId,
     /// Contract expiration date YYYY-MM-DD
     pub expiration: String,
     /// If the contract is closed
@@ -186,5 +185,68 @@ impl Default for ContractRegistration {
             properties: Vec::new(),
             restricted_properties: Vec::new(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use candid::Principal;
+    use pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_should_encode_contract() {
+        let contract = Contract {
+            id: ID::from(1_u64),
+            r#type: ContractType::Sell,
+            sellers: vec![
+                Seller {
+                    address: H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A")
+                        .unwrap(),
+                    quota: 51,
+                },
+                Seller {
+                    address: H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A")
+                        .unwrap(),
+                    quota: 49,
+                },
+            ],
+            buyers: vec![
+                H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A").unwrap(),
+                H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A").unwrap(),
+            ],
+            installments: 2,
+            value: 250_000,
+            deposit: 50_000,
+            currency: "EUR".to_string(),
+            documents: vec![],
+            properties: vec![(
+                "Rome".to_string(),
+                GenericValue::TextContent("Rome".to_string()),
+            )],
+            restricted_properties: vec![(
+                "Secret".to_string(),
+                RestrictedProperty {
+                    access_list: vec![RestrictionLevel::Agent],
+                    value: GenericValue::TextContent("Secret".to_string()),
+                },
+            )],
+            agency: Principal::management_canister(),
+            expiration: "2040-01-01".to_string(),
+            closed: false,
+        };
+        let data = Encode!(&contract).unwrap();
+        let decoded_contract = Decode!(&data, Contract).unwrap();
+
+        assert_eq!(contract.id, decoded_contract.id);
+        assert_eq!(contract.sellers, decoded_contract.sellers);
+        assert_eq!(contract.buyers, decoded_contract.buyers);
+        assert_eq!(contract.properties, decoded_contract.properties);
+        assert_eq!(contract.value, decoded_contract.value);
+        assert_eq!(contract.currency, decoded_contract.currency);
+        assert_eq!(contract.installments, decoded_contract.installments);
+        assert_eq!(contract.agency, decoded_contract.agency);
     }
 }

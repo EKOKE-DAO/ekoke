@@ -72,19 +72,13 @@ impl ContractFilter {
                 .properties
                 .iter()
                 .find(|(k, _)| k == name)
-                .map_or(false, |(_, v)| {
-                    v.to_string().to_lowercase().contains(&value.to_lowercase())
-                }),
+                .is_some_and(|(_, v)| v.to_string().to_lowercase().contains(&value.to_lowercase())),
             ContractFilter::Seller(addr) => contract
                 .sellers
                 .iter()
                 .any(|seller| seller.address == *addr),
             ContractFilter::Buyer(addr) => contract.buyers.iter().any(|buyer| buyer == addr),
-            ContractFilter::Agent(agent) => contract
-                .agency
-                .as_ref()
-                .map(|agency| agency.owner == *agent)
-                .unwrap_or_default(),
+            ContractFilter::Agent(agent) => contract.agency == *agent,
             ContractFilter::MinPrice(min_price) => contract.value >= *min_price,
             ContractFilter::MaxPrice(max_price) => contract.value <= *max_price,
             ContractFilter::Position {

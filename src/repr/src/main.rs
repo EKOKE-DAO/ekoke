@@ -106,7 +106,7 @@ fn repr_contract() -> anyhow::Result<()> {
         expiration: "1970-01-01".to_string(),
         properties,
         restricted_properties,
-        agency: Some(agency),
+        agency: agency.owner,
         id: 1u64.into(),
         documents,
         closed: false,

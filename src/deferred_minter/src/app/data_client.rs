@@ -1,6 +1,6 @@
 use candid::Principal;
 use did::deferred::{
-    Agency, Contract, ContractError, DeferredDataResult, DeferredMinterError, DeferredMinterResult,
+    Contract, ContractError, DeferredDataResult, DeferredMinterError, DeferredMinterResult,
     GenericValue, Seller,
 };
 use did::{H160, ID};
@@ -41,24 +41,7 @@ impl DeferredDataClient {
                 )],
                 restricted_properties: vec![],
                 documents: vec![],
-                agency: Some(Agency {
-                    name: "Dummy Real estate".to_string(),
-                    lat: None,
-                    lng: None,
-                    address: "Via Delle Botteghe Scure".to_string(),
-                    city: "Rome".to_string(),
-                    region: "Lazio".to_string(),
-                    zip_code: "00100".to_string(),
-                    country: "Italy".to_string(),
-                    continent: did::deferred::Continent::Europe,
-                    email: "email".to_string(),
-                    website: "website".to_string(),
-                    mobile: "mobile".to_string(),
-                    vat: "vat".to_string(),
-                    agent: "agent".to_string(),
-                    logo: None,
-                    owner: caller(),
-                }),
+                agency: caller(),
                 expiration: "2078-01-01".to_string(),
                 closed: false,
             });

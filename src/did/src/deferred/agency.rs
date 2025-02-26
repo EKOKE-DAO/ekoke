@@ -5,6 +5,9 @@ use ic_stable_structures::storable::Bound;
 use ic_stable_structures::Storable;
 use serde::{Deserialize, Serialize};
 
+/// Unique identifier for an agency
+pub type AgencyId = Principal;
+
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
 pub struct Agency {
@@ -84,5 +87,39 @@ impl Storable for Agency {
 
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         Decode!(&bytes, Self).unwrap()
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_should_encode_agency() {
+        let agency = Agency {
+            name: "Agency".to_string(),
+            address: "Address".to_string(),
+            city: "City".to_string(),
+            region: "Region".to_string(),
+            zip_code: "Zip".to_string(),
+            country: "Country".to_string(),
+            continent: Continent::Europe,
+            lat: None,
+            lng: None,
+            email: "Email".to_string(),
+            website: "Website".to_string(),
+            mobile: "Mobile".to_string(),
+            vat: "VAT".to_string(),
+            agent: "Agent".to_string(),
+            logo: None,
+            owner: Principal::anonymous(),
+        };
+        let data = Encode!(&agency).unwrap();
+        let decoded = Decode!(&data, Agency).unwrap();
+
+        assert_eq!(agency, decoded);
     }
 }

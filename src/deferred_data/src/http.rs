@@ -252,9 +252,8 @@ mod test {
                 address: H160::from_hex_str("0x253553366da8546fc250f225fe3d25d0c782303b").unwrap(),
                 quota: 100,
             }];
-            contract.agency.as_mut().unwrap().owner =
-                Principal::from_text("v5vof-zqaaa-aaaal-ai5cq-cai")
-                    .expect("Failed to create principal");
+            contract.agency = Principal::from_text("v5vof-zqaaa-aaaal-ai5cq-cai")
+                .expect("Failed to create principal");
 
             // insert properties
             contract.properties = vec![

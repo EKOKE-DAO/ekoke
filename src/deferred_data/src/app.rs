@@ -172,12 +172,7 @@ impl DeferredData {
             ))?;
 
         // get caller access level
-        let access_level = if contract
-            .agency
-            .as_ref()
-            .map(|agency| agency.owner == caller())
-            .unwrap_or_default()
-        {
+        let access_level = if contract.agency == caller() {
             RestrictionLevel::Agent
         } else if let Some(signature) = signature {
             Inspect::inspect_signature(&contract.id, signature.signature, signature.message)?
@@ -202,12 +197,7 @@ impl DeferredData {
         let mut redacted_properties = Vec::with_capacity(contract.restricted_properties.len());
 
         // get caller access level
-        let access_level = if contract
-            .agency
-            .as_ref()
-            .map(|agency| agency.owner == caller)
-            .unwrap_or_default()
-        {
+        let access_level = if contract.agency == caller {
             Some(RestrictionLevel::Agent)
         } else if let Some(signature) = signature {
             Inspect::inspect_signature(&contract.id, signature.signature, signature.message).ok()
@@ -291,7 +281,7 @@ mod test {
         init();
 
         let contract = with_mock_contract(1, 100, |contract| {
-            contract.agency.as_mut().unwrap().owner = caller();
+            contract.agency = caller();
         });
 
         DeferredData::create_contract(contract.clone()).expect("Failed to create contract");
@@ -333,7 +323,7 @@ mod test {
         init();
 
         let contract = with_mock_contract(1, 100, |contract| {
-            contract.agency.as_mut().unwrap().owner = caller();
+            contract.agency = caller();
         });
 
         DeferredData::create_contract(contract.clone()).expect("Failed to create contract");

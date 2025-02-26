@@ -162,11 +162,7 @@ impl DeferredMinter {
         if RolesManager::is_agent(caller()) {
             log::debug!("caller is an agent");
             let contract = Self::deferred_data().get_contract(&contract_id).await?;
-            if contract
-                .agency
-                .map(|agency| agency.owner != caller())
-                .unwrap_or(true)
-            {
+            if contract.agency != caller() {
                 log::debug!("caller is not the agency for the contract");
                 ic_cdk::trap("Unauthorized");
             }
@@ -310,9 +306,6 @@ impl DeferredMinter {
 
     /// Create a contract from the registration data
     fn contract_from_registration(contract_id: ID, data: ContractRegistration) -> Contract {
-        // get agency from caller
-        let agency = Agents::get_agency_by_wallet(caller());
-
         Contract {
             id: contract_id,
             r#type: data.r#type,
@@ -325,7 +318,7 @@ impl DeferredMinter {
             properties: data.properties,
             restricted_properties: data.restricted_properties,
             documents: vec![],
-            agency,
+            agency: caller(),
             expiration: data.expiration,
             closed: false,
         }
