@@ -40,7 +40,7 @@ impl Inspect {
         caller: Principal,
         data: &ContractRegistration,
     ) -> DeferredMinterResult<()> {
-        if !Self::inspect_is_custodian(caller) && !Self::inspect_is_agent(caller) {
+        if !Self::inspect_is_agent(caller) {
             return Err(DeferredMinterError::Unauthorized);
         }
 
@@ -227,34 +227,6 @@ mod test {
             }
         )
         .is_err());
-    }
-
-    #[test]
-    fn test_should_inspect_contract_register_if_custodian() {
-        Configuration::set_allowed_currencies(vec![String::from("USD")]);
-        let caller = crate::utils::caller();
-        assert!(RolesManager::set_custodians(vec![caller]).is_ok());
-        assert!(Inspect::inspect_register_contract(
-            caller,
-            &ContractRegistration {
-                value: 100,
-                deposit: 50,
-                sellers: vec![Seller {
-                    address: H160::from_hex_str("0xE46A267b65Ed8CBAeBA9AdC3171063179b642E7A")
-                        .unwrap(),
-                    quota: 100,
-                }],
-                buyers: vec![
-                    H160::from_hex_str("0x6081d7F04a8c31e929f25152d4ad37c83638C62b").unwrap()
-                ],
-                installments: 25,
-                token_value: 4,
-                expiration: "2078-01-01".to_string(),
-                currency: "USD".to_string(),
-                ..Default::default()
-            }
-        )
-        .is_ok());
     }
 
     #[test]

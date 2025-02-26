@@ -31,6 +31,9 @@ fn inspect_message_impl() {
         "close_contract" => {
             Inspect::inspect_is_custodian(caller()) || Inspect::inspect_is_custodian(caller())
         }
+        "create_real_estate" => Inspect::inspect_is_agent(caller()),
+        "update_real_estate" => Inspect::inspect_is_agent(caller()),
+        "delete_real_estate" => Inspect::inspect_is_agent(caller()),
         _ => true,
     };
 

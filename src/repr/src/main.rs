@@ -108,6 +108,7 @@ fn repr_contract() -> anyhow::Result<()> {
         restricted_properties,
         agency: agency.owner,
         id: 1u64.into(),
+        real_estate: 2u64.into(),
         documents,
         closed: false,
     };

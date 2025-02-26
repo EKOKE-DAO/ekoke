@@ -95,6 +95,7 @@ export const idlFactory = ({ IDL }) => {
     'sellers' : IDL.Vec(Seller),
     'expiration' : IDL.Text,
     'currency' : IDL.Text,
+    'real_estate' : IDL.Nat,
     'installments' : IDL.Nat64,
     'buyers' : IDL.Vec(IDL.Text),
   });
@@ -117,7 +118,6 @@ export const idlFactory = ({ IDL }) => {
     'NorthAmerica' : IDL.Null,
   });
   const RealEstate = IDL.Record({
-    'id' : IDL.Nat,
     'region' : IDL.Opt(IDL.Text),
     'latitude' : IDL.Opt(IDL.Float64),
     'energy_class' : IDL.Opt(IDL.Text),

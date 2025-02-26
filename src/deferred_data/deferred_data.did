@@ -21,6 +21,7 @@ type Contract = record {
   sellers : vec Seller;
   expiration : text;
   currency : text;
+  real_estate : nat;
   installments : nat64;
   buyers : vec text;
 };
@@ -93,7 +94,6 @@ type LogSettingsV2 = record {
 type Logs = record { logs : vec Log; all_logs_count : nat64 };
 type Pagination = record { count : nat64; offset : nat64 };
 type RealEstate = record {
-  id : nat;
   region : opt text;
   latitude : opt float64;
   energy_class : opt text;

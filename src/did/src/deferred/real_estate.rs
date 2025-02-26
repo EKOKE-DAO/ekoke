@@ -4,13 +4,10 @@ use ic_stable_structures::Storable;
 use serde::Serialize;
 
 use super::{AgencyId, Continent};
-use crate::ID;
 
 /// Data for a real estate
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
 pub struct RealEstate {
-    /// Unique identifier for the real estate
-    pub id: ID,
     /// Mark as deleted
     pub deleted: bool,
     /// agency
@@ -92,7 +89,6 @@ mod test {
     #[test]
     fn test_should_encode_and_decode_real_estate() {
         let real_estate = RealEstate {
-            id: 2_u64.into(),
             deleted: false,
             agency: Principal::management_canister(),
             name: "name".to_string(),

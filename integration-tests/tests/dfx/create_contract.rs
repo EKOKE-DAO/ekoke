@@ -1,4 +1,4 @@
-use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, Seller};
+use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, RealEstate, Seller};
 use integration_tests::actor::agent;
 use integration_tests::client::{DeferredDataClient, DeferredMinterClient};
 use integration_tests::eth_rpc_client::{DeferredErc721Client, EthRpcClient};
@@ -21,6 +21,13 @@ async fn test_should_create_and_close_contract() {
         )
         .await;
 
+    // create real estate
+    let real_estate = real_estate();
+    let real_estate_id = DeferredMinterClient::new(&env)
+        .create_real_estate(agent(), real_estate)
+        .await
+        .expect("Failed to create real estate");
+
     let minter_address = DeferredMinterClient::new(&env)
         .get_eth_address()
         .await
@@ -37,6 +44,7 @@ async fn test_should_create_and_close_contract() {
     // create the contract
     let request = ContractRegistration {
         r#type: ContractType::Sell,
+        real_estate_id,
         sellers: vec![Seller {
             address: env.evm.get_eth_address(WalletName::Alice),
             quota: 100,
@@ -99,4 +107,37 @@ async fn test_should_create_and_close_contract() {
         .expect("Failed to close contract");
 
     assert_eq!(data_client.get_contract(&contract_id).await, None);
+}
+
+fn real_estate() -> RealEstate {
+    RealEstate {
+        name: "Beautiful house".to_string(),
+        address: Some("Via Roma 10".to_string()),
+        agency: agent(),
+        deleted: false,
+        description: "Beautiful house in the center of Rome".to_string(),
+        image: None,
+        continent: None,
+        country: None,
+        region: None,
+        city: None,
+        zip_code: None,
+        zone: None,
+        latitude: None,
+        longitude: None,
+        square_meters: None,
+        rooms: None,
+        bathrooms: None,
+        floors: None,
+        bedrooms: None,
+        year_of_construction: None,
+        energy_class: None,
+        garage: None,
+        garden: None,
+        balconies: None,
+        pool: None,
+        parking: None,
+        elevator: None,
+        youtube: None,
+    }
 }

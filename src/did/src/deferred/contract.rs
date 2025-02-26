@@ -10,17 +10,8 @@ mod generic_value;
 
 pub use self::generic_value::GenericValue;
 use super::agency::AgencyId;
-use super::real_estate::RealEstate;
-use super::{Agency, ContractError, DeferredMinterError, DeferredMinterResult};
+use super::{ContractError, DeferredMinterError, DeferredMinterResult};
 use crate::H160;
-
-/// Contract with [`Agency`], [`Contract`] and [`RealEstate`] data
-#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
-pub struct FullContract {
-    pub agency: Agency,
-    pub contract: Contract,
-    pub real_estate: RealEstate,
-}
 
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
@@ -49,6 +40,8 @@ pub struct Contract {
     pub documents: ContractDocuments,
     /// Agency id
     pub agency: AgencyId,
+    /// Real estate id
+    pub real_estate: ID,
     /// Contract expiration date YYYY-MM-DD
     pub expiration: String,
     /// If the contract is closed
@@ -159,6 +152,8 @@ pub struct Seller {
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct ContractRegistration {
     pub r#type: ContractType,
+    /// ID of the real estate associated to the contract
+    pub real_estate_id: ID,
     /// Contract sellers. Those who must sell
     pub sellers: Vec<Seller>,
     /// Contract buyers. Those who must pay
@@ -183,6 +178,7 @@ impl Default for ContractRegistration {
     fn default() -> Self {
         Self {
             r#type: ContractType::Sell,
+            real_estate_id: 0u64.into(),
             sellers: Vec::new(),
             buyers: Vec::new(),
             value: 0,
@@ -243,6 +239,7 @@ mod test {
                 },
             )],
             agency: Principal::management_canister(),
+            real_estate: 1u64.into(),
             expiration: "2040-01-01".to_string(),
             closed: false,
         };

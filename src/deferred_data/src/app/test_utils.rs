@@ -33,6 +33,7 @@ pub fn mock_contract(id: u64, installments: u64) -> Contract {
         )],
         documents: vec![],
         agency: mock_agency().owner,
+        real_estate: 1u64.into(),
         expiration: "2078-01-01".to_string(),
         closed: false,
     }
@@ -61,7 +62,6 @@ pub fn mock_agency() -> Agency {
 
 pub fn mock_real_estate() -> RealEstate {
     RealEstate {
-        id: 2_u64.into(),
         deleted: false,
         agency: Principal::management_canister(),
         name: "name".to_string(),

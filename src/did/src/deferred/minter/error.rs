@@ -55,6 +55,8 @@ pub enum ContractError {
     ContractSellerQuotaIsNot100,
     #[error("currency {0} is not allowed for contracts")]
     CurrencyNotAllowed(String),
+    #[error("you cannot operate to this real estate")]
+    BadRealEstateId,
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

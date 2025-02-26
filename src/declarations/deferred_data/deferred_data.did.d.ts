@@ -24,6 +24,7 @@ export interface Contract {
   'sellers' : Array<Seller>,
   'expiration' : string,
   'currency' : string,
+  'real_estate' : bigint,
   'installments' : bigint,
   'buyers' : Array<string>,
 }
@@ -91,7 +92,6 @@ export interface LogSettingsV2 {
 export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
 export interface Pagination { 'count' : bigint, 'offset' : bigint }
 export interface RealEstate {
-  'id' : bigint,
   'region' : [] | [string],
   'latitude' : [] | [number],
   'energy_class' : [] | [string],

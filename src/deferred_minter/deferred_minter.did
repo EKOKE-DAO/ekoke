@@ -43,6 +43,7 @@ type ContractError = variant {
   ContractHasNoBuyer;
   BadContractExpiration;
   ContractHasNoTokens;
+  BadRealEstateId;
   BadContractProperty;
 };
 type ContractError_1 = variant {
@@ -57,6 +58,7 @@ type ContractRegistration = record {
   restricted_properties : vec record { text; RestrictedProperty };
   properties : vec record { text; GenericValue };
   deposit : nat64;
+  real_estate_id : nat;
   sellers : vec Seller;
   token_value : nat64;
   expiration : text;
@@ -141,6 +143,36 @@ type LogSettingsV2 = record {
 };
 type Logs = record { logs : vec Log; all_logs_count : nat64 };
 type Pagination = record { count : nat64; offset : nat64 };
+type RealEstate = record {
+  region : opt text;
+  latitude : opt float64;
+  energy_class : opt text;
+  zip_code : opt text;
+  deleted : bool;
+  square_meters : opt nat64;
+  country : opt text;
+  bedrooms : opt nat64;
+  floors : opt nat64;
+  city : opt text;
+  name : text;
+  pool : opt bool;
+  zone : opt text;
+  garage : opt bool;
+  garden : opt bool;
+  agency : principal;
+  continent : opt Continent;
+  description : text;
+  longitude : opt float64;
+  address : opt text;
+  elevator : opt bool;
+  youtube : opt text;
+  image : opt text;
+  balconies : opt nat64;
+  bathrooms : opt nat64;
+  year_of_construction : opt nat64;
+  parking : opt bool;
+  rooms : opt nat64;
+};
 type RealEstateError = variant { NotFound : nat };
 type RejectionCode = variant {
   NoError;
@@ -171,10 +203,13 @@ service : (DeferredMinterInitData) -> {
   admin_set_role : (principal, Role) -> ();
   close_contract : (nat) -> (Result);
   create_contract : (ContractRegistration) -> (Result_1);
+  create_real_estate : (RealEstate) -> (Result_1);
+  delete_real_estate : (nat) -> (Result);
   gas_station_set_gas_price : (nat64) -> (Result);
   get_agencies : () -> (vec Agency) query;
   get_agency : (principal) -> (opt Agency) query;
   get_eth_address : () -> (Result_2);
   http_request : (HttpRequest) -> (HttpResponse) query;
   remove_agency : (principal) -> (Result);
+  update_real_estate : (nat, RealEstate) -> (Result);
 }

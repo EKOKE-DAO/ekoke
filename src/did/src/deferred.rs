@@ -12,7 +12,7 @@ pub type DeferredDataResult<T> = Result<T, DeferredDataError>;
 pub use self::agency::{Agency, AgencyId, Continent};
 pub use self::contract::{
     Contract, ContractDocument, ContractDocumentData, ContractDocuments, ContractProperties,
-    ContractRegistration, ContractType, FullContract, GenericValue, RestrictedContractProperties,
+    ContractRegistration, ContractType, GenericValue, RestrictedContractProperties,
     RestrictedProperty, RestrictionLevel, Seller, ID,
 };
 pub use self::data::{

@@ -1,5 +1,5 @@
 use candid::{Encode, Principal};
-use did::deferred::{Agency, ContractRegistration, DeferredMinterResult};
+use did::deferred::{Agency, ContractRegistration, DeferredMinterResult, RealEstate};
 use did::{H160, ID};
 
 use crate::actor::admin;
@@ -73,6 +73,64 @@ where
             )
             .await
             .expect("Failed to close contract");
+
+        res
+    }
+
+    pub async fn create_real_estate(
+        &self,
+        caller: Principal,
+        real_estate: RealEstate,
+    ) -> DeferredMinterResult<ID> {
+        let res: DeferredMinterResult<ID> = self
+            .env
+            .update(
+                self.env.deferred_minter(),
+                caller,
+                "create_real_estate",
+                Encode!(&real_estate).unwrap(),
+            )
+            .await
+            .expect("Failed to create real estate");
+
+        res
+    }
+
+    pub async fn delete_real_estate(
+        &self,
+        caller: Principal,
+        real_estate_id: ID,
+    ) -> DeferredMinterResult<()> {
+        let res: DeferredMinterResult<()> = self
+            .env
+            .update(
+                self.env.deferred_minter(),
+                caller,
+                "delete_real_estate",
+                Encode!(&real_estate_id).unwrap(),
+            )
+            .await
+            .expect("Failed to delete real estate");
+
+        res
+    }
+
+    pub async fn update_real_estate(
+        &self,
+        caller: Principal,
+        id: ID,
+        data: RealEstate,
+    ) -> DeferredMinterResult<()> {
+        let res: DeferredMinterResult<()> = self
+            .env
+            .update(
+                self.env.deferred_minter(),
+                caller,
+                "update_real_estate",
+                Encode!(&id, &data).unwrap(),
+            )
+            .await
+            .expect("Failed to update real estate");
 
         res
     }
