@@ -147,6 +147,10 @@ impl DfxTestEnv {
         env
     }
 
+    pub fn admin(&self) -> Principal {
+        self.agent.get_principal().expect("Failed to get principal")
+    }
+
     async fn create_canister(agent: &Agent) -> Principal {
         let wallet = Canister::new_wallet(agent, ADMIN).unwrap();
         wallet

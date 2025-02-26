@@ -209,12 +209,12 @@ impl DeferredMinter {
     /// Create a new real estate on the data canister
     pub async fn create_real_estate(real_estate: RealEstate) -> DeferredMinterResult<ID> {
         if !Inspect::inspect_is_agent(caller()) {
-            ic_cdk::trap("Unauthorized");
+            ic_cdk::trap("Unauthorized - not an agent");
         }
 
         // validate if caller and agency are the same
         if real_estate.agency != caller() {
-            ic_cdk::trap("Unauthorized");
+            ic_cdk::trap("Unauthorized - real estate agency differs from caller");
         }
 
         let real_estate_id = Self::deferred_data()

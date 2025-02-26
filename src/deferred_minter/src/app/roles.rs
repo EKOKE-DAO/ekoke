@@ -89,6 +89,7 @@ impl RolesManager {
     pub fn give_role(principal: Principal, role: Role) {
         Self::with_principal_mut(principal, |roles| {
             if !roles.0.contains(&role) {
+                log::debug!("Giving role {:?} to principal {}", role, principal);
                 roles.0.push(role);
             }
         });
