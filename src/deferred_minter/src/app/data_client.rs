@@ -1,7 +1,7 @@
 use candid::Principal;
 use did::deferred::{
-    Agency, Contract, ContractError, DeferredDataResult, DeferredMinterError, DeferredMinterResult,
-    GenericValue, Seller,
+    Contract, ContractError, DeferredDataResult, DeferredMinterError, DeferredMinterResult,
+    GenericValue, RealEstate, Seller,
 };
 use did::{H160, ID};
 
@@ -41,24 +41,8 @@ impl DeferredDataClient {
                 )],
                 restricted_properties: vec![],
                 documents: vec![],
-                agency: Some(Agency {
-                    name: "Dummy Real estate".to_string(),
-                    lat: None,
-                    lng: None,
-                    address: "Via Delle Botteghe Scure".to_string(),
-                    city: "Rome".to_string(),
-                    region: "Lazio".to_string(),
-                    zip_code: "00100".to_string(),
-                    country: "Italy".to_string(),
-                    continent: did::deferred::Continent::Europe,
-                    email: "email".to_string(),
-                    website: "website".to_string(),
-                    mobile: "mobile".to_string(),
-                    vat: "vat".to_string(),
-                    agent: "agent".to_string(),
-                    logo: None,
-                    owner: caller(),
-                }),
+                real_estate: 1u64.into(),
+                agency: caller(),
                 expiration: "2078-01-01".to_string(),
                 closed: false,
             });
@@ -109,5 +93,102 @@ impl DeferredDataClient {
         .map_err(|(code, err)| did::deferred::DeferredMinterError::CanisterCall(code, err))?;
 
         result.map_err(DeferredMinterError::DataCanister)
+    }
+
+    pub async fn create_real_estate(&self, real_estate: RealEstate) -> DeferredMinterResult<ID> {
+        if cfg!(test) {
+            return Ok(1u64.into());
+        }
+
+        let (id,) = ic_cdk::call::<_, (DeferredDataResult<ID>,)>(
+            self.principal,
+            "minter_create_real_estate",
+            (real_estate,),
+        )
+        .await
+        .map_err(|(code, err)| did::deferred::DeferredMinterError::CanisterCall(code, err))?;
+
+        id.map_err(DeferredMinterError::DataCanister)
+    }
+
+    pub async fn delete_real_estate(&self, id: ID) -> DeferredMinterResult<()> {
+        if cfg!(test) {
+            return Ok(());
+        }
+
+        let (result,) = ic_cdk::call::<_, (DeferredDataResult<()>,)>(
+            self.principal,
+            "minter_delete_real_estate",
+            (id,),
+        )
+        .await
+        .map_err(|(code, err)| did::deferred::DeferredMinterError::CanisterCall(code, err))?;
+
+        result.map_err(DeferredMinterError::DataCanister)
+    }
+
+    pub async fn update_real_estate(
+        &self,
+        id: ID,
+        real_estate: RealEstate,
+    ) -> DeferredMinterResult<()> {
+        if cfg!(test) {
+            return Ok(());
+        }
+
+        let (result,) = ic_cdk::call::<_, (DeferredDataResult<()>,)>(
+            self.principal,
+            "minter_update_real_estate",
+            (id, real_estate),
+        )
+        .await
+        .map_err(|(code, err)| did::deferred::DeferredMinterError::CanisterCall(code, err))?;
+
+        result.map_err(DeferredMinterError::DataCanister)
+    }
+
+    pub async fn get_real_estate(&self, id: ID) -> DeferredMinterResult<RealEstate> {
+        if cfg!(test) {
+            return Ok(RealEstate {
+                deleted: false,
+                agency: caller(),
+                name: "name".to_string(),
+                description: "description".to_string(),
+                image: Some("image".to_string()),
+                address: Some("address".to_string()),
+                country: Some("country".to_string()),
+                continent: Some(did::deferred::Continent::Europe),
+                region: Some("region".to_string()),
+                city: Some("city".to_string()),
+                zone: Some("zone".to_string()),
+                zip_code: Some("zip_code".to_string()),
+                latitude: Some(1.0),
+                longitude: Some(2.0),
+                square_meters: Some(100),
+                rooms: Some(3),
+                bathrooms: Some(2),
+                bedrooms: Some(1),
+                floors: Some(1),
+                year_of_construction: Some(2021),
+                garden: Some(true),
+                balconies: Some(1),
+                pool: Some(true),
+                garage: Some(true),
+                parking: Some(true),
+                elevator: Some(true),
+                energy_class: Some("A".to_string()),
+                youtube: Some("youtube".to_string()),
+            });
+        }
+
+        let (real_estate,) = ic_cdk::call::<_, (DeferredDataResult<RealEstate>,)>(
+            self.principal,
+            "get_real_estate",
+            (id,),
+        )
+        .await
+        .map_err(|(code, err)| did::deferred::DeferredMinterError::CanisterCall(code, err))?;
+
+        real_estate.map_err(DeferredMinterError::DataCanister)
     }
 }

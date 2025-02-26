@@ -1,7 +1,7 @@
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
     Contract, ContractDocument, ContractDocumentData, DeferredDataInitData, DeferredDataResult,
-    GenericValue, RestrictedProperty,
+    GenericValue, RealEstate, RestrictedProperty,
 };
 use did::{HttpRequest, HttpResponse, ID};
 use ic_cdk::post_upgrade;
@@ -106,6 +106,30 @@ pub fn update_restricted_contract_property(
     value: RestrictedProperty,
 ) -> DeferredDataResult<()> {
     DeferredData::update_restricted_contract_property(contract_id, key, value)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn minter_create_real_estate(real_estate: RealEstate) -> DeferredDataResult<ID> {
+    DeferredData::create_real_estate(real_estate)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn minter_delete_real_estate(id: ID) -> DeferredDataResult<()> {
+    DeferredData::delete_real_estate(&id)
+}
+
+#[update]
+#[candid_method(update)]
+pub fn minter_update_real_estate(id: ID, real_estate: RealEstate) -> DeferredDataResult<()> {
+    DeferredData::update_real_estate(&id, real_estate)
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_real_estate(id: ID) -> DeferredDataResult<RealEstate> {
+    DeferredData::get_real_estate(&id)
 }
 
 // HTTP endpoint

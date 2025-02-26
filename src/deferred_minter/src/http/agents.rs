@@ -54,9 +54,7 @@ impl AgencyFilter {
         match self {
             AgencyFilter::Always => true,
             AgencyFilter::HasProperty { name, value } => Self::agency_property(name, agency)
-                .map_or(false, |v| {
-                    v.to_string().to_lowercase().contains(&value.to_lowercase())
-                }),
+                .is_some_and(|v| v.to_string().to_lowercase().contains(&value.to_lowercase())),
             AgencyFilter::Position {
                 latitude,
                 longitude,

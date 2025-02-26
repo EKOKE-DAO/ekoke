@@ -2,24 +2,6 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
-export interface Agency {
-  'lat' : [] | [string],
-  'lng' : [] | [string],
-  'vat' : string,
-  'region' : string,
-  'zip_code' : string,
-  'country' : string,
-  'agent' : string,
-  'owner' : Principal,
-  'city' : string,
-  'logo' : [] | [string],
-  'name' : string,
-  'continent' : Continent,
-  'email' : string,
-  'website' : string,
-  'address' : string,
-  'mobile' : string,
-}
 export type ConfigurationError = { 'AnonymousOwner' : null } |
   { 'AnonymousMinter' : null };
 export type Continent = { 'Africa' : null } |
@@ -35,13 +17,14 @@ export interface Contract {
   'documents' : Array<[bigint, ContractDocument]>,
   'value' : bigint,
   'type' : ContractType,
-  'agency' : [] | [Agency],
+  'agency' : Principal,
   'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
   'deposit' : bigint,
   'sellers' : Array<Seller>,
   'expiration' : string,
   'currency' : string,
+  'real_estate' : bigint,
   'installments' : bigint,
   'buyers' : Array<string>,
 }
@@ -64,6 +47,7 @@ export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DeferredDataError = { 'Configuration' : ConfigurationError } |
   { 'Contract' : ContractError } |
+  { 'RealEstate' : RealEstateError } |
   { 'InvalidSignature' : null } |
   { 'Unauthorized' : null } |
   { 'StorageError' : null } |
@@ -107,6 +91,37 @@ export interface LogSettingsV2 {
 }
 export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
 export interface Pagination { 'count' : bigint, 'offset' : bigint }
+export interface RealEstate {
+  'region' : [] | [string],
+  'latitude' : [] | [number],
+  'energy_class' : [] | [string],
+  'zip_code' : [] | [string],
+  'deleted' : boolean,
+  'square_meters' : [] | [bigint],
+  'country' : [] | [string],
+  'bedrooms' : [] | [bigint],
+  'floors' : [] | [bigint],
+  'city' : [] | [string],
+  'name' : string,
+  'pool' : [] | [boolean],
+  'zone' : [] | [string],
+  'garage' : [] | [boolean],
+  'garden' : [] | [boolean],
+  'agency' : Principal,
+  'continent' : [] | [Continent],
+  'description' : string,
+  'longitude' : [] | [number],
+  'address' : [] | [string],
+  'elevator' : [] | [boolean],
+  'youtube' : [] | [string],
+  'image' : [] | [string],
+  'balconies' : [] | [bigint],
+  'bathrooms' : [] | [bigint],
+  'year_of_construction' : [] | [bigint],
+  'parking' : [] | [boolean],
+  'rooms' : [] | [bigint],
+}
+export type RealEstateError = { 'NotFound' : bigint };
 export type RejectionCode = { 'NoError' : null } |
   { 'CanisterError' : null } |
   { 'SysTransient' : null } |
@@ -126,7 +141,11 @@ export type Result = { 'Ok' : null } |
   { 'Err' : DeferredDataError };
 export type Result_1 = { 'Ok' : ContractDocumentData } |
   { 'Err' : DeferredDataError };
-export type Result_2 = { 'Ok' : bigint } |
+export type Result_2 = { 'Ok' : RealEstate } |
+  { 'Err' : DeferredDataError };
+export type Result_3 = { 'Ok' : bigint } |
+  { 'Err' : DeferredDataError };
+export type Result_4 = { 'Ok' : bigint } |
   { 'Err' : DeferredDataError };
 export interface Seller { 'quota' : number, 'address' : string }
 export interface _SERVICE {
@@ -136,9 +155,13 @@ export interface _SERVICE {
   'get_contract' : ActorMethod<[bigint], [] | [Contract]>,
   'get_contract_document' : ActorMethod<[bigint, bigint], Result_1>,
   'get_contracts' : ActorMethod<[], Array<bigint>>,
+  'get_real_estate' : ActorMethod<[bigint], Result_2>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'minter_close_contract' : ActorMethod<[bigint], Result>,
   'minter_create_contract' : ActorMethod<[Contract], Result>,
+  'minter_create_real_estate' : ActorMethod<[RealEstate], Result_3>,
+  'minter_delete_real_estate' : ActorMethod<[bigint], Result>,
+  'minter_update_real_estate' : ActorMethod<[bigint, RealEstate], Result>,
   'update_contract_property' : ActorMethod<
     [bigint, string, GenericValue],
     Result
@@ -149,7 +172,7 @@ export interface _SERVICE {
   >,
   'upload_contract_document' : ActorMethod<
     [bigint, ContractDocument, Uint8Array | number[]],
-    Result_2
+    Result_4
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

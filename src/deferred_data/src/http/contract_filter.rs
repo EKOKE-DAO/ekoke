@@ -72,19 +72,13 @@ impl ContractFilter {
                 .properties
                 .iter()
                 .find(|(k, _)| k == name)
-                .map_or(false, |(_, v)| {
-                    v.to_string().to_lowercase().contains(&value.to_lowercase())
-                }),
+                .is_some_and(|(_, v)| v.to_string().to_lowercase().contains(&value.to_lowercase())),
             ContractFilter::Seller(addr) => contract
                 .sellers
                 .iter()
                 .any(|seller| seller.address == *addr),
             ContractFilter::Buyer(addr) => contract.buyers.iter().any(|buyer| buyer == addr),
-            ContractFilter::Agent(agent) => contract
-                .agency
-                .as_ref()
-                .map(|agency| agency.owner == *agent)
-                .unwrap_or_default(),
+            ContractFilter::Agent(agent) => contract.agency == *agent,
             ContractFilter::MinPrice(min_price) => contract.value >= *min_price,
             ContractFilter::MaxPrice(max_price) => contract.value <= *max_price,
             ContractFilter::Position {
@@ -151,11 +145,11 @@ impl ContractFilter {
     }
 }
 
-pub struct Filters {
+pub struct ContractFilters {
     filters: Vec<ContractFilter>,
 }
 
-impl From<&Url> for Filters {
+impl From<&Url> for ContractFilters {
     fn from(url: &Url) -> Self {
         let mut filters = vec![ContractFilter::Always];
 
@@ -241,11 +235,11 @@ impl From<&Url> for Filters {
             }
         }
 
-        Filters { filters }
+        ContractFilters { filters }
     }
 }
 
-impl Filters {
+impl ContractFilters {
     /// Check if the contract satisfies the filters.
     pub fn check(&self, contract: &Contract) -> bool {
         self.filters.iter().all(|filter| filter.check(contract))
@@ -266,7 +260,7 @@ mod test {
         let url =
             Url::parse("http://example.com/?latitude=45.0&longitude=9.0&radius=10.0").unwrap();
 
-        let filters = Filters::from(&url);
+        let filters = ContractFilters::from(&url);
         let position = filters.filters.iter().find_map(|filter| match filter {
             ContractFilter::Position {
                 latitude,

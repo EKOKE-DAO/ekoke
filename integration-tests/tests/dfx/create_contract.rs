@@ -1,5 +1,7 @@
-use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, Seller};
-use integration_tests::actor::agent;
+use std::time::Duration;
+
+use candid::Principal;
+use did::deferred::{Agency, ContractRegistration, ContractType, GenericValue, RealEstate, Seller};
 use integration_tests::client::{DeferredDataClient, DeferredMinterClient};
 use integration_tests::eth_rpc_client::{DeferredErc721Client, EthRpcClient};
 use integration_tests::{DfxTestEnv, WalletName};
@@ -9,19 +11,30 @@ const ONE_ETH: u64 = 1_000_000_000_000_000_000;
 #[tokio::test]
 async fn test_should_create_and_close_contract() {
     let env = DfxTestEnv::init().await;
+    let admin = env.admin();
+    let client = DeferredMinterClient::new(&env);
 
     // create agent
-    DeferredMinterClient::new(&env)
+    client
         .admin_register_agency(
-            agent(),
+            admin,
             Agency {
-                owner: agent(),
+                owner: admin,
                 ..Default::default()
             },
         )
         .await;
 
-    let minter_address = DeferredMinterClient::new(&env)
+    tokio::time::sleep(Duration::from_secs(5)).await;
+
+    // create real estate
+    let real_estate = real_estate(admin);
+    let real_estate_id = client
+        .create_real_estate(admin, real_estate)
+        .await
+        .expect("Failed to create real estate");
+
+    let minter_address = client
         .get_eth_address()
         .await
         .expect("Failed to get eth address");
@@ -37,6 +50,7 @@ async fn test_should_create_and_close_contract() {
     // create the contract
     let request = ContractRegistration {
         r#type: ContractType::Sell,
+        real_estate_id,
         sellers: vec![Seller {
             address: env.evm.get_eth_address(WalletName::Alice),
             quota: 100,
@@ -57,7 +71,7 @@ async fn test_should_create_and_close_contract() {
 
     // send request
     let contract_id = DeferredMinterClient::new(&env)
-        .create_contract(agent(), request)
+        .create_contract(admin, request)
         .await
         .expect("Failed to create contract");
 
@@ -94,9 +108,42 @@ async fn test_should_create_and_close_contract() {
 
     // close contract
     DeferredMinterClient::new(&env)
-        .close_contract(agent(), contract_id.clone())
+        .close_contract(admin, contract_id.clone())
         .await
         .expect("Failed to close contract");
 
     assert_eq!(data_client.get_contract(&contract_id).await, None);
+}
+
+fn real_estate(agency: Principal) -> RealEstate {
+    RealEstate {
+        name: "Beautiful house".to_string(),
+        address: Some("Via Roma 10".to_string()),
+        agency,
+        deleted: false,
+        description: "Beautiful house in the center of Rome".to_string(),
+        image: None,
+        continent: None,
+        country: None,
+        region: None,
+        city: None,
+        zip_code: None,
+        zone: None,
+        latitude: None,
+        longitude: None,
+        square_meters: None,
+        rooms: None,
+        bathrooms: None,
+        floors: None,
+        bedrooms: None,
+        year_of_construction: None,
+        energy_class: None,
+        garage: None,
+        garden: None,
+        balconies: None,
+        pool: None,
+        parking: None,
+        elevator: None,
+        youtube: None,
+    }
 }

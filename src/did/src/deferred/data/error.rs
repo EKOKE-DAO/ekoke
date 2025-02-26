@@ -10,6 +10,8 @@ pub enum DeferredDataError {
     Unauthorized,
     #[error("contract error: {0}")]
     Contract(ContractError),
+    #[error("real estate error: {0}")]
+    RealEstate(RealEstateError),
     #[error("configuration error: {0}")]
     Configuration(#[from] ConfigurationError),
     #[error("storage error")]
@@ -30,6 +32,12 @@ pub enum ContractError {
     DocumentNotFound(u64),
     #[error("document size mismatch provided size: {0}, actual size: {1}")]
     DocumentSizeMismatch(u64, u64),
+}
+
+#[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]
+pub enum RealEstateError {
+    #[error("the provided real estate ID ({0}) doesn't exist in the canister storage")]
+    NotFound(ID),
 }
 
 #[derive(Clone, Debug, Error, CandidType, PartialEq, Eq, Deserialize)]

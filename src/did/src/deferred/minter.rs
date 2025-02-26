@@ -113,3 +113,21 @@ impl Storable for Roles {
         Decode!(&bytes, Vec<Role>).unwrap().into()
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use ic_stable_structures::Storable as _;
+    use pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_should_encode_role() {
+        let role: Roles = vec![Role::Agent, Role::Custodian].into();
+
+        let data = role.to_bytes();
+        let decoded_role = Roles::from_bytes(data);
+        assert_eq!(role, decoded_role);
+    }
+}

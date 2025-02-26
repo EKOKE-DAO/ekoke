@@ -6,7 +6,7 @@
 
 use candid::{candid_method, Nat, Principal};
 use did::deferred::{
-    Agency, ContractRegistration, DeferredMinterInitData, DeferredMinterResult, Role,
+    Agency, ContractRegistration, DeferredMinterInitData, DeferredMinterResult, RealEstate, Role,
 };
 use did::{HttpRequest, HttpResponse, ID};
 use ic_cdk::post_upgrade;
@@ -47,6 +47,24 @@ pub async fn create_contract(data: ContractRegistration) -> DeferredMinterResult
 #[candid_method(update)]
 pub async fn close_contract(contract_id: ID) -> DeferredMinterResult<()> {
     DeferredMinter::close_contract(contract_id).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn create_real_estate(real_estate: RealEstate) -> DeferredMinterResult<ID> {
+    DeferredMinter::create_real_estate(real_estate).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn update_real_estate(id: ID, real_estate: RealEstate) -> DeferredMinterResult<()> {
+    DeferredMinter::update_real_estate(id, real_estate).await
+}
+
+#[update]
+#[candid_method(update)]
+pub async fn delete_real_estate(id: ID) -> DeferredMinterResult<()> {
+    DeferredMinter::delete_real_estate(id).await
 }
 
 #[query]

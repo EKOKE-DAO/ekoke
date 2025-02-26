@@ -44,6 +44,7 @@ export type ContractError = { 'CurrencyNotAllowed' : string } |
   { 'ContractHasNoBuyer' : null } |
   { 'BadContractExpiration' : null } |
   { 'ContractHasNoTokens' : null } |
+  { 'BadRealEstateId' : null } |
   { 'BadContractProperty' : null };
 export type ContractError_1 = { 'DocumentNotFound' : bigint } |
   { 'ContractNotFound' : bigint } |
@@ -55,6 +56,7 @@ export interface ContractRegistration {
   'restricted_properties' : Array<[string, RestrictedProperty]>,
   'properties' : Array<[string, GenericValue]>,
   'deposit' : bigint,
+  'real_estate_id' : bigint,
   'sellers' : Array<Seller>,
   'token_value' : bigint,
   'expiration' : string,
@@ -66,6 +68,7 @@ export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DeferredDataError = { 'Configuration' : ConfigurationError_1 } |
   { 'Contract' : ContractError_1 } |
+  { 'RealEstate' : RealEstateError } |
   { 'InvalidSignature' : null } |
   { 'Unauthorized' : null } |
   { 'StorageError' : null } |
@@ -133,6 +136,37 @@ export interface LogSettingsV2 {
 }
 export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
 export interface Pagination { 'count' : bigint, 'offset' : bigint }
+export interface RealEstate {
+  'region' : [] | [string],
+  'latitude' : [] | [number],
+  'energy_class' : [] | [string],
+  'zip_code' : [] | [string],
+  'deleted' : boolean,
+  'square_meters' : [] | [bigint],
+  'country' : [] | [string],
+  'bedrooms' : [] | [bigint],
+  'floors' : [] | [bigint],
+  'city' : [] | [string],
+  'name' : string,
+  'pool' : [] | [boolean],
+  'zone' : [] | [string],
+  'garage' : [] | [boolean],
+  'garden' : [] | [boolean],
+  'agency' : Principal,
+  'continent' : [] | [Continent],
+  'description' : string,
+  'longitude' : [] | [number],
+  'address' : [] | [string],
+  'elevator' : [] | [boolean],
+  'youtube' : [] | [string],
+  'image' : [] | [string],
+  'balconies' : [] | [bigint],
+  'bathrooms' : [] | [bigint],
+  'year_of_construction' : [] | [bigint],
+  'parking' : [] | [boolean],
+  'rooms' : [] | [bigint],
+}
+export type RealEstateError = { 'NotFound' : bigint };
 export type RejectionCode = { 'NoError' : null } |
   { 'CanisterError' : null } |
   { 'SysTransient' : null } |
@@ -168,12 +202,15 @@ export interface _SERVICE {
   'admin_set_role' : ActorMethod<[Principal, Role], undefined>,
   'close_contract' : ActorMethod<[bigint], Result>,
   'create_contract' : ActorMethod<[ContractRegistration], Result_1>,
+  'create_real_estate' : ActorMethod<[RealEstate], Result_1>,
+  'delete_real_estate' : ActorMethod<[bigint], Result>,
   'gas_station_set_gas_price' : ActorMethod<[bigint], Result>,
   'get_agencies' : ActorMethod<[], Array<Agency>>,
   'get_agency' : ActorMethod<[Principal], [] | [Agency]>,
   'get_eth_address' : ActorMethod<[], Result_2>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'remove_agency' : ActorMethod<[Principal], Result>,
+  'update_real_estate' : ActorMethod<[bigint, RealEstate], Result>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

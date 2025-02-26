@@ -2,7 +2,8 @@ use candid::{Nat, Principal};
 use contract_id::ContractId;
 use data_client::DeferredDataClient;
 use did::deferred::{
-    Agency, Contract, ContractRegistration, DeferredMinterInitData, DeferredMinterResult, Role,
+    Agency, Contract, ContractError, ContractRegistration, DeferredMinterError,
+    DeferredMinterInitData, DeferredMinterResult, RealEstate, Role,
 };
 use did::ID;
 use ethereum::{DeferredErc721, EvmRpcClient, RewardPool, Wallet};
@@ -108,6 +109,27 @@ impl DeferredMinter {
         let contract_id = ContractId::get_next_contract_id();
         log::debug!("creating contract with id {contract_id}");
 
+        // check if the real estate ID exists and is owned by the agency
+        log::debug!("checking real estate id {}", data.real_estate_id);
+        let real_estate = Self::deferred_data()
+            .get_real_estate(data.real_estate_id.clone())
+            .await?;
+        log::debug!("real estate: {real_estate:?}");
+        if real_estate.agency != caller() {
+            log::error!(
+                "real estate {} is not owned by the caller {}",
+                data.real_estate_id,
+                caller()
+            );
+            return Err(DeferredMinterError::Contract(
+                ContractError::BadRealEstateId,
+            ));
+        }
+        log::debug!(
+            "real estate id {} is owned by the caller",
+            data.real_estate_id
+        );
+
         // create contract
         let token_price = data.token_value;
         let contract = Self::contract_from_registration(contract_id.clone(), data);
@@ -162,11 +184,7 @@ impl DeferredMinter {
         if RolesManager::is_agent(caller()) {
             log::debug!("caller is an agent");
             let contract = Self::deferred_data().get_contract(&contract_id).await?;
-            if contract
-                .agency
-                .map(|agency| agency.owner != caller())
-                .unwrap_or(true)
-            {
+            if contract.agency != caller() {
                 log::debug!("caller is not the agency for the contract");
                 ic_cdk::trap("Unauthorized");
             }
@@ -184,6 +202,72 @@ impl DeferredMinter {
             .close_contract(contract_id.clone())
             .await?;
         log::info!("Contract {contract_id} closed successfully");
+
+        Ok(())
+    }
+
+    /// Create a new real estate on the data canister
+    pub async fn create_real_estate(real_estate: RealEstate) -> DeferredMinterResult<ID> {
+        if !Inspect::inspect_is_agent(caller()) {
+            ic_cdk::trap("Unauthorized - not an agent");
+        }
+
+        // validate if caller and agency are the same
+        if real_estate.agency != caller() {
+            ic_cdk::trap("Unauthorized - real estate agency differs from caller");
+        }
+
+        let real_estate_id = Self::deferred_data()
+            .create_real_estate(real_estate)
+            .await?;
+        log::info!("Real estate created with id {real_estate_id}");
+
+        Ok(real_estate_id)
+    }
+
+    /// Delete a real estate
+    pub async fn delete_real_estate(real_estate_id: ID) -> DeferredMinterResult<()> {
+        if !Inspect::inspect_is_agent(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        // check if the real estate ID exists and is owned by the agency
+        let real_estate = Self::deferred_data()
+            .get_real_estate(real_estate_id.clone())
+            .await?;
+        if real_estate.agency != caller() {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        Self::deferred_data()
+            .delete_real_estate(real_estate_id.clone())
+            .await?;
+        log::info!("Real estate {real_estate_id} deleted successfully");
+
+        Ok(())
+    }
+
+    /// Update a real estate
+    pub async fn update_real_estate(
+        real_estate_id: ID,
+        real_estate: RealEstate,
+    ) -> DeferredMinterResult<()> {
+        if !Inspect::inspect_is_agent(caller()) {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        // check if the real estate ID exists and is owned by the agency
+        let existing_real_estate = Self::deferred_data()
+            .get_real_estate(real_estate_id.clone())
+            .await?;
+        if existing_real_estate.agency != caller() {
+            ic_cdk::trap("Unauthorized");
+        }
+
+        Self::deferred_data()
+            .update_real_estate(real_estate_id.clone(), real_estate)
+            .await?;
+        log::info!("Real estate {real_estate_id} updated successfully");
 
         Ok(())
     }
@@ -206,10 +290,7 @@ impl DeferredMinter {
         // always set the wallet to the agency
         agency.owner = wallet;
         Agents::insert_agency(wallet, agency);
-        // give role to the agent
-        if !RolesManager::is_custodian(wallet) {
-            RolesManager::give_role(wallet, Role::Agent);
-        }
+        RolesManager::give_role(wallet, Role::Agent);
 
         log::info!("Agency registered: {wallet}",);
     }
@@ -310,9 +391,6 @@ impl DeferredMinter {
 
     /// Create a contract from the registration data
     fn contract_from_registration(contract_id: ID, data: ContractRegistration) -> Contract {
-        // get agency from caller
-        let agency = Agents::get_agency_by_wallet(caller());
-
         Contract {
             id: contract_id,
             r#type: data.r#type,
@@ -325,7 +403,8 @@ impl DeferredMinter {
             properties: data.properties,
             restricted_properties: data.restricted_properties,
             documents: vec![],
-            agency,
+            agency: caller(),
+            real_estate: data.real_estate_id,
             expiration: data.expiration,
             closed: false,
         }
@@ -342,6 +421,7 @@ mod test {
     use test_utils::{alice, bob};
 
     use super::*;
+    use crate::app::test_utils::mock_real_estate;
 
     #[tokio::test]
     async fn test_should_init_canister() {
@@ -536,6 +616,7 @@ mod test {
     #[tokio::test]
     async fn test_should_create_contract() {
         init();
+        register_agency();
 
         let contract = ContractRegistration {
             value: 400_000,
@@ -567,6 +648,54 @@ mod test {
         DeferredMinter::close_contract(1u64.into())
             .await
             .expect("failed to close contract");
+    }
+
+    #[tokio::test]
+    async fn test_should_create_real_estate() {
+        init();
+        register_agency();
+
+        let prop = mock_real_estate();
+        let _ = DeferredMinter::create_real_estate(prop)
+            .await
+            .expect("failed to create real estate");
+    }
+
+    #[tokio::test]
+    async fn test_should_delete_real_estate() {
+        init();
+        register_agency();
+
+        let prop = mock_real_estate();
+        let real_estate_id = DeferredMinter::create_real_estate(prop)
+            .await
+            .expect("failed to create real estate");
+
+        DeferredMinter::delete_real_estate(real_estate_id)
+            .await
+            .expect("failed to delete real estate");
+    }
+
+    #[tokio::test]
+    async fn test_should_update_real_estate() {
+        init();
+        register_agency();
+
+        let prop = mock_real_estate();
+        let real_estate_id = DeferredMinter::create_real_estate(prop)
+            .await
+            .expect("failed to create real estate");
+
+        let prop = mock_real_estate();
+        DeferredMinter::update_real_estate(real_estate_id, prop)
+            .await
+            .expect("failed to update real estate");
+    }
+
+    fn register_agency() {
+        let agency = Agency::default();
+
+        DeferredMinter::admin_register_agency(caller(), agency);
     }
 
     fn init() {
