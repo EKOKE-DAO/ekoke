@@ -11,6 +11,8 @@ use crate::ID;
 pub struct RealEstate {
     /// Unique identifier for the real estate
     pub id: ID,
+    /// Mark as deleted
+    pub deleted: bool,
     /// agency
     pub agency: AgencyId,
     /// name
@@ -91,6 +93,7 @@ mod test {
     fn test_should_encode_and_decode_real_estate() {
         let real_estate = RealEstate {
             id: 2_u64.into(),
+            deleted: false,
             agency: Principal::management_canister(),
             name: "name".to_string(),
             description: "description".to_string(),

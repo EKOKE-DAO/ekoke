@@ -5,7 +5,8 @@
   - [HTTP Endpoint](#http-endpoint)
     - [Get contracts](#get-contracts)
     - [Get contract by id](#get-contract-by-id)
-  - [Contract Properties](#contract-properties)
+    - [Get real estates](#get-real-estates)
+    - [Get real estate by id](#get-real-estate-by-id)
 
 Principal: `2m6dw-uaaaa-aaaal-arumq-cai`
 
@@ -20,6 +21,10 @@ Deferred **Data** canister takes care of storing sell contracts and provides the
 - **Get contract document**: get a contract document with its data and mime type
 - **Upload contract document**: The agency can upload documents for a contract
 - **Update contract property**: The agency can both update a contract property and restricted property. Mind that when we talk about **contract properties** we don't mean any property, but just those stored in the `properties` and `restricted_properties` fields.
+- **Create real estate**: define a new real estate property
+- **Get real estate**: get a real estate property by its ID
+- **Delete real estate**: delete a real estate property by its ID
+- **Update real estate**: update a real estate property by its ID
 
 ## HTTP Endpoint
 
@@ -108,32 +113,92 @@ Response:
 
 > Restricted properties are redacted based on your permissions
 
-## Contract Properties
+### Get real estates
 
-These are the Properties that may be inserted into the Contract.
+This endpoints gets all the IDs of registered contracts
 
-| Property              | Type         | Description |
-|-----------------------|--------------|------------------------------------------------|
-| contract:name         | TextContent  | A title for the property                       |
-| contract:description  | TextContent  | A description for the property                 |
-| contract:image        | TextContent  | URL or base64 encoded image                    |
-| contract:address      | TextContent  | Address where the property is located          |
-| contract:country      | TextContent  | Country where the property is located          |
-| contract:continent    | TextContent  | Continent where the property is located        |
-| contract:region       | TextContent  | Region where the property is located           |
-| contract:zipCode      | TextContent  | Zip code where the property is located         |
-| contract:latitude     | TextContent  | Latitude where the property is located         |
-| contract:longitude    | TextContent  | Longitude where the property is located        |
-| contract:zone         | TextContent  | Zone of the city where the property is located |
-| contract:city         | TextContent  | City where the property is located             |
-| contract:squareMeters | Nat64Content | Property square meters                         |
-| contract:rooms        | Nat64Content | Amount of rooms                                |
-| contract:bathrooms    | Nat64Content | Amount of Bathrooms                            |
-| contract:floors       | Nat64Content | Floors                                         |
-| contract:balconies    | Nat64Content | Amount of balconies                            |
-| contract:garden       | BoolContent  | Has garden                                     |
-| contract:pool         | BoolContent  | Has pool                                       |
-| contract:garage       | BoolContent  | Has garage                                     |
-| contract:parking      | BoolContent  | Has a private parking                          |
-| contract:energyClass  | TextContent  | Optional energy class                          |
-| contract:youtubeUrl   | TextContent  | URL to a YouTube video showcasing the property |
+```txt
+GET /real-estate
+```
+
+Response:
+
+```json
+[
+  1,
+  2,
+  3
+]
+```
+
+It is also possible to filter contracts using query params:
+
+- agent: agency principal
+- minPrice: minimum price
+- maxPrice: maximum price (price is)
+- position: check if contract property is in a certain range. The following keys are required
+  - `latitude`
+  - `longitude`
+  - `radius` (Km)
+- name
+- description
+- address
+- country
+- continent
+- region
+- zipCode
+- zone
+- city
+- squareMeters
+- rooms
+- bathrooms
+- floors
+- balconies
+- garden
+- pool
+- garage
+- parking
+- energyClass
+
+URL with query params
+
+```txt
+GET /real-estate?latitude=45.04&longitude=9.89&radius=20&garden&city=london
+```
+
+### Get real estate by id
+
+Get a contract by id
+
+```txt
+GET /real-estate/:id
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "name": "Villa in the hills",
+  "description": "A beautiful villa in the hills",
+  "address": "Via Roma 1",
+  "country": "Italy",
+  "continent": "Europe",
+  "region": "Lombardia",
+  "zipCode": "20100",
+  "latitude": "45.04",
+  "longitude": "9.89",
+  "zone": "Hills",
+  "city": "Milan",
+  "squareMeters": 200,
+  "rooms": 5,
+  "bathrooms": 3,
+  "floors": 2,
+  "balconies": 2,
+  "garden": true,
+  "pool": true,
+  "garage": true,
+  "parking": true,
+  "energyClass": "A",
+}
+```

@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str::FromStr;
 
 use candid::{CandidType, Decode, Encode, Principal};
 use ic_stable_structures::storable::Bound;
@@ -75,6 +76,23 @@ impl fmt::Display for Continent {
             Continent::SouthAmerica => "South America",
         };
         write!(f, "{s}",)
+    }
+}
+
+impl FromStr for Continent {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "africa" => Ok(Continent::Africa),
+            "antarctica" => Ok(Continent::Antarctica),
+            "asia" => Ok(Continent::Asia),
+            "europe" => Ok(Continent::Europe),
+            "north america" => Ok(Continent::NorthAmerica),
+            "oceania" => Ok(Continent::Oceania),
+            "south america" => Ok(Continent::SouthAmerica),
+            _ => Err(format!("Invalid continent: {}", s)),
+        }
     }
 }
 

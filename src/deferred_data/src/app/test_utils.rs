@@ -1,5 +1,8 @@
 use candid::Principal;
-use did::deferred::{Agency, Contract, GenericValue, RestrictedProperty, RestrictionLevel, Seller};
+use did::deferred::{
+    Agency, Continent, Contract, GenericValue, RealEstate, RestrictedProperty, RestrictionLevel,
+    Seller,
+};
 use did::H160;
 
 use super::storage::ContractStorage;
@@ -53,6 +56,40 @@ pub fn mock_agency() -> Agency {
         agent: "agent".to_string(),
         logo: None,
         owner: alice(),
+    }
+}
+
+pub fn mock_real_estate() -> RealEstate {
+    RealEstate {
+        id: 2_u64.into(),
+        deleted: false,
+        agency: Principal::management_canister(),
+        name: "name".to_string(),
+        description: "description".to_string(),
+        image: Some("image".to_string()),
+        address: Some("address".to_string()),
+        country: Some("country".to_string()),
+        continent: Some(Continent::Europe),
+        region: Some("region".to_string()),
+        city: Some("city".to_string()),
+        zone: Some("zone".to_string()),
+        zip_code: Some("zip_code".to_string()),
+        latitude: Some(1.0),
+        longitude: Some(2.0),
+        square_meters: Some(100),
+        rooms: Some(3),
+        bathrooms: Some(2),
+        bedrooms: Some(1),
+        floors: Some(1),
+        year_of_construction: Some(2021),
+        garden: Some(true),
+        balconies: Some(1),
+        pool: Some(true),
+        garage: Some(true),
+        parking: Some(true),
+        elevator: Some(true),
+        energy_class: Some("A".to_string()),
+        youtube: Some("youtube".to_string()),
     }
 }
 

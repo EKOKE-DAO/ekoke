@@ -8,7 +8,8 @@ pub mod test_utils;
 use candid::{Nat, Principal};
 use did::deferred::{
     Contract, ContractDocument, ContractDocumentData, DataContractError, DeferredDataError,
-    DeferredDataInitData, DeferredDataResult, GenericValue, RestrictedProperty, RestrictionLevel,
+    DeferredDataInitData, DeferredDataResult, GenericValue, RealEstate, RestrictedProperty,
+    RestrictionLevel,
 };
 use did::ID;
 use ethers_core::abi::ethereum_types::H520;
@@ -18,7 +19,7 @@ use ic_log::{init_log, take_memory_records};
 
 use self::configuration::Configuration;
 pub use self::inspect::Inspect;
-pub use self::storage::ContractStorage;
+pub use self::storage::{ContractStorage, RealEstateStorage};
 use crate::utils::{caller, cycles};
 
 /// A message used to verify the ownership of a contract (seller or buyer)
@@ -221,6 +222,50 @@ impl DeferredData {
 
         contract.restricted_properties = redacted_properties;
     }
+
+    /// Create a real estate
+    pub fn create_real_estate(real_estate: RealEstate) -> DeferredDataResult<ID> {
+        if !Inspect::inspect_is_minter(caller()) {
+            return Err(DeferredDataError::Unauthorized);
+        }
+
+        log::debug!("creating real estate: {real_estate:?}");
+        let id = RealEstateStorage::insert(real_estate)?;
+        log::info!("Real estate {id} created");
+
+        Ok(id)
+    }
+
+    /// Get a real estate by ID
+    pub fn get_real_estate(id: &ID) -> DeferredDataResult<RealEstate> {
+        RealEstateStorage::get(id)
+    }
+
+    /// Update a real estate by ID
+    pub fn update_real_estate(id: &ID, real_estate: RealEstate) -> DeferredDataResult<()> {
+        if !Inspect::inspect_is_minter(caller()) {
+            return Err(DeferredDataError::Unauthorized);
+        }
+
+        log::debug!("Updating real estate {id}");
+        RealEstateStorage::update(id, real_estate)?;
+        log::info!("Real estate {id} updated");
+
+        Ok(())
+    }
+
+    /// Delete a real estate by ID
+    pub fn delete_real_estate(id: &ID) -> DeferredDataResult<()> {
+        if !Inspect::inspect_is_minter(caller()) {
+            return Err(DeferredDataError::Unauthorized);
+        }
+
+        log::debug!("Deleting real estate {id}");
+        RealEstateStorage::delete(id)?;
+        log::info!("Real estate {id} deleted");
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -229,13 +274,14 @@ mod test {
     use std::str::FromStr as _;
 
     use candid::Nat;
-    use did::deferred::RestrictionLevel;
+    use did::deferred::{RealEstateError, RestrictionLevel};
     use did::H160;
     use ic_log::LogSettingsV2;
     use pretty_assertions::assert_eq;
     use test_utils::{mock_contract, store_mock_contract_with, with_mock_contract};
 
     use super::*;
+    use crate::app::test_utils::mock_real_estate;
 
     #[test]
     fn test_should_init() {
@@ -378,6 +424,55 @@ mod test {
         let contract = DeferredData::get_contract(&Nat::from(1u64), Some(signature)).unwrap();
 
         assert_eq!(contract.restricted_properties.len(), 1);
+    }
+
+    #[test]
+    fn test_should_create_and_get_real_estate() {
+        init();
+
+        let real_estate = mock_real_estate();
+
+        let id = DeferredData::create_real_estate(real_estate.clone()).expect("Failed to create");
+
+        let stored = DeferredData::get_real_estate(&id).expect("Failed to get");
+
+        assert_eq!(real_estate, stored);
+    }
+
+    #[test]
+    fn test_should_delete_real_estate() {
+        init();
+
+        let real_estate = mock_real_estate();
+
+        let id = DeferredData::create_real_estate(real_estate.clone()).expect("Failed to create");
+
+        DeferredData::delete_real_estate(&id).expect("Failed to delete");
+
+        let stored = DeferredData::get_real_estate(&id);
+
+        assert_eq!(
+            stored,
+            Err(DeferredDataError::RealEstate(RealEstateError::NotFound(id)))
+        );
+    }
+
+    #[test]
+    fn test_should_update_real_estate() {
+        init();
+
+        let real_estate = mock_real_estate();
+
+        let id = DeferredData::create_real_estate(real_estate.clone()).expect("Failed to create");
+
+        let mut updated = real_estate.clone();
+        updated.address = Some("new address".to_string());
+
+        DeferredData::update_real_estate(&id, updated.clone()).expect("Failed to update");
+
+        let stored = DeferredData::get_real_estate(&id).expect("Failed to get");
+
+        assert_eq!(updated, stored);
     }
 
     fn signature() -> (H160, SignedMessage) {

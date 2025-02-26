@@ -145,11 +145,11 @@ impl ContractFilter {
     }
 }
 
-pub struct Filters {
+pub struct ContractFilters {
     filters: Vec<ContractFilter>,
 }
 
-impl From<&Url> for Filters {
+impl From<&Url> for ContractFilters {
     fn from(url: &Url) -> Self {
         let mut filters = vec![ContractFilter::Always];
 
@@ -235,11 +235,11 @@ impl From<&Url> for Filters {
             }
         }
 
-        Filters { filters }
+        ContractFilters { filters }
     }
 }
 
-impl Filters {
+impl ContractFilters {
     /// Check if the contract satisfies the filters.
     pub fn check(&self, contract: &Contract) -> bool {
         self.filters.iter().all(|filter| filter.check(contract))
@@ -260,7 +260,7 @@ mod test {
         let url =
             Url::parse("http://example.com/?latitude=45.0&longitude=9.0&radius=10.0").unwrap();
 
-        let filters = Filters::from(&url);
+        let filters = ContractFilters::from(&url);
         let position = filters.filters.iter().find_map(|filter| match filter {
             ContractFilter::Position {
                 latitude,

@@ -25,6 +25,7 @@ export const idlFactory = ({ IDL }) => {
     'DocumentSizeMismatch' : IDL.Tuple(IDL.Nat64, IDL.Nat64),
     'BadContractProperty' : IDL.Null,
   });
+  const RealEstateError = IDL.Variant({ 'NotFound' : IDL.Nat });
   const RejectionCode = IDL.Variant({
     'NoError' : IDL.Null,
     'CanisterError' : IDL.Null,
@@ -37,6 +38,7 @@ export const idlFactory = ({ IDL }) => {
   const DeferredDataError = IDL.Variant({
     'Configuration' : ConfigurationError,
     'Contract' : ContractError,
+    'RealEstate' : RealEstateError,
     'InvalidSignature' : IDL.Null,
     'Unauthorized' : IDL.Null,
     'StorageError' : IDL.Null,
@@ -58,33 +60,6 @@ export const idlFactory = ({ IDL }) => {
   const ContractType = IDL.Variant({
     'Sell' : IDL.Null,
     'Financing' : IDL.Null,
-  });
-  const Continent = IDL.Variant({
-    'Africa' : IDL.Null,
-    'Antarctica' : IDL.Null,
-    'Asia' : IDL.Null,
-    'Europe' : IDL.Null,
-    'SouthAmerica' : IDL.Null,
-    'Oceania' : IDL.Null,
-    'NorthAmerica' : IDL.Null,
-  });
-  const Agency = IDL.Record({
-    'lat' : IDL.Opt(IDL.Text),
-    'lng' : IDL.Opt(IDL.Text),
-    'vat' : IDL.Text,
-    'region' : IDL.Text,
-    'zip_code' : IDL.Text,
-    'country' : IDL.Text,
-    'agent' : IDL.Text,
-    'owner' : IDL.Principal,
-    'city' : IDL.Text,
-    'logo' : IDL.Opt(IDL.Text),
-    'name' : IDL.Text,
-    'continent' : Continent,
-    'email' : IDL.Text,
-    'website' : IDL.Text,
-    'address' : IDL.Text,
-    'mobile' : IDL.Text,
   });
   const GenericValue = IDL.Variant({
     'Nat64Content' : IDL.Nat64,
@@ -113,7 +88,7 @@ export const idlFactory = ({ IDL }) => {
     'documents' : IDL.Vec(IDL.Tuple(IDL.Nat64, ContractDocument)),
     'value' : IDL.Nat64,
     'type' : ContractType,
-    'agency' : IDL.Opt(Agency),
+    'agency' : IDL.Principal,
     'restricted_properties' : IDL.Vec(IDL.Tuple(IDL.Text, RestrictedProperty)),
     'properties' : IDL.Vec(IDL.Tuple(IDL.Text, GenericValue)),
     'deposit' : IDL.Nat64,
@@ -132,6 +107,50 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : ContractDocumentData,
     'Err' : DeferredDataError,
   });
+  const Continent = IDL.Variant({
+    'Africa' : IDL.Null,
+    'Antarctica' : IDL.Null,
+    'Asia' : IDL.Null,
+    'Europe' : IDL.Null,
+    'SouthAmerica' : IDL.Null,
+    'Oceania' : IDL.Null,
+    'NorthAmerica' : IDL.Null,
+  });
+  const RealEstate = IDL.Record({
+    'id' : IDL.Nat,
+    'region' : IDL.Opt(IDL.Text),
+    'latitude' : IDL.Opt(IDL.Float64),
+    'energy_class' : IDL.Opt(IDL.Text),
+    'zip_code' : IDL.Opt(IDL.Text),
+    'deleted' : IDL.Bool,
+    'square_meters' : IDL.Opt(IDL.Nat64),
+    'country' : IDL.Opt(IDL.Text),
+    'bedrooms' : IDL.Opt(IDL.Nat64),
+    'floors' : IDL.Opt(IDL.Nat64),
+    'city' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+    'pool' : IDL.Opt(IDL.Bool),
+    'zone' : IDL.Opt(IDL.Text),
+    'garage' : IDL.Opt(IDL.Bool),
+    'garden' : IDL.Opt(IDL.Bool),
+    'agency' : IDL.Principal,
+    'continent' : IDL.Opt(Continent),
+    'description' : IDL.Text,
+    'longitude' : IDL.Opt(IDL.Float64),
+    'address' : IDL.Opt(IDL.Text),
+    'elevator' : IDL.Opt(IDL.Bool),
+    'youtube' : IDL.Opt(IDL.Text),
+    'image' : IDL.Opt(IDL.Text),
+    'balconies' : IDL.Opt(IDL.Nat64),
+    'bathrooms' : IDL.Opt(IDL.Nat64),
+    'year_of_construction' : IDL.Opt(IDL.Nat64),
+    'parking' : IDL.Opt(IDL.Bool),
+    'rooms' : IDL.Opt(IDL.Nat64),
+  });
+  const Result_2 = IDL.Variant({
+    'Ok' : RealEstate,
+    'Err' : DeferredDataError,
+  });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
     'method' : IDL.Text,
@@ -144,7 +163,8 @@ export const idlFactory = ({ IDL }) => {
     'upgrade' : IDL.Opt(IDL.Bool),
     'status_code' : IDL.Nat16,
   });
-  const Result_2 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : DeferredDataError });
+  const Result_3 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DeferredDataError });
+  const Result_4 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : DeferredDataError });
   return IDL.Service({
     'admin_cycles' : IDL.Func([], [IDL.Nat], ['query']),
     'admin_ic_logs' : IDL.Func([Pagination], [Logs], ['query']),
@@ -156,9 +176,13 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'get_contracts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+    'get_real_estate' : IDL.Func([IDL.Nat], [Result_2], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'minter_close_contract' : IDL.Func([IDL.Nat], [Result], []),
     'minter_create_contract' : IDL.Func([Contract], [Result], []),
+    'minter_create_real_estate' : IDL.Func([RealEstate], [Result_3], []),
+    'minter_delete_real_estate' : IDL.Func([IDL.Nat], [Result], []),
+    'minter_update_real_estate' : IDL.Func([IDL.Nat, RealEstate], [Result], []),
     'update_contract_property' : IDL.Func(
         [IDL.Nat, IDL.Text, GenericValue],
         [Result],
@@ -171,7 +195,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'upload_contract_document' : IDL.Func(
         [IDL.Nat, ContractDocument, IDL.Vec(IDL.Nat8)],
-        [Result_2],
+        [Result_4],
         [],
       ),
   });

@@ -1,18 +1,22 @@
 mod contract_filter;
+mod real_estate_filter;
 
 use std::str::FromStr;
 
 use did::{HttpRequest, HttpResponse};
 use ethers_core::abi::ethereum_types::H520;
+use real_estate_filter::RealEstateFilters;
 use route_recognizer::Router;
 use url::Url;
 
-use self::contract_filter::Filters;
-use crate::app::{ContractStorage, DeferredData, SignedMessage};
+use self::contract_filter::ContractFilters;
+use crate::app::{ContractStorage, DeferredData, RealEstateStorage, SignedMessage};
 
 const ROUTE_CONTRACTS: &str = "Contracts";
 const ROUTE_CONTRACT: &str = "Contract";
 const ROUTE_DOCUMENT: &str = "Document";
+const ROUTE_REAL_ESTATES: &str = "RealEstates";
+const ROUTE_REAL_ESTATE: &str = "RealEstate";
 
 pub struct HttpApi;
 
@@ -47,6 +51,8 @@ impl HttpApi {
             "/contract/:contract_id/document/:document_id",
             ROUTE_DOCUMENT,
         );
+        router.add("/real-estate", ROUTE_REAL_ESTATES);
+        router.add("/real-estate/:id", ROUTE_REAL_ESTATE);
 
         let Ok(route_match) = router.recognize(url.path()) else {
             return HttpResponse::not_found();
@@ -82,12 +88,22 @@ impl HttpApi {
 
                 Self::get_contract_document(url, contract_id, document_id)
             }
+            ROUTE_REAL_ESTATES => Self::get_real_estates(&url),
+            ROUTE_REAL_ESTATE => {
+                let Some(id) = params.find("id") else {
+                    return HttpResponse::bad_request("missing real estate ID".to_string());
+                };
+                let Ok(id) = id.parse::<u64>() else {
+                    return HttpResponse::bad_request("invalid real estate ID".to_string());
+                };
+                Self::get_real_estate(id)
+            }
             _ => HttpResponse::not_found(),
         }
     }
 
     fn get_contracts(url: &Url) -> HttpResponse {
-        let filters = Filters::from(url);
+        let filters = ContractFilters::from(url);
 
         HttpResponse::ok(ContractStorage::get_contracts_filter(|contract| {
             filters.check(contract)
@@ -106,6 +122,20 @@ impl HttpApi {
         let signed_message = Self::signed_message(url);
 
         DeferredData::get_contract_document(contract_id.into(), document_id, signed_message)
+            .map(HttpResponse::ok)
+            .unwrap_or_else(|_| HttpResponse::not_found())
+    }
+
+    fn get_real_estates(url: &Url) -> HttpResponse {
+        let filters = RealEstateFilters::from(url);
+
+        HttpResponse::ok(RealEstateStorage::get_real_estates_filter(|real_estate| {
+            filters.check(real_estate)
+        }))
+    }
+
+    fn get_real_estate(id: u64) -> HttpResponse {
+        DeferredData::get_real_estate(&id.into())
             .map(HttpResponse::ok)
             .unwrap_or_else(|_| HttpResponse::not_found())
     }
@@ -142,7 +172,7 @@ mod test {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::app::test_utils::{store_mock_contract, store_mock_contract_with};
+    use crate::app::test_utils::{mock_real_estate, store_mock_contract, store_mock_contract_with};
 
     #[tokio::test]
     async fn test_should_get_contract() {
@@ -368,5 +398,29 @@ mod test {
 
         let contracts: Vec<Nat> = serde_json::from_slice(&res.body).unwrap();
         assert_eq!(contracts.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_should_get_real_estate() {
+        let real_estate = mock_real_estate();
+        let id = RealEstateStorage::insert(real_estate.clone()).unwrap();
+
+        let url = Url::parse(&format!("http://localhost/real-estate/{}", id)).unwrap();
+
+        let req = HttpRequest {
+            method: Cow::from("GET".to_string()),
+            url: url.to_string(),
+            headers: HashMap::default(),
+            body: Default::default(),
+        };
+
+        let res = HttpApi::handle_http_request(req).await;
+
+        assert_eq!(res.status_code, 200);
+
+        let real_estate_from_storage: did::deferred::RealEstate =
+            serde_json::from_slice(&res.body).unwrap();
+
+        assert_eq!(real_estate, real_estate_from_storage);
     }
 }

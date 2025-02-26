@@ -66,6 +66,7 @@ export type ContractType = { 'Sell' : null } |
   { 'Financing' : null };
 export type DeferredDataError = { 'Configuration' : ConfigurationError_1 } |
   { 'Contract' : ContractError_1 } |
+  { 'RealEstate' : RealEstateError } |
   { 'InvalidSignature' : null } |
   { 'Unauthorized' : null } |
   { 'StorageError' : null } |
@@ -133,6 +134,7 @@ export interface LogSettingsV2 {
 }
 export interface Logs { 'logs' : Array<Log>, 'all_logs_count' : bigint }
 export interface Pagination { 'count' : bigint, 'offset' : bigint }
+export type RealEstateError = { 'NotFound' : bigint };
 export type RejectionCode = { 'NoError' : null } |
   { 'CanisterError' : null } |
   { 'SysTransient' : null } |

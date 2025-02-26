@@ -3,7 +3,7 @@ mod error;
 use candid::{CandidType, Deserialize, Principal};
 use ic_log::LogSettingsV2;
 
-pub use self::error::{ConfigurationError, ContractError, DeferredDataError};
+pub use self::error::{ConfigurationError, ContractError, DeferredDataError, RealEstateError};
 
 /// These are the arguments which are taken by the deferred data canister at creation
 #[derive(Debug, Clone, CandidType, Deserialize)]

@@ -10,8 +10,17 @@ mod generic_value;
 
 pub use self::generic_value::GenericValue;
 use super::agency::AgencyId;
-use super::{ContractError, DeferredMinterError, DeferredMinterResult};
+use super::real_estate::RealEstate;
+use super::{Agency, ContractError, DeferredMinterError, DeferredMinterResult};
 use crate::H160;
+
+/// Contract with [`Agency`], [`Contract`] and [`RealEstate`] data
+#[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]
+pub struct FullContract {
+    pub agency: Agency,
+    pub contract: Contract,
+    pub real_estate: RealEstate,
+}
 
 /// A sell contract for a building
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize, PartialEq)]

@@ -92,6 +92,7 @@ export const idlFactory = ({ IDL }) => {
     'DocumentSizeMismatch' : IDL.Tuple(IDL.Nat64, IDL.Nat64),
     'BadContractProperty' : IDL.Null,
   });
+  const RealEstateError = IDL.Variant({ 'NotFound' : IDL.Nat });
   const RejectionCode = IDL.Variant({
     'NoError' : IDL.Null,
     'CanisterError' : IDL.Null,
@@ -104,6 +105,7 @@ export const idlFactory = ({ IDL }) => {
   const DeferredDataError = IDL.Variant({
     'Configuration' : ConfigurationError_1,
     'Contract' : ContractError_1,
+    'RealEstate' : RealEstateError,
     'InvalidSignature' : IDL.Null,
     'Unauthorized' : IDL.Null,
     'StorageError' : IDL.Null,
