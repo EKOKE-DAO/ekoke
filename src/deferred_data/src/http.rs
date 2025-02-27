@@ -106,9 +106,13 @@ impl HttpApi {
     fn get_contracts(url: &Url) -> HttpResponse {
         let filters = ContractFilters::from(url);
 
-        HttpResponse::ok(ContractStorage::get_contracts_filter(|contract| {
-            filters.check(contract)
-        }))
+        let ids: Vec<u64> =
+            ContractStorage::get_contracts_filter(|contract| filters.check(contract))
+                .into_iter()
+                .map(|x| x.0.to_u64().expect("Failed to convert ID"))
+                .collect::<Vec<u64>>();
+
+        HttpResponse::ok(ids)
     }
 
     fn get_contract(url: Url, id: u64) -> HttpResponse {
