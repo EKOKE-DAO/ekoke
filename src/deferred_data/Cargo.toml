@@ -27,6 +27,7 @@ ic-cdk-macros = { workspace = true }
 ic-log = { workspace = true }
 ic-stable-structures = { workspace = true }
 log = { workspace = true }
+num-traits = { workspace = true }
 route-recognizer = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }

@@ -766,6 +766,7 @@ dependencies = [
  "ic-log",
  "ic-stable-structures",
  "log",
+ "num-traits",
  "pretty_assertions",
  "route-recognizer",
  "serde",

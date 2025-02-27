@@ -5,6 +5,7 @@ use std::str::FromStr;
 
 use did::{HttpRequest, HttpResponse};
 use ethers_core::abi::ethereum_types::H520;
+use num_traits::cast::ToPrimitive;
 use real_estate_filter::RealEstateFilters;
 use route_recognizer::Router;
 use url::Url;
@@ -129,9 +130,13 @@ impl HttpApi {
     fn get_real_estates(url: &Url) -> HttpResponse {
         let filters = RealEstateFilters::from(url);
 
-        HttpResponse::ok(RealEstateStorage::get_real_estates_filter(|real_estate| {
-            filters.check(real_estate)
-        }))
+        let ids: Vec<u64> =
+            RealEstateStorage::get_real_estates_filter(|real_estate| filters.check(real_estate))
+                .into_iter()
+                .map(|x| x.0.to_u64().expect("Failed to convert ID"))
+                .collect::<Vec<u64>>();
+
+        HttpResponse::ok(ids)
     }
 
     fn get_real_estate(id: u64) -> HttpResponse {
